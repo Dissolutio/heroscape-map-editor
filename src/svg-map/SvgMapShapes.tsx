@@ -1,5 +1,6 @@
 import { createContext, useContext } from 'react'
 import { getPieceGameHeight, piecesSoFar } from '../data/pieces'
+import { SETTINGS_DEFAULTS } from '../local-storage/settings'
 import {
   genWoodPlankPath1,
   genWoodPlankPath2,
@@ -47,7 +48,6 @@ import {
   getShipBowSvgPolygonPoints,
   getShipWallSvgPolygonPoints,
 } from '../pdf-svg-shared/hexPolygonPoints'
-import { SETTINGS_DEFAULTS } from '../local-storage/settings'
 import {
   getSvgHexBorderColor,
   getSvgHexFillColor,
@@ -64,6 +64,7 @@ import {
 import {
   HEXGRID_HEX_APOTHEM,
   OPACITY_SUBLEVEL,
+  PDF_BORDER_WIDTH,
   SVG_BORDER_WIDTH,
   SVG_EMPTYHEX_BORDER_WIDTH,
   SVG_HEX_APOTHEM,

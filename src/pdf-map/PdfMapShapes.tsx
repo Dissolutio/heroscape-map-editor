@@ -949,16 +949,25 @@ export const PdfBoardPieceLaurWallLong = ({
   piece,
   isSubLevel,
   isPieceKeyPreview,
+  isPieceKeyLegend,
   useTerrainBorderColor = true,
 }: {
   piece: DecodedPieceID
   isSubLevel?: boolean
   isPieceKeyPreview?: boolean
+  isPieceKeyLegend?: boolean
   useTerrainBorderColor?: PdfBorderMode
 }) => {
   const fillColor = isSubLevel
     ? getSvgHexSubLevelFillColor(piece)
     : getSvgHexFillColor(piece)
+  const borderColor = getPdfHexBorderForView(
+    piece,
+    isSubLevel,
+    useTerrainBorderColor,
+  )
+  const showDarkKeyBorder =
+    isPieceKeyLegend && useTerrainBorderColor === 'force-dark'
   const { points } = isPieceKeyPreview
     ? getLaurLongWallSvgPolygonPoints(SVG_HEX_RADIUS)
     : getLaurLongWallPdfPolygonPoints(SVG_HEX_RADIUS, PDF_BORDER_WIDTH)
@@ -966,12 +975,10 @@ export const PdfBoardPieceLaurWallLong = ({
     <Polygon
       points={points}
       fill={fillColor}
-      stroke={
-        isPieceKeyPreview
-          ? getPdfHexBorderForView(piece, isSubLevel, useTerrainBorderColor)
-          : ''
+      stroke={isPieceKeyPreview || showDarkKeyBorder ? borderColor : ''}
+      strokeWidth={
+        isPieceKeyPreview || showDarkKeyBorder ? PDF_BORDER_WIDTH : 0
       }
-      strokeWidth={isPieceKeyPreview ? PDF_BORDER_WIDTH : 0}
     />
   )
 }
@@ -979,16 +986,25 @@ export const PdfBoardPieceLaurWallLongArch = ({
   piece,
   isSubLevel,
   isPieceKeyPreview,
+  isPieceKeyLegend,
   useTerrainBorderColor = true,
 }: {
   piece: DecodedPieceID
   isSubLevel?: boolean
   isPieceKeyPreview?: boolean
+  isPieceKeyLegend?: boolean
   useTerrainBorderColor?: PdfBorderMode
 }) => {
   const fillColor = isSubLevel
     ? getSvgHexSubLevelFillColor(piece)
     : getSvgHexFillColor(piece)
+  const borderColor = getPdfHexBorderForView(
+    piece,
+    isSubLevel,
+    useTerrainBorderColor,
+  )
+  const showDarkKeyBorder =
+    isPieceKeyLegend && useTerrainBorderColor === 'force-dark'
   const { points } = isPieceKeyPreview
     ? getLaurLongWallSvgPolygonPoints(SVG_HEX_RADIUS)
     : getLaurLongWallPdfPolygonPoints(SVG_HEX_RADIUS, PDF_BORDER_WIDTH)
@@ -996,12 +1012,10 @@ export const PdfBoardPieceLaurWallLongArch = ({
     <Polygon
       points={points}
       fill={fillColor}
-      stroke={
-        isPieceKeyPreview
-          ? getPdfHexBorderForView(piece, isSubLevel, useTerrainBorderColor)
-          : ''
+      stroke={isPieceKeyPreview || showDarkKeyBorder ? borderColor : ''}
+      strokeWidth={
+        isPieceKeyPreview || showDarkKeyBorder ? PDF_BORDER_WIDTH : 0
       }
-      strokeWidth={isPieceKeyPreview ? PDF_BORDER_WIDTH : 0}
     />
   )
 }

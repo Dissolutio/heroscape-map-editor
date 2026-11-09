@@ -1,15 +1,15 @@
+import { Pieces } from '../types'
 import {
   PDF_BORDER_WIDTH,
   SVG_HEX_APOTHEM,
   SVG_HEX_RADIUS,
 } from '../utils/constants'
-import { Pieces } from '../types'
 import { hexUtilsHexToPixel } from '../utils/map-utils'
 import {
+  getLadderSvgPolygonPoints,
   getLaurLongWallPdfPolygonPoints,
   getLaurLongWallSvgPolygonPoints,
   getLaurShortWallPolygonPoints,
-  getLadderSvgPolygonPoints,
   getLaurWallRuinPdfPolygonPoints,
   getLaurWallRuinSvgPolygonPoints,
   getShipBowSvgPolygonPoints,
@@ -73,8 +73,21 @@ export const getPieceKeyShapeLayout = (
           ? getLaurWallRuinPdfPolygonPoints(SVG_HEX_RADIUS).corners
           : getLaurWallRuinSvgPolygonPoints(SVG_HEX_RADIUS).corners
     : []
+  const addonCenterX = addonBounds.length
+    ? (Math.min(...addonBounds.map(({ x }) => x)) +
+        Math.max(...addonBounds.map(({ x }) => x))) /
+      2
+    : 0
   const symbolBounds = addonBounds.length
-    ? addonBounds
+    ? [
+        ...addonBounds,
+        ...(laurSymbol === 'arch'
+          ? [
+              { x: addonCenterX, y: -SVG_HEX_RADIUS * 0.33 },
+              { x: addonCenterX, y: SVG_HEX_RADIUS * 0.33 },
+            ]
+          : []),
+      ]
     : entry.inventoryID === Pieces.ladder
       ? getLadderSvgPolygonPoints(SVG_HEX_RADIUS * 2, 0).corners
       : entry.inventoryID === Pieces.shipWall
@@ -136,10 +149,11 @@ export const getPieceKeyShapeScale = (
   model: PieceKeyModel,
   cellWidth: number,
   preferredScale: number,
+  columns: PieceKeyModel['landColumns'] = model.landColumns,
 ) => {
   const maxShapeWidth = Math.max(
     0,
-    ...model.landColumns.flatMap((column) =>
+    ...columns.flatMap((column) =>
       column.cells.map(({ entry }) => getPieceKeyShapeLayout(entry).width),
     ),
   )
@@ -153,10 +167,11 @@ export const getPieceKeyRowShapeHeight = (
   size: number,
   scale: number,
   padding = 20,
+  columns: PieceKeyModel['landColumns'] = model.landColumns,
 ) => {
   const maxShapeHeight = Math.max(
     0,
-    ...model.landColumns.flatMap((column) =>
+    ...columns.flatMap((column) =>
       column.cells
         .filter((cell) => cell.size === size)
         .map(({ entry }) => getPieceKeyShapeLayout(entry).height),
@@ -185,3 +200,47 @@ export const getPieceKeySpecialEntriesPerRow = (
       )
     : group.entries.length
 }
+
+export const getPieceKeySpecialEntryRows = (
+  group: PieceKeySpecialGroup,
+  rowWidth: number,
+  scale: number,
+  renderer: 'pdf' | 'svg' = 'svg',
+) => {
+  const entriesPerRow = getPieceKeySpecialEntriesPerRow(
+    group,
+    rowWidth,
+    scale,
+    renderer,
+  )
+  const rows: PieceKeyEntry[][] = []
+  for (let offset = 0; offset < group.entries.length; offset += entriesPerRow) {
+    rows.push(group.entries.slice(offset, offset + entriesPerRow))
+  }
+  return { entriesPerRow, rows, slotWidth: rowWidth / entriesPerRow }
+}
+
+export const getPieceKeySpecialEntryRowLayout = (
+  entries: PieceKeyEntry[],
+  scale: number,
+  renderer: 'pdf' | 'svg' = 'svg',
+) => {
+  const entryLayouts = entries.map((entry) => ({
+    entry,
+    shapeHeight: getPieceKeyShapeLayout(entry, renderer).height * scale,
+    shapeTopOffset: 0,
+  }))
+  return {
+    shapeHeight: Math.max(
+      0,
+      ...entryLayouts.map(({ shapeHeight }) => shapeHeight),
+    ),
+    entries: entryLayouts,
+  }
+}
+
+export const getPieceKeySpecialEntryRowShapeHeight = (
+  entries: PieceKeyEntry[],
+  scale: number,
+  renderer: 'pdf' | 'svg' = 'svg',
+) => getPieceKeySpecialEntryRowLayout(entries, scale, renderer).shapeHeight

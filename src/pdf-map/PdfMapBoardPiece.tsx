@@ -27,6 +27,7 @@ export const PdfMapBoardPiece = ({
   useLegacyStartZones,
   is2DOverlayLevelEnabled,
   isPieceKeyPreview = false,
+  isPieceKeyLegend = false,
   useTerrainBorderColor = true,
   archTextOffsetX,
 }: {
@@ -36,6 +37,7 @@ export const PdfMapBoardPiece = ({
   useLegacyStartZones?: boolean
   is2DOverlayLevelEnabled?: boolean
   isPieceKeyPreview?: boolean
+  isPieceKeyLegend?: boolean
   useTerrainBorderColor?: boolean
   archTextOffsetX?: number
 }) => {
@@ -122,6 +124,7 @@ export const PdfMapBoardPiece = ({
           piece={piece}
           isSubLevel={isSubLevel}
           isPieceKeyPreview={isPieceKeyPreview}
+          isPieceKeyLegend={isPieceKeyLegend}
           useTerrainBorderColor={useLegendBorderColor}
         />
       </G>
@@ -154,6 +157,7 @@ export const PdfMapBoardPiece = ({
           piece={piece}
           isSubLevel={isSubLevel}
           isPieceKeyPreview={isPieceKeyPreview}
+          isPieceKeyLegend={isPieceKeyLegend}
           useTerrainBorderColor={useLegendBorderColor}
         />
         <G
