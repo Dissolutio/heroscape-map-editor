@@ -37,6 +37,7 @@ export type SettingsValues = {
   pdfRenderFormat: PdfRenderFormat
   isShowPDFInventory: boolean
   isPdfColorBorders: boolean
+  isSvgColorBorders: boolean
   isHideHeightsOnGlyphs: boolean
   isShowPdfOverlayLayer: boolean
   isShowPdfOverlayOnPlacedLevel: boolean
@@ -79,6 +80,7 @@ export const SETTINGS_DEFAULTS: SettingsValues = {
   pdfRenderFormat: 'coversheet',
   isShowPDFInventory: true,
   isPdfColorBorders: false,
+  isSvgColorBorders: true,
   isHideHeightsOnGlyphs: false,
   isShowPdfOverlayLayer: true,
   isShowPdfOverlayOnPlacedLevel: false,
@@ -183,6 +185,7 @@ const validSettingValue = (
       'isShowActionLog',
       'isShowPDFInventory',
       'isPdfColorBorders',
+      'isSvgColorBorders',
       'isHideHeightsOnGlyphs',
       'isShowPdfOverlayLayer',
       'isShowPdfOverlayOnPlacedLevel',

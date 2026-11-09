@@ -246,7 +246,7 @@ loads cleanly, so format drift fails in `npm test` rather than in the browser.
 | Selection clearing on placement-pen hotkeys, preview rotation, and action-log recall | `e2e/action-log.spec.ts` |
 | Collection inventory gating, missing-terrain rows, conditional ranked substitutes, naming/cancel, metadata persistence, buried fill, leftovers, and one-step undo | `e2e/adapt-to-collection.spec.ts` |
 | Opaque glyph SVG fills and hide-heights export option | `e2e/glyph-export-options.spec.ts` |
-| Legend viewing step, Illustrator-safe level/legend SVGs, ZIP and layered whole-map downloads, and PDF downloads with both border modes | `e2e/svg-piece-key.spec.ts` |
+| Legend viewing step, SVG Color Borders toggling for 1-/7-hex shapes, Illustrator-safe level/legend SVGs, ZIP and layered whole-map downloads, and PDF downloads with both border modes | `e2e/svg-piece-key.spec.ts` |
 | View tooltips, 3D/2D/PDF navbar switching, camera visibility, map inventory pen selection, Pieces Grid filter persistence, map shrink safety, and new-map author details | `e2e/ui-polish.spec.ts` |
 | Per-hex land pixels, diffuse textures, tier changes, and lights toggles | `e2e/per-hex-land.spec.ts` |
 | Multi-hex fluid cap join vertices and dark-pixel checks at Medium/High | `e2e/fluid-cap-vertices.spec.ts` |
