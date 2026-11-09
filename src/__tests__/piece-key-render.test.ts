@@ -589,7 +589,10 @@ describe('piece key shape rendering', () => {
       Pieces.palm14,
       Pieces.wood2,
       Pieces.laurWallSquarePillar,
+      Pieces.laurWallTrianglePillar,
       Pieces.laurWallLong,
+      Pieces.laurWallShort,
+      Pieces.laurWallRuin1,
       Pieces.ladder,
     ]
     const boardPieces: BoardPiece[] = inventoryIDs.map(
@@ -606,21 +609,12 @@ describe('piece key shape rendering', () => {
         ['roads-and-wall-walks', 'gray centers'],
         [
           'evergreen',
-          useTerrainBorderColor
-            ? 'green borders and centers; number indicates tree height'
-            : 'dark borders and green centers; number indicates tree height',
+          'green borders and centers; number indicates tree height',
         ],
-        [
-          'jungle',
-          useTerrainBorderColor
-            ? 'brown borders, yellow centers'
-            : 'dark borders, yellow centers',
-        ],
+        ['jungle', 'brown borders, yellow centers'],
         [
           'laur',
-          useTerrainBorderColor
-            ? 'pillars have pink borders and purple centers; wall add-ons are pink'
-            : 'pillars have dark borders and purple centers; wall add-ons are pink',
+          'pillars have pink borders and purple centers; wall add-ons are pink',
         ],
         ['ladder', 'black borders'],
       ])
@@ -649,18 +643,21 @@ describe('piece key shape rendering', () => {
           } else if (groupID === 'evergreen') {
             expect(svg).toContain(`fill="${svgColors[HexTerrain.tree]}"`)
             expect(svg).toContain(
-              `fill="${useTerrainBorderColor ? svgColors.outlineTree : '#000000'}"`,
+              `fill="${svgColors.outlineTree}"`,
             )
           } else if (groupID === 'jungle') {
             expect(svg).toContain(`fill="${svgColors.fillJungle}"`)
             expect(svg).toContain(
-              `fill="${useTerrainBorderColor ? svgColors.outlineJungle : '#000000'}"`,
+              `fill="${svgColors.outlineJungle}"`,
             )
           } else if (groupID === 'laur') {
-            if (entry.inventoryID === Pieces.laurWallSquarePillar) {
+            if (
+              entry.inventoryID === Pieces.laurWallSquarePillar ||
+              entry.inventoryID === Pieces.laurWallTrianglePillar
+            ) {
               expect(svg).toContain(`fill="${svgColors[HexTerrain.laurWall]}"`)
               expect(svg).toContain(
-                `fill="${useTerrainBorderColor ? svgColors.outlineLaurWall : '#000000'}"`,
+                `fill="${svgColors.outlineLaurWall}"`,
               )
             } else {
               expect(svg).toContain(
@@ -669,6 +666,24 @@ describe('piece key shape rendering', () => {
             }
           } else if (groupID === 'ladder') {
             expect(svg).toContain('stroke="black"')
+          }
+
+          if (groupID !== 'roads-and-wall-walks') {
+            const pdfColors = collectShapeColors(
+              PieceKeyShape({
+                entry,
+                useTerrainBorderColor,
+                scale: 0.075,
+              }),
+            )
+            const pdfColorsInOtherMode = collectShapeColors(
+              PieceKeyShape({
+                entry,
+                useTerrainBorderColor: !useTerrainBorderColor,
+                scale: 0.075,
+              }),
+            )
+            expect(pdfColors).toEqual(pdfColorsInOtherMode)
           }
         }
       }
@@ -686,7 +701,7 @@ describe('piece key shape rendering', () => {
         if (!entry) continue
 
         expect(model.fluidRows[0]?.description).toBe(
-          useTerrainBorderColor ? 'blue borders' : 'dark borders',
+          'blue borders',
         )
         const svg = renderToStaticMarkup(
           SvgPieceKeyShape(
@@ -700,7 +715,7 @@ describe('piece key shape rendering', () => {
         )
         expect(svg).toContain(`fill="${svgColors[terrain]}"`)
         expect(svg).toContain(
-          `fill="${useTerrainBorderColor ? svgColors.outlineWater : '#000000'}"`,
+          `fill="${svgColors.outlineWater}"`,
         )
         const pdfColors = collectShapeColors(
           PieceKeyShape({
@@ -711,6 +726,15 @@ describe('piece key shape rendering', () => {
         )
         expect(pdfColors).toContainEqual(
           expect.objectContaining({ fill: expect.any(String) }),
+        )
+        expect(pdfColors).toEqual(
+          collectShapeColors(
+            PieceKeyShape({
+              entry,
+              useTerrainBorderColor: !useTerrainBorderColor,
+              scale: 0.075,
+            }),
+          ),
         )
       }
 
@@ -736,6 +760,23 @@ describe('piece key shape rendering', () => {
         expect(svg).toContain(`fill="${svgColors[HexTerrain.wood]}"`)
         expect(svg).toContain(
           `fill="${useTerrainBorderColor ? svgColors.outline2 : '#000000'}"`,
+        )
+        expect(
+          collectShapeColors(
+            PieceKeyShape({
+              entry: woodEntry,
+              useTerrainBorderColor,
+              scale: 0.075,
+            }),
+          ),
+        ).toEqual(
+          collectShapeColors(
+            PieceKeyShape({
+              entry: woodEntry,
+              useTerrainBorderColor: !useTerrainBorderColor,
+              scale: 0.075,
+            }),
+          ),
         )
       }
       const ladder = model.specialGroups.find(({ id }) => id === 'ladder')

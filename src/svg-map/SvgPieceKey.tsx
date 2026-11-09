@@ -4,6 +4,7 @@ import {
   type PieceKeyModel,
   getPieceKeyModel,
   getPieceKeyRowsForColumns,
+  shouldUseTerrainBorderColorForPieceKeyEntry,
 } from '../pdf-svg-shared/pieceKey'
 import {
   getPieceKeyRowShapeHeight,
@@ -73,6 +74,11 @@ export const SvgPieceKeyShape = (
   const layout = getPieceKeyShapeLayout(entry)
   const decoded = boardPieceToDecodedPieceID(entry.piece)
   const isLaurAddon = Boolean(getLaurAddonExportSymbol(entry.inventoryID))
+  const entryUsesTerrainBorderColor =
+    shouldUseTerrainBorderColorForPieceKeyEntry(
+      entry,
+      useTerrainBorderColor,
+    )
   const keyPiece = decoded
   return (
     <g
@@ -117,7 +123,7 @@ export const SvgPieceKeyShape = (
                       glyphCoordinates={renderOptions?.glyphCoordinates}
                       glyphExportSettings={renderOptions?.glyphExportSettings}
                       isPieceKeyPreview={!isLaurAddon}
-                      useTerrainBorderColor={useTerrainBorderColor}
+                      useTerrainBorderColor={entryUsesTerrainBorderColor}
                     />
                   )
                 })
@@ -127,7 +133,7 @@ export const SvgPieceKeyShape = (
                   viewingLevel={isLaurAddon ? 1 : 100}
                   overlayLevel={isLaurAddon ? 1 : 100}
                   isPieceKeyPreview={!isLaurAddon}
-                  useTerrainBorderColor={useTerrainBorderColor}
+                  useTerrainBorderColor={entryUsesTerrainBorderColor}
                   archTextOffsetX={
                     getLaurAddonExportSymbol(entry.inventoryID) === 'arch'
                       ? layout.center.x

@@ -12,6 +12,7 @@ import {
   type PieceKeyLandRow,
   getPieceKeyModel,
   getPieceKeyRowsForColumns,
+  shouldUseTerrainBorderColorForPieceKeyEntry,
 } from '../pdf-svg-shared/pieceKey'
 import {
   getPieceKeyRowShapeHeight,
@@ -98,6 +99,11 @@ export function PieceKeyShape({
     glyphCoordinatesProp ?? makeGlyphCoordinateLookup(settings.boardHexes)
   const glyphExportSettings = glyphExportSettingsProp ?? settings
   const layout = getPieceKeyShapeLayout(entry, 'pdf')
+  const entryUsesTerrainBorderColor =
+    shouldUseTerrainBorderColorForPieceKeyEntry(
+      entry,
+      useTerrainBorderColor,
+    )
   const viewBox = getPieceKeySymbolViewBox(layout)
   const viewWidth = viewBox.width
   const viewHeight = viewBox.height
@@ -124,7 +130,7 @@ export function PieceKeyShape({
                 hex={hex}
                 viewingLevel={1}
                 isOverlayViewing
-                isPdfColorBorders={useTerrainBorderColor}
+                isPdfColorBorders={entryUsesTerrainBorderColor}
                 isShowPdfOverlayOnPlacedLevel
                 isShowPdfTileLetters={settings.isShowPdfTileLetters}
                 isShowPdfBuriedMarks={false}
@@ -144,7 +150,7 @@ export function PieceKeyShape({
             useLegacyStartZones={settings.useLegacyStartZones}
             is2DOverlayLevelEnabled
             isPieceKeyPreview={!isLaurAddon}
-            useTerrainBorderColor={useTerrainBorderColor}
+            useTerrainBorderColor={entryUsesTerrainBorderColor}
             archTextOffsetX={
               getLaurAddonExportSymbol(entry.inventoryID) === 'arch'
                 ? layout.center.x

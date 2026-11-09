@@ -144,22 +144,16 @@ describe('piece key model', () => {
         false,
       )
       expect(model.fluidRows[0]?.description).toBe(
-        useTerrainBorderColor ? 'blue borders' : 'dark borders',
+        'blue borders',
       )
       expect(descriptions.get('evergreen')).toBe(
-        useTerrainBorderColor
-          ? 'green borders and centers; number indicates tree height'
-          : 'dark borders and green centers; number indicates tree height',
+        'green borders and centers; number indicates tree height',
       )
       expect(descriptions.get('jungle')).toBe(
-        useTerrainBorderColor
-          ? 'brown borders, yellow centers'
-          : 'dark borders, yellow centers',
+        'brown borders, yellow centers',
       )
       expect(descriptions.get('laur')).toBe(
-        useTerrainBorderColor
-          ? 'pillars have pink borders and purple centers; wall add-ons are pink'
-          : 'pillars and wall add-ons have dark borders; pillars have purple centers',
+        'pillars have pink borders and purple centers; wall add-ons are pink',
       )
     }
   })
@@ -245,7 +239,7 @@ describe('piece key model', () => {
     expect(laur).toMatchObject({
       title: 'Pillars and Walls (Laur)',
       description:
-        'pillars have dark borders and purple centers; wall add-ons are pink',
+        'pillars have pink borders and purple centers; wall add-ons are pink',
     })
     expect(laur?.entries.map(({ title }) => title)).toEqual([
       'long wall',
