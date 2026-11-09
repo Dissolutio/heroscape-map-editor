@@ -1,3 +1,5 @@
+import { PiecePrefixes, Pieces } from '../types'
+
 export const defaultHotkeyConfig = {
   delete: 'deleteSelectedPiece',
   backspace: 'deleteSelectedPiece',
@@ -59,13 +61,13 @@ export const defaultHotkeyConfig = {
   'alt+0': undefined,
 
   a: 'togglePenModeAsphalt',
-  'shift+a': undefined,
+  'shift+a': 'togglePenModeLadder',
   'alt+a': undefined,
   b: 'togglePenModeWood',
-  'shift+b': undefined,
+  'shift+b': 'togglePenModeBattlement',
   'alt+b': undefined,
   c: 'togglePenModeConcrete',
-  'shift+c': undefined,
+  'shift+c': 'togglePenModeCastleWall',
   'alt+c': undefined,
   d: 'togglePenModeDungeon',
   'shift+d': 'togglePenModeShadow',
@@ -73,20 +75,20 @@ export const defaultHotkeyConfig = {
   e: 'cyclePrevPieceRotation',
   'shift+e': undefined,
   'alt+e': undefined,
-  f: undefined,
-  'shift+f': undefined,
+  f: 'togglePenModeEvergreenTree',
+  'shift+f': 'togglePenModeSnowTree',
   'alt+f': undefined,
   g: 'togglePenModeGrass',
-  'shift+g': undefined,
+  'shift+g': 'togglePenModeGlacier',
   'alt+g': undefined,
-  h: undefined,
-  'shift+h': undefined,
+  h: 'togglePenModeMarroHive',
+  'shift+h': 'togglePenModeShroudshroom',
   'alt+h': undefined,
   i: 'togglePenModeSnow',
   'shift+i': 'togglePenModeIce',
   'alt+i': undefined,
-  j: undefined,
-  'shift+j': undefined,
+  j: 'togglePenModeLaurJungleTree',
+  'shift+j': 'togglePenModeTicallaPalm',
   'alt+j': undefined,
   k: undefined,
   'shift+k': undefined,
@@ -98,7 +100,7 @@ export const defaultHotkeyConfig = {
   'shift+m': 'togglePenModeObjectiveMarkerWhite',
   'alt+m': undefined,
   n: 'togglePenModeAncientTerrain',
-  'shift+n': undefined,
+  'shift+n': 'togglePenModeRuins',
   'alt+n': undefined,
   o: 'togglePenModeRoad',
   'shift+o': 'togglePenModeWallWalk',
@@ -110,25 +112,25 @@ export const defaultHotkeyConfig = {
   'shift+q': undefined,
   'alt+q': undefined,
   r: 'togglePenModeRock',
-  'shift+r': undefined,
+  'shift+r': 'togglePenModeRockOutcrop',
   'alt+r': undefined,
   s: 'togglePenModeSand',
-  'shift+s': undefined,
+  'shift+s': 'togglePenModeShip',
   'alt+s': 'saveSelection',
   t: 'togglePenModeToxic',
   'shift+t': 'togglePenModeToxicWater',
   'alt+t': undefined,
-  u: undefined,
+  u: 'togglePenModeLaurWall',
   'shift+u': undefined,
   'alt+u': undefined,
-  v: undefined,
-  'shift+v': undefined,
+  v: 'togglePenModeMarvelRuin',
+  'shift+v': 'togglePenModeLavaRockOutcrop',
   'alt+v': undefined,
   w: 'togglePenModeWater',
   'shift+w': 'togglePenModeWellspringWater',
   'alt+w': undefined,
   x: 'togglePenModeLast',
-  'shift+x': undefined,
+  'shift+x': 'togglePenModeToxicOutcrop',
   'alt+x': undefined,
   y: 'togglePenModePowerGlyph',
   'shift+y': 'togglePenModeTreasureGlyph',
@@ -138,12 +140,86 @@ export const defaultHotkeyConfig = {
   'alt+z': undefined,
 } as const
 
-export type HotkeyAction = Exclude<
-  (typeof defaultHotkeyConfig)[keyof typeof defaultHotkeyConfig],
-  undefined
->
+const unboundPenModeActionIds = [
+  'togglePenModeGeneric',
+  'togglePenModeGenericFluid',
+  'togglePenModeTicallaUnderbrush',
+  'togglePenModeSwampUnderbrush',
+  'togglePenModeLaurUnderbrush',
+  'togglePenModeFortifiedWall',
+  'togglePenModeStoneWall',
+  'togglePenModeCastleBaseEnd',
+  'togglePenModeCastleBaseStraight',
+  'togglePenModeCastleBaseCorner',
+  'togglePenModeCastleWallStraight',
+  'togglePenModeCastleWallCorner',
+  'togglePenModeCastleArch',
+  'togglePenModeCastleArchNoDoor',
+] as const
+
+export type HotkeyAction =
+  | Exclude<
+      (typeof defaultHotkeyConfig)[keyof typeof defaultHotkeyConfig],
+      undefined
+    >
+  | (typeof unboundPenModeActionIds)[number]
 
 export type HotkeyOverrides = Partial<Record<HotkeyAction, string[]>>
+
+export const PEN_MODE_ACTION_TARGETS = {
+  togglePenModeGrass: PiecePrefixes.grass,
+  togglePenModeRock: PiecePrefixes.rock,
+  togglePenModeSand: PiecePrefixes.sand,
+  togglePenModeRoad: PiecePrefixes.road,
+  togglePenModeWallWalk: PiecePrefixes.wallWalk,
+  togglePenModeSnow: PiecePrefixes.snow,
+  togglePenModeLavaField: PiecePrefixes.lavaField,
+  togglePenModeSwamp: PiecePrefixes.swamp,
+  togglePenModeAsphalt: PiecePrefixes.asphalt,
+  togglePenModeConcrete: PiecePrefixes.concrete,
+  togglePenModeDungeon: PiecePrefixes.dungeon,
+  togglePenModeToxic: PiecePrefixes.toxic,
+  togglePenModeAncientTerrain: PiecePrefixes.ancientTerrain,
+  togglePenModeWood: PiecePrefixes.wood,
+  togglePenModeWellspringWater: PiecePrefixes.wellspringWater,
+  togglePenModeToxicWater: PiecePrefixes.toxicWater,
+  togglePenModeWater: PiecePrefixes.water,
+  togglePenModeLava: PiecePrefixes.lava,
+  togglePenModeIce: PiecePrefixes.ice,
+  togglePenModeSwampWater: PiecePrefixes.swampWater,
+  togglePenModeShadow: PiecePrefixes.shadow,
+  togglePenModeGeneric: PiecePrefixes.generic,
+  togglePenModeGenericFluid: PiecePrefixes.genericFluid,
+  togglePenModeEvergreenTree: Pieces.tree10,
+  togglePenModeSnowTree: Pieces.snowTree10,
+  togglePenModeTicallaPalm: Pieces.palm14,
+  togglePenModeLaurJungleTree: Pieces.laurPalm13,
+  togglePenModeRockOutcrop: Pieces.outcrop1,
+  togglePenModeLavaRockOutcrop: Pieces.lavaRockOutcrop1,
+  togglePenModeToxicOutcrop: Pieces.toxicOutcrop1,
+  togglePenModeGlacier: Pieces.glacier1,
+  togglePenModeMarroHive: Pieces.hive,
+  togglePenModeShroudshroom: Pieces.shroudshroom7,
+  togglePenModeMarvelRuin: Pieces.marvel,
+  togglePenModeRuins: Pieces.ruins2,
+  togglePenModeLaurWall: Pieces.laurWallSquarePillar,
+  togglePenModeShip: Pieces.shipWall,
+  togglePenModeLadder: Pieces.ladder,
+  togglePenModeBattlement: Pieces.battlement,
+  togglePenModeCastleWall: Pieces.castleWallEnd,
+  togglePenModeTicallaUnderbrush: Pieces.brush9,
+  togglePenModeSwampUnderbrush: Pieces.swampBrush10,
+  togglePenModeLaurUnderbrush: Pieces.laurBrush10,
+  togglePenModeFortifiedWall: Pieces.fortifiedWall,
+  togglePenModeStoneWall: Pieces.roadWall,
+  togglePenModeCastleBaseEnd: Pieces.castleBaseEnd,
+  togglePenModeCastleBaseStraight: Pieces.castleBaseStraight,
+  togglePenModeCastleBaseCorner: Pieces.castleBaseCorner,
+  togglePenModeCastleWallStraight: Pieces.castleWallStraight,
+  togglePenModeCastleWallCorner: Pieces.castleWallCorner,
+  togglePenModeCastleArch: Pieces.castleArch,
+  togglePenModeCastleArchNoDoor: Pieces.castleArchNoDoor,
+} as const satisfies Partial<Record<HotkeyAction, string>>
 
 export const HOTKEY_ACTIONS: {
   id: HotkeyAction
@@ -222,6 +298,8 @@ export const HOTKEY_ACTIONS: {
   { id: 'togglePenModeSelect', label: 'Select mode', group: 'Pens' },
   { id: 'togglePenModePick', label: 'Pick mode', group: 'Pens' },
   { id: 'togglePenModeLast', label: 'Previous pen mode', group: 'Pens' },
+  { id: 'togglePenModeGeneric', label: 'Generic', group: 'Pens' },
+  { id: 'togglePenModeGenericFluid', label: 'Generic fluid', group: 'Pens' },
   { id: 'togglePenModeGrass', label: 'Grass', group: 'Pens' },
   { id: 'togglePenModeRock', label: 'Rock', group: 'Pens' },
   { id: 'togglePenModeSand', label: 'Sand', group: 'Pens' },
@@ -254,6 +332,99 @@ export const HOTKEY_ACTIONS: {
   { id: 'togglePenModePowerGlyph', label: 'Power glyph', group: 'Pens' },
   { id: 'togglePenModeTreasureGlyph', label: 'Treasure glyph', group: 'Pens' },
   {
+    id: 'togglePenModeEvergreenTree',
+    label: 'Evergreen trees',
+    group: 'Pens',
+  },
+  { id: 'togglePenModeSnowTree', label: 'Snow trees', group: 'Pens' },
+  {
+    id: 'togglePenModeTicallaPalm',
+    label: 'Ticalla jungle palms',
+    group: 'Pens',
+  },
+  {
+    id: 'togglePenModeLaurJungleTree',
+    label: 'Laur jungle trees',
+    group: 'Pens',
+  },
+  { id: 'togglePenModeRockOutcrop', label: 'Rock outcrops', group: 'Pens' },
+  {
+    id: 'togglePenModeLavaRockOutcrop',
+    label: 'Lava rock outcrops',
+    group: 'Pens',
+  },
+  {
+    id: 'togglePenModeToxicOutcrop',
+    label: 'Toxic outcrops',
+    group: 'Pens',
+  },
+  { id: 'togglePenModeGlacier', label: 'Glaciers', group: 'Pens' },
+  { id: 'togglePenModeMarroHive', label: 'Marro Hive', group: 'Pens' },
+  {
+    id: 'togglePenModeShroudshroom',
+    label: 'Shroudshrooms',
+    group: 'Pens',
+  },
+  { id: 'togglePenModeMarvelRuin', label: 'Marvel Ruins', group: 'Pens' },
+  { id: 'togglePenModeRuins', label: 'Ruins 2 and 3', group: 'Pens' },
+  { id: 'togglePenModeLaurWall', label: 'Laur Wall', group: 'Pens' },
+  { id: 'togglePenModeShip', label: 'Ship pieces', group: 'Pens' },
+  { id: 'togglePenModeLadder', label: 'Ladder', group: 'Pens' },
+  { id: 'togglePenModeBattlement', label: 'Battlement', group: 'Pens' },
+  { id: 'togglePenModeCastleWall', label: 'Castle Wall (End)', group: 'Pens' },
+  {
+    id: 'togglePenModeTicallaUnderbrush',
+    label: 'Ticalla underbrush',
+    group: 'Pens',
+  },
+  {
+    id: 'togglePenModeSwampUnderbrush',
+    label: 'Swamp underbrush',
+    group: 'Pens',
+  },
+  {
+    id: 'togglePenModeLaurUnderbrush',
+    label: 'Laur underbrush',
+    group: 'Pens',
+  },
+  {
+    id: 'togglePenModeFortifiedWall',
+    label: 'Fortified Wall',
+    group: 'Pens',
+  },
+  { id: 'togglePenModeStoneWall', label: 'Stone Wall', group: 'Pens' },
+  {
+    id: 'togglePenModeCastleBaseEnd',
+    label: 'Castle Base (End)',
+    group: 'Pens',
+  },
+  {
+    id: 'togglePenModeCastleBaseStraight',
+    label: 'Castle Base (Straight)',
+    group: 'Pens',
+  },
+  {
+    id: 'togglePenModeCastleBaseCorner',
+    label: 'Castle Base (Corner)',
+    group: 'Pens',
+  },
+  {
+    id: 'togglePenModeCastleWallStraight',
+    label: 'Castle Wall (Straight)',
+    group: 'Pens',
+  },
+  {
+    id: 'togglePenModeCastleWallCorner',
+    label: 'Castle Wall (Corner)',
+    group: 'Pens',
+  },
+  { id: 'togglePenModeCastleArch', label: 'Castle Arch', group: 'Pens' },
+  {
+    id: 'togglePenModeCastleArchNoDoor',
+    label: 'Castle Arch (No Door)',
+    group: 'Pens',
+  },
+  {
     id: 'togglePenModeObjectiveMarker',
     label: 'Objective marker',
     group: 'Pens',
@@ -266,6 +437,25 @@ export const HOTKEY_ACTIONS: {
 ]
 
 const actionIds = new Set(HOTKEY_ACTIONS.map(({ id }) => id))
+const newDefaultHotkeyKeys = new Set([
+  'f',
+  'shift+f',
+  'j',
+  'shift+j',
+  'shift+r',
+  'shift+v',
+  'shift+x',
+  'shift+g',
+  'h',
+  'shift+h',
+  'v',
+  'shift+n',
+  'u',
+  'shift+s',
+  'shift+a',
+  'shift+b',
+  'shift+c',
+])
 const keyNames = new Set([
   'backspace',
   'delete',
@@ -431,9 +621,17 @@ export function sanitizeHotkeyOverrides(value: unknown): {
   }
 
   const seen = new Map<string, HotkeyAction>()
+  const overriddenNewDefaultKeys = new Set(
+    [...requestedBindings.values()]
+      .flat()
+      .filter((key) => newDefaultHotkeyKeys.has(key)),
+  )
   for (const { id } of HOTKEY_ACTIONS) {
     if (!explicitlyOverridden.has(id)) {
-      for (const key of defaults[id]) seen.set(key, id)
+      bindings[id] = defaults[id].filter(
+        (key) => !overriddenNewDefaultKeys.has(key),
+      )
+      for (const key of bindings[id]) seen.set(key, id)
     } else {
       bindings[id] = []
     }
