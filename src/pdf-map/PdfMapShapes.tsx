@@ -301,6 +301,11 @@ const getPdfHexBorderForView = (
   borderMode: PdfBorderMode = true,
 ) => {
   if (PDF_BORDER_WIDTH <= 0) return ''
+  if (hex.terrain === HexTerrain.toxicOutcrop) {
+    return isSubLevel
+      ? svgSubLevelColors.toxicOutcropBorder
+      : svgColors.toxicOutcropBorder
+  }
   if (borderMode === 'force-dark') {
     return isSubLevel ? svgSubLevelColors.glacierText : svgColors.glacierText
   }
