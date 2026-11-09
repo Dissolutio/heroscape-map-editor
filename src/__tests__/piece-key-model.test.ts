@@ -77,11 +77,16 @@ describe('piece key model', () => {
         makePiece(Pieces.grass3, 2),
         makePiece(Pieces.grass7, 3),
         makePiece(Pieces.grass24, 4),
-        makePiece(Pieces.concrete6, 5),
-        makePiece(Pieces.ice4, 6),
-        makePiece(Pieces.road5, 7),
-        makePiece(Pieces.wallWalk7, 8),
-        makePiece(Pieces.swampWater6, 9),
+        makePiece(Pieces.concrete1, 5),
+        makePiece(Pieces.concrete2, 6),
+        makePiece(Pieces.concrete3, 7),
+        makePiece(Pieces.concrete6, 8),
+        makePiece(Pieces.concrete7, 9),
+        makePiece(Pieces.concrete24, 10),
+        makePiece(Pieces.ice4, 11),
+        makePiece(Pieces.road5, 12),
+        makePiece(Pieces.wallWalk7, 13),
+        makePiece(Pieces.swampWater6, 14),
       ],
       {},
       true,
@@ -103,12 +108,59 @@ describe('piece key model', () => {
     ).toEqual(['Concrete (6)'])
     expect(
       model.landColumns.some(({ terrain }) => terrain === HexTerrain.concrete),
-    ).toBe(false)
+    ).toBe(true)
+    const concreteColumn = model.landColumns.find(
+      ({ terrain }) => terrain === HexTerrain.concrete,
+    )
+    expect(
+      concreteColumn?.cells.map(({ size, entry }) => [
+        size,
+        entry.inventoryID,
+      ]),
+    ).toEqual([
+      [24, Pieces.concrete24],
+      [7, Pieces.concrete7],
+      [3, Pieces.concrete3],
+      [2, Pieces.concrete2],
+      [1, Pieces.concrete1],
+    ])
+    const concreteEntries = [
+      ...model.landColumns.flatMap((column) =>
+        column.cells.map(({ entry }) => entry),
+      ),
+      ...model.specialGroups.flatMap(({ entries }) => entries),
+    ].filter(({ terrain }) => terrain === HexTerrain.concrete)
+    expect(concreteEntries.map(({ inventoryID }) => inventoryID).sort()).toEqual(
+      [
+        Pieces.concrete1,
+        Pieces.concrete2,
+        Pieces.concrete3,
+        Pieces.concrete6,
+        Pieces.concrete7,
+        Pieces.concrete24,
+      ].sort(),
+    )
+    expect(
+      concreteEntries.filter(({ inventoryID }) => inventoryID === Pieces.concrete6),
+    ).toHaveLength(1)
     expect(
       model.fluidColumns
         .flatMap((column) => column.cells)
         .map(({ entry }) => entry.inventoryID),
     ).toEqual([Pieces.swampWater6, Pieces.ice4])
+  })
+
+  it('keeps the Concrete column absent when only the 6-hex piece is used', () => {
+    const model = getPieceKeyModel([makePiece(Pieces.concrete6, 0)], {}, true)
+
+    expect(
+      model.landColumns.some(({ terrain }) => terrain === HexTerrain.concrete),
+    ).toBe(false)
+    expect(
+      model.specialGroups.find(({ id }) => id === 'other')?.entries.map(
+        ({ inventoryID, title, count }) => [inventoryID, title, count],
+      ),
+    ).toEqual([[Pieces.concrete6, 'Concrete (6)', 1]])
   })
 
   it('updates Special Tiles descriptions when border colors are disabled', () => {

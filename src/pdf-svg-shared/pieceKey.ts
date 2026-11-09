@@ -81,6 +81,7 @@ const PIECE_KEY_METADATA: {
     HexTerrain.rock,
     HexTerrain.swamp,
     HexTerrain.dungeon,
+    HexTerrain.concrete,
     HexTerrain.asphalt,
     HexTerrain.lavaField,
     HexTerrain.snow,
@@ -248,11 +249,7 @@ const PIECE_KEY_METADATA: {
       description: 'special pieces used on this map',
       fallback: true,
       captions: {
-        [Pieces.concrete1]: 'Concrete (1)',
-        [Pieces.concrete2]: 'Concrete (2)',
-        [Pieces.concrete3]: 'Concrete (3)',
         [Pieces.concrete6]: 'Concrete (6)',
-        [Pieces.concrete7]: 'Concrete (7)',
       },
     },
   ],
@@ -342,7 +339,7 @@ export const getPieceKeyModel = (
   const isLandEntry = (entry: PieceKeyEntry) =>
     piecesSoFar[entry.inventoryID]?.landPrefix &&
     entry.terrain !== HexTerrain.wood &&
-    entry.terrain !== HexTerrain.concrete
+    entry.inventoryID !== Pieces.concrete6
   const roadsAndWallWalks = allEntries.filter(
     (entry) =>
       isLandEntry(entry) &&
