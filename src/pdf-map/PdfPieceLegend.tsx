@@ -472,6 +472,7 @@ function SpecialTiles({
                         <View
                           key={`${group.id}-entries-${rowIndex}`}
                           style={{
+                            width: '100%',
                             flexDirection: 'row',
                             alignItems: 'flex-start',
                           }}
