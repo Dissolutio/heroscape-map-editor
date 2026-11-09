@@ -212,15 +212,22 @@ function LandGrid({
           padding: 3,
           borderRightWidth: 1,
           borderBottomWidth: 1,
+          alignItems: 'center',
           justifyContent: 'center',
         }}
       >
-        <LegendText style={{ fontSize: 7, fontWeight: 'bold' }}>
-          Notice centers
-        </LegendText>
-        <LegendText style={{ fontSize: 7, fontWeight: 'bold' }}>
-          and border colors
-        </LegendText>
+        <View style={{ alignItems: 'flex-start' }}>
+          <LegendText
+            style={{ fontSize: 7, fontWeight: 'bold', textAlign: 'left' }}
+          >
+            Notice centers
+          </LegendText>
+          <LegendText
+            style={{ fontSize: 7, fontWeight: 'bold', textAlign: 'left' }}
+          >
+            and border colors
+          </LegendText>
+        </View>
       </View>
       {columns.map((column) => (
         <View
