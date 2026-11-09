@@ -6,8 +6,8 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  IconButton,
   Typography,
-  useMediaQuery,
 } from '@mui/material'
 import {
   DataGrid,
@@ -18,6 +18,7 @@ import {
 import type { CameraControls } from '@react-three/drei'
 import type React from 'react'
 import { useCallback, useMemo, useState } from 'react'
+import { MdClose } from 'react-icons/md'
 import { ConvertTerrainQuickSelect } from '../controls/ConvertTerrainQuickSelect'
 import { pieceGroups } from '../data/pieceGroups'
 import { piecesSoFar } from '../data/pieces'
@@ -69,7 +70,6 @@ export default function PiecesGridDialog({ cameraControlsRef }: Props) {
   // const [selectedRowIds, setSelectedRowIds] = useState([]);
   const [rowSelectionModel, setRowSelectionModel] =
     useState<GridRowSelectionModel>([])
-  const fullScreen = useMediaQuery('(max-width:900px)')
   const { width: mapWidth, length: mapLength } =
     getBoardHexesRectangularMapDimensions(boardHexes)
   const isOpen = currentDialog === DIALOGS.viewPiecesGrid
@@ -419,21 +419,34 @@ export default function PiecesGridDialog({ cameraControlsRef }: Props) {
     <Dialog
       open={isOpen}
       onClose={handleClose}
-      fullScreen={fullScreen}
+      fullScreen
       keepMounted
-      maxWidth="lg"
-      fullWidth
       PaperProps={{
         sx: {
-          height: fullScreen ? '100%' : '80vh',
+          height: '100%',
           display: 'flex',
           flexDirection: 'column',
         },
       }}
     >
-      <DialogTitle>
-        Pieces Grid ({boardPieces.length} pieces,{' '}
-        {Object.keys(pieceCountsByType).length} types)
+      <DialogTitle
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+        }}
+      >
+        <Box component="span">
+          Pieces Grid ({boardPieces.length} pieces,{' '}
+          {Object.keys(pieceCountsByType).length} types)
+        </Box>
+        <IconButton
+          aria-label="Close Pieces Grid"
+          onClick={handleClose}
+          edge="end"
+        >
+          <MdClose />
+        </IconButton>
       </DialogTitle>
       <DialogContent sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
         {boardPieces.length === 0 ? (
