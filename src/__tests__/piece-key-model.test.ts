@@ -245,7 +245,7 @@ describe('piece key model', () => {
     expect(laur).toMatchObject({
       title: 'Pillars and Walls (Laur)',
       description:
-        'pillars and wall add-ons have dark borders; pillars have purple centers',
+        'pillars have dark borders and purple centers; wall add-ons are pink',
     })
     expect(laur?.entries.map(({ title }) => title)).toEqual([
       'long wall',

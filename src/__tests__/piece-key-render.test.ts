@@ -618,7 +618,7 @@ describe('piece key shape rendering', () => {
           'laur',
           useTerrainBorderColor
             ? 'pillars have pink borders and purple centers; wall add-ons are pink'
-            : 'pillars and wall add-ons have dark borders; pillars have purple centers',
+            : 'pillars have dark borders and purple centers; wall add-ons are pink',
         ],
         ['ladder', 'black borders'],
       ])
@@ -868,23 +868,26 @@ describe('piece key shape rendering', () => {
 
       expect(svgColors(svgKey)).toEqual(svgColors(svgMap))
 
-      const pdfMapColors = collectShapeColors(
-        PdfMapBoardPiece({
-          piece: decoded,
-          viewingLevel: 1,
-          overlayLevel: 1,
-          useLegacyStartZones: false,
-        }),
-      )
-      const pdfKeyColors = collectShapeColors(
-        PieceKeyShape({
-          entry,
-          useTerrainBorderColor: true,
-          scale: 0.075,
-        }),
-      )
+      for (const useTerrainBorderColor of [true, false]) {
+        const pdfMapColors = collectShapeColors(
+          PdfMapBoardPiece({
+            piece: decoded,
+            viewingLevel: 1,
+            overlayLevel: 1,
+            useLegacyStartZones: false,
+            useTerrainBorderColor,
+          }),
+        )
+        const pdfKeyColors = collectShapeColors(
+          PieceKeyShape({
+            entry,
+            useTerrainBorderColor,
+            scale: 0.075,
+          }),
+        )
 
-      expect(pdfKeyColors).toEqual(pdfMapColors)
+        expect(pdfKeyColors).toEqual(pdfMapColors)
+      }
     }
   })
 
@@ -1347,29 +1350,6 @@ describe('piece key shape rendering', () => {
     const expectedBlobPath = `${blobPath} fill="${getSvgHexFillColor(originHex)}" stroke="black" stroke-width="${SVG_BORDER_WIDTH / 2.4}"`
     expect(keySvg).toContain(expectedBlobPath)
     expect(mapSvg).toContain(expectedBlobPath)
-  })
-
-  it('uses dark borders for every Laur wall add-on in the PDF key', () => {
-    for (const inventoryID of laurAddonIDs) {
-      const piece = boardPieceToDecodedPieceID({
-        uid: `dark-${inventoryID}`,
-        inventoryID,
-        altitude: 0,
-        rotation: 0,
-        pieceCoords: { q: 0, r: 0, s: 0 },
-      })
-      const markup = renderToStaticMarkup(
-        PdfMapBoardPiece({
-          piece,
-          viewingLevel: 1,
-          overlayLevel: 1,
-          isPieceKeyLegend: true,
-          useTerrainBorderColor: false,
-        }),
-      )
-
-      expect(markup).toContain(`stroke="${svgColors.glacierText}"`)
-    }
   })
 
   it('converts every multiline key line with its own SVG text anchor', () => {

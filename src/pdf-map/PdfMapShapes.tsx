@@ -949,13 +949,11 @@ export const PdfBoardPieceLaurWallLong = ({
   piece,
   isSubLevel,
   isPieceKeyPreview,
-  isPieceKeyLegend,
   useTerrainBorderColor = true,
 }: {
   piece: DecodedPieceID
   isSubLevel?: boolean
   isPieceKeyPreview?: boolean
-  isPieceKeyLegend?: boolean
   useTerrainBorderColor?: PdfBorderMode
 }) => {
   const fillColor = isSubLevel
@@ -966,8 +964,6 @@ export const PdfBoardPieceLaurWallLong = ({
     isSubLevel,
     useTerrainBorderColor,
   )
-  const showDarkKeyBorder =
-    isPieceKeyLegend && useTerrainBorderColor === 'force-dark'
   const { points } = isPieceKeyPreview
     ? getLaurLongWallSvgPolygonPoints(SVG_HEX_RADIUS)
     : getLaurLongWallPdfPolygonPoints(SVG_HEX_RADIUS, PDF_BORDER_WIDTH)
@@ -975,10 +971,8 @@ export const PdfBoardPieceLaurWallLong = ({
     <Polygon
       points={points}
       fill={fillColor}
-      stroke={isPieceKeyPreview || showDarkKeyBorder ? borderColor : ''}
-      strokeWidth={
-        isPieceKeyPreview || showDarkKeyBorder ? PDF_BORDER_WIDTH : 0
-      }
+      stroke={isPieceKeyPreview ? borderColor : ''}
+      strokeWidth={isPieceKeyPreview ? PDF_BORDER_WIDTH : 0}
     />
   )
 }
@@ -986,13 +980,11 @@ export const PdfBoardPieceLaurWallLongArch = ({
   piece,
   isSubLevel,
   isPieceKeyPreview,
-  isPieceKeyLegend,
   useTerrainBorderColor = true,
 }: {
   piece: DecodedPieceID
   isSubLevel?: boolean
   isPieceKeyPreview?: boolean
-  isPieceKeyLegend?: boolean
   useTerrainBorderColor?: PdfBorderMode
 }) => {
   const fillColor = isSubLevel
@@ -1003,8 +995,6 @@ export const PdfBoardPieceLaurWallLongArch = ({
     isSubLevel,
     useTerrainBorderColor,
   )
-  const showDarkKeyBorder =
-    isPieceKeyLegend && useTerrainBorderColor === 'force-dark'
   const { points } = isPieceKeyPreview
     ? getLaurLongWallSvgPolygonPoints(SVG_HEX_RADIUS)
     : getLaurLongWallPdfPolygonPoints(SVG_HEX_RADIUS, PDF_BORDER_WIDTH)
@@ -1012,10 +1002,8 @@ export const PdfBoardPieceLaurWallLongArch = ({
     <Polygon
       points={points}
       fill={fillColor}
-      stroke={isPieceKeyPreview || showDarkKeyBorder ? borderColor : ''}
-      strokeWidth={
-        isPieceKeyPreview || showDarkKeyBorder ? PDF_BORDER_WIDTH : 0
-      }
+      stroke={isPieceKeyPreview ? borderColor : ''}
+      strokeWidth={isPieceKeyPreview ? PDF_BORDER_WIDTH : 0}
     />
   )
 }

@@ -188,7 +188,7 @@ const PIECE_KEY_METADATA: {
       description:
         'pillars have pink borders and purple centers; wall add-ons are pink',
       descriptionWithoutColorBorders:
-        'pillars and wall add-ons have dark borders; pillars have purple centers',
+        'pillars have dark borders and purple centers; wall add-ons are pink',
       terrains: [HexTerrain.laurWall, HexTerrain.laurWallAddon],
       inventoryIDs: [
         Pieces.laurWallSquarePillar,

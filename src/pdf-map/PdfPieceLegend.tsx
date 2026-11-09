@@ -144,7 +144,6 @@ export function PieceKeyShape({
             useLegacyStartZones={settings.useLegacyStartZones}
             is2DOverlayLevelEnabled
             isPieceKeyPreview={!isLaurAddon}
-            isPieceKeyLegend={isLaurAddon}
             useTerrainBorderColor={useTerrainBorderColor}
             archTextOffsetX={
               getLaurAddonExportSymbol(entry.inventoryID) === 'arch'
