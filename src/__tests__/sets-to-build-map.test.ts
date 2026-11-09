@@ -189,6 +189,14 @@ describe('sets to build this map', () => {
     ])
   })
 
+  it('does not mark a finished search with no Mixed option as approximate', () => {
+    const result = getSetsToBuildMapCatalog(pieces(Pieces.grass1))
+
+    expect(result.categories.some((item) => item.id === 'mixed')).toBe(false)
+    expect(result.categories.every((item) => !item.approximate)).toBe(true)
+    expect(result.reasons.join(' ')).not.toContain('Approximate')
+  })
+
   it('reports approximate options promptly when the time budget is zero', () => {
     const startedAt = performance.now()
     const result = getSetsToBuildMapCatalog(

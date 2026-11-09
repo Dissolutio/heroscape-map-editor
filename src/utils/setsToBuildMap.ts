@@ -498,7 +498,8 @@ const solveCategory = (
       (option) => !isSupersetOfPureOption(option, pureOptions),
     )
   }
-  const approximate = timedOut || minimum === undefined
+  // A finished search that found no option is exact, not approximate.
+  const approximate = timedOut
   options.sort((a, b) => {
     if (a.boxCount !== b.boxCount) return a.boxCount - b.boxCount
     return a.sets
