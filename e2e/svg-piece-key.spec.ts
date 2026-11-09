@@ -511,7 +511,7 @@ test('renders issue 353 key evidence for fluids, glyphs, and the hive', async ({
               : [...child.querySelectorAll('path')],
           )
           .map((path) => {
-            const bounds = path.getBBox()
+            const bounds = (path as SVGGraphicsElement).getBBox()
             return Math.abs(bounds.x + bounds.width / 2 - slotCenter)
           })
       }),
