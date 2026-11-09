@@ -196,6 +196,8 @@ const getShapePolygonPoints = (entry: PieceKeyEntry) => {
   const hexPoints = getHexagonSvgPolygonPointsAt00(SVG_HEX_RADIUS).corners
   const isStandaloneSymbol =
     entry.inventoryID === Pieces.ropeLadder ||
+    entry.inventoryID === Pieces.shipWall ||
+    entry.inventoryID === Pieces.shipBow ||
     Boolean(getLaurAddonSymbol(entry.inventoryID))
   const points = (isStandaloneSymbol ? [] : entry.hexes).flatMap((hex) => {
     const center = hexUtilsHexToPixel(hex)
@@ -891,8 +893,13 @@ describe('piece key shape rendering', () => {
     }
   })
 
-  it('centers the rope ladder and every Laur add-on over their captions', () => {
-    const inventoryIDs = [Pieces.ropeLadder, ...laurAddonIDs]
+  it('centers standalone special shapes over their captions', () => {
+    const inventoryIDs = [
+      Pieces.ropeLadder,
+      Pieces.shipWall,
+      Pieces.shipBow,
+      ...laurAddonIDs,
+    ]
     const boardPieces: BoardPiece[] = inventoryIDs.map(
       (inventoryID, index) => ({
         uid: `key-${inventoryID}`,
@@ -916,7 +923,9 @@ describe('piece key shape rendering', () => {
       expect(svgLayout.center).toEqual(boundsCenter(svgBounds))
 
       const pdfBounds =
-        entry.inventoryID === Pieces.ropeLadder
+        entry.inventoryID === Pieces.ropeLadder ||
+        entry.inventoryID === Pieces.shipWall ||
+        entry.inventoryID === Pieces.shipBow
           ? svgBounds
           : entry.inventoryID === Pieces.laurWallLong ||
               entry.inventoryID === Pieces.laurWallLongStackable ||

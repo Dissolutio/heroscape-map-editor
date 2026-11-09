@@ -36,7 +36,9 @@ export const getPieceKeyShapeLayout = (
   const footprintBounds =
     laurSymbol ||
     entry.inventoryID === Pieces.ropeLadder ||
-    entry.inventoryID === Pieces.roadWall
+    entry.inventoryID === Pieces.roadWall ||
+    entry.inventoryID === Pieces.shipWall ||
+    entry.inventoryID === Pieces.shipBow
       ? []
       : positions.length
         ? positions.flatMap(({ x, y }) => [
