@@ -9,6 +9,7 @@ import { isHexMap } from '../utils/type-checker'
 // minutes, so anything that can't fit in a URL anyway must be stripped
 // before we ever hand the string to JSONCrush.
 const MAX_CRUSH_INPUT_LENGTH = 20_000
+export const MAP_TOO_LARGE_ERROR = 'Map is too large to be stored in a URL'
 
 export const getUrlMapString = ({
   hexMap,
@@ -40,7 +41,7 @@ export const getUrlMapString = ({
       })
     }
     if (uncrushed.length > MAX_CRUSH_INPUT_LENGTH) {
-      throw new Error('Map is too large to be stored in a URL')
+      throw new Error(MAP_TOO_LARGE_ERROR)
     }
   }
   // Query-string values must use component encoding, not encodeURI. The

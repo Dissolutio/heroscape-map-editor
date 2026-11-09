@@ -237,6 +237,7 @@ loads cleanly, so format drift fails in `npm test` rather than in the browser.
 | Group rotation around a clicked footprint hex | `e2e/group-rotate-pivot.spec.ts` |
 | Single-piece rotation around a clicked footprint hex | `e2e/single-rotate-pivot.spec.ts` |
 | Deleting unrelated water beside a permissively overlapped Ship Wall and reloading its share link | `e2e/conflicted-delete.spec.ts` |
+| Copying an oversized map as a reduced share link without changing the editor map | `e2e/share-url-fallback.spec.ts` |
 | Ship Wall symbols remain in the 2D view after a water tile takes their origin hex | `e2e/origin-symbol-overlap.spec.ts` |
 | Empty-hex deselection, pen placement, and camera-drag selection safety | `e2e/empty-hex-selection.spec.ts` |
 | Right-click selection actions, keyboard dismissal, camera drag safety, and graphics-tier coverage | `e2e/selection-context-menu.spec.ts` |
