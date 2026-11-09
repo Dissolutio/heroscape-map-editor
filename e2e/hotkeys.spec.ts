@@ -83,13 +83,11 @@ test('rebinds, exports, resets, and imports hotkeys', async ({ page }) => {
   await page.locator('#simple-tab-3').click()
   await page.getByRole('button', { name: 'Hotkeys' }).click()
   const importDialog = page.getByRole('dialog', { name: 'Hotkeys' })
-  await importDialog
-    .getByLabel('Import hotkeys file')
-    .setInputFiles({
-      name: 'hexoscape-hotkeys.json',
-      mimeType: 'application/json',
-      buffer: hotkeyFile,
-    })
+  await importDialog.getByLabel('Import hotkeys file').setInputFiles({
+    name: 'hexoscape-hotkeys.json',
+    mimeType: 'application/json',
+    buffer: hotkeyFile,
+  })
   const importedRotateRow = importDialog.getByRole('group', {
     name: 'Rotate clockwise hotkey',
   })
