@@ -157,8 +157,8 @@ describe('hotkey overrides', () => {
     }).toEqual({
       f: 'togglePenModeEvergreenTree',
       'shift+f': 'togglePenModeSnowTree',
-      j: 'togglePenModeTicallaPalm',
-      'shift+j': 'togglePenModeLaurJungleTree',
+      j: 'togglePenModeLaurJungleTree',
+      'shift+j': 'togglePenModeTicallaPalm',
       'shift+r': 'togglePenModeRockOutcrop',
       'shift+v': 'togglePenModeLavaRockOutcrop',
       'shift+x': 'togglePenModeToxicOutcrop',
@@ -380,8 +380,8 @@ describe('hotkey overrides', () => {
     const newBindings = [
       ['f', 'togglePenModeEvergreenTree'],
       ['shift+f', 'togglePenModeSnowTree'],
-      ['j', 'togglePenModeTicallaPalm'],
-      ['shift+j', 'togglePenModeLaurJungleTree'],
+      ['j', 'togglePenModeLaurJungleTree'],
+      ['shift+j', 'togglePenModeTicallaPalm'],
       ['shift+r', 'togglePenModeRockOutcrop'],
       ['shift+v', 'togglePenModeLavaRockOutcrop'],
       ['shift+x', 'togglePenModeToxicOutcrop'],
