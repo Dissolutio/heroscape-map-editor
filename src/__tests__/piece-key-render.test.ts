@@ -15,6 +15,7 @@ import { PdfLaurWallArchText } from '../pdf-map/PdfMapShapes'
 import { PdfPieceLegend, PieceKeyShape } from '../pdf-map/PdfPieceLegend'
 import {
   getHexagonSvgPolygonPointsAt00,
+  getBattlementSvgPolygonPoints,
   getLadderSvgPolygonPoints,
   getLaurLongWallPdfPolygonPoints,
   getLaurLongWallSvgPolygonPoints,
@@ -198,6 +199,7 @@ const getShapePolygonPoints = (entry: PieceKeyEntry) => {
     entry.inventoryID === Pieces.ropeLadder ||
     entry.inventoryID === Pieces.shipWall ||
     entry.inventoryID === Pieces.shipBow ||
+    entry.inventoryID === Pieces.battlement ||
     Boolean(getLaurAddonSymbol(entry.inventoryID))
   const points = (isStandaloneSymbol ? [] : entry.hexes).flatMap((hex) => {
     const center = hexUtilsHexToPixel(hex)
@@ -209,6 +211,8 @@ const getShapePolygonPoints = (entry: PieceKeyEntry) => {
 
   if (entry.inventoryID === Pieces.ladder) {
     points.push(...getLadderSvgPolygonPoints(SVG_HEX_RADIUS * 2, 0).corners)
+  } else if (entry.inventoryID === Pieces.battlement) {
+    points.push(...getBattlementSvgPolygonPoints(SVG_HEX_RADIUS, 0).corners)
   } else if (entry.inventoryID === Pieces.shipWall) {
     points.push(...getShipWallSvgPolygonPoints(SVG_HEX_RADIUS, 0).corners)
   } else if (entry.inventoryID === Pieces.shipBow) {
@@ -939,6 +943,7 @@ describe('piece key shape rendering', () => {
       Pieces.ropeLadder,
       Pieces.shipWall,
       Pieces.shipBow,
+      Pieces.battlement,
       ...laurAddonIDs,
     ]
     const boardPieces: BoardPiece[] = inventoryIDs.map(
@@ -966,7 +971,8 @@ describe('piece key shape rendering', () => {
       const pdfBounds =
         entry.inventoryID === Pieces.ropeLadder ||
         entry.inventoryID === Pieces.shipWall ||
-        entry.inventoryID === Pieces.shipBow
+        entry.inventoryID === Pieces.shipBow ||
+        entry.inventoryID === Pieces.battlement
           ? svgBounds
           : entry.inventoryID === Pieces.laurWallLong ||
               entry.inventoryID === Pieces.laurWallLongStackable ||

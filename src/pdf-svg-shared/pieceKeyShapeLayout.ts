@@ -12,6 +12,7 @@ import {
   getLaurShortWallPolygonPoints,
   getLaurWallRuinPdfPolygonPoints,
   getLaurWallRuinSvgPolygonPoints,
+  getBattlementSvgPolygonPoints,
   getRoadWallSvgPolygonPoints,
   getShipBowSvgPolygonPoints,
   getShipWallSvgPolygonPoints,
@@ -38,7 +39,8 @@ export const getPieceKeyShapeLayout = (
     entry.inventoryID === Pieces.ropeLadder ||
     entry.inventoryID === Pieces.roadWall ||
     entry.inventoryID === Pieces.shipWall ||
-    entry.inventoryID === Pieces.shipBow
+    entry.inventoryID === Pieces.shipBow ||
+    entry.inventoryID === Pieces.battlement
       ? []
       : positions.length
         ? positions.flatMap(({ x, y }) => [
@@ -78,7 +80,9 @@ export const getPieceKeyShapeLayout = (
           ? getLaurWallRuinPdfPolygonPoints(SVG_HEX_RADIUS).corners
           : getLaurWallRuinSvgPolygonPoints(SVG_HEX_RADIUS).corners
     : entry.inventoryID === Pieces.roadWall
-        ? getRoadWallSvgPolygonPoints(SVG_HEX_RADIUS, 0).corners
+      ? getRoadWallSvgPolygonPoints(SVG_HEX_RADIUS, 0).corners
+      : entry.inventoryID === Pieces.battlement
+        ? getBattlementSvgPolygonPoints(SVG_HEX_RADIUS, 0).corners
         : []
   const addonCenterX = addonBounds.length
     ? (Math.min(...addonBounds.map(({ x }) => x)) +
