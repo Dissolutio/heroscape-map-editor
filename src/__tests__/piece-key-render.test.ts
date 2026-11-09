@@ -158,6 +158,13 @@ const findTextElement = (
   }
   if (!isValidElement(node)) return undefined
   if (node.props.children === text) return node
+  if (typeof node.type === 'function') {
+    const componentProps = node.props
+    const renderComponent = node.type as (
+      props: typeof componentProps,
+    ) => ReactNode
+    return findTextElement(renderComponent(componentProps), text)
+  }
   return findTextElement(node.props.children, text)
 }
 
@@ -1105,6 +1112,25 @@ describe('piece key shape rendering', () => {
         ),
       ).toBeLessThanOrEqual(140)
     }
+  })
+
+  it('constrains long PDF special-tile labels to their own cells', () => {
+    const boardPieces = [Pieces.palm14, Pieces.palm15].map(
+      (inventoryID, index) => ({
+        uid: `pdf-key-${inventoryID}`,
+        inventoryID,
+        altitude: 0,
+        rotation: 0,
+        pieceCoords: { q: index, r: 0, s: -index },
+      }),
+    )
+    const label = findTextElement(
+      PdfPieceLegend({ boardPieces }),
+      'Ticalla Jungle Palm (14)',
+    )
+
+    expect(label).toBeDefined()
+    expect(label?.props.style).toMatchObject({ maxWidth: '100%' })
   })
 
   it('top-aligns every Special Tiles entry row in both key layouts', () => {

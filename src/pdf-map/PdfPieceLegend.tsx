@@ -481,7 +481,11 @@ function SpecialTiles({
                                 />
                               </View>
                               <Text
-                                style={{ fontSize: 5, textAlign: 'center' }}
+                                style={{
+                                  fontSize: 5,
+                                  textAlign: 'center',
+                                  maxWidth: '100%',
+                                }}
                               >
                                 {entry.title}
                               </Text>
