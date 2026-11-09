@@ -1,4 +1,5 @@
 import { G, Page, Svg, Text, View } from '@react-pdf/renderer'
+import type { ComponentProps } from 'react'
 import {
   type GlyphCoordinateLookup,
   type GlyphExportSettings,
@@ -32,6 +33,12 @@ const SHAPE_PADDING = 24
 const PAGE_CONTENT_WIDTH = 564
 const PDF_TABLE_HEADER_HEIGHT = 36
 const MAX_LAND_TABLE_CHUNK_HEIGHT = 650
+
+const legendHyphenationCallback = (word: string) => [word]
+
+const LegendText = (props: ComponentProps<typeof Text>) => (
+  <Text {...props} hyphenationCallback={legendHyphenationCallback} />
+)
 
 const getLandShapeScale = (model: ReturnType<typeof getPieceKeyModel>) =>
   getPieceKeyShapeScale(
@@ -209,10 +216,12 @@ function LandGrid({
           justifyContent: 'center',
         }}
       >
-        <Text style={{ fontSize: 7, fontWeight: 'bold' }}>Notice centers</Text>
-        <Text style={{ fontSize: 7, fontWeight: 'bold' }}>
+        <LegendText style={{ fontSize: 7, fontWeight: 'bold' }}>
+          Notice centers
+        </LegendText>
+        <LegendText style={{ fontSize: 7, fontWeight: 'bold' }}>
           and border colors
-        </Text>
+        </LegendText>
       </View>
       {columns.map((column) => (
         <View
@@ -227,10 +236,18 @@ function LandGrid({
             alignItems: 'center',
           }}
         >
-          <Text style={{ fontSize: 9, fontWeight: 'bold' }}>
+          <LegendText
+            style={{
+              fontSize: 9,
+              fontWeight: 'bold',
+              textAlign: 'center',
+            }}
+          >
             {column.title}
-          </Text>
-          <Text style={{ fontSize: 6 }}>{column.description}</Text>
+          </LegendText>
+          <LegendText style={{ fontSize: 6, textAlign: 'center' }}>
+            {column.description}
+          </LegendText>
         </View>
       ))}
     </View>
@@ -258,8 +275,10 @@ function LandGrid({
             alignItems: 'center',
           }}
         >
-          <Text style={{ fontSize: 8, fontWeight: 'bold' }}>{row.title}</Text>
-          <Text style={{ fontSize: 6 }}>{row.description}</Text>
+          <LegendText style={{ fontSize: 8, fontWeight: 'bold' }}>
+            {row.title}
+          </LegendText>
+          <LegendText style={{ fontSize: 6 }}>{row.description}</LegendText>
         </View>
         {columns.map((column) => {
           const entry = column.cells.find(
@@ -287,7 +306,9 @@ function LandGrid({
                     glyphCoordinates={glyphCoordinates}
                     glyphExportSettings={glyphExportSettings}
                   />
-                  <Text style={{ fontSize: 6 }}>x{entry.count}</Text>
+                  <LegendText style={{ fontSize: 6 }}>
+                    x{entry.count}
+                  </LegendText>
                 </>
               )}
             </View>
@@ -338,7 +359,7 @@ function LandGrid({
                 }
               >
                 {showPieceKeyTitle && (
-                  <Text
+                  <LegendText
                     style={{
                       fontSize: 15,
                       fontWeight: 'bold',
@@ -346,9 +367,9 @@ function LandGrid({
                     }}
                   >
                     Piece Key
-                  </Text>
+                  </LegendText>
                 )}
-                <Text
+                <LegendText
                   style={{
                     fontSize: showPieceKeyTitle ? 11 : 15,
                     fontWeight: 'bold',
@@ -356,7 +377,7 @@ function LandGrid({
                   }}
                 >
                   {sectionTitle ?? 'Piece Key'}
-                </Text>
+                </LegendText>
                 {table}
               </View>
             )
@@ -397,17 +418,17 @@ function SpecialTiles({
           {index === 0 && (
             <>
               {!model.landColumns.length && !model.fluidColumns.length && (
-                <Text
+                <LegendText
                   style={{ fontSize: 15, fontWeight: 'bold', marginBottom: 6 }}
                 >
                   Piece Key
-                </Text>
+                </LegendText>
               )}
-              <Text
+              <LegendText
                 style={{ fontSize: 11, fontWeight: 'bold', marginBottom: 4 }}
               >
                 Special Tiles
-              </Text>
+              </LegendText>
             </>
           )}
           <View
@@ -427,12 +448,12 @@ function SpecialTiles({
                   flexDirection: 'column',
                 }}
               >
-                <Text style={{ fontSize: 8, fontWeight: 'bold' }}>
+                <LegendText style={{ fontSize: 8, fontWeight: 'bold' }}>
                   {group.title}
-                </Text>
-                <Text style={{ fontSize: 6, marginBottom: 2 }}>
+                </LegendText>
+                <LegendText style={{ fontSize: 6, marginBottom: 2 }}>
                   {group.description}
-                </Text>
+                </LegendText>
                 <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
                   {(() => {
                     const { entriesPerRow, rows } = getPieceKeySpecialEntryRows(
@@ -480,7 +501,7 @@ function SpecialTiles({
                                   glyphExportSettings={glyphExportSettings}
                                 />
                               </View>
-                              <Text
+                              <LegendText
                                 style={{
                                   fontSize: 5,
                                   textAlign: 'center',
@@ -488,12 +509,12 @@ function SpecialTiles({
                                 }}
                               >
                                 {entry.title}
-                              </Text>
-                              <Text
+                              </LegendText>
+                              <LegendText
                                 style={{ fontSize: 5, textAlign: 'center' }}
                               >
                                 x{entry.count}
-                              </Text>
+                              </LegendText>
                             </View>
                           ))}
                         </View>
