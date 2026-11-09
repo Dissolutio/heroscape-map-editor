@@ -14,6 +14,7 @@ import type {
 } from '../data/objectiveMarkers'
 import { isPlacementPenMode } from '../data/penMode'
 import { piecesSoFar } from '../data/pieces'
+import { sanitizeHotkeyOverrides, type HotkeyOverrides } from '../data/hotkeys'
 import {
   type RotationPivot,
   createRotationPivot,
@@ -102,6 +103,8 @@ export interface UISlice {
   rememberedMapAuthor: string
   lookSettings: LookSettings
   setLookSettings: (settings: Partial<LookSettings>) => void
+  hotkeyOverrides: HotkeyOverrides
+  setHotkeyOverrides: (overrides: HotkeyOverrides) => void
   setGenericSolidCapColor: (color: string) => void
   setGenericSolidSideColor: (color: string) => void
   setGenericFluidCapColor: (color: string) => void
@@ -1208,6 +1211,10 @@ const createUISlice: StateCreator<
         ...settings,
       }),
     })),
+  setHotkeyOverrides: (overrides) =>
+    set({
+      hotkeyOverrides: sanitizeHotkeyOverrides(overrides).overrides,
+    }),
   setIsLookSettingsDialogOpen: (open) =>
     set({ isLookSettingsDialogOpen: open }),
   setGenericSolidCapColor: (color: string) =>

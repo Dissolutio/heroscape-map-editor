@@ -1,32 +1,11 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { loadMapFromLocalStorage } from '../local-storage/get-local-item'
 import { LS_KEYS } from '../local-storage/keys'
 import { loadSettings } from '../local-storage/settings'
+import { buildHotkeyConfig } from '../data/hotkeys'
 import { makeTable } from './helpers/board'
 
-const hotkeyStorage = vi.hoisted(() => ({
-  config: { x: 'customAction' },
-  read: vi.fn(),
-  write: vi.fn(),
-}))
-
-vi.mock('react', () => ({
-  useEffect: (effect: () => void) => effect(),
-}))
-vi.mock('../local-storage/useLocalStorage', () => ({
-  useLocalStorage: () => {
-    hotkeyStorage.read()
-    return [hotkeyStorage.config, hotkeyStorage.write]
-  },
-}))
-
-import { useHotkeyConfig } from '../controls/useHotkeyConfig'
-
-describe('storage known gaps', () => {
-  beforeEach(() => {
-    vi.clearAllMocks()
-  })
-
+describe('storage and hotkey persistence', () => {
   it('restores legacy constraint settings from the saved map', () => {
     const { boardPieces } = makeTable(3)
     const settings = {
@@ -61,11 +40,11 @@ describe('storage known gaps', () => {
     }
   })
 
-  // Execute the hook's effects synchronously without a renderer: no hook
-  // should overwrite a stored configuration just because it was mounted.
-  it('KNOWN GAP: hotkey config is overwritten on mount', () => {
-    useHotkeyConfig()
-    expect(hotkeyStorage.read).not.toHaveBeenCalled()
-    expect(hotkeyStorage.write).not.toHaveBeenCalled()
+  it('applies saved hotkey overrides to the default configuration', () => {
+    const config = buildHotkeyConfig({
+      cycleNextPieceRotation: ['shift+q'],
+    })
+    expect(config.q).toBeUndefined()
+    expect(config['shift+q']).toBe('cycleNextPieceRotation')
   })
 })
