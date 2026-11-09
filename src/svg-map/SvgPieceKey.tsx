@@ -44,23 +44,39 @@ const KeyBorderRect = ({
   hasTopBorder?: boolean
   hasLeftBorder?: boolean
 }) => {
-  const leftInset = hasLeftBorder ? PIECE_KEY_LINE_WIDTH : 0
-  const topInset = hasTopBorder ? PIECE_KEY_LINE_WIDTH : 0
+  const lineWidth = PIECE_KEY_LINE_WIDTH
+  const leftInset = hasLeftBorder ? lineWidth : 0
+  const topInset = hasTopBorder ? lineWidth : 0
+  // Draw each border side as its own bar. A black box under a white box
+  // leaves an anti-aliased gray hairline on sides that should have no border.
   return (
     <>
-      <rect x={x} y={y} width={width} height={height} fill="black" />
       <rect
         x={x + leftInset}
         y={y + topInset}
-        width={Math.max(
-          0,
-          width - leftInset - PIECE_KEY_LINE_WIDTH,
-        )}
-        height={Math.max(
-          0,
-          height - topInset - PIECE_KEY_LINE_WIDTH,
-        )}
+        width={Math.max(0, width - leftInset - lineWidth)}
+        height={Math.max(0, height - topInset - lineWidth)}
         fill="white"
+      />
+      {hasTopBorder && (
+        <rect x={x} y={y} width={width} height={lineWidth} fill="black" />
+      )}
+      {hasLeftBorder && (
+        <rect x={x} y={y} width={lineWidth} height={height} fill="black" />
+      )}
+      <rect
+        x={x + width - lineWidth}
+        y={y}
+        width={lineWidth}
+        height={height}
+        fill="black"
+      />
+      <rect
+        x={x}
+        y={y + height - lineWidth}
+        width={width}
+        height={lineWidth}
+        fill="black"
       />
     </>
   )
