@@ -16,6 +16,60 @@ const pieceRotation = async (page: Parameters<typeof waitForAppReady>[0]) => {
 const cameraPose = async (page: Parameters<typeof waitForAppReady>[0]) =>
   page.evaluate(() => window.__TEST__?.cameraPose())
 
+test('default obstacle hotkeys select Evergreen Tree, Ship, and Laur Wall', async ({
+  page,
+}) => {
+  await page.goto(FIXTURE_URL)
+  await waitForAppReady(page)
+
+  await page.getByRole('combobox', { name: 'Pen Mode' }).click()
+  await expect(page.getByRole('option', { name: 'Tree 10 [F]' })).toBeVisible()
+  await expect(
+    page.getByRole('option', { name: 'Ship Wall [SHIFT+S]' }),
+  ).toBeVisible()
+  await expect(
+    page.getByRole('option', { name: 'Wall End [SHIFT+C]' }),
+  ).toBeVisible()
+  await page.keyboard.press('Escape')
+
+  for (const [key, mode, pieceID] of [
+    ['f', 'tr10', 'tr10'],
+    ['Shift+s', 'sl', 'sl'],
+    ['u', 'lwp', 'lwp'],
+  ] as const) {
+    await page.keyboard.press(key)
+    await page.waitForFunction(
+      ({ expectedMode, expectedPieceID }) => {
+        const snapshot = window.__TEST__?.snapshot()
+        return (
+          snapshot?.penMode === expectedMode &&
+          snapshot.penPieceID === expectedPieceID
+        )
+      },
+      { expectedMode: mode, expectedPieceID: pieceID },
+    )
+    if (key === 'f') {
+      await expect(
+        page.getByRole('group', {
+          name: 'piece select for current pen mode',
+        }),
+      ).toContainText('F')
+      await page.keyboard.press('2')
+      await page.waitForFunction(
+        () => window.__TEST__?.snapshot().penPieceID === 'tr11',
+      )
+      await page.keyboard.press('f')
+      await page.waitForFunction(
+        () => window.__TEST__?.snapshot().penPieceID === 'tr11',
+      )
+      await page.keyboard.press('1')
+      await page.waitForFunction(
+        () => window.__TEST__?.snapshot().penPieceID === 'tr10',
+      )
+    }
+  }
+})
+
 test('rebinds, exports, resets, and imports hotkeys', async ({ page }) => {
   await page.goto(FIXTURE_URL)
   await waitForAppReady(page)

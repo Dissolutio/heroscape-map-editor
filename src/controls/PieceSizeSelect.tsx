@@ -5,6 +5,8 @@ import {
   getPieceVariantForPenMode,
   isObstacleVariantFamily,
 } from '../data/flatPieceSizes'
+import { PEN_MODE_ACTION_TARGETS } from '../data/hotkeys'
+import { piecesSoFar } from '../data/pieces'
 import useBoundStore from '../store/store'
 import { HotkeyText } from './HotKeyText'
 import { getPieceSizeHotkeyMap } from './useApplyHotkeys'
@@ -19,6 +21,14 @@ export default function PieceSizeSelect() {
   const isVariantFamily = isObstacleVariantFamily(penMode)
   const cyclesVariants = isVariantFamily && flatPieceSizes.length > 5
   const hotkeyMap = getPieceSizeHotkeyMap(flatPieceSizes, isVariantFamily)
+  const familyAction = isVariantFamily
+    ? Object.entries(PEN_MODE_ACTION_TARGETS).find(
+        ([, mode]) =>
+          piecesSoFar[mode]?.pieceSizeFamily ===
+          piecesSoFar[penMode]?.pieceSizeFamily,
+      )?.[0]
+    : undefined
+  const familyHotkey = familyAction ? hotkeyLookup[familyAction] : undefined
   const handleChange = (_event: MouseEvent<HTMLElement>, value: string) => {
     togglePieceSize(Number.parseInt(value))
   }
@@ -42,6 +52,7 @@ export default function PieceSizeSelect() {
         }}
       >
         <span>Piece size:</span>
+        {familyHotkey && <HotkeyText text={familyHotkey} />}
         <span>
           {isSizes ? (
             flatPieceSizes.map((s) => {
