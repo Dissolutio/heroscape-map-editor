@@ -1170,10 +1170,10 @@ describe('piece key shape rendering', () => {
           )
           for (const { shapeHeight, shapeTopOffset } of layout.entries) {
             const expectedOffset =
-              renderer === 'pdf'
-                ? 0
-                : group.id === 'ship'
-                  ? layout.shapeHeight - shapeHeight
+              group.id === 'ship'
+                ? layout.shapeHeight - shapeHeight
+                : renderer === 'pdf'
+                  ? 0
                   : (layout.shapeHeight - shapeHeight) / 2
             expect(shapeTopOffset).toBeCloseTo(expectedOffset)
           }

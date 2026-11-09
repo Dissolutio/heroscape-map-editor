@@ -241,10 +241,10 @@ export const getPieceKeySpecialEntryRowLayout = (
       entry,
       shapeHeight: entryShapeHeight,
       shapeTopOffset:
-        renderer === 'pdf'
-          ? 0
-          : groupID === 'ship'
-            ? shapeHeight - entryShapeHeight
+        groupID === 'ship'
+          ? shapeHeight - entryShapeHeight
+          : renderer === 'pdf'
+            ? 0
             : (shapeHeight - entryShapeHeight) / 2,
     }
   })

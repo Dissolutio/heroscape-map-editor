@@ -466,6 +466,7 @@ function SpecialTiles({
                         entries,
                         scale,
                         'pdf',
+                        group.id,
                       )
                       const shapeHeight = rowLayout.shapeHeight
                       return (
@@ -477,46 +478,57 @@ function SpecialTiles({
                             alignItems: 'flex-start',
                           }}
                         >
-                          {rowLayout.entries.map(({ entry }) => (
-                            <View
-                              key={entry.inventoryID}
-                              style={{
-                                width: `${100 / entriesPerRow}%`,
-                                padding: 1,
-                                alignItems: 'center',
-                                justifyContent: 'flex-start',
-                              }}
-                            >
+                          {rowLayout.entries.map(
+                            ({ entry, shapeTopOffset }) => (
                               <View
+                                key={entry.inventoryID}
                                 style={{
-                                  height: shapeHeight,
+                                  width: `${100 / entriesPerRow}%`,
+                                  padding: 1,
                                   alignItems: 'center',
+                                  justifyContent: 'flex-start',
                                 }}
                               >
-                                <PieceKeyShape
-                                  entry={entry}
-                                  useTerrainBorderColor={useTerrainBorderColor}
-                                  scale={scale}
-                                  glyphCoordinates={glyphCoordinates}
-                                  glyphExportSettings={glyphExportSettings}
-                                />
+                                <View
+                                  style={{
+                                    height: shapeHeight,
+                                    alignItems: 'center',
+                                  }}
+                                >
+                                  <View
+                                    style={{ marginTop: shapeTopOffset }}
+                                  >
+                                    <PieceKeyShape
+                                      entry={entry}
+                                      useTerrainBorderColor={
+                                        useTerrainBorderColor
+                                      }
+                                      scale={scale}
+                                      glyphCoordinates={glyphCoordinates}
+                                      glyphExportSettings={glyphExportSettings}
+                                    />
+                                  </View>
+                                </View>
+                                <LegendText
+                                  style={{
+                                    fontSize: 5,
+                                    textAlign: 'center',
+                                    maxWidth: '100%',
+                                  }}
+                                >
+                                  {entry.title}
+                                </LegendText>
+                                <LegendText
+                                  style={{
+                                    fontSize: 5,
+                                    textAlign: 'center',
+                                  }}
+                                >
+                                  x{entry.count}
+                                </LegendText>
                               </View>
-                              <LegendText
-                                style={{
-                                  fontSize: 5,
-                                  textAlign: 'center',
-                                  maxWidth: '100%',
-                                }}
-                              >
-                                {entry.title}
-                              </LegendText>
-                              <LegendText
-                                style={{ fontSize: 5, textAlign: 'center' }}
-                              >
-                                x{entry.count}
-                              </LegendText>
-                            </View>
-                          ))}
+                            ),
+                          )}
                         </View>
                       )
                     })
