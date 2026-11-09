@@ -121,6 +121,51 @@ describe('piece key model', () => {
     )
   })
 
+  it('describes Special Tile borders in both border modes', () => {
+    const boardPieces = [
+      makePiece(Pieces.water1, 0),
+      makePiece(Pieces.wellspringWater1, 1),
+      makePiece(Pieces.tree10, 2),
+      makePiece(Pieces.palm14, 3),
+      makePiece(Pieces.laurWallSquarePillar, 4),
+    ]
+
+    for (const useTerrainBorderColor of [true, false]) {
+      const descriptions = new Map(
+        getPieceKeyModel(
+          boardPieces,
+          {},
+          useTerrainBorderColor,
+        ).specialGroups.map(({ id, description }) => [id, description]),
+      )
+      expect(descriptions.get('water')).toBe(
+        useTerrainBorderColor
+          ? 'blue borders and centers'
+          : 'dark borders, blue centers',
+      )
+      expect(descriptions.get('wellspring')).toBe(
+        useTerrainBorderColor
+          ? 'blue borders, white centers'
+          : 'dark borders, white centers',
+      )
+      expect(descriptions.get('evergreen')).toBe(
+        useTerrainBorderColor
+          ? 'green borders and centers; number indicates tree height'
+          : 'dark borders and green centers; number indicates tree height',
+      )
+      expect(descriptions.get('jungle')).toBe(
+        useTerrainBorderColor
+          ? 'brown borders, yellow centers'
+          : 'dark borders, yellow centers',
+      )
+      expect(descriptions.get('laur')).toBe(
+        useTerrainBorderColor
+          ? 'pillars have pink borders and purple centers; wall add-ons are pink'
+          : 'pillars have dark borders and purple centers; wall add-ons are pink',
+      )
+    }
+  })
+
   it('describes ladder borders as black in both border modes', () => {
     for (const useTerrainBorderColor of [true, false]) {
       const model = getPieceKeyModel(
@@ -202,7 +247,7 @@ describe('piece key model', () => {
     expect(laur).toMatchObject({
       title: 'Pillars and Walls (Laur)',
       description:
-        'pillars have pink borders and purple centers; wall add-ons are pink',
+        'pillars have dark borders and purple centers; wall add-ons are pink',
     })
     expect(laur?.entries.map(({ title }) => title)).toEqual([
       'long wall',

@@ -1,17 +1,18 @@
+import { FIXTURE_HEX_MAP, FIXTURE_PIECE_IDS } from './fixture-map'
 import {
+  FIXTURE_URL,
   clickHex,
   clickPiece,
   dragPiece,
   expect,
   findPieceUid,
-  FIXTURE_URL,
   hoverHex,
   mapUrl,
+  saveEvidence,
   setPen,
   test,
   waitForAppReady,
 } from './fixtures'
-import { FIXTURE_HEX_MAP, FIXTURE_PIECE_IDS } from './fixture-map'
 
 const HIVE_FIXTURE_URL = mapUrl(FIXTURE_HEX_MAP, [
   ...FIXTURE_PIECE_IDS,
@@ -78,6 +79,15 @@ const MARVEL_RUIN_PIECES = [
     parts: ['MarvelRuinLeft', 'MarvelRuinFrontBroken', 'MarvelRuinBackBroken'],
   },
 ] as const
+const PALM_PIECES = [
+  { inventoryID: 'tp14', q: 0, r: 0 },
+  { inventoryID: 'lp13', q: 3, r: 0 },
+] as const
+const PALM_FIXTURE_URL = mapUrl(FIXTURE_HEX_MAP, [
+  ...FIXTURE_PIECE_IDS,
+  '0~0~0~0~tp14',
+  '0~3~0~0~lp13',
+])
 const MARVEL_RUIN_FIXTURE_URL = mapUrl(FIXTURE_HEX_MAP, [
   ...FIXTURE_PIECE_IDS,
   ...MARVEL_RUIN_PIECES.map(
@@ -755,5 +765,150 @@ test('tree placement previews render transparently in every graphics tier', asyn
           ]),
         )
     }
+  }
+})
+
+test('jungle palms use tiered cutout fronds and stay selectable with transparent previews', async ({
+  page,
+}) => {
+  await page.goto(PALM_FIXTURE_URL)
+  await waitForAppReady(page)
+  await page.locator('#simple-tab-3').click()
+  const graphics = page.getByTestId('graphics-tier-select')
+  const tiers = [
+    {
+      label: 'Low (classic look)',
+      hasMap: false,
+      evidenceName: 'low',
+    },
+    {
+      label: 'Medium (diffuse textures)',
+      hasMap: true,
+      evidenceName: 'medium',
+    },
+    {
+      label: 'High (PBR textures)',
+      hasMap: true,
+      evidenceName: 'high',
+    },
+  ]
+  const palmUIDs = await Promise.all(
+    PALM_PIECES.map((piece) => findPieceUid(page, piece)),
+  )
+  const defaultCameraPose = await page.evaluate(
+    () => window.__TEST__?.cameraPose() ?? null,
+  )
+
+  await graphics.click()
+  await page.getByRole('option', { name: tiers[0].label }).click()
+  for (const [index, tier] of tiers.entries()) {
+    if (index > 0) {
+      await graphics.click()
+      await page.getByRole('option', { name: tier.label }).click()
+      await expect(page.getByTestId('graphics-texture-status')).toHaveText(
+        'Textures ready',
+      )
+    }
+
+    if (process.env.E2E_EVIDENCE === '1' && defaultCameraPose) {
+      await page.evaluate(
+        async ({ position, target }) =>
+          window.__TEST__?.setCamera(position, target),
+        defaultCameraPose,
+      )
+      await waitForAppReady(page)
+      await saveEvidence(
+        page,
+        `jungle-palms-${tier.evidenceName}-three-quarter`,
+      )
+      const { target } = defaultCameraPose
+      await page.evaluate(
+        async (lookAt) =>
+          window.__TEST__?.setCamera(
+            [lookAt[0] + 14, lookAt[1] + 4, lookAt[2]],
+            lookAt,
+          ),
+        target,
+      )
+      await waitForAppReady(page)
+      await saveEvidence(page, `jungle-palms-${tier.evidenceName}-side`)
+      await page.evaluate(
+        async ({ position, target }) =>
+          window.__TEST__?.setCamera(position, target),
+        defaultCameraPose,
+      )
+      await waitForAppReady(page)
+    }
+
+    await expect
+      .poll(async () =>
+        page.evaluate(() => window.__TEST__?.snapshot().junglePalmMaterials),
+      )
+      .toEqual(
+        expect.arrayContaining(
+          palmUIDs.map((uid) =>
+            expect.objectContaining({
+              uid,
+              part: 'fronds',
+              hasMap: tier.hasMap,
+              alphaTest: tier.hasMap ? 0.35 : 0,
+            }),
+          ),
+        ),
+      )
+    for (const uid of palmUIDs) {
+      const materials = await page.evaluate(
+        (id) =>
+          window.__TEST__
+            ?.snapshot()
+            .junglePalmMaterials.filter((material) => material.uid === id),
+        uid,
+      )
+      expect(materials?.length).toBeGreaterThan(0)
+      expect(
+        materials?.every((material) => material.hasMap === tier.hasMap),
+      ).toBe(true)
+      await page.mouse.move(0, 0)
+      const alreadySelected = await page.evaluate(
+        (id) =>
+          window.__TEST__?.snapshot().selectedPieceIDs.includes(id) ?? false,
+        uid,
+      )
+      if (alreadySelected) await clickPiece(page, uid)
+      await clickPiece(page, uid)
+      await expect
+        .poll(async () =>
+          page.evaluate(() => window.__TEST__?.snapshot().selectedPieceIDs),
+        )
+        .toContain(uid)
+    }
+
+    await setPen(page, 'tp14', 0)
+    await hoverHex(page, { q: 5, r: 0, altitude: 0 })
+    await expect
+      .poll(async () =>
+        page.evaluate(() =>
+          window.__TEST__
+            ?.snapshot()
+            .previewMeshes.filter((mesh) => mesh.family === 'junglePalm'),
+        ),
+      )
+      .toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            family: 'junglePalm',
+            part: 'fronds',
+            hasMap: tier.hasMap,
+            transparent: true,
+          }),
+        ]),
+      )
+    const previews = await page.evaluate(() =>
+      window.__TEST__
+        ?.snapshot()
+        .previewMeshes.filter((mesh) => mesh.family === 'junglePalm'),
+    )
+    expect(previews?.length).toBeGreaterThan(0)
+    expect(previews?.every((mesh) => mesh.opacity < 1)).toBe(true)
   }
 })

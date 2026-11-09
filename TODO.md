@@ -142,9 +142,6 @@ Earlier (Nov 2-6):
 
 - Outcrop bases count in inventory ("with holes" pieces don't exist yet)
 - Snow trees: no Virtualscape model, so they need another texture plan ❓
-- Delete the old GLBs still kept for tests (`marvel-ruins_v2.glb`,
-  `forgotten-forest-tree-low-poly-colored.glb`, `big-tree-415.glb`) once
-  their bounds tests use recorded bounds
 
 **3D looks**
 

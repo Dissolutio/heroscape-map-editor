@@ -12,7 +12,7 @@ import { piecesSoFar } from '../data/pieces'
 import { PdfMapBoardPiece } from '../pdf-map/PdfMapBoardPiece'
 import { PdfMapHex } from '../pdf-map/PdfMapHex'
 import { PdfLaurWallArchText } from '../pdf-map/PdfMapShapes'
-import { PieceKeyShape } from '../pdf-map/PdfPieceLegend'
+import { PdfPieceLegend, PieceKeyShape } from '../pdf-map/PdfPieceLegend'
 import {
   getHexagonSvgPolygonPointsAt00,
   getLadderSvgPolygonPoints,
@@ -30,9 +30,10 @@ import {
   getPieceKeyShapeLayout,
   getPieceKeySpecialEntriesPerRow,
 } from '../pdf-svg-shared/pieceKeyShapeLayout'
-import useBoundStore from '../store/store'
+import useBoundStore, { type AppState } from '../store/store'
 import { SvgMapBoardPiece } from '../svg-map/SvgMapBoardPiece'
 import { SvgMapHex } from '../svg-map/SvgMapHex'
+import SvgMapDisplay from '../svg-map/SvgMapDisplay'
 import {
   SvgPieceKeyShape,
   getSvgPieceKeyWidth,
@@ -51,6 +52,13 @@ const initialGenericColors = {
   genericSolidCapColor: useBoundStore.getState().genericSolidCapColor,
   genericSolidSideColor: useBoundStore.getState().genericSolidSideColor,
 }
+const initialBorderSettings = {
+  isPdfColorBorders: useBoundStore.getState().isPdfColorBorders,
+  isSvgColorBorders: useBoundStore.getState().isSvgColorBorders,
+  boardHexes: useBoundStore.getState().boardHexes,
+  boardPieces: useBoundStore.getState().boardPieces,
+  isShowPdfPieceLegend: useBoundStore.getState().isShowPdfPieceLegend,
+}
 const fontBuffer = readFileSync(
   new URL('../../public/fonts/Inter_18pt-Bold.ttf', import.meta.url),
 )
@@ -62,7 +70,11 @@ const interFont = opentype.parse(
 )
 
 afterEach(() => {
-  useBoundStore.setState(initialGenericColors)
+  useBoundStore.setState({ ...initialGenericColors, ...initialBorderSettings })
+  Object.assign(useBoundStore.getInitialState(), {
+    ...initialGenericColors,
+    ...initialBorderSettings,
+  })
 })
 
 const collectShapeColors = (node: ReactNode): unknown[] => {
@@ -566,20 +578,41 @@ describe('piece key shape rendering', () => {
         pieceCoords: { q: index, r: 0, s: -index },
       }),
     )
-    const expectedDescriptions = new Map([
-      ['roads-and-wall-walks', 'gray centers'],
-      ['water', 'blue borders and centers'],
-      ['wellspring', 'blue borders, white centers'],
-      ['evergreen', 'green borders and centers; number indicates tree height'],
-      ['jungle', 'brown borders, yellow centers'],
-      [
-        'laur',
-        'pillars have pink borders and purple centers; wall add-ons are pink',
-      ],
-      ['ladder', 'black borders'],
-    ])
-
     for (const useTerrainBorderColor of [true, false]) {
+      const expectedDescriptions = new Map([
+        ['roads-and-wall-walks', 'gray centers'],
+        [
+          'water',
+          useTerrainBorderColor
+            ? 'blue borders and centers'
+            : 'dark borders, blue centers',
+        ],
+        [
+          'wellspring',
+          useTerrainBorderColor
+            ? 'blue borders, white centers'
+            : 'dark borders, white centers',
+        ],
+        [
+          'evergreen',
+          useTerrainBorderColor
+            ? 'green borders and centers; number indicates tree height'
+            : 'dark borders and green centers; number indicates tree height',
+        ],
+        [
+          'jungle',
+          useTerrainBorderColor
+            ? 'brown borders, yellow centers'
+            : 'dark borders, yellow centers',
+        ],
+        [
+          'laur',
+          useTerrainBorderColor
+            ? 'pillars have pink borders and purple centers; wall add-ons are pink'
+            : 'pillars have dark borders and purple centers; wall add-ons are pink',
+        ],
+        ['ladder', 'black borders'],
+      ])
       const model = getPieceKeyModel(boardPieces, {}, useTerrainBorderColor)
       for (const [groupID, description] of expectedDescriptions) {
         const group = model.specialGroups.find(({ id }) => id === groupID)
@@ -604,22 +637,32 @@ describe('piece key shape rendering', () => {
             expect(svg).toContain(`fill="${svgColors[HexTerrain.road]}"`)
           } else if (groupID === 'water') {
             expect(svg).toContain(`fill="${svgColors[HexTerrain.water]}"`)
-            expect(svg).toContain(`fill="${svgColors.outlineWater}"`)
+            expect(svg).toContain(
+              `fill="${useTerrainBorderColor ? svgColors.outlineWater : '#000000'}"`,
+            )
           } else if (groupID === 'wellspring') {
             expect(svg).toContain(
               `fill="${svgColors[HexTerrain.wellspringWater]}"`,
             )
-            expect(svg).toContain(`fill="${svgColors.outlineWater}"`)
+            expect(svg).toContain(
+              `fill="${useTerrainBorderColor ? svgColors.outlineWater : '#000000'}"`,
+            )
           } else if (groupID === 'evergreen') {
             expect(svg).toContain(`fill="${svgColors[HexTerrain.tree]}"`)
-            expect(svg).toContain(`fill="${svgColors.outlineTree}"`)
+            expect(svg).toContain(
+              `fill="${useTerrainBorderColor ? svgColors.outlineTree : '#000000'}"`,
+            )
           } else if (groupID === 'jungle') {
             expect(svg).toContain(`fill="${svgColors.fillJungle}"`)
-            expect(svg).toContain(`fill="${svgColors.outlineJungle}"`)
+            expect(svg).toContain(
+              `fill="${useTerrainBorderColor ? svgColors.outlineJungle : '#000000'}"`,
+            )
           } else if (groupID === 'laur') {
             if (entry.inventoryID === Pieces.laurWallSquarePillar) {
               expect(svg).toContain(`fill="${svgColors[HexTerrain.laurWall]}"`)
-              expect(svg).toContain(`fill="${svgColors.outlineLaurWall}"`)
+              expect(svg).toContain(
+                `fill="${useTerrainBorderColor ? svgColors.outlineLaurWall : '#000000'}"`,
+              )
             } else {
               expect(svg).toContain(
                 `fill="${svgColors[HexTerrain.laurWallAddon]}"`,
@@ -671,6 +714,85 @@ describe('piece key shape rendering', () => {
         )
       }
     }
+  })
+
+  it('keeps SVG and PDF legend border settings independent of map output', () => {
+    const boardPieces: BoardPiece[] = [Pieces.grass1, Pieces.grass7].map(
+      (inventoryID, index) => ({
+        uid: `border-${inventoryID}`,
+        inventoryID,
+        altitude: 0,
+        rotation: 0,
+        pieceCoords: { q: index, r: 0, s: -index },
+      }),
+    )
+    const setRenderState = (state: Partial<AppState>) => {
+      useBoundStore.setState(state)
+      Object.assign(useBoundStore.getInitialState(), state)
+    }
+    setRenderState({
+      boardHexes: {},
+      boardPieces,
+      isShowPdfPieceLegend: true,
+      isPdfColorBorders: false,
+      isSvgColorBorders: true,
+    })
+
+    const renderSvgLegend = () =>
+      renderToStaticMarkup(createElement(SvgMapDisplay, { legendOnly: true }))
+    const renderSvgMap = () =>
+      renderToStaticMarkup(
+        createElement(SvgMapDisplay, { viewingLevelOverride: 0 }),
+      )
+    const svgColorMarkup = renderSvgLegend()
+    const mapMarkup = renderSvgMap()
+
+    setRenderState({ isPdfColorBorders: true })
+    expect(renderSvgLegend()).toBe(svgColorMarkup)
+
+    setRenderState({ isSvgColorBorders: false })
+    const svgDarkMarkup = renderSvgLegend()
+    expect(svgDarkMarkup).not.toBe(svgColorMarkup)
+    for (const borderColor of [svgColors.outline1, svgColors.outline7]) {
+      expect(svgColorMarkup).toContain(`fill="${borderColor}"`)
+      expect(svgDarkMarkup).not.toContain(`fill="${borderColor}"`)
+    }
+
+    setRenderState({ isSvgColorBorders: true })
+    expect(renderSvgMap()).toBe(mapMarkup)
+
+    setRenderState({ isPdfColorBorders: true })
+    const pdfColorShapes = collectShapeColors(PdfPieceLegend({ boardPieces }))
+    expect(
+      pdfColorShapes.some(
+        (shape) =>
+          typeof shape === 'object' &&
+          shape !== null &&
+          'stroke' in shape &&
+          [svgColors.outline1, svgColors.outline7].includes(
+            shape.stroke as string,
+          ),
+      ),
+    ).toBe(true)
+
+    setRenderState({ isSvgColorBorders: false })
+    expect(collectShapeColors(PdfPieceLegend({ boardPieces }))).toEqual(
+      pdfColorShapes,
+    )
+
+    setRenderState({ isPdfColorBorders: false })
+    const pdfDarkShapes = collectShapeColors(PdfPieceLegend({ boardPieces }))
+    expect(
+      pdfDarkShapes.some(
+        (shape) =>
+          typeof shape === 'object' &&
+          shape !== null &&
+          'stroke' in shape &&
+          [svgColors.outline1, svgColors.outline7].includes(
+            shape.stroke as string,
+          ),
+      ),
+    ).toBe(false)
   })
 
   it('matches map-level fill and stroke colors for every Laur wall add-on', () => {

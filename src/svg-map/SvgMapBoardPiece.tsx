@@ -25,6 +25,7 @@ export const SvgMapBoardPiece = ({
   overlayLevel,
   is2DOverlayLevelEnabled = false,
   isPieceKeyPreview = false,
+  useTerrainBorderColor = true,
   archTextOffsetX,
 }: {
   piece: DecodedPieceID
@@ -32,6 +33,7 @@ export const SvgMapBoardPiece = ({
   overlayLevel: number
   is2DOverlayLevelEnabled?: boolean
   isPieceKeyPreview?: boolean
+  useTerrainBorderColor?: boolean
   archTextOffsetX?: number
 }) => {
   const altitudeAdjusted = piece.altitude + 1
@@ -116,6 +118,7 @@ export const SvgMapBoardPiece = ({
           piece={piece}
           isSubLevel={isSubLevel}
           isPieceKeyPreview={isPieceKeyPreview}
+          useTerrainBorderColor={useTerrainBorderColor}
         />
       </g>
     )
@@ -147,6 +150,7 @@ export const SvgMapBoardPiece = ({
           piece={piece}
           isSubLevel={isSubLevel}
           isPieceKeyPreview={isPieceKeyPreview}
+          useTerrainBorderColor={useTerrainBorderColor}
         />
         <g
           // flip upside down text, all other rotations are legible
@@ -171,6 +175,7 @@ export const SvgMapBoardPiece = ({
           piece={piece}
           isSubLevel={isSubLevel}
           isPieceKeyPreview={isPieceKeyPreview}
+          useTerrainBorderColor={useTerrainBorderColor}
         />
       </g>
     )
@@ -185,6 +190,7 @@ export const SvgMapBoardPiece = ({
           piece={piece}
           isSubLevel={isSubLevel}
           isPieceKeyPreview={isPieceKeyPreview}
+          useTerrainBorderColor={useTerrainBorderColor}
         />
       </g>
     )

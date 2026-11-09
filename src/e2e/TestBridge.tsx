@@ -10,9 +10,9 @@ import {
   Vector2,
   Vector3,
 } from 'three'
-import { piecesSoFar } from '../data/pieces'
-import { getLaurAddonFeaturePoint } from '../data/laurAddonPlacement'
 import { getPieceIDForPenMode } from '../data/flatPieceSizes'
+import { getLaurAddonFeaturePoint } from '../data/laurAddonPlacement'
+import { piecesSoFar } from '../data/pieces'
 import { resolveRotationPivot } from '../data/rotationPivot'
 import useBoundStore from '../store/store'
 import { type BoardHex, type BoardPiece, Pieces } from '../types'
@@ -215,6 +215,7 @@ function TestBridgeInner() {
           hasMap: boolean
           materialTypes: string[]
         }> = []
+        const junglePalmMaterials: E2ESnapshot['junglePalmMaterials'] = []
         const evergreenTreeMaterials: Array<{
           uid: string
           part: 'tree' | 'boulders' | 'base'
@@ -242,6 +243,7 @@ function TestBridgeInner() {
           ) as Array<{
             map?: unknown
             type?: string
+            alphaTest?: number
             transparent?: boolean
             opacity?: number
           }>
@@ -258,6 +260,32 @@ function TestBridgeInner() {
             hasMap: materials.some((material) => Boolean(material?.map)),
             transparent: materials.some((material) => material?.transparent),
             opacity: firstMaterial?.opacity ?? 1,
+          }
+          const junglePalmUID = object.userData.junglePalmUID
+          const junglePalmPart = object.userData.junglePalmPart
+          if (
+            (typeof junglePalmUID === 'string' || junglePalmUID === null) &&
+            (junglePalmPart === 'trunk' ||
+              junglePalmPart === 'canopy' ||
+              junglePalmPart === 'fronds' ||
+              junglePalmPart === 'undergrowth')
+          ) {
+            if (typeof junglePalmUID === 'string') {
+              junglePalmMaterials.push({
+                uid: junglePalmUID,
+                part: junglePalmPart,
+                hasMap: materials.some((material) => Boolean(material?.map)),
+                alphaTest: firstMaterial?.alphaTest ?? 0,
+                transparent: firstMaterial?.transparent ?? false,
+                opacity: firstMaterial?.opacity ?? 1,
+              })
+            } else {
+              previewMeshes.push({
+                family: 'junglePalm',
+                part: junglePalmPart,
+                ...previewMaterial,
+              })
+            }
           }
           if (hiveUID === null) {
             previewMeshes.push({
@@ -382,6 +410,7 @@ function TestBridgeInner() {
           ),
           landRenderer: hasPerHexLandRenderer ? 'per-hex' : 'legacy',
           marroHiveMaterials,
+          junglePalmMaterials,
           evergreenTreeMaterials,
           previewMeshes,
           ruinsMaterials,

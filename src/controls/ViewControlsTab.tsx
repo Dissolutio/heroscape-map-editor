@@ -1137,6 +1137,10 @@ const PdfPreferencesSwitchForm = () => {
 }
 
 const SVGPreferencesSwitchForm = () => {
+  const isSvgColorBorders = useBoundStore((s) => s.isSvgColorBorders)
+  const toggleIsSvgColorBorders = useBoundStore(
+    (s) => s.toggleIsSvgColorBorders,
+  )
   const is2DOverlayLevelEnabled = useBoundStore(
     (s) => s.is2DOverlayLevelEnabled,
   )
@@ -1195,6 +1199,19 @@ const SVGPreferencesSwitchForm = () => {
     <FormControl component="fieldset" variant="standard">
       <FormLabel component="legend">2D/SVG options:</FormLabel>
       <FormGroup>
+        <FormControlLabel
+          control={
+            <Switch
+              size="small"
+              checked={isSvgColorBorders}
+              onChange={(event) =>
+                toggleIsSvgColorBorders(event.target.checked)
+              }
+            />
+          }
+          label="SVG Color Borders"
+          title="Color-coded piece borders in the SVG legend. Turn off for plain dark borders."
+        />
         <FormControlLabel
           control={
             <Switch
