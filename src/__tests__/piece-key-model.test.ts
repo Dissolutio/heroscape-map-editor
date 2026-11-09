@@ -90,7 +90,7 @@ describe('piece key model', () => {
     expect(model.landRows.map(({ size }) => size)).toEqual([24, 7, 3, 2, 1])
     expect(model.specialGroups.map(({ id }) => id)).toEqual([
       'roads-and-wall-walks',
-      'special-land-concrete',
+      'other',
     ])
     expect(
       model.specialGroups[0].entries.map(({ inventoryID }) => inventoryID),
@@ -98,6 +98,12 @@ describe('piece key model', () => {
     expect(
       model.specialGroups.slice(1).map(({ entries }) => entries[0].inventoryID),
     ).toEqual([Pieces.concrete6])
+    expect(
+      model.specialGroups[1].entries.map(({ title }) => title),
+    ).toEqual(['Concrete (6)'])
+    expect(
+      model.landColumns.some(({ terrain }) => terrain === HexTerrain.concrete),
+    ).toBe(false)
     expect(
       model.fluidColumns
         .flatMap((column) => column.cells)
