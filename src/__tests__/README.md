@@ -60,7 +60,7 @@ Three.js through a CommonJS entry point, not from an application `require`.
 | `edges-and-nodes.test.ts` | Current edge/corner representations, the tested integer-lattice prototype and equivalence checks, plus application-level edge/node acceptance items (`it.todo`). |
 | `terrain-constraints.test.ts` | Inventory normalization, set/personal/file constraints, and exact pen-mode availability under inventory constraints. |
 | `sets-to-build-map.test.ts` | Minimum set-copy recommendations, deterministic ties, ignored and unavailable pieces, collection shortfalls, exact/greedy parity, and large-map fallback timing. |
-| `adapt-to-collection.test.ts` | Missing-terrain adaptation suggestions, deterministic shared inventory allocation (surface before buried), up to three same-kind same-size substitutions, owned buried fill, naming defaults, and size-specific leftovers without Generic fallback. |
+| `adapt-to-collection.test.ts` | Missing-terrain and obstacle adaptation suggestions, footprint-safe family substitutions and height preference, gameplay-affecting obstacle priority, deterministic shared inventory allocation, owned buried fill, naming defaults, and leftovers. |
 | `map-share-url.test.ts` | Parsing pasted share links. |
 | `safe-storage.test.ts` | Guarded browser storage access, corrupted JSON, and quota/security failures. |
 | `map-storage.test.ts` | Old/new saved-map formats, separate portraits, and inline-portrait migration. |
