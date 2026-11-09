@@ -10,6 +10,9 @@ Most tests are **pure-logic tests** (hex math, placement rules, serialization,
 load). They run in Node with no browser or three.js rendering. The focused
 export-border test also renders minimal SVG and PDF output.
 
+When adding a piece, expect new lines in `export-colors-lock.test.ts.snap`.
+Existing snapshot lines must never change.
+
 Vitest may emit a `THREE_CJS_DEPRECATED` warning when a test imports rendering
 modules. It comes from `@react-three/fiber` or `@react-three/drei` loading
 Three.js through a CommonJS entry point, not from an application `require`.
@@ -26,14 +29,15 @@ Three.js through a CommonJS entry point, not from an application `require`.
 | `land-hex-geometry.test.ts` | Per-hex solid/fluid prism geometry: side quads index their own vertices, side-image orientation (including fluid UVs), triangle kinds and directions stay consistent, and faces point outward/upward. |
 | `export-border-color.test.ts` | Shared SVG/PDF border-color decisions for every terrain, SVG Asphalt markup, and rendered PDF output with outlines on/off, including sub-levels. |
 | `piece-key-model.test.ts` | Piece-key land/fluid terrain and size ordering, sparse cells, counts, special-family groups and captions, border-mode descriptions, and missing-description fallbacks. |
-| `piece-key-render.test.ts` | Canonical key geometry across map rotations, centered rope/Laur symbols, Special Tiles row alignment and caption fit using Inter metrics, per-line SVG text anchors, Laur map/key color parity, and rendered border/center descriptions. |
+| `export-colors-lock.test.ts` | Snapshot lock for export color tables and resolved fill/border colors of every registered piece. |
+| `piece-key-render.test.ts` | Canonical key geometry across map rotations, centered rope/Laur symbols, Special Tiles row alignment and caption fit using Inter metrics, per-line SVG text anchors, Laur map/key color parity, independent SVG/PDF border settings, unchanged map rendering, and rendered border/center descriptions. |
 | `cycleable-levels.test.ts` | Optional Legend viewing step after the overlay level. |
 | `pdf-sublevel-colors.test.ts` | SVG output snapshot for a stacked solid/liquid map and PDF sub-level color matching. |
 | `glyph-export-options.test.tsx` | Shared glyph-space classification, opaque SVG/PDF glyph fills and outlines, glyph symbol visibility, and height suppression beneath glyphs. |
 | `glyph-coordinate-lookup.test.ts` | Prebuilt glyph-coordinate lookup parity for glyphs and covered/non-glyph hexes. |
 | `glyph-visibility.test.ts` | Session-only 3D glyph visibility, selection/hover filtering, and selection cleanup when glyphs are hidden. |
 | `svg-map-render-performance.test.ts` | A large SVG map render computes its board-wide surface-altitude lookup once, not once per hex. |
-| `svg-map-render-markup.test.ts` | Byte-for-byte SVG snapshots captured from the pre-refactor levels, overlay, and Legend. |
+| `svg-map-render-markup.test.ts` | Byte-for-byte SVG snapshots captured from the pre-refactor map levels and overlay; the independent Legend border settings are checked in `piece-key-render.test.ts`. |
 | `origin-symbol-overlap.test.ts` | SVG/PDF origin symbols remain present at their piece coordinates, rotation, and level after another piece takes ownership of the origin hex. |
 | `ladder-stack-count.test.ts` | Ladder stack model: runs of consecutive ladder altitudes per edge (single run, two runs on one edge, different edges, rotation) and the number of PDF ladder overlay levels. |
 | `pdf-ladder-overlay.test.ts` | PDF ladder overlay levels: no ladder "x N" text in the PDF or SVG, the option off or no ladders gives no ladder level, white 1-hex with thin black border plus ladder shape and count, and two runs on one edge giving two ladder levels. |
@@ -55,13 +59,14 @@ Three.js through a CommonJS entry point, not from an application `require`.
 | `hex-grid.test.ts` | Cube coordinates, directions, rotation, grid generation, odd-r conversion. |
 | `edges-and-nodes.test.ts` | Current edge/corner representations, the tested integer-lattice prototype and equivalence checks, plus application-level edge/node acceptance items (`it.todo`). |
 | `terrain-constraints.test.ts` | Inventory normalization, set/personal/file constraints, and exact pen-mode availability under inventory constraints. |
-| `adapt-to-collection.test.ts` | Missing-terrain adaptation suggestions, deterministic shared inventory allocation (surface before buried), up to three same-kind same-size substitutions, owned buried fill, naming defaults, and size-specific leftovers without Generic fallback. |
+| `sets-to-build-map.test.ts` | Minimum set-copy recommendations, deterministic ties, ignored and unavailable pieces, collection shortfalls, exact/greedy parity, and large-map fallback timing. |
+| `adapt-to-collection.test.ts` | Missing-terrain and obstacle adaptation suggestions, footprint-safe family substitutions and height preference, gameplay-affecting obstacle priority, deterministic shared inventory allocation, owned buried fill, naming defaults, and leftovers. |
 | `map-share-url.test.ts` | Parsing pasted share links. |
 | `safe-storage.test.ts` | Guarded browser storage access, corrupted JSON, and quota/security failures. |
 | `map-storage.test.ts` | Old/new saved-map formats, separate portraits, and inline-portrait migration. |
 | `map-autosave.test.ts` | Debounced map writes, lifecycle flushes, hold/release gating, and failure retries. |
 | `map-portrait.test.ts` | Pure downscale dimensions and map identity through a JSONCrush share-link round trip. |
-| `settings.test.ts` | Versioned settings defaults (including the PDF ladder overlay option), migration, remembered map author validation and round-trip, debounced persistence, stale session-only visibility settings, and store-state classification. |
+| `settings.test.ts` | Versioned settings defaults (including SVG color borders and the PDF ladder overlay option), migration, remembered map author validation and round-trip, debounced persistence, stale session-only visibility settings, and store-state classification. |
 | `look-settings-tooltip-copy.test.ts` | Ensures every 3D Look dialog control has plain-English tooltip copy. |
 | `new-map-details.test.ts` | New-map author and notes through JSON loading and share-link serialization, including empty metadata. |
 | `view-mode.test.ts` | Active 3D, SVG, and PDF view selection, including PDF precedence. |
@@ -82,9 +87,11 @@ Three.js through a CommonJS entry point, not from an application `require`.
 | `evergreen-tree-model.test.ts` | Evergreen and large-tree GLB mesh bounds, UVs, and embedded base-color textures. |
 | `road-wall-model.test.ts` | Textured Road Wall GLB mesh names, UVs, embedded textures, repeat samplers, and recorded bounds. |
 | `marvel-ruin-model.test.ts` | Textured Marvel Ruin GLB mesh names, UVs, embedded textures, bounds, and per-piece rendered parts. |
+| `referenced-glb-assets.test.ts` | Every GLB path in source string literals resolves to an asset under `public/`. |
 | `textured-ruins-model.test.ts` | Ruins 2/3 textured GLB mesh names, UVs, embedded base-color textures, repeat samplers, and bounds against the recorded scanned-model bounds. |
 | `world/models/marroHiveMaterial.test.ts` | Marro Hive texture selection across graphics tiers, load states, and a missing base-color map. |
 | `world/models/texturedModelMaterial.test.ts` | Shared textured-model selection across graphics tiers, load states, and a missing base-color map. |
+| `world/models/palmFronds.test.ts` | Palm frond determinism, tier-specific ring counts, and segmented geometry. |
 | `store/graphics-tier.test.ts` | Graphics-tier loading state, session-only fallback after failure, and stale request handling. |
 | `store/action-log.test.ts` | Action-log message formatting, non-undoable deselection rows, and the bounded ring buffer. |
 | `performance/performance.test.ts` | Detection of monotonically growing scene, GPU-resource, heap, subscriber, timer, and animation-frame metrics, plus typed-array accounting for geometry, instances, and texture data. |

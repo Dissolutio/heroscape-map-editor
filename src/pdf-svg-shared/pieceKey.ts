@@ -154,12 +154,15 @@ const PIECE_KEY_METADATA: {
       id: 'evergreen',
       title: 'Evergreen Trees',
       description: 'green borders and centers; number indicates tree height',
+      descriptionWithoutColorBorders:
+        'dark borders and green centers; number indicates tree height',
       terrains: [HexTerrain.tree, HexTerrain.snowTree],
     },
     {
       id: 'jungle',
       title: 'Jungle Trees',
       description: 'brown borders, yellow centers',
+      descriptionWithoutColorBorders: 'dark borders, yellow centers',
       terrains: [HexTerrain.palm, HexTerrain.brush],
     },
     {
@@ -174,6 +177,8 @@ const PIECE_KEY_METADATA: {
       title: 'Pillars and Walls (Laur)',
       description:
         'pillars have pink borders and purple centers; wall add-ons are pink',
+      descriptionWithoutColorBorders:
+        'pillars have dark borders and purple centers; wall add-ons are pink',
       terrains: [HexTerrain.laurWall, HexTerrain.laurWallAddon],
       inventoryIDs: [
         Pieces.laurWallSquarePillar,
@@ -402,7 +407,7 @@ export const getPieceKeyModel = (
   const fluidRows = fluidSizes.map((size) => ({
     size,
     title: `${size} space`,
-    description: 'blue borders',
+    description: useTerrainBorderColor ? 'blue borders' : 'dark borders',
   }))
   const fluidColumns = orderedFluidTerrains.map((terrain) => {
     const terrainEntries = fluidEntries.filter(

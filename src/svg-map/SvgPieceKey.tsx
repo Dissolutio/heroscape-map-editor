@@ -126,6 +126,7 @@ export const SvgPieceKeyShape = (
                   viewingLevel={isLaurAddon ? 1 : 100}
                   overlayLevel={isLaurAddon ? 1 : 100}
                   isPieceKeyPreview={!isLaurAddon}
+                  useTerrainBorderColor={useTerrainBorderColor}
                   archTextOffsetX={
                     getLaurAddonExportSymbol(entry.inventoryID) === 'arch'
                       ? layout.center.x

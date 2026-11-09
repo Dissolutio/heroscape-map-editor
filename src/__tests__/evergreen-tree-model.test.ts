@@ -47,8 +47,8 @@ function getMeshBounds(glb: GlbJson, name: string) {
 }
 
 function expectBoundsClose(
-  oldBounds: ReturnType<typeof getMeshBounds>,
-  newBounds: ReturnType<typeof getMeshBounds>,
+  oldBounds: { min: number[]; max: number[] },
+  newBounds: { min: number[]; max: number[] },
   tolerance: number,
   oldScale: [number, number, number] = [1, 1, 1],
   newScale: [number, number, number] = [1, 1, 1],
@@ -84,6 +84,22 @@ function expectTexturedMesh(glb: GlbJson, meshName: string) {
   expect(glb.bufferViews?.[image?.bufferView ?? -1]).toBeDefined()
 }
 
+// Bounds recorded from the original big-tree model before its removal.
+const originalBigTreeBounds = {
+  BigTreeBoulders: {
+    min: [-0.6684009432792664, 0.16877996921539307, -0.6439971923828125],
+    max: [3.268918752670288, 0.5566638708114624, 2.0281856060028076],
+  },
+  BigTreeTree: {
+    min: [0.0063295066356658936, 0.17494817078113556, -0.6092427968978882],
+    max: [2.5571346282958984, 5.258922100067139, 2.0746209621429443],
+  },
+  BigTreeBase: {
+    min: [-0.8660253286361694, 1.1787648190875188e-8, -0.9999999403953552],
+    max: [3.4641013145446777, 0.17499999701976776, 2.500000238418579],
+  },
+}
+
 describe('textured evergreen tree models', () => {
   it('keeps the forest evergreen geometry, UVs, and embedded texture', () => {
     const oldTree = readGlbJson(
@@ -104,7 +120,6 @@ describe('textured evergreen tree models', () => {
   })
 
   it('keeps the large evergreen parts aligned and embeds tree and rock textures', () => {
-    const oldTree = readGlbJson('public/big-tree-415.glb')
     const newTree = readGlbJson('public/big-tree-415-textured.glb')
 
     expect(newTree.meshes.map((mesh) => mesh.name)).toEqual([
@@ -116,19 +131,19 @@ describe('textured evergreen tree models', () => {
     expectTexturedMesh(newTree, 'BigTreeTree')
 
     expectBoundsClose(
-      getMeshBounds(oldTree, 'BigTreeBoulders'),
+      originalBigTreeBounds.BigTreeBoulders,
       getMeshBounds(newTree, 'BigTreeBoulders'),
       0.3,
     )
     expectBoundsClose(
-      getMeshBounds(oldTree, 'BigTreeTree'),
+      originalBigTreeBounds.BigTreeTree,
       getMeshBounds(newTree, 'BigTreeTree'),
       0.25,
       [1, 1, 1],
       [1, 0.875, 1],
     )
     expectBoundsClose(
-      getMeshBounds(oldTree, 'BigTreeBase'),
+      originalBigTreeBounds.BigTreeBase,
       getMeshBounds(newTree, 'BigTreeBase'),
       0.25,
     )

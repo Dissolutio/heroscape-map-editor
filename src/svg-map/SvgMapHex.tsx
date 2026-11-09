@@ -287,6 +287,7 @@ const SvgMapHexComponent = ({
           hex={hex}
           isSubLevel={isSubLevel}
           isPieceKeyPreview={isPieceKeyPreview}
+          useTerrainBorderColor={useTerrainBorderColor}
         />
       </g>
     )
@@ -302,6 +303,7 @@ const SvgMapHexComponent = ({
           hex={hex}
           isSubLevel={isSubLevel}
           borderWidth={SVG_TREE_JUNGLE_OUTCROP_BORDER_WIDTH}
+          useTerrainBorderColor={useTerrainBorderColor}
         />
         <text fill={textColor} {...singleHexObstacleHeightTextProps()}>
           Y
@@ -320,6 +322,7 @@ const SvgMapHexComponent = ({
           hex={hex}
           isSubLevel={isSubLevel}
           borderWidth={SVG_TREE_JUNGLE_OUTCROP_BORDER_WIDTH}
+          useTerrainBorderColor={useTerrainBorderColor}
         />
         <text fill={textColor} {...singleHexObstacleHeightTextProps()}>
           M
@@ -342,7 +345,11 @@ const SvgMapHexComponent = ({
     return (
       <g transform={`translate(${pixel.x}, ${pixel.y})`}>
         <g transform={`rotate(${pieceRotation})`}>
-          <SvgMultiHex3 hex={hex} isSubLevel={isSubLevel} />
+          <SvgMultiHex3
+            hex={hex}
+            isSubLevel={isSubLevel}
+            useTerrainBorderColor={useTerrainBorderColor}
+          />
         </g>
         {originLine && (
           <line
@@ -428,6 +435,7 @@ const SvgMapHexComponent = ({
           hex={hex}
           isSubLevel={isSubLevel}
           borderWidth={SVG_TREE_JUNGLE_OUTCROP_BORDER_WIDTH}
+          useTerrainBorderColor={useTerrainBorderColor}
         />
         {!hideHeight && (
           <text fill={textColor} {...singleHexObstacleHeightTextProps()}>
@@ -446,7 +454,11 @@ const SvgMapHexComponent = ({
   ) {
     return (
       <g transform={`translate(${pixel.x}, ${pixel.y})`}>
-        <SvgOutcrop3 hex={hex} isSubLevel={isSubLevel} />
+        <SvgOutcrop3
+          hex={hex}
+          isSubLevel={isSubLevel}
+          useTerrainBorderColor={useTerrainBorderColor}
+        />
       </g>
     )
   }
@@ -454,7 +466,11 @@ const SvgMapHexComponent = ({
   if (inventoryID === Pieces.glacier6) {
     return (
       <g transform={`translate(${pixel.x}, ${pixel.y})`}>
-        <SvgOutcrop6 hex={hex} isSubLevel={isSubLevel} />
+        <SvgOutcrop6
+          hex={hex}
+          isSubLevel={isSubLevel}
+          useTerrainBorderColor={useTerrainBorderColor}
+        />
       </g>
     )
   }
@@ -462,7 +478,11 @@ const SvgMapHexComponent = ({
   if (inventoryID === Pieces.glacier4) {
     return (
       <g transform={`translate(${pixel.x}, ${pixel.y})`}>
-        <SvgOutcrop4 hex={hex} isSubLevel={isSubLevel} />
+        <SvgOutcrop4
+          hex={hex}
+          isSubLevel={isSubLevel}
+          useTerrainBorderColor={useTerrainBorderColor}
+        />
       </g>
     )
   }
@@ -470,7 +490,11 @@ const SvgMapHexComponent = ({
   if (inventoryID === Pieces.tree415) {
     return (
       <g transform={`translate(${pixel.x}, ${pixel.y})`}>
-        <SvgTree415 hex={hex} isSubLevel={isSubLevel} />
+        <SvgTree415
+          hex={hex}
+          isSubLevel={isSubLevel}
+          useTerrainBorderColor={useTerrainBorderColor}
+        />
       </g>
     )
   }
@@ -488,6 +512,7 @@ const SvgMapHexComponent = ({
           hex={hex}
           isSubLevel={specialIsSubLevel}
           borderWidth={SVG_TREE_JUNGLE_OUTCROP_BORDER_WIDTH}
+          useTerrainBorderColor={useTerrainBorderColor}
         />
         <text
           fill={
@@ -520,6 +545,7 @@ const SvgMapHexComponent = ({
           hex={hex}
           isSubLevel={isSubLevel}
           borderWidth={SVG_TREE_JUNGLE_OUTCROP_BORDER_WIDTH}
+          useTerrainBorderColor={useTerrainBorderColor}
         />
         {!hideHeight && (
           <text
@@ -573,7 +599,11 @@ const SvgMapHexComponent = ({
     ) {
       return (
         <g transform={`translate(${pixel.x}, ${pixel.y})`}>
-          <SvgMultiHex1 hex={hex} isSubLevel={isSubLevel} />
+          <SvgMultiHex1
+            hex={hex}
+            isSubLevel={isSubLevel}
+            useTerrainBorderColor={useTerrainBorderColor}
+          />
           <g transform={`rotate(${pieceRotation})`}>
             <SvgCastleStraight hex={hex} isSubLevel={isSubLevel} />
           </g>
@@ -591,7 +621,11 @@ const SvgMapHexComponent = ({
     ) {
       return (
         <g transform={`translate(${pixel.x}, ${pixel.y})`}>
-          <SvgMultiHex1 hex={hex} isSubLevel={isSubLevel} />
+          <SvgMultiHex1
+            hex={hex}
+            isSubLevel={isSubLevel}
+            useTerrainBorderColor={useTerrainBorderColor}
+          />
           <g transform={`rotate(${pieceRotation})`}>
             <SvgCastleEnd hex={hex} isSubLevel={isSubLevel} />
           </g>
@@ -635,7 +669,11 @@ const SvgMapHexComponent = ({
   if (isJungleTerrainHex(hex.terrain)) {
     return (
       <g transform={`translate(${pixel.x}, ${pixel.y})`}>
-        <SvgJungle hex={hex} isSubLevel={isSubLevel} />
+        <SvgJungle
+          hex={hex}
+          isSubLevel={isSubLevel}
+          useTerrainBorderColor={useTerrainBorderColor}
+        />
       </g>
     )
   }
@@ -647,7 +685,11 @@ const SvgMapHexComponent = ({
   ) {
     return (
       <g transform={`translate(${pixel.x}, ${pixel.y})`}>
-        <SvgLaurPillar hex={hex} isSubLevel={isSubLevel} />
+        <SvgLaurPillar
+          hex={hex}
+          isSubLevel={isSubLevel}
+          useTerrainBorderColor={useTerrainBorderColor}
+        />
       </g>
     )
   }
@@ -655,7 +697,11 @@ const SvgMapHexComponent = ({
   if (isLandHex && piecesSoFar[inventoryID].size === 1) {
     return (
       <g transform={`translate(${pixel.x}, ${pixel.y})`}>
-        <SvgMultiHex1 hex={hex} isSubLevel={isSubLevel} />
+        <SvgMultiHex1
+          hex={hex}
+          isSubLevel={isSubLevel}
+          useTerrainBorderColor={useTerrainBorderColor}
+        />
         <TerrainTileLetterText
           hex={hex}
           viewingLevel={viewingLevel}

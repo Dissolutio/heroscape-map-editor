@@ -23,6 +23,14 @@ export type E2ESnapshot = {
     hasMap: boolean
     materialTypes: string[]
   }>
+  junglePalmMaterials: Array<{
+    uid: string
+    part: 'trunk' | 'canopy' | 'fronds' | 'undergrowth'
+    hasMap: boolean
+    alphaTest: number
+    transparent: boolean
+    opacity: number
+  }>
   evergreenTreeMaterials: Array<{
     uid: string
     part: 'tree' | 'boulders' | 'base'
@@ -30,7 +38,12 @@ export type E2ESnapshot = {
     materialTypes: string[]
   }>
   previewMeshes: Array<{
-    family: 'marroHive' | 'evergreenTree' | 'snowEvergreenTree' | 'marvelRuin'
+    family:
+      | 'marroHive'
+      | 'junglePalm'
+      | 'evergreenTree'
+      | 'snowEvergreenTree'
+      | 'marvelRuin'
     part: string
     hasMap: boolean
     transparent: boolean

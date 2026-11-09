@@ -131,13 +131,11 @@ export const getSvgHexBorderColor = (
   const colorBorder = getSvgHexColorOutline(hex)
   return getExportBorderColor({
     terrain: hex.terrain,
-    isFluid: isFluidTerrainHex(hex.terrain),
+    isFluid: useTerrainBorderColor && isFluidTerrainHex(hex.terrain),
     isSubLevel: false,
     useTerrainBorderColor,
     colorBorder,
-    defaultBorderColor: isSolidTerrainHex(hex.terrain)
-      ? svgColors.glacierText
-      : colorBorder,
+    defaultBorderColor: svgColors.glacierText,
   })
 }
 
@@ -243,13 +241,11 @@ export const getSvgHexSubLevelBorderColor = (
   const colorBorder = getSvgHexSubLevelColorOutline(hex)
   return getExportBorderColor({
     terrain: hex.terrain,
-    isFluid: isFluidTerrainHex(hex.terrain),
+    isFluid: useTerrainBorderColor && isFluidTerrainHex(hex.terrain),
     isSubLevel: true,
     useTerrainBorderColor,
     colorBorder,
-    defaultBorderColor: isSolidTerrainHex(hex.terrain)
-      ? svgSubLevelColors.glacierText
-      : colorBorder,
+    defaultBorderColor: svgSubLevelColors.glacierText,
   })
 }
 
