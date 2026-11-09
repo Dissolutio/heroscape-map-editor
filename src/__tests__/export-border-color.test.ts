@@ -106,7 +106,9 @@ describe('SVG/PDF export border color decision', () => {
         ).toBe(
           isFluid
             ? coloredBorder
-            : isSolid && terrain === HexTerrain.asphalt
+            : isSolid &&
+                (terrain === HexTerrain.asphalt ||
+                  terrain === HexTerrain.toxic)
               ? isSubLevel
                 ? ASPHALT_SUBLEVEL_BORDER_COLOR
                 : ASPHALT_BORDER_COLOR
