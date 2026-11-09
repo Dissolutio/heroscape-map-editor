@@ -76,7 +76,7 @@ const SvgMapDisplay = ({
   const storeOverlayEnabled = useBoundStore((s) => s.is2DOverlayLevelEnabled)
   const is2DOverlayLevelEnabled = overlayEnabledOverride ?? storeOverlayEnabled
   const isShowPieceKey = useBoundStore((s) => s.isShowPdfPieceLegend)
-  const useTerrainBorderColor = useBoundStore((s) => s.isPdfColorBorders)
+  const useTerrainBorderColor = useBoundStore((s) => s.isSvgColorBorders)
   const isHideHeightsOnGlyphs = useBoundStore((s) => s.isHideHeightsOnGlyphs)
   const genericSolidCapColor = useBoundStore((s) => s.genericSolidCapColor)
   const genericFluidCapColor = useBoundStore((s) => s.genericFluidCapColor)

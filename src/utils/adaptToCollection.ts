@@ -1,7 +1,9 @@
 import { piecesSoFar } from '../data/pieces'
 import getPieceTemplateCoords from '../data/rotationTransforms'
+import { computeConflictedPieceUIDs } from '../data/rebuildBoardState'
 import {
   HexTerrain,
+  Pieces,
   type BoardHexes,
   type BoardPiece,
   type PieceInventory,
@@ -17,12 +19,17 @@ export type TerrainAdaptChoice = {
   scope: AdaptScope
 }
 
+export type ObstacleAdaptChoice = {
+  targetInventoryIDs: string[]
+}
+
 export type CollectionLandSupply = {
   hasAnyPieces: boolean
   byTerrainAndSize: Map<string, Map<number, string>>
   ownedTerrains: string[]
   hexesByTerrain: Map<string, number>
   quantityByInventoryID: Map<string, number>
+  obstacleQuantityByInventoryID: Map<string, number>
 }
 
 export type TerrainHexCounts = {
@@ -37,13 +44,45 @@ export type UnconvertedLandPieceCount = {
   count: number
 }
 
+export type UnconvertedObstaclePieceCount = {
+  inventoryID: string
+  count: number
+}
+
 export type CollectionAdaptationPlan = {
   mapping: Record<string, string>
   surfaceCoverageByTerrain: Record<string, number[]>
   unconvertedPieces: UnconvertedLandPieceCount[]
+  obstacleCoverageByInventoryID: Record<string, number[]>
+  unconvertedObstacles: UnconvertedObstaclePieceCount[]
 }
 
 export const ADAPTED_MAP_SUFFIX = ' (Adapted to collection)'
+
+// Families share substitutes only when listed together; matching candidates
+// must still have the exact same footprint. Keep this table editable as the
+// physical-piece equivalences are verified.
+export const OBSTACLE_SUBSTITUTION_FAMILIES: Record<string, string[]> = {
+  forestTree: ['forestTree', 'snowTree'],
+  snowTree: ['forestTree', 'snowTree'],
+  rockOutcrop: ['rockOutcrop', 'lavaRockOutcrop', 'toxicOutcrop'],
+  lavaRockOutcrop: ['rockOutcrop', 'lavaRockOutcrop', 'toxicOutcrop'],
+  toxicOutcrop: ['rockOutcrop', 'lavaRockOutcrop', 'toxicOutcrop'],
+  laurJungleTree: ['laurJungleTree', 'ticallaPalm'],
+  ticallaPalm: ['laurJungleTree', 'ticallaPalm'],
+  glacier: ['glacier'],
+  marvelRuin: ['marvelRuin'],
+  ruins: ['ruins'],
+  shroudshroom: ['shroudshroom'],
+  laurWall: ['laurWall'],
+  ship: ['ship'],
+}
+
+const gameplayAffectingObstacleFamilies = new Set([
+  'laurJungleTree',
+  'ticallaPalm',
+  'shroudshroom',
+])
 
 export function getAdaptedMapName(mapName: string): string {
   const name = mapName.trim()
@@ -84,13 +123,24 @@ export function getCollectionLandSupply(
   const byTerrainAndSize = new Map<string, Map<number, string>>()
   const hexesByTerrain = new Map<string, number>()
   const quantityByInventoryID = new Map<string, number>()
+  const obstacleQuantityByInventoryID = new Map<string, number>()
 
   for (const [inventoryID, count] of Object.entries(inventory)) {
     if (count <= 0) continue
     const piece = piecesSoFar[inventoryID]
+    if (!piece || piece.isUninventoried) {
+      continue
+    }
+
     if (
-      !piece ||
-      piece.isUninventoried ||
+      piece.isObstaclePiece &&
+      !piece.isOverlayPiece &&
+      piece.terrain !== HexTerrain.startZone
+    ) {
+      obstacleQuantityByInventoryID.set(inventoryID, count)
+    }
+
+    if (
       !piece.isHexTerrainPiece ||
       !isLandTerrain(piece.terrain) ||
       isGenericTerrain(piece.terrain)
@@ -118,7 +168,139 @@ export function getCollectionLandSupply(
     ownedTerrains: [...byTerrainAndSize.keys()].sort(),
     hexesByTerrain,
     quantityByInventoryID,
+    obstacleQuantityByInventoryID,
   }
+}
+
+export function isGameplayAffectingObstacle(inventoryID: string): boolean {
+  const piece = piecesSoFar[inventoryID]
+  return Boolean(
+    piece &&
+      (inventoryID === Pieces.cannon ||
+        (piece.pieceSizeFamily &&
+          gameplayAffectingObstacleFamilies.has(piece.pieceSizeFamily))),
+  )
+}
+
+const obstacleFootprintSignature = (inventoryID: string): string => {
+  const piece = piecesSoFar[inventoryID]
+  if (!piece?.isObstaclePiece || !piece.template) return ''
+
+  const signatures = Array.from({ length: 6 }, (_, rotation) => {
+    const coordinates = getPieceTemplateCoords({
+      clickedHex: { q: 0, r: 0, s: 0 },
+      rotation,
+      template: piece.template,
+      isVsTile: false,
+    })
+    const unique = [
+      ...new Map(
+        coordinates.map((coordinate) => [
+          `${coordinate.q},${coordinate.r},${coordinate.s}`,
+          coordinate,
+        ]),
+      ).values(),
+    ].sort((a, b) => a.q - b.q || a.r - b.r || a.s - b.s)
+    const origin = unique[0]
+    if (!origin) return ''
+    return JSON.stringify(
+      unique.map(({ q, r, s }) => [q - origin.q, r - origin.r, s - origin.s]),
+    )
+  })
+  return signatures.filter(Boolean).sort()[0] ?? ''
+}
+
+export function getObstacleSubstituteCandidates(
+  inventoryID: string,
+  inventory: PieceInventory,
+  boardPieces?: BoardPiece[],
+): string[] {
+  const source = piecesSoFar[inventoryID]
+  const sourceFamily = source?.pieceSizeFamily
+  const compatibleFamilies = sourceFamily
+    ? OBSTACLE_SUBSTITUTION_FAMILIES[sourceFamily]
+    : undefined
+  if (!source?.isObstaclePiece || !compatibleFamilies) return []
+
+  const sourceFootprint = obstacleFootprintSignature(inventoryID)
+  if (!sourceFootprint) return []
+  const sourceBoardPieces =
+    boardPieces?.filter(
+      (boardPiece) => boardPiece.inventoryID === inventoryID,
+    ) ?? []
+  const conflictsBefore = boardPieces
+    ? new Set(computeConflictedPieceUIDs(boardPieces))
+    : undefined
+
+  return Object.entries(inventory)
+    .filter(([candidateID, count]) => {
+      const candidate = piecesSoFar[candidateID]
+      return (
+        candidateID !== inventoryID &&
+        count > 0 &&
+        candidate?.isObstaclePiece &&
+        !candidate.isUninventoried &&
+        candidate.pieceSizeFamily &&
+        compatibleFamilies.includes(candidate.pieceSizeFamily) &&
+        candidate.size === source.size &&
+        obstacleFootprintSignature(candidateID) === sourceFootprint &&
+        sourceBoardPieces.every((boardPiece) => {
+          if (!boardPieces || !conflictsBefore) return true
+          const replacedPieces = boardPieces.map((current) =>
+            current.uid === boardPiece.uid
+              ? { ...current, inventoryID: candidateID }
+              : current,
+          )
+          return computeConflictedPieceUIDs(replacedPieces).every((uid) =>
+            conflictsBefore.has(uid),
+          )
+        })
+      )
+    })
+    .map(([candidateID]) => candidateID)
+    .sort((a, b) => {
+      const gameplayOrder =
+        Number(isGameplayAffectingObstacle(a)) -
+        Number(isGameplayAffectingObstacle(b))
+      if (gameplayOrder) return gameplayOrder
+      const heightDifference =
+        Math.abs(piecesSoFar[a].height - source.height) -
+        Math.abs(piecesSoFar[b].height - source.height)
+      return (
+        heightDifference ||
+        piecesSoFar[a].title.localeCompare(piecesSoFar[b].title) ||
+        a.localeCompare(b)
+      )
+    })
+}
+
+export function getMissingObstacles(
+  boardPieces: BoardPiece[],
+  inventory: PieceInventory,
+): { inventoryID: string; count: number }[] {
+  const usedByID = countPiecesUsedWithLaurStacking(boardPieces)
+  return Object.entries(usedByID)
+    .flatMap(([inventoryID, used]) => {
+      const piece = piecesSoFar[inventoryID]
+      if (
+        !piece?.isObstaclePiece ||
+        piece.isOverlayPiece ||
+        piece.terrain === HexTerrain.startZone
+      ) {
+        return []
+      }
+      const missing = used - Math.max(0, inventory[inventoryID] ?? 0)
+      return missing > 0 ? [{ inventoryID, count: missing }] : []
+    })
+    .sort(
+      (a, b) =>
+        Number(isGameplayAffectingObstacle(a.inventoryID)) -
+          Number(isGameplayAffectingObstacle(b.inventoryID)) ||
+        piecesSoFar[a.inventoryID].title.localeCompare(
+          piecesSoFar[b.inventoryID].title,
+        ) ||
+        a.inventoryID.localeCompare(b.inventoryID),
+    )
 }
 
 export function analyzeMapTerrain(
@@ -204,12 +386,14 @@ export function buildCollectionAdaptationPlan({
   supply,
   choices,
   buriedFillByKind,
+  obstacleChoices = {},
 }: {
   boardHexes: BoardHexes
   boardPieces: BoardPiece[]
   supply: CollectionLandSupply
   choices: Record<string, TerrainAdaptChoice>
   buriedFillByKind: { solid: string; fluid: string }
+  obstacleChoices?: Record<string, ObstacleAdaptChoice>
 }): CollectionAdaptationPlan {
   const checkBuried = makeBuriedStatusChecker(boardHexes, boardPieces)
   const analysis = analyzeMapTerrain(boardHexes, boardPieces)
@@ -222,6 +406,35 @@ export function buildCollectionAdaptationPlan({
           (boardPiece) =>
             piecesSoFar[boardPiece.inventoryID]?.terrain === terrain,
         )
+        .sort(
+          (a, b) =>
+            a.pieceCoords.q - b.pieceCoords.q ||
+            a.pieceCoords.r - b.pieceCoords.r ||
+            a.altitude - b.altitude ||
+            a.rotation - b.rotation ||
+            a.uid.localeCompare(b.uid),
+        ),
+    ]),
+  )
+  const obstacleInventory = Object.fromEntries(
+    supply.obstacleQuantityByInventoryID,
+  )
+  const missingObstacles = getMissingObstacles(boardPieces, obstacleInventory)
+  const obstacleCandidatesByID = new Map(
+    missingObstacles.map(({ inventoryID }) => [
+      inventoryID,
+      getObstacleSubstituteCandidates(
+        inventoryID,
+        obstacleInventory,
+        boardPieces,
+      ),
+    ]),
+  )
+  const piecesByObstacle = new Map(
+    missingObstacles.map(({ inventoryID }) => [
+      inventoryID,
+      boardPieces
+        .filter((boardPiece) => boardPiece.inventoryID === inventoryID)
         .sort(
           (a, b) =>
             a.pieceCoords.q - b.pieceCoords.q ||
@@ -247,6 +460,8 @@ export function buildCollectionAdaptationPlan({
     string,
     UnconvertedLandPieceCount
   >()
+  const obstacleCoverageByInventoryID: Record<string, number[]> = {}
+  const unconvertedObstacles = new Map<string, UnconvertedObstaclePieceCount>()
 
   const recordUnconverted = (terrain: string, size: number) => {
     const key = `${terrain}:${size}`
@@ -291,6 +506,16 @@ export function buildCollectionAdaptationPlan({
     return undefined
   }
 
+  const remainingObstacles = new Map(supply.obstacleQuantityByInventoryID)
+  for (const [inventoryID, used] of Object.entries(
+    countPiecesUsedWithLaurStacking(boardPieces),
+  )) {
+    remainingObstacles.set(
+      inventoryID,
+      Math.max(0, (remainingObstacles.get(inventoryID) ?? 0) - used),
+    )
+  }
+
   for (const terrain of missingTerrains) {
     surfaceCoverageByTerrain[terrain] = [0, 0, 0]
     const choice = choices[terrain]
@@ -328,11 +553,60 @@ export function buildCollectionAdaptationPlan({
     }
   }
 
+  for (const { inventoryID, count } of missingObstacles) {
+    const source = piecesSoFar[inventoryID]
+    if (!source) continue
+    const choice = obstacleChoices[inventoryID]
+    const targets = choice?.targetInventoryIDs ?? []
+    const coverage = [0, 0, 0]
+    obstacleCoverageByInventoryID[inventoryID] = coverage
+    const sourcePieces = piecesByObstacle.get(inventoryID) ?? []
+    const ownedCount = Math.max(
+      0,
+      Math.floor(obstacleInventory[inventoryID] ?? 0),
+    )
+    const piecesToReplace = sourcePieces.slice(ownedCount)
+    for (const boardPiece of piecesToReplace.slice(0, count)) {
+      const seen = new Set<string>()
+      let allocated = false
+      for (let rank = 0; rank < Math.min(targets.length, 3); rank += 1) {
+        const targetID = targets[rank]
+        if (!targetID || seen.has(targetID)) continue
+        seen.add(targetID)
+        if (
+          !obstacleCandidatesByID.get(inventoryID)?.includes(targetID) ||
+          (remainingObstacles.get(targetID) ?? 0) <= 0
+        ) {
+          continue
+        }
+        remainingObstacles.set(
+          targetID,
+          (remainingObstacles.get(targetID) ?? 0) - 1,
+        )
+        mapping[boardPiece.uid] = targetID
+        coverage[rank] = (coverage[rank] ?? 0) + 1
+        allocated = true
+        break
+      }
+      if (!allocated) {
+        const current = unconvertedObstacles.get(inventoryID)
+        if (current) current.count += 1
+        else unconvertedObstacles.set(inventoryID, { inventoryID, count: 1 })
+      }
+    }
+  }
+
   return {
     mapping,
     surfaceCoverageByTerrain,
     unconvertedPieces: [...unconvertedByTerrainAndSize.values()].sort(
       (a, b) => a.terrain.localeCompare(b.terrain) || a.size - b.size,
+    ),
+    obstacleCoverageByInventoryID,
+    unconvertedObstacles: [...unconvertedObstacles.values()].sort((a, b) =>
+      piecesSoFar[a.inventoryID].title.localeCompare(
+        piecesSoFar[b.inventoryID].title,
+      ),
     ),
   }
 }

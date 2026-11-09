@@ -3,6 +3,7 @@ import usePieceHoverState from '../../hooks/usePieceHoverState'
 import useBoundStore from '../../store/store'
 import { HexTerrain, PiecePrefixes, Pieces } from '../../types'
 import { hexTerrainColor } from '../maphex/hexColors'
+import PalmFrondCanopy, { PalmTrunkMaterial } from './PalmFrondCanopy'
 import { basicModelMaterial } from './materials'
 import { useDisposableGLTF } from './useDisposableGLTF'
 
@@ -36,7 +37,7 @@ export default function TicallaPalm({
           onPointerEnter={(e) => onPointerEnterPID(e, pid)}
           onPointerOut={(e) => onPointerOut(e)}
         >
-          <LaurPalmPreview isHighlighted={isHighlighted} />
+          <LaurPalmPreview isHighlighted={isHighlighted} pid={pid} />
         </group>
       </>
     )
@@ -47,22 +48,26 @@ export default function TicallaPalm({
       onPointerEnter={(e) => onPointerEnterPID(e, pid)}
       onPointerOut={(e) => onPointerOut(e)}
     >
-      <TicallaPalmPreview isHighlighted={isHighlighted} />
+      <TicallaPalmPreview isHighlighted={isHighlighted} pid={pid} />
     </group>
   )
 }
 export function TicallaPalmPreview({
   opacity = 1,
   isHighlighted,
+  pid,
 }: {
   opacity?: number
   isHighlighted?: boolean
+  pid?: string
 }) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useDisposableGLTF('/laur-jungle.glb') as any
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,
   )
+  const effectiveGraphicsTier = useBoundStore((s) => s.effectiveGraphicsTier)
+  const usesCutoutFronds = effectiveGraphicsTier !== 'low'
   const colorPalmTrunk = isHighlighted
     ? 'yellow'
     : hexTerrainColor.ticallaPalmTrunk
@@ -80,25 +85,48 @@ export function TicallaPalmPreview({
   return (
     <>
       <mesh
+        userData={{ junglePalmUID: pid ?? null, junglePalmPart: 'trunk' }}
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
         geometry={nodes.Palm_Trunk.geometry}
-        material={basicModelMaterial(
-          colorPalmTrunk,
-          isLightsAndShadowsRender,
-          opacity,
-        )}
+        material={
+          usesCutoutFronds
+            ? PalmTrunkMaterial({
+                style: 'ticalla',
+                tier: effectiveGraphicsTier,
+                opacity,
+                isHighlighted: Boolean(isHighlighted),
+              })
+            : basicModelMaterial(
+                colorPalmTrunk,
+                isLightsAndShadowsRender,
+                opacity,
+              )
+        }
       />
-      <mesh
-        receiveShadow={isLightsAndShadowsRender}
-        castShadow={isLightsAndShadowsRender}
-        geometry={nodes.Palm_Canopy.geometry}
-        material={basicModelMaterial(
-          colorPalmCanopy,
-          isLightsAndShadowsRender,
-          opacity,
-        )}
-      />
+      {usesCutoutFronds ? (
+        <PalmFrondCanopy
+          seed={pid ?? 'ticalla-palm-preview'}
+          style="ticalla"
+          tier={effectiveGraphicsTier}
+          opacity={opacity}
+          isHighlighted={Boolean(isHighlighted)}
+          uid={pid}
+          castShadow={isLightsAndShadowsRender}
+        />
+      ) : (
+        <mesh
+          userData={{ junglePalmUID: pid ?? null, junglePalmPart: 'fronds' }}
+          receiveShadow={isLightsAndShadowsRender}
+          castShadow={isLightsAndShadowsRender}
+          geometry={nodes.Palm_Canopy.geometry}
+          material={basicModelMaterial(
+            colorPalmCanopy,
+            isLightsAndShadowsRender,
+            opacity,
+          )}
+        />
+      )}
       <mesh
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
@@ -146,15 +174,19 @@ export function TicallaPalmPreview({
 export function LaurPalmPreview({
   opacity = 1,
   isHighlighted,
+  pid,
 }: {
   opacity?: number
   isHighlighted?: boolean
+  pid?: string
 }) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useDisposableGLTF('/laur-jungle.glb') as any
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,
   )
+  const effectiveGraphicsTier = useBoundStore((s) => s.effectiveGraphicsTier)
+  const usesCutoutFronds = effectiveGraphicsTier !== 'low'
   const colorPalmTrunk = isHighlighted
     ? 'yellow'
     : hexTerrainColor.ticallaPalmTrunk
@@ -172,25 +204,48 @@ export function LaurPalmPreview({
   return (
     <>
       <mesh
+        userData={{ junglePalmUID: pid ?? null, junglePalmPart: 'trunk' }}
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
         geometry={nodes.Palm_Trunk.geometry}
-        material={basicModelMaterial(
-          colorPalmTrunk,
-          isLightsAndShadowsRender,
-          opacity,
-        )}
+        material={
+          usesCutoutFronds
+            ? PalmTrunkMaterial({
+                style: 'laur',
+                tier: effectiveGraphicsTier,
+                opacity,
+                isHighlighted: Boolean(isHighlighted),
+              })
+            : basicModelMaterial(
+                colorPalmTrunk,
+                isLightsAndShadowsRender,
+                opacity,
+              )
+        }
       />
-      <mesh
-        receiveShadow={isLightsAndShadowsRender}
-        castShadow={isLightsAndShadowsRender}
-        geometry={nodes.Palm_Canopy.geometry}
-        material={basicModelMaterial(
-          colorPalmCanopy,
-          isLightsAndShadowsRender,
-          opacity,
-        )}
-      />
+      {usesCutoutFronds ? (
+        <PalmFrondCanopy
+          seed={pid ?? 'laur-palm-preview'}
+          style="laur"
+          tier={effectiveGraphicsTier}
+          opacity={opacity}
+          isHighlighted={Boolean(isHighlighted)}
+          uid={pid}
+          castShadow={isLightsAndShadowsRender}
+        />
+      ) : (
+        <mesh
+          userData={{ junglePalmUID: pid ?? null, junglePalmPart: 'fronds' }}
+          receiveShadow={isLightsAndShadowsRender}
+          castShadow={isLightsAndShadowsRender}
+          geometry={nodes.Palm_Canopy.geometry}
+          material={basicModelMaterial(
+            colorPalmCanopy,
+            isLightsAndShadowsRender,
+            opacity,
+          )}
+        />
+      )}
       <mesh
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
