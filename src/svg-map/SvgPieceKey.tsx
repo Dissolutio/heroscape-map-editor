@@ -34,23 +34,37 @@ const KeyBorderRect = ({
   y,
   width,
   height,
+  hasTopBorder = true,
+  hasLeftBorder = true,
 }: {
   x: number
   y: number
   width: number
   height: number
-}) => (
-  <>
-    <rect x={x} y={y} width={width} height={height} fill="black" />
-    <rect
-      x={x + PIECE_KEY_LINE_WIDTH}
-      y={y + PIECE_KEY_LINE_WIDTH}
-      width={Math.max(0, width - PIECE_KEY_LINE_WIDTH * 2)}
-      height={Math.max(0, height - PIECE_KEY_LINE_WIDTH * 2)}
-      fill="white"
-    />
-  </>
-)
+  hasTopBorder?: boolean
+  hasLeftBorder?: boolean
+}) => {
+  const leftInset = hasLeftBorder ? PIECE_KEY_LINE_WIDTH : 0
+  const topInset = hasTopBorder ? PIECE_KEY_LINE_WIDTH : 0
+  return (
+    <>
+      <rect x={x} y={y} width={width} height={height} fill="black" />
+      <rect
+        x={x + leftInset}
+        y={y + topInset}
+        width={Math.max(
+          0,
+          width - leftInset - PIECE_KEY_LINE_WIDTH,
+        )}
+        height={Math.max(
+          0,
+          height - topInset - PIECE_KEY_LINE_WIDTH,
+        )}
+        fill="white"
+      />
+    </>
+  )
+}
 
 export const SvgPieceKeyShape = (
   entry: PieceKeyEntry,
@@ -454,6 +468,8 @@ const renderTerrainTables = (
               y={thisY}
               width={rowHeaderWidth}
               height={headerHeight}
+              hasTopBorder={false}
+              hasLeftBorder={false}
             />
             <text
               x={startX + rowHeaderWidth / 2}

@@ -243,6 +243,7 @@ function LandGrid({
             width: `${80 / Math.max(columns.length, 1)}%`,
             minHeight: PDF_TABLE_HEADER_HEIGHT,
             padding: 2,
+            borderTopWidth: PIECE_KEY_LINE_WIDTH,
             borderRightWidth: PIECE_KEY_LINE_WIDTH,
             borderBottomWidth: PIECE_KEY_LINE_WIDTH,
             justifyContent: 'center',
@@ -282,6 +283,7 @@ function LandGrid({
             width: '20%',
             minHeight: rowHeight,
             padding: 2,
+            borderLeftWidth: PIECE_KEY_LINE_WIDTH,
             borderRightWidth: PIECE_KEY_LINE_WIDTH,
             borderBottomWidth: PIECE_KEY_LINE_WIDTH,
             justifyContent: 'center',
@@ -341,8 +343,6 @@ function LandGrid({
               wrap={false}
               style={{
                 marginBottom: chunkIndex === chunks.length - 1 ? 8 : 0,
-                borderTopWidth: PIECE_KEY_LINE_WIDTH,
-                borderLeftWidth: PIECE_KEY_LINE_WIDTH,
               }}
             >
               {chunk.map((chunkRow) =>
