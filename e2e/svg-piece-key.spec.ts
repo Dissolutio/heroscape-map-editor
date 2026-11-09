@@ -450,6 +450,69 @@ test('renders issue 350 key evidence with all tree and Laur variants', async ({
   const key = page.locator('[data-testid="svg-piece-key"]')
   await expect(key).toBeVisible()
   await saveSvgEvidence(key, 'issue-350-svg-piece-key')
+  const specialRowAlignment = await key.evaluate((element) => {
+    const errors: string[] = []
+    for (const group of element.querySelectorAll(
+      '[data-testid="svg-piece-key-special-group"]',
+    )) {
+      const rows = new Map<
+        string,
+        {
+          inventoryID: string
+          shapeTop: number
+          shapeBottom: number
+          captionTop: number
+        }[]
+      >()
+      for (const entry of group.querySelectorAll(
+        '[data-testid="svg-piece-key-special-entry"]',
+      )) {
+        const row = entry.getAttribute('data-row-index') ?? ''
+        const shape = entry.querySelector(
+          '[data-testid="svg-piece-key-shape"]',
+        ) as SVGGElement | null
+        const caption = entry.querySelector(
+          ':scope > text',
+        ) as SVGTextElement | null
+        if (!shape || !caption) {
+          errors.push(`missing shape or caption in row ${row}`)
+          continue
+        }
+        const shapeBounds = shape.getBBox()
+        const captionBounds = caption.getBBox()
+        rows.set(row, [
+          ...(rows.get(row) ?? []),
+          {
+            inventoryID: shape.getAttribute('data-inventory-id') ?? '',
+            shapeTop: shapeBounds.y,
+            shapeBottom: shapeBounds.y + shapeBounds.height,
+            captionTop: captionBounds.y,
+          },
+        ])
+      }
+
+      for (const [row, entries] of rows) {
+        const shapeTops = entries.map(({ shapeTop }) => shapeTop)
+        const captionTops = entries.map(({ captionTop }) => captionTop)
+        if (Math.max(...shapeTops) - Math.min(...shapeTops) > 2) {
+          errors.push(
+            `shapes do not share a top line in row ${row}: ${JSON.stringify(entries)}`,
+          )
+        }
+        if (Math.max(...captionTops) - Math.min(...captionTops) > 2) {
+          errors.push(`captions do not share a top line in row ${row}`)
+        }
+        if (
+          Math.max(...entries.map(({ shapeBottom }) => shapeBottom)) >
+          Math.min(...captionTops) + 1
+        ) {
+          errors.push(`captions overlap shapes in row ${row}`)
+        }
+      }
+    }
+    return errors
+  })
+  expect(specialRowAlignment).toEqual([])
 
   await page.setViewportSize({ width: 700, height: 900 })
   await page.locator('#simple-tab-3').click()
@@ -481,6 +544,9 @@ test('renders issue 353 key evidence for fluids, glyphs, and the hive', async ({
   await page
     .getByRole('checkbox', { name: 'Include piece key in SVG and PDF' })
     .check()
+  const pdfColorBorders = page.getByRole('checkbox', {
+    name: 'PDF Color Borders',
+  })
   await page.getByRole('button', { name: 'View 2D Map' }).click()
   await page.locator('#simple-tab-0').click()
 
@@ -492,6 +558,26 @@ test('renders issue 353 key evidence for fluids, glyphs, and the hive', async ({
   await expect(key.getByText('Liquid and Base Terrain')).toBeVisible()
   await expect(key.getByText('Jungle Trees')).toBeVisible()
   await expect(key.getByText('Glyphs', { exact: true })).toBeVisible()
+  const emptyFluidRows = await key
+    .locator(
+      '[data-testid="svg-piece-key-fluid-grid"] [data-testid="svg-piece-key-land-table"]',
+    )
+    .evaluateAll((tables) =>
+      tables.flatMap((table, tableIndex) =>
+        [...table.querySelectorAll('[data-testid="svg-piece-key-table-row"]')]
+          .filter(
+            (row) =>
+              !row.querySelector(
+                '[data-testid="svg-piece-key-land-cell"][data-has-entry="true"]',
+              ),
+          )
+          .map(
+            (row) =>
+              `table ${tableIndex}, size ${row.getAttribute('data-size')}`,
+          ),
+      ),
+    )
+  expect(emptyFluidRows).toEqual([])
   await saveSvgEvidence(key, 'issue-353-svg-live-piece-key', 1)
 
   await page.setViewportSize({ width: 700, height: 900 })
@@ -499,16 +585,22 @@ test('renders issue 353 key evidence for fluids, glyphs, and the hive', async ({
   await page
     .getByRole('button', { name: 'View pdf build instructions' })
     .click()
-  const pdfLink = page.getByRole('link', {
-    name: /Download build instructions \.pdf/,
-  })
-  await expect(pdfLink).toBeVisible()
-  const pdfDownloadPromise = page.waitForEvent('download')
-  await pdfLink.click()
-  const pdfDownload = await pdfDownloadPromise
-  const pdfPath = await pdfDownload.path()
-  if (!pdfPath) throw new Error('PDF download did not produce a file')
-  await pdfDownload.saveAs(testInfo.outputPath('issue-353-piece-key.pdf'))
+  const downloadPdf = async (name: string) => {
+    const pdfLink = page.getByRole('link', {
+      name: /Download build instructions \.pdf/,
+    })
+    await expect(pdfLink).toBeVisible()
+    const downloadPromise = page.waitForEvent('download')
+    await pdfLink.click()
+    const download = await downloadPromise
+    const pdfPath = await download.path()
+    if (!pdfPath) throw new Error('PDF download did not produce a file')
+    await download.saveAs(testInfo.outputPath(name))
+  }
+  await pdfColorBorders.check()
+  await downloadPdf('issue-353-pdf-piece-key-color-borders.pdf')
+  await pdfColorBorders.uncheck()
+  await downloadPdf('issue-353-pdf-piece-key-dark-borders.pdf')
 
   await page.setViewportSize({ width: 1400, height: 1100 })
   await page.locator('#simple-tab-3').click()
@@ -520,6 +612,13 @@ test('renders issue 353 key evidence for fluids, glyphs, and the hive', async ({
   if (!svgPath) throw new Error('SVG download did not produce a file')
   const exportedSvg = await readFile(svgPath, 'utf8')
   await page.setContent(exportedSvg)
+  const exportedHivePathCount = await page
+    .locator(
+      `[data-testid="svg-piece-key-shape"][data-inventory-id="${Pieces.hive}"]`,
+    )
+    .locator('path')
+    .count()
+  expect(exportedHivePathCount).toBeGreaterThanOrEqual(6)
   const captionPathOffsets = await page
     .locator('[data-testid="svg-piece-key-special-entry"]')
     .evaluateAll((entries) =>

@@ -31,6 +31,16 @@ export type PieceKeyLandRow = {
   description: string
 }
 
+export const getPieceKeyRowsForColumns = (
+  columns: PieceKeyLandColumn[],
+  rows: PieceKeyLandRow[],
+) =>
+  rows.filter((row) =>
+    columns.some((column) =>
+      column.cells.some((cell) => cell.size === row.size),
+    ),
+  )
+
 export type PieceKeySpecialGroup = {
   id: string
   title: string
@@ -178,7 +188,7 @@ const PIECE_KEY_METADATA: {
       description:
         'pillars have pink borders and purple centers; wall add-ons are pink',
       descriptionWithoutColorBorders:
-        'pillars have dark borders and purple centers; wall add-ons are pink',
+        'pillars and wall add-ons have dark borders; pillars have purple centers',
       terrains: [HexTerrain.laurWall, HexTerrain.laurWallAddon],
       inventoryIDs: [
         Pieces.laurWallSquarePillar,

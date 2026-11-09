@@ -73,8 +73,21 @@ export const getPieceKeyShapeLayout = (
           ? getLaurWallRuinPdfPolygonPoints(SVG_HEX_RADIUS).corners
           : getLaurWallRuinSvgPolygonPoints(SVG_HEX_RADIUS).corners
     : []
+  const addonCenterX = addonBounds.length
+    ? (Math.min(...addonBounds.map(({ x }) => x)) +
+        Math.max(...addonBounds.map(({ x }) => x))) /
+      2
+    : 0
   const symbolBounds = addonBounds.length
-    ? addonBounds
+    ? [
+        ...addonBounds,
+        ...(laurSymbol === 'arch'
+          ? [
+              { x: addonCenterX, y: -SVG_HEX_RADIUS * 0.33 },
+              { x: addonCenterX, y: SVG_HEX_RADIUS * 0.33 },
+            ]
+          : []),
+      ]
     : entry.inventoryID === Pieces.ladder
       ? getLadderSvgPolygonPoints(SVG_HEX_RADIUS * 2, 0).corners
       : entry.inventoryID === Pieces.shipWall

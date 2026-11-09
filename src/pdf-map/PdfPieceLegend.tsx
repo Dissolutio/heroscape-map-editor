@@ -10,6 +10,7 @@ import {
   type PieceKeyLandColumn,
   type PieceKeyLandRow,
   getPieceKeyModel,
+  getPieceKeyRowsForColumns,
 } from '../pdf-svg-shared/pieceKey'
 import {
   getPieceKeyRowShapeHeight,
@@ -136,6 +137,7 @@ export function PieceKeyShape({
             useLegacyStartZones={settings.useLegacyStartZones}
             is2DOverlayLevelEnabled
             isPieceKeyPreview={!isLaurAddon}
+            isPieceKeyLegend={isLaurAddon}
             useTerrainBorderColor={useTerrainBorderColor}
             archTextOffsetX={
               getLaurAddonExportSymbol(entry.inventoryID) === 'arch'
@@ -177,15 +179,19 @@ function LandGrid({
   ) {
     tables.push(columns.slice(offset, offset + LAND_COLUMNS_PER_TABLE))
   }
-  const landTables = tables.map((columns) => ({
-    columns,
-    chunks: chunkLandRows(
-      rows,
-      (row) => getLandRowHeight(model, row.size, scale, columns),
-      PDF_TABLE_HEADER_HEIGHT,
-      MAX_LAND_TABLE_CHUNK_HEIGHT,
-    ),
-  }))
+  const landTables = tables.map((columns) => {
+    const tableRows = getPieceKeyRowsForColumns(columns, rows)
+    return {
+      columns,
+      rows: tableRows,
+      chunks: chunkLandRows(
+        tableRows,
+        (row) => getLandRowHeight(model, row.size, scale, columns),
+        PDF_TABLE_HEADER_HEIGHT,
+        MAX_LAND_TABLE_CHUNK_HEIGHT,
+      ),
+    }
+  })
 
   const renderHeaderRow = (columns: PieceKeyLandColumn[], key: string) => (
     <View
@@ -293,7 +299,7 @@ function LandGrid({
 
   return (
     <>
-      {landTables.flatMap(({ columns, chunks }, tableIndex) =>
+      {landTables.flatMap(({ columns, rows, chunks }, tableIndex) =>
         chunks.map((chunk, chunkIndex) => {
           const table = (
             <View

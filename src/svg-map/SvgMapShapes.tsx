@@ -720,12 +720,10 @@ export const SvgJungle = ({
 export const SvgHive6 = ({
   hex,
   isSubLevel,
-  isPieceKeyPreview,
   useTerrainBorderColor = true,
 }: {
   hex: BoardHex
   isSubLevel?: boolean
-  isPieceKeyPreview?: boolean
   useTerrainBorderColor?: boolean
 }) => {
   const fillColor = getSvgHexFillColor(hex)
@@ -764,11 +762,9 @@ export const SvgHive6 = ({
       )}
       <path
         d={svgHiveBlobD}
-        fill={isPieceKeyPreview ? 'none' : fillColor}
+        fill={fillColor}
         stroke={'black'}
-        strokeWidth={
-          isPieceKeyPreview ? PDF_BORDER_WIDTH / 1.2 : SVG_BORDER_WIDTH / 2.4
-        }
+        strokeWidth={SVG_BORDER_WIDTH / 2.4}
         transform={`translate(${-2 * SVG_HEX_APOTHEM},${-SVG_HEX_RADIUS})`}
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
@@ -786,11 +782,9 @@ export const SvgHive6 = ({
         />
       )}
       <ellipse
-        fill={isPieceKeyPreview ? 'none' : fillColor}
+        fill={fillColor}
         stroke={'black'}
-        strokeWidth={
-          isPieceKeyPreview ? PDF_BORDER_WIDTH / 2 : SVG_BORDER_WIDTH / 4
-        }
+        strokeWidth={SVG_BORDER_WIDTH / 4}
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
         cx="9.4113"
         cy="82.45652"
@@ -810,11 +804,9 @@ export const SvgHive6 = ({
         />
       )}
       <ellipse
-        fill={isPieceKeyPreview ? 'none' : fillColor}
+        fill={fillColor}
         stroke={'black'}
-        strokeWidth={
-          isPieceKeyPreview ? PDF_BORDER_WIDTH / 2 : SVG_BORDER_WIDTH / 4
-        }
+        strokeWidth={SVG_BORDER_WIDTH / 4}
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
         cx="12.63397"
         cy="101.25543"
@@ -834,11 +826,9 @@ export const SvgHive6 = ({
         />
       )}
       <ellipse
-        fill={isPieceKeyPreview ? 'none' : fillColor}
+        fill={fillColor}
         stroke={'black'}
-        strokeWidth={
-          isPieceKeyPreview ? PDF_BORDER_WIDTH / 1.4 : SVG_BORDER_WIDTH / 2.8
-        }
+        strokeWidth={SVG_BORDER_WIDTH / 2.8}
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
         cx="49.15758"
         cy="77.35397"
@@ -858,11 +848,9 @@ export const SvgHive6 = ({
         />
       )}
       <ellipse
-        fill={isPieceKeyPreview ? 'none' : fillColor}
+        fill={fillColor}
         stroke={'black'}
-        strokeWidth={
-          isPieceKeyPreview ? PDF_BORDER_WIDTH / 1.8 : SVG_BORDER_WIDTH / 3.6
-        }
+        strokeWidth={SVG_BORDER_WIDTH / 3.6}
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
         cx="49.96326"
         cy="98.30132"

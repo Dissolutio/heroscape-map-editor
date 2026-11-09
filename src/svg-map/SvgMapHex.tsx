@@ -286,7 +286,6 @@ const SvgMapHexComponent = ({
         <SvgHive6
           hex={hex}
           isSubLevel={isSubLevel}
-          isPieceKeyPreview={isPieceKeyPreview}
           useTerrainBorderColor={useTerrainBorderColor}
         />
       </g>

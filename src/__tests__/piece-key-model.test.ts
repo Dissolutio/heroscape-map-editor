@@ -3,6 +3,7 @@ import { piecesSoFar } from '../data/pieces'
 import {
   getPieceKeyDescriptionGaps,
   getPieceKeyModel,
+  getPieceKeyRowsForColumns,
   getPieceKeyTerrainDescription,
 } from '../pdf-svg-shared/pieceKey'
 import type { BoardPiece } from '../types'
@@ -158,7 +159,7 @@ describe('piece key model', () => {
       expect(descriptions.get('laur')).toBe(
         useTerrainBorderColor
           ? 'pillars have pink borders and purple centers; wall add-ons are pink'
-          : 'pillars have dark borders and purple centers; wall add-ons are pink',
+          : 'pillars and wall add-ons have dark borders; pillars have purple centers',
       )
     }
   })
@@ -244,7 +245,7 @@ describe('piece key model', () => {
     expect(laur).toMatchObject({
       title: 'Pillars and Walls (Laur)',
       description:
-        'pillars have dark borders and purple centers; wall add-ons are pink',
+        'pillars and wall add-ons have dark borders; pillars have purple centers',
     })
     expect(laur?.entries.map(({ title }) => title)).toEqual([
       'long wall',
@@ -317,6 +318,45 @@ describe('piece key model', () => {
         entries.map(({ inventoryID }) => inventoryID),
       ),
     ).not.toContain(Pieces.genericFluid2)
+  })
+
+  it('uses only fluid sizes present in each wrapped column chunk', () => {
+    const model = getPieceKeyModel(
+      [
+        makePiece(Pieces.water3, 0),
+        makePiece(Pieces.wellspringWater1, 1),
+        makePiece(Pieces.swampWater6, 2),
+        makePiece(Pieces.ice4, 3),
+        makePiece(Pieces.ice6, 4),
+        makePiece(Pieces.lava1, 5),
+        makePiece(Pieces.shadow3, 6),
+        makePiece(Pieces.toxicWater1, 7),
+        makePiece(Pieces.genericFluid2, 8),
+      ],
+      {},
+      true,
+    )
+    const firstChunk = model.fluidColumns.slice(0, 6)
+    const secondChunk = model.fluidColumns.slice(6)
+
+    expect(
+      getPieceKeyRowsForColumns(firstChunk, model.fluidRows).map(
+        ({ size }) => size,
+      ),
+    ).toEqual([6, 4, 3, 1])
+    expect(
+      getPieceKeyRowsForColumns(secondChunk, model.fluidRows).map(
+        ({ size }) => size,
+      ),
+    ).toEqual([2, 1])
+    expect(
+      getPieceKeyRowsForColumns(
+        model.fluidColumns.filter(
+          ({ terrain }) => terrain === HexTerrain.toxicWater,
+        ),
+        model.fluidRows,
+      ).map(({ size }) => size),
+    ).toEqual([1])
   })
 
   it('uses the title as a safe fallback for missing terrain descriptions', () => {
