@@ -125,7 +125,7 @@ const SetsToBuildMapDialog = () => {
           </Typography>
         ) : null}
         {catalog?.ignored.length ? (
-          <Typography variant="body2">
+          <Typography variant="body2" color="text.secondary">
             Not counted (generic, start zones, or glyphs):{' '}
             {catalog.ignored
               .map((piece) => `${piece.count}× ${piece.title}`)
@@ -133,7 +133,7 @@ const SetsToBuildMapDialog = () => {
           </Typography>
         ) : null}
         {objectiveMarkerCount > 0 && (
-          <Typography variant="body2">
+          <Typography variant="body2" color="text.secondary">
             Objective markers: {objectiveMarkerCount} (not counted)
           </Typography>
         )}
