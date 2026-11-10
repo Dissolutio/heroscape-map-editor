@@ -23,10 +23,10 @@ export type PalmFrondTransform = {
 }
 
 export const PALM_FROND_BLADE_WIDTH: Record<PalmStyle, number> = {
-  laur: 1.45,
-  ticalla: 1.45,
+  laur: 3,
+  ticalla: 3,
 }
-export const PALM_FROND_FOLD = 0.16
+export const PALM_FROND_FOLD = 0.08
 
 export function applyPalmFrondInstances(
   mesh: InstancedMesh,
