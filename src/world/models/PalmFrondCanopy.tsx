@@ -1,4 +1,4 @@
-import { useLayoutEffect, useMemo, useRef } from 'react'
+import { useLayoutEffect, useMemo, useState } from 'react'
 import {
   BufferAttribute,
   BufferGeometry,
@@ -19,6 +19,7 @@ import {
   PALM_FROND_BASE_DROOP,
   PALM_FROND_BASE_WIDTH,
   type PalmStyle,
+  applyPalmFrondInstances,
   buildPalmFrondGeometry,
   buildPalmFrondInstances,
   getPalmFrondRings,
@@ -413,42 +414,27 @@ function PalmFrondBatch({
   uid?: string
   castShadow: boolean
 }) {
-  const meshRef = useRef<InstancedMesh>(null)
+  const [mesh, setMesh] = useState<InstancedMesh | null>(null)
   const instances = useMemo(
     () => buildPalmFrondInstances(seed, style, tier).flat(),
     [seed, style, tier],
   )
   const { depth, distance } = getCutoutDepthMaterials(style)
+  const geometry = getFrondGeometry(style, tier)
+  const material = getFrondMaterial(style, tier, isHighlighted, opacity)
+  const count = instances.length
 
   useLayoutEffect(() => {
-    const mesh = meshRef.current
     if (!mesh) return
-    const object = new Object3D()
-    instances.forEach((instance, index) => {
-      object.position.set(...instance.position)
-      object.rotation.set(...instance.rotation)
-      object.scale.set(
-        instance.length,
-        instance.droopScale,
-        instance.widthScale,
-      )
-      object.updateMatrix()
-      mesh.setMatrixAt(index, object.matrix)
-    })
-    mesh.instanceMatrix.needsUpdate = true
-    mesh.computeBoundingSphere()
+    applyPalmFrondInstances(mesh, instances)
     mesh.customDepthMaterial = depth
     mesh.customDistanceMaterial = distance
-  }, [depth, distance, instances])
+  }, [depth, distance, instances, mesh])
 
   return (
     <instancedMesh
-      ref={meshRef}
-      args={[
-        getFrondGeometry(style, tier),
-        getFrondMaterial(style, tier, isHighlighted, opacity),
-        instances.length,
-      ]}
+      ref={setMesh}
+      args={[geometry, material, count]}
       castShadow={castShadow}
       receiveShadow={castShadow}
       dispose={null}
@@ -472,8 +458,11 @@ function PalmUndergrowth({
   uid?: string
   castShadow: boolean
 }) {
-  const meshRef = useRef<InstancedMesh>(null)
+  const [mesh, setMesh] = useState<InstancedMesh | null>(null)
   const { depth, distance } = getCutoutDepthMaterials(style, 'undergrowth')
+  const geometry = getUndergrowthGeometry()
+  const material = getUndergrowthMaterial(style, isHighlighted, opacity)
+  const count = undergrowthCount
   const transforms = useMemo(() => {
     let value = 2166136261
     for (let index = 0; index < seed.length; index += 1) {
@@ -497,7 +486,6 @@ function PalmUndergrowth({
   }, [seed])
 
   useLayoutEffect(() => {
-    const mesh = meshRef.current
     if (!mesh) return
     const object = new Object3D()
     transforms.forEach(({ angle, radius, scale }, index) => {
@@ -515,16 +503,12 @@ function PalmUndergrowth({
     mesh.computeBoundingSphere()
     mesh.customDepthMaterial = depth
     mesh.customDistanceMaterial = distance
-  }, [depth, distance, transforms])
+  }, [depth, distance, mesh, transforms])
 
   return (
     <instancedMesh
-      ref={meshRef}
-      args={[
-        getUndergrowthGeometry(),
-        getUndergrowthMaterial(style, isHighlighted, opacity),
-        undergrowthCount,
-      ]}
+      ref={setMesh}
+      args={[geometry, material, count]}
       castShadow={castShadow}
       receiveShadow={castShadow}
       dispose={null}

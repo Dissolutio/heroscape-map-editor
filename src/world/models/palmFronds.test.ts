@@ -1,5 +1,12 @@
+import {
+  BufferGeometry,
+  InstancedMesh,
+  MeshBasicMaterial,
+  Object3D,
+} from 'three'
 import { describe, expect, it } from 'vitest'
 import {
+  applyPalmFrondInstances,
   buildPalmFrondGeometry,
   buildPalmFrondInstances,
   getPalmFrondRings,
@@ -43,5 +50,56 @@ describe('palm frond generation', () => {
     expect(geometry.index?.count).toBe(30)
     expect(geometry.getAttribute('uv').count).toBe(12)
     geometry.dispose()
+  })
+
+  it('rewrites matrices and bounds on a mesh rebuilt with a new material', () => {
+    const instances = buildPalmFrondInstances(
+      'palm-rebuild',
+      'ticalla',
+      'high',
+    ).flat()
+    const geometry = buildPalmFrondGeometry({
+      segments: 5,
+      width: 0.44,
+      droop: 0.8,
+    })
+    const firstMaterial = new MeshBasicMaterial()
+    const firstMesh = new InstancedMesh(
+      geometry,
+      firstMaterial,
+      instances.length,
+    )
+    applyPalmFrondInstances(firstMesh, instances)
+
+    const rebuiltMaterial = new MeshBasicMaterial({ color: 'yellow' })
+    const rebuiltMesh = new InstancedMesh(
+      geometry,
+      rebuiltMaterial,
+      instances.length,
+    )
+    applyPalmFrondInstances(rebuiltMesh, instances)
+
+    const expectedMatrices = new Float32Array(instances.length * 16)
+    const object = new Object3D()
+    instances.forEach((instance, index) => {
+      object.position.set(...instance.position)
+      object.rotation.set(...instance.rotation)
+      object.scale.set(
+        instance.length,
+        instance.droopScale,
+        instance.widthScale,
+      )
+      object.updateMatrix()
+      expectedMatrices.set(object.matrix.elements, index * 16)
+    })
+
+    expect(rebuiltMesh.instanceMatrix.array).toEqual(expectedMatrices)
+    expect(rebuiltMesh.boundingSphere?.center.y).toBeGreaterThan(3.5)
+
+    firstMesh.dispose()
+    rebuiltMesh.dispose()
+    geometry.dispose()
+    firstMaterial.dispose()
+    rebuiltMaterial.dispose()
   })
 })
