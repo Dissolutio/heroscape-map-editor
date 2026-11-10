@@ -832,6 +832,9 @@ test('jungle palms use tiered cutout fronds and stay selectable with transparent
       )
       await waitForAppReady(page)
       await saveEvidence(page, `jungle-palms-${tier.evidenceName}-side`)
+      if (process.env.E2E_EVIDENCE === '1' && tier.evidenceName === 'high') {
+        await saveEvidence(page, 'palm-frond-body-side')
+      }
       await page.evaluate(
         async ({ position, target }) =>
           window.__TEST__?.setCamera(position, target),

@@ -27,6 +27,13 @@ export const PALM_FROND_BLADE_WIDTH: Record<PalmStyle, number> = {
   ticalla: 3,
 }
 export const PALM_FROND_FOLD = 0.08
+// Measured from the Palm_Trunk POSITION accessor in public/laur-jungle.glb.
+// Both styles render this geometry directly beside their procedural fronds.
+export const PALM_TRUNK_TOP_Y: Record<PalmStyle, number> = {
+  laur: 4.375,
+  ticalla: 4.375,
+}
+export const PALM_CANOPY_TRUNK_OVERLAP = 0.05
 
 export function applyPalmFrondInstances(
   mesh: InstancedMesh,
@@ -181,7 +188,18 @@ export function getPalmFrondRings(
   tier: GraphicsTier,
 ): PalmFrondRing[] {
   if (tier === 'low') return []
-  return ringProfiles[style][tier]
+  const rings = ringProfiles[style][tier]
+  const lowestBaseY = Math.min(...rings.map((ring) => ring.baseY))
+  const baseOffset =
+    PALM_TRUNK_TOP_Y[style] - PALM_CANOPY_TRUNK_OVERLAP - lowestBaseY
+  return rings.map((ring) => ({
+    ...ring,
+    baseY: ring.baseY + baseOffset,
+  }))
+}
+
+export function shouldRenderPalmCrownHub(tier: GraphicsTier) {
+  return tier !== 'low'
 }
 
 function seedNumber(seed: string): number {

@@ -13,11 +13,14 @@ import {
   MODEL_HIGHLIGHT_EMISSIVE_INTENSITY,
 } from './texturedModelMaterial'
 import {
+  PALM_CANOPY_TRUNK_OVERLAP,
   PALM_FROND_FOLD,
+  PALM_TRUNK_TOP_Y,
   applyPalmFrondInstances,
   buildPalmFrondGeometry,
   buildPalmFrondInstances,
   getPalmFrondRings,
+  shouldRenderPalmCrownHub,
 } from './palmFronds'
 
 describe('palm frond generation', () => {
@@ -45,6 +48,29 @@ describe('palm frond generation', () => {
         ),
       ).toBe(22)
     }
+  })
+
+  it('seats the lowest ring just below each trunk top', () => {
+    for (const style of ['laur', 'ticalla'] as const) {
+      for (const tier of ['medium', 'high'] as const) {
+        const rings = getPalmFrondRings(style, tier)
+        const lowestBaseY = Math.min(...rings.map((ring) => ring.baseY))
+        const trunkTopY = PALM_TRUNK_TOP_Y[style]
+
+        expect(lowestBaseY).toBeCloseTo(
+          trunkTopY - PALM_CANOPY_TRUNK_OVERLAP,
+          6,
+        )
+        expect(lowestBaseY).toBeGreaterThanOrEqual(trunkTopY - 0.1)
+        expect(lowestBaseY).toBeLessThanOrEqual(trunkTopY + 0.1)
+      }
+    }
+  })
+
+  it('renders the crown hub only for procedural graphics tiers', () => {
+    expect(shouldRenderPalmCrownHub('low')).toBe(false)
+    expect(shouldRenderPalmCrownHub('medium')).toBe(true)
+    expect(shouldRenderPalmCrownHub('high')).toBe(true)
   })
 
   it('builds a segmented frond with the configured triangle count', () => {

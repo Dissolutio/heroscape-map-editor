@@ -11,6 +11,7 @@ import {
   Object3D,
   RGBAFormat,
   SRGBColorSpace,
+  SphereGeometry,
   UnsignedByteType,
 } from 'three'
 import type { InstancedMesh } from 'three'
@@ -23,15 +24,18 @@ import {
   PALM_FROND_BASE_DROOP,
   PALM_FROND_BASE_WIDTH,
   PALM_FROND_BLADE_WIDTH,
+  PALM_TRUNK_TOP_Y,
   type PalmStyle,
   applyPalmFrondInstances,
   buildPalmFrondGeometry,
   buildPalmFrondInstances,
   getPalmFrondRings,
+  shouldRenderPalmCrownHub,
 } from './palmFronds'
 
 const alphaTest = 0.25
 const undergrowthCount = 6
+const palmCrownHubRadius = 0.21
 const textureCache = new Map<
   PalmStyle,
   {
@@ -46,14 +50,17 @@ let undergrowthGeometry: BufferGeometry | undefined
 const frondMaterialCache = new Map<string, MeshStandardMaterial>()
 const undergrowthMaterialCache = new Map<string, MeshStandardMaterial>()
 const barkMaterialCache = new Map<string, MeshStandardMaterial>()
+const crownHubMaterialCache = new Map<string, MeshStandardMaterial>()
 const depthMaterialCache = new Map<string, MeshDepthMaterial>()
 const distanceMaterialCache = new Map<string, MeshDistanceMaterial>()
+let crownHubGeometry: SphereGeometry | undefined
 
 export function clearPalmCanopyCache() {
   for (const material of [
     ...frondMaterialCache.values(),
     ...undergrowthMaterialCache.values(),
     ...barkMaterialCache.values(),
+    ...crownHubMaterialCache.values(),
     ...depthMaterialCache.values(),
     ...distanceMaterialCache.values(),
   ]) {
@@ -69,14 +76,17 @@ export function clearPalmCanopyCache() {
     geometry.dispose()
   }
   undergrowthGeometry?.dispose()
+  crownHubGeometry?.dispose()
   textureCache.clear()
   frondGeometryCache.clear()
   frondMaterialCache.clear()
   undergrowthMaterialCache.clear()
   barkMaterialCache.clear()
+  crownHubMaterialCache.clear()
   depthMaterialCache.clear()
   distanceMaterialCache.clear()
   undergrowthGeometry = undefined
+  crownHubGeometry = undefined
 }
 
 function makeCanvas(width: number, height: number) {
@@ -355,6 +365,30 @@ function getBarkMaterial(
   return material
 }
 
+function getCrownHubGeometry() {
+  if (!crownHubGeometry) {
+    crownHubGeometry = new SphereGeometry(palmCrownHubRadius, 16, 8)
+  }
+  return crownHubGeometry
+}
+
+function getCrownHubMaterial(isHighlighted: boolean, opacity: number) {
+  const key = `${isHighlighted}:${opacity}`
+  let material = crownHubMaterialCache.get(key)
+  if (!material) {
+    material = new MeshStandardMaterial({
+      ...getPalmHighlightMaterialOptions(isHighlighted),
+      color: isHighlighted ? 'white' : '#365f29',
+      roughness: 0.86,
+      transparent: opacity < 1,
+      opacity,
+      depthWrite: opacity === 1,
+    })
+    crownHubMaterialCache.set(key, material)
+  }
+  return material
+}
+
 function getFrondGeometry(style: PalmStyle, tier: GraphicsTier) {
   const key = `${style}:${tier}`
   let geometry = frondGeometryCache.get(key)
@@ -580,6 +614,17 @@ export default function PalmFrondCanopy({
           isHighlighted={isHighlighted}
           uid={uid}
           castShadow={castShadow}
+        />
+      )}
+      {shouldRenderPalmCrownHub(tier) && (
+        <mesh
+          geometry={getCrownHubGeometry()}
+          material={getCrownHubMaterial(isHighlighted, previewOpacity)}
+          position={[0, PALM_TRUNK_TOP_Y[style] - 0.02, 0]}
+          scale={[1, 0.6, 1]}
+          castShadow={castShadow}
+          receiveShadow={castShadow}
+          dispose={null}
         />
       )}
       <PalmUndergrowth
