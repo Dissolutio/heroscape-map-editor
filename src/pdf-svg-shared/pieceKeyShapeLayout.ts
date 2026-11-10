@@ -40,6 +40,7 @@ export const getPieceKeyShapeLayout = (
   const laurSymbol = getLaurAddonExportSymbol(entry.inventoryID)
   const footprintBounds =
     laurSymbol ||
+    entry.inventoryID === Pieces.ladder ||
     entry.inventoryID === Pieces.ropeLadder ||
     entry.inventoryID === Pieces.roadWall ||
     entry.inventoryID === Pieces.shipWall ||
