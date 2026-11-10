@@ -903,16 +903,17 @@ describe('piece key shape rendering', () => {
 
       expect(svgColors(svgKey)).toEqual(svgColors(svgMap))
 
+      // The PDF map never passes the Color Borders toggle to pieces, so Laur
+      // add-ons keep their own colors; the key must match in both modes.
+      const pdfMapColors = collectShapeColors(
+        PdfMapBoardPiece({
+          piece: decoded,
+          viewingLevel: 1,
+          overlayLevel: 1,
+          useLegacyStartZones: false,
+        }),
+      )
       for (const useTerrainBorderColor of [true, false]) {
-        const pdfMapColors = collectShapeColors(
-          PdfMapBoardPiece({
-            piece: decoded,
-            viewingLevel: 1,
-            overlayLevel: 1,
-            useLegacyStartZones: false,
-            useTerrainBorderColor,
-          }),
-        )
         const pdfKeyColors = collectShapeColors(
           PieceKeyShape({
             entry,
@@ -985,9 +986,16 @@ describe('piece key shape rendering', () => {
       expect(pdfViewBox[0] + pdfViewBox[2] / 2).toBeCloseTo(
         pdfLayout.origin.x + pdfLayout.center.x,
       )
-      expect(pdfViewBox[1] + pdfViewBox[3] / 2).toBeCloseTo(
-        pdfLayout.origin.y + pdfLayout.center.y,
-      )
+      if (entry.inventoryID === Pieces.battlement) {
+        // The PDF key lowers the Battlement toward its caption on purpose.
+        expect(pdfViewBox[1] + pdfViewBox[3] / 2).toBeLessThan(
+          pdfLayout.origin.y + pdfLayout.center.y,
+        )
+      } else {
+        expect(pdfViewBox[1] + pdfViewBox[3] / 2).toBeCloseTo(
+          pdfLayout.origin.y + pdfLayout.center.y,
+        )
+      }
 
       const svg = renderToStaticMarkup(
         SvgPieceKeyShape(entry, 500, 600, 1, `centered-${entry.inventoryID}`),
@@ -1313,10 +1321,14 @@ describe('piece key shape rendering', () => {
       '<g data-testid="svg-piece-key-land-table">',
     )
     expect(tableMarkupStart).toBeGreaterThanOrEqual(0)
-    const headerRects = [
+    // Each cell's first rect is an unfilled rect carrying its full bounds.
+    const allRects = [
       ...markup.slice(tableMarkupStart).matchAll(/<rect\b([^>]*)>/g),
-    ].slice(0, 4)
-    expect(headerRects).toHaveLength(4)
+    ]
+    const headerRects = allRects
+      .filter(([, attributes]) => attributes.includes('fill="none"'))
+      .slice(0, 2)
+    expect(headerRects).toHaveLength(2)
 
     const expectCenteredBlock = (texts: string[], cellAttributes: string) => {
       const elements = texts.map((text) => textAttributes(text))
@@ -1355,7 +1367,7 @@ describe('piece key shape rendering', () => {
       ['Notice centers', 'and border colors'],
       headerRects[0][1],
     )
-    expectCenteredBlock(['Grass', 'green centers'], headerRects[2][1])
+    expectCenteredBlock(['Grass', 'green centers'], headerRects[1][1])
   })
 
   it('uses the map hive artwork in the key', () => {
