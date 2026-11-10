@@ -851,11 +851,14 @@ test('jungle palms use tiered cutout fronds and stay selectable with transparent
               uid,
               part: 'fronds',
               hasMap: tier.hasMap,
-              alphaTest: tier.hasMap ? 0.35 : 0,
+              alphaTest: tier.hasMap ? 0.25 : 0,
             }),
           ),
         ),
       )
+    if (process.env.E2E_EVIDENCE === '1' && tier.evidenceName === 'high') {
+      await saveEvidence(page, 'palm-frond-body-after')
+    }
     for (const uid of palmUIDs) {
       const materials = await page.evaluate(
         (id) =>
@@ -881,6 +884,14 @@ test('jungle palms use tiered cutout fronds and stay selectable with transparent
           page.evaluate(() => window.__TEST__?.snapshot().selectedPieceIDs),
         )
         .toContain(uid)
+      if (
+        process.env.E2E_EVIDENCE === '1' &&
+        tier.evidenceName === 'high' &&
+        uid === palmUIDs[0]
+      ) {
+        await waitForAppReady(page)
+        await saveEvidence(page, 'palm-frond-body-selected')
+      }
     }
 
     await setPen(page, 'tp14', 0)

@@ -1,11 +1,19 @@
 import {
   BufferGeometry,
+  Color,
   InstancedMesh,
   MeshBasicMaterial,
+  MeshStandardMaterial,
   Object3D,
 } from 'three'
 import { describe, expect, it } from 'vitest'
+import { getPalmHighlightMaterialOptions } from './PalmFrondCanopy'
 import {
+  MODEL_HIGHLIGHT_EMISSIVE,
+  MODEL_HIGHLIGHT_EMISSIVE_INTENSITY,
+} from './texturedModelMaterial'
+import {
+  PALM_FROND_FOLD,
   applyPalmFrondInstances,
   buildPalmFrondGeometry,
   buildPalmFrondInstances,
@@ -46,10 +54,59 @@ describe('palm frond generation', () => {
       droop: 0.8,
     })
 
-    expect(geometry.getAttribute('position').count).toBe(12)
-    expect(geometry.index?.count).toBe(30)
-    expect(geometry.getAttribute('uv').count).toBe(12)
+    expect(geometry.getAttribute('position').count).toBe(18)
+    expect(geometry.index?.count).toBe(60)
+    expect(geometry.getAttribute('uv').count).toBe(18)
     geometry.dispose()
+  })
+
+  it('raises the center row and maps its UVs to the middle', () => {
+    const geometry = buildPalmFrondGeometry({
+      segments: 5,
+      width: 0.2,
+      droop: 0.8,
+    })
+    const positions = geometry.getAttribute('position')
+    const uvs = geometry.getAttribute('uv')
+
+    for (let step = 0; step <= 5; step += 1) {
+      const left = step * 3
+      const center = left + 1
+      const right = left + 2
+      expect(positions.getY(center) - positions.getY(left)).toBeCloseTo(
+        PALM_FROND_FOLD,
+        6,
+      )
+      expect(positions.getY(center) - positions.getY(right)).toBeCloseTo(
+        PALM_FROND_FOLD,
+        6,
+      )
+      expect(uvs.getY(center)).toBe(0.5)
+    }
+
+    geometry.dispose()
+  })
+
+  it('uses the shared emissive highlight values for palm materials', () => {
+    const highlighted = new MeshStandardMaterial(
+      getPalmHighlightMaterialOptions(true),
+    )
+    const unhighlighted = new MeshStandardMaterial(
+      getPalmHighlightMaterialOptions(false),
+    )
+
+    expect(highlighted.color.getHex()).toBe(new Color('white').getHex())
+    expect(highlighted.emissive.getHex()).toBe(
+      new Color(MODEL_HIGHLIGHT_EMISSIVE).getHex(),
+    )
+    expect(highlighted.emissiveIntensity).toBe(
+      MODEL_HIGHLIGHT_EMISSIVE_INTENSITY,
+    )
+    expect(unhighlighted.emissive.getHex()).toBe(new Color('black').getHex())
+    expect(unhighlighted.emissiveIntensity).toBe(0)
+
+    highlighted.dispose()
+    unhighlighted.dispose()
   })
 
   it('rewrites matrices and bounds on a mesh rebuilt with a new material', () => {

@@ -16,8 +16,13 @@ import {
 import type { InstancedMesh } from 'three'
 import type { GraphicsTier } from '../../local-storage/settings'
 import {
+  MODEL_HIGHLIGHT_EMISSIVE,
+  MODEL_HIGHLIGHT_EMISSIVE_INTENSITY,
+} from './texturedModelMaterial'
+import {
   PALM_FROND_BASE_DROOP,
   PALM_FROND_BASE_WIDTH,
+  PALM_FROND_BLADE_WIDTH,
   type PalmStyle,
   applyPalmFrondInstances,
   buildPalmFrondGeometry,
@@ -25,7 +30,7 @@ import {
   getPalmFrondRings,
 } from './palmFronds'
 
-const alphaTest = 0.35
+const alphaTest = 0.25
 const undergrowthCount = 6
 const textureCache = new Map<
   PalmStyle,
@@ -90,69 +95,75 @@ function makeFrondTexture(style: PalmStyle) {
   gradient.addColorStop(0, '#284a20')
   gradient.addColorStop(0.55, '#477a2b')
   gradient.addColorStop(1, '#a2a846')
-  context.fillStyle = gradient
-  context.beginPath()
-  context.moveTo(0, canvas.height / 2)
+  const bladeGradient = context.createLinearGradient(0, 0, canvas.width, 0)
+  bladeGradient.addColorStop(0, '#365f29')
+  bladeGradient.addColorStop(0.55, '#628b36')
+  bladeGradient.addColorStop(1, '#b0b85f')
+  const halfWidthAt = (along: number) =>
+    57 * Math.sin(Math.PI * along) ** (style === 'laur' ? 0.72 : 0.84)
+  const serrationAt = (step: number) =>
+    style === 'laur' ? (step % 4 < 2 ? 1 : -1) * 4 : Math.sin(step * 0.9) * 1.4
+  const centerY = canvas.height / 2
 
-  const outline: Array<[number, number]> = []
+  context.fillStyle = bladeGradient
+  context.beginPath()
+  context.moveTo(0, centerY)
   for (let step = 1; step <= 64; step += 1) {
     const along = step / 64
-    const halfWidth =
-      57 * Math.sin(Math.PI * along) ** (style === 'laur' ? 0.72 : 0.84)
-    const serration =
-      style === 'laur'
-        ? (step % 4 < 2 ? 1 : -1) * 4
-        : Math.sin(step * 0.9) * 1.4
-    outline.push([
-      along * canvas.width,
-      canvas.height / 2 - halfWidth + serration,
-    ])
-  }
-  for (let index = outline.length - 1; index >= 0; index -= 1) {
-    const [x, y] = outline[index]
-    context.lineTo(x, y)
-  }
-  context.lineTo(canvas.width, canvas.height / 2)
-  for (let step = 64; step >= 1; step -= 1) {
-    const along = step / 64
-    const halfWidth =
-      57 * Math.sin(Math.PI * along) ** (style === 'laur' ? 0.72 : 0.84)
-    const serration =
-      style === 'laur'
-        ? (step % 4 < 2 ? -1 : 1) * 4
-        : -Math.sin(step * 0.9) * 1.4
     context.lineTo(
       along * canvas.width,
-      canvas.height / 2 + halfWidth + serration,
+      centerY - halfWidthAt(along) * PALM_FROND_BLADE_WIDTH[style],
+    )
+  }
+  for (let step = 64; step >= 1; step -= 1) {
+    const along = step / 64
+    context.lineTo(
+      along * canvas.width,
+      centerY + halfWidthAt(along) * PALM_FROND_BLADE_WIDTH[style],
     )
   }
   context.closePath()
   context.fill()
 
+  context.globalCompositeOperation = 'destination-over'
+  context.fillStyle = gradient
+  context.beginPath()
+  context.moveTo(0, centerY)
+  for (let step = 1; step <= 64; step += 1) {
+    const along = step / 64
+    context.lineTo(
+      along * canvas.width,
+      centerY - halfWidthAt(along) + serrationAt(step),
+    )
+  }
+  for (let step = 64; step >= 1; step -= 1) {
+    const along = step / 64
+    context.lineTo(
+      along * canvas.width,
+      centerY + halfWidthAt(along) - serrationAt(step),
+    )
+  }
+  context.closePath()
+  context.fill()
+  context.globalCompositeOperation = 'source-over'
+
   context.strokeStyle = 'rgba(204, 207, 123, 0.8)'
   context.lineWidth = 2
   context.beginPath()
-  context.moveTo(2, canvas.height / 2)
-  context.lineTo(canvas.width - 3, canvas.height / 2)
+  context.moveTo(2, centerY)
+  context.lineTo(canvas.width - 3, centerY)
   context.stroke()
-  context.strokeStyle = 'rgba(213, 220, 159, 0.34)'
-  context.lineWidth = 1
+  context.strokeStyle = 'rgba(35, 57, 25, 0.5)'
+  context.lineWidth = 1.5
   for (let step = 5; step < 48; step += 5) {
     const along = step / 64
-    const halfWidth =
-      57 * Math.sin(Math.PI * along) ** (style === 'laur' ? 0.72 : 0.84)
-    context.beginPath()
-    context.moveTo(along * canvas.width, canvas.height / 2)
-    context.lineTo(
-      (along + 0.09) * canvas.width,
-      canvas.height / 2 - halfWidth * 0.8,
-    )
-    context.moveTo(along * canvas.width, canvas.height / 2)
-    context.lineTo(
-      (along + 0.09) * canvas.width,
-      canvas.height / 2 + halfWidth * 0.8,
-    )
-    context.stroke()
+    const halfWidth = halfWidthAt(along + 0.09) * 0.84
+    for (const side of [-1, 1] as const) {
+      context.beginPath()
+      context.moveTo(along * canvas.width, centerY)
+      context.lineTo((along + 0.09) * canvas.width, centerY + side * halfWidth)
+      context.stroke()
+    }
   }
 
   const texture = new CanvasTexture(canvas)
@@ -279,7 +290,7 @@ function getFrondMaterial(
   if (!material) {
     material = new MeshStandardMaterial({
       map: getTextures(style).frond,
-      color: isHighlighted ? 'yellow' : 'white',
+      ...getPalmHighlightMaterialOptions(isHighlighted),
       alphaTest,
       side: DoubleSide,
       roughness: tier === 'high' ? 0.68 : 0.86,
@@ -308,7 +319,7 @@ function getUndergrowthMaterial(
   if (!material) {
     material = new MeshStandardMaterial({
       map: getTextures(style).undergrowth,
-      color: isHighlighted ? 'yellow' : 'white',
+      ...getPalmHighlightMaterialOptions(isHighlighted),
       alphaTest,
       side: DoubleSide,
       roughness: 0.9,
@@ -334,7 +345,7 @@ function getBarkMaterial(
     material = new MeshStandardMaterial({
       map: textures.bark,
       normalMap: textures.barkNormal,
-      color: isHighlighted ? 'yellow' : 'white',
+      ...getPalmHighlightMaterialOptions(isHighlighted),
       roughness: tier === 'high' ? 0.68 : 0.86,
       transparent: opacity < 1,
       opacity,
@@ -529,6 +540,14 @@ export function PalmTrunkMaterial({
   isHighlighted?: boolean
 }) {
   return getBarkMaterial(style, tier, isHighlighted, opacity)
+}
+
+export function getPalmHighlightMaterialOptions(isHighlighted: boolean) {
+  return {
+    color: 'white',
+    emissive: isHighlighted ? MODEL_HIGHLIGHT_EMISSIVE : 'black',
+    emissiveIntensity: isHighlighted ? MODEL_HIGHLIGHT_EMISSIVE_INTENSITY : 0,
+  }
 }
 
 export default function PalmFrondCanopy({
