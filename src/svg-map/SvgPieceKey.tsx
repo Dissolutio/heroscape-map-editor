@@ -108,10 +108,7 @@ export const SvgPieceKeyShape = (
   const decoded = boardPieceToDecodedPieceID(entry.piece)
   const isLaurAddon = Boolean(getLaurAddonExportSymbol(entry.inventoryID))
   const entryUsesTerrainBorderColor =
-    shouldUseTerrainBorderColorForPieceKeyEntry(
-      entry,
-      useTerrainBorderColor,
-    )
+    shouldUseTerrainBorderColorForPieceKeyEntry(entry, useTerrainBorderColor)
   const keyPiece = decoded
   return (
     <g

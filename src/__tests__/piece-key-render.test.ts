@@ -646,23 +646,17 @@ describe('piece key shape rendering', () => {
             expect(svg).toContain(`fill="${svgColors[HexTerrain.road]}"`)
           } else if (groupID === 'evergreen') {
             expect(svg).toContain(`fill="${svgColors[HexTerrain.tree]}"`)
-            expect(svg).toContain(
-              `fill="${svgColors.outlineTree}"`,
-            )
+            expect(svg).toContain(`fill="${svgColors.outlineTree}"`)
           } else if (groupID === 'jungle') {
             expect(svg).toContain(`fill="${svgColors.fillJungle}"`)
-            expect(svg).toContain(
-              `fill="${svgColors.outlineJungle}"`,
-            )
+            expect(svg).toContain(`fill="${svgColors.outlineJungle}"`)
           } else if (groupID === 'laur') {
             if (
               entry.inventoryID === Pieces.laurWallSquarePillar ||
               entry.inventoryID === Pieces.laurWallTrianglePillar
             ) {
               expect(svg).toContain(`fill="${svgColors[HexTerrain.laurWall]}"`)
-              expect(svg).toContain(
-                `fill="${svgColors.outlineLaurWall}"`,
-              )
+              expect(svg).toContain(`fill="${svgColors.outlineLaurWall}"`)
             } else {
               expect(svg).toContain(
                 `fill="${svgColors[HexTerrain.laurWallAddon]}"`,
@@ -704,9 +698,7 @@ describe('piece key shape rendering', () => {
         expect(entry).toBeDefined()
         if (!entry) continue
 
-        expect(model.fluidRows[0]?.description).toBe(
-          'blue borders',
-        )
+        expect(model.fluidRows[0]?.description).toBe('blue borders')
         const svg = renderToStaticMarkup(
           SvgPieceKeyShape(
             entry,
@@ -718,9 +710,7 @@ describe('piece key shape rendering', () => {
           ),
         )
         expect(svg).toContain(`fill="${svgColors[terrain]}"`)
-        expect(svg).toContain(
-          `fill="${svgColors.outlineWater}"`,
-        )
+        expect(svg).toContain(`fill="${svgColors.outlineWater}"`)
         const pdfColors = collectShapeColors(
           PieceKeyShape({
             entry,
@@ -765,6 +755,8 @@ describe('piece key shape rendering', () => {
         expect(svg).toContain(
           `fill="${useTerrainBorderColor ? svgColors.outline2 : '#000000'}"`,
         )
+        // Wood is solid land, so (unlike evergreen/jungle/laur) its PDF
+        // border is expected to follow the color-borders toggle too.
         expect(
           collectShapeColors(
             PieceKeyShape({
@@ -773,14 +765,10 @@ describe('piece key shape rendering', () => {
               scale: 0.075,
             }),
           ),
-        ).toEqual(
-          collectShapeColors(
-            PieceKeyShape({
-              entry: woodEntry,
-              useTerrainBorderColor: !useTerrainBorderColor,
-              scale: 0.075,
-            }),
-          ),
+        ).toContainEqual(
+          expect.objectContaining({
+            stroke: useTerrainBorderColor ? svgColors.outline2 : '#000000',
+          }),
         )
       }
       const ladder = model.specialGroups.find(({ id }) => id === 'ladder')

@@ -103,9 +103,9 @@ describe('piece key model', () => {
     expect(
       model.specialGroups.slice(1).map(({ entries }) => entries[0].inventoryID),
     ).toEqual([Pieces.concrete6])
-    expect(
-      model.specialGroups[1].entries.map(({ title }) => title),
-    ).toEqual(['Concrete (6)'])
+    expect(model.specialGroups[1].entries.map(({ title }) => title)).toEqual([
+      'Concrete (6)',
+    ])
     expect(
       model.landColumns.some(({ terrain }) => terrain === HexTerrain.concrete),
     ).toBe(true)
@@ -113,10 +113,7 @@ describe('piece key model', () => {
       ({ terrain }) => terrain === HexTerrain.concrete,
     )
     expect(
-      concreteColumn?.cells.map(({ size, entry }) => [
-        size,
-        entry.inventoryID,
-      ]),
+      concreteColumn?.cells.map(({ size, entry }) => [size, entry.inventoryID]),
     ).toEqual([
       [24, Pieces.concrete24],
       [7, Pieces.concrete7],
@@ -130,7 +127,9 @@ describe('piece key model', () => {
       ),
       ...model.specialGroups.flatMap(({ entries }) => entries),
     ].filter(({ terrain }) => terrain === HexTerrain.concrete)
-    expect(concreteEntries.map(({ inventoryID }) => inventoryID).sort()).toEqual(
+    expect(
+      concreteEntries.map(({ inventoryID }) => inventoryID).sort(),
+    ).toEqual(
       [
         Pieces.concrete1,
         Pieces.concrete2,
@@ -141,7 +140,9 @@ describe('piece key model', () => {
       ].sort(),
     )
     expect(
-      concreteEntries.filter(({ inventoryID }) => inventoryID === Pieces.concrete6),
+      concreteEntries.filter(
+        ({ inventoryID }) => inventoryID === Pieces.concrete6,
+      ),
     ).toHaveLength(1)
     expect(
       model.fluidColumns
@@ -157,9 +158,13 @@ describe('piece key model', () => {
       model.landColumns.some(({ terrain }) => terrain === HexTerrain.concrete),
     ).toBe(false)
     expect(
-      model.specialGroups.find(({ id }) => id === 'other')?.entries.map(
-        ({ inventoryID, title, count }) => [inventoryID, title, count],
-      ),
+      model.specialGroups
+        .find(({ id }) => id === 'other')
+        ?.entries.map(({ inventoryID, title, count }) => [
+          inventoryID,
+          title,
+          count,
+        ]),
     ).toEqual([[Pieces.concrete6, 'Concrete (6)', 1]])
   })
 
@@ -201,15 +206,11 @@ describe('piece key model', () => {
       expect(model.specialGroups.some(({ id }) => id === 'wellspring')).toBe(
         false,
       )
-      expect(model.fluidRows[0]?.description).toBe(
-        'blue borders',
-      )
+      expect(model.fluidRows[0]?.description).toBe('blue borders')
       expect(descriptions.get('evergreen')).toBe(
         'green borders and centers; number indicates tree height',
       )
-      expect(descriptions.get('jungle')).toBe(
-        'brown borders, yellow centers',
-      )
+      expect(descriptions.get('jungle')).toBe('brown borders, yellow centers')
       expect(descriptions.get('laur')).toBe(
         'pillars have pink borders and purple centers; wall add-ons are pink',
       )

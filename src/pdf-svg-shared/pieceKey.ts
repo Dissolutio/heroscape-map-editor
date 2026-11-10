@@ -61,6 +61,7 @@ type PieceKeyGroupMetadata = {
   id: string
   title: string
   description: string
+  descriptionWithoutColorBorders?: string
   captions?: Record<string, string>
   terrains?: string[]
   inventoryIDs?: string[]

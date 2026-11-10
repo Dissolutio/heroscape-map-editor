@@ -101,10 +101,7 @@ export function PieceKeyShape({
   const glyphExportSettings = glyphExportSettingsProp ?? settings
   const layout = getPieceKeyShapeLayout(entry, 'pdf')
   const entryUsesTerrainBorderColor =
-    shouldUseTerrainBorderColorForPieceKeyEntry(
-      entry,
-      useTerrainBorderColor,
-    )
+    shouldUseTerrainBorderColorForPieceKeyEntry(entry, useTerrainBorderColor)
   const viewBox = getPieceKeySymbolViewBox(layout)
   const viewWidth = viewBox.width
   const viewHeight = viewBox.height
@@ -509,9 +506,7 @@ function SpecialTiles({
                                     alignItems: 'center',
                                   }}
                                 >
-                                  <View
-                                    style={{ marginTop: shapeTopOffset }}
-                                  >
+                                  <View style={{ marginTop: shapeTopOffset }}>
                                     <PieceKeyShape
                                       entry={entry}
                                       useTerrainBorderColor={
