@@ -1,5 +1,8 @@
 import { piecesSoFar } from '../data/pieces'
-import { terrainSetsByShortID } from '../data/terrainSets'
+import {
+  type TerrainSetKind,
+  terrainSetsByShortID,
+} from '../data/terrainSets'
 import {
   countPiecesUsedWithLaurStacking,
   reconcileLaurLegacyToStackableUsage,
@@ -37,8 +40,34 @@ export type SetCount = {
   setID: string
   name: string
   abbreviation: string
+  kind: TerrainSetKind
   count: number
 }
+
+const setKindLabels: {
+  kind: TerrainSetKind
+  singular: string
+  plural: string
+}[] = [
+  { kind: 'masterSet', singular: 'Master Set', plural: 'Master Sets' },
+  { kind: 'expansion', singular: 'Expansion', plural: 'Expansions' },
+  { kind: 'promo', singular: 'Promo', plural: 'Promos' },
+]
+
+export const formatSetKindTotals = (
+  sets: Pick<SetCount, 'kind' | 'count'>[],
+) =>
+  setKindLabels
+    .flatMap(({ kind, singular, plural }) => {
+      const count = sets.reduce(
+        (total, set) => total + (set.kind === kind ? set.count : 0),
+        0,
+      )
+      return count
+        ? [`${count} ${count === 1 ? singular : plural}`]
+        : []
+    })
+    .join(', ')
 
 export type SetsToBuildMapOption = {
   sets: SetCount[]
@@ -65,6 +94,7 @@ type SetCandidate = {
   id: string
   name: string
   abbreviation: string
+  kind: TerrainSetKind
   era: Era
   inventory: PieceInventory
 }
@@ -116,6 +146,7 @@ const allSets: SetCandidate[] = Object.values(terrainSetsByShortID).map(
     id: set.id,
     name: set.name,
     abbreviation: set.abbreviation,
+    kind: set.kind,
     era: set.era as Era,
     inventory: set.inventory,
   }),
@@ -267,6 +298,7 @@ const toOption = (counts: number[], candidates: SetCandidate[]) => {
             setID: candidate.id,
             name: candidate.name,
             abbreviation: candidate.abbreviation,
+            kind: candidate.kind,
             count,
           },
         ]

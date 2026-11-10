@@ -1,9 +1,12 @@
 import { setInventories } from './inventories'
 
+export type TerrainSetKind = 'masterSet' | 'expansion' | 'promo'
+
 export const terrainSetsByShortID = {
   C: {
     name: 'Age of Annihilation',
     abbreviation: 'AoA',
+    kind: 'masterSet',
     inventory: setInventories.aoa1PieceSet,
     setType: 'Master Set',
     id: 'C',
@@ -14,6 +17,7 @@ export const terrainSetsByShortID = {
   E: {
     name: 'Battle for the Wellspring',
     abbreviation: 'BftW',
+    kind: 'expansion',
     inventory: setInventories.battleBox1PieceSet,
     setType: 'Battle Box',
     id: 'E',
@@ -24,6 +28,7 @@ export const terrainSetsByShortID = {
   J: {
     name: 'Swamps of Valhalla',
     abbreviation: 'SoV',
+    kind: 'expansion',
     inventory: setInventories.swampsPieceSet,
     setType: 'Terrain Expansion',
     id: 'J',
@@ -34,6 +39,7 @@ export const terrainSetsByShortID = {
   G: {
     name: 'Snow Fields of Valhalla',
     abbreviation: 'SFoV',
+    kind: 'expansion',
     inventory: setInventories.snowsPieceSet,
     setType: 'Terrain Expansion',
     id: 'G',
@@ -44,6 +50,7 @@ export const terrainSetsByShortID = {
   H: {
     name: 'Lava Fields of Valhalla',
     abbreviation: 'LFoV',
+    kind: 'expansion',
     inventory: setInventories.lavaFieldsPieceSet,
     setType: 'Terrain Expansion',
     id: 'H',
@@ -54,6 +61,7 @@ export const terrainSetsByShortID = {
   I: {
     name: 'Roads of Valhalla',
     abbreviation: 'RoV',
+    kind: 'expansion',
     inventory: setInventories.roadsOfValhallaPieceSet,
     setType: 'Terrain Expansion',
     id: 'I',
@@ -64,6 +72,7 @@ export const terrainSetsByShortID = {
   F: {
     name: 'Lands of Valhalla',
     abbreviation: 'LoV',
+    kind: 'expansion',
     inventory: setInventories.landsPieceSet,
     setType: 'Terrain Expansion',
     id: 'F',
@@ -74,6 +83,7 @@ export const terrainSetsByShortID = {
   K: {
     name: 'Waters of Valhalla',
     abbreviation: 'WoV',
+    kind: 'expansion',
     inventory: setInventories.watersPieceSet,
     setType: 'Terrain Expansion',
     id: 'K',
@@ -84,6 +94,7 @@ export const terrainSetsByShortID = {
   D: {
     name: "Ruins at Laur's Edge",
     abbreviation: 'RaLE',
+    kind: 'expansion',
     inventory: setInventories.ruinsOfValhallaPieceSet,
     setType: 'Terrain Expansion',
     id: 'D',
@@ -94,6 +105,7 @@ export const terrainSetsByShortID = {
   L: {
     name: "Grove at Laur's Edge",
     abbreviation: 'GaLE',
+    kind: 'expansion',
     inventory: setInventories.laurJunglePieceSet,
     setType: 'Terrain Expansion',
     id: 'L',
@@ -104,6 +116,7 @@ export const terrainSetsByShortID = {
   V: {
     name: 'Caverns of Valhalla',
     abbreviation: 'CoV',
+    kind: 'expansion',
     inventory: setInventories.cavernsOfValhalla,
     setType: 'Terrain Expansion',
     id: 'V',
@@ -114,6 +127,7 @@ export const terrainSetsByShortID = {
   W: {
     name: 'Forests of Valhalla',
     abbreviation: 'FoV',
+    kind: 'expansion',
     inventory: setInventories.forestsOfValhalla,
     setType: 'Terrain Expansion',
     id: 'W',
@@ -124,6 +138,7 @@ export const terrainSetsByShortID = {
   M: {
     name: 'Ticalla Jungle',
     abbreviation: 'TJ',
+    kind: 'expansion',
     inventory: setInventories.ticallaJunglePieceSet,
     setType: 'Terrain Expansion',
     id: 'M',
@@ -134,6 +149,7 @@ export const terrainSetsByShortID = {
   S: {
     name: 'Rise of the Valkyrie',
     abbreviation: 'RotV',
+    kind: 'masterSet',
     inventory: setInventories.ms1PieceSet,
     setType: 'Master Set',
     id: 'S',
@@ -144,6 +160,7 @@ export const terrainSetsByShortID = {
   T: {
     name: 'Swarm of the Marro',
     abbreviation: 'SotM',
+    kind: 'masterSet',
     inventory: setInventories.ms2PieceSet,
     setType: 'Master Set',
     id: 'T',
@@ -154,6 +171,7 @@ export const terrainSetsByShortID = {
   U: {
     name: 'Battle for the Underdark',
     abbreviation: 'BftU',
+    kind: 'masterSet',
     inventory: setInventories.underdarkPieceSet,
     setType: 'Master Set',
     id: 'U',
@@ -164,6 +182,7 @@ export const terrainSetsByShortID = {
   N: {
     name: 'Fortress of the Archkyrie',
     abbreviation: 'FotA',
+    kind: 'expansion',
     inventory: setInventories.fortressPieceSet,
     setType: 'Terrain Expansion',
     id: 'N',
@@ -174,6 +193,7 @@ export const terrainSetsByShortID = {
   O: {
     name: 'Marvel: The Conflict Begins',
     abbreviation: 'MtCB',
+    kind: 'expansion',
     inventory: setInventories.marvelPieceSet,
     setType: 'Terrain Expansion',
     id: 'O',
@@ -184,6 +204,7 @@ export const terrainSetsByShortID = {
   P: {
     name: 'Thaelenk Tundra',
     abbreviation: 'TT',
+    kind: 'expansion',
     inventory: setInventories.thaelenkPieceSet,
     setType: 'Terrain Expansion',
     id: 'P',
@@ -194,6 +215,7 @@ export const terrainSetsByShortID = {
   Q: {
     name: 'Volcarran Wasteland',
     abbreviation: 'VW',
+    kind: 'expansion',
     inventory: setInventories.volcarrenPieceSet,
     setType: 'Terrain Expansion',
     id: 'Q',
@@ -204,6 +226,7 @@ export const terrainSetsByShortID = {
   R: {
     name: 'Road to the Forgotten Forest',
     abbreviation: 'RttFF',
+    kind: 'expansion',
     inventory: setInventories.forgottenForestPieceSet,
     setType: 'Terrain Expansion',
     id: 'R',
@@ -214,6 +237,7 @@ export const terrainSetsByShortID = {
   A: {
     name: 'Max Shared Terrain Kit',
     abbreviation: 'MSTK',
+    kind: 'expansion',
     inventory: setInventories.maxSharedTerrainKit,
     setType: 'Terrain Expansion',
     id: 'A',
@@ -224,6 +248,7 @@ export const terrainSetsByShortID = {
   B: {
     name: 'Tournament Organizer Terrain Kit',
     abbreviation: 'TOTK',
+    kind: 'expansion',
     inventory: setInventories.tournamentOrganizerTerrainKitPieceSet,
     setType: 'Terrain Expansion',
     id: 'B',
@@ -234,6 +259,7 @@ export const terrainSetsByShortID = {
   X: {
     name: 'Shores of Valhlla',
     abbreviation: 'ShoV',
+    kind: 'expansion',
     inventory: setInventories.shoresOfValhalla,
     setType: 'Terrain Expansion',
     id: 'X',
@@ -244,6 +270,7 @@ export const terrainSetsByShortID = {
   Y: {
     name: 'Urban Landscape of Valhalla',
     abbreviation: 'ULoV',
+    kind: 'expansion',
     inventory: setInventories.urbanLandscapeOfValhalla,
     setType: 'Terrain Expansion',
     id: 'Y',
@@ -254,6 +281,7 @@ export const terrainSetsByShortID = {
   Z: {
     name: 'Rumble at the Rift',
     abbreviation: 'RatR',
+    kind: 'expansion',
     inventory: setInventories.battleBox2PieceSet,
     setType: 'Battle Box',
     id: 'Z',
@@ -264,6 +292,7 @@ export const terrainSetsByShortID = {
   AA: {
     name: 'Ancient Lands of Valhalla',
     abbreviation: 'ALoV',
+    kind: 'expansion',
     inventory: setInventories.ancientLandsOfValhalla,
     setType: 'Terrain Expansion',
     id: 'AA',
@@ -274,6 +303,7 @@ export const terrainSetsByShortID = {
   BB: {
     name: 'Battle for Blackscar',
     abbreviation: 'BfB',
+    kind: 'expansion',
     inventory: setInventories.battleBox3PieceSet,
     setType: 'Battle Box',
     id: 'BB',
@@ -284,6 +314,7 @@ export const terrainSetsByShortID = {
   CC: {
     name: 'Toxic Wastelands of Valhalla',
     abbreviation: 'TWoV',
+    kind: 'expansion',
     inventory: setInventories.toxicWastelandsOfValhalla,
     setType: 'Terrain Expansion',
     id: 'CC',
@@ -294,6 +325,7 @@ export const terrainSetsByShortID = {
   DD: {
     name: 'Tournament Organizer Terrain Kit 2',
     abbreviation: 'TOTK2',
+    kind: 'expansion',
     inventory: setInventories.tournamentOrganizerTerrainKit2PieceSet,
     setType: 'Terrain Expansion',
     id: 'DD',
@@ -304,6 +336,7 @@ export const terrainSetsByShortID = {
   EE: {
     name: 'Organized Play Expeditions Kits Promo',
     abbreviation: 'OPEKP',
+    kind: 'promo',
     inventory: setInventories.organizedPlayExpeditionsKitsPromo,
     setType: 'Terrain Expansion',
     id: 'EE',

@@ -14,6 +14,7 @@ import useBoundStore from '../store/store'
 import { getCollectionLandSupply } from '../utils/adaptToCollection'
 import {
   DEFAULT_VISIBLE_OPTION_COUNT,
+  formatSetKindTotals,
   getPiecesMissingFromCollection,
   getSetsToBuildMapCatalog,
 } from '../utils/setsToBuildMap'
@@ -81,11 +82,11 @@ const SetsToBuildMapDialog = () => {
                     (set) => `${set.count}× ${set.name} (${set.abbreviation})`,
                   )
                   .join(' + ')
-                const total =
-                  option.boxCount === 1 ? '1 box' : `${option.boxCount} boxes`
+                const total = formatSetKindTotals(option.sets)
                 return (
                   <Typography key={`${category.id}-${index}`} variant="body2">
-                    {sets || 'No terrain set boxes needed'} — {total}
+                    {sets || 'No terrain set boxes needed'}
+                    {total && ` — ${total}`}
                   </Typography>
                 )
               })}

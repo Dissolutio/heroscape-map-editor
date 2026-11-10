@@ -5,6 +5,7 @@ import {
   DEFAULT_VISIBLE_OPTION_COUNT,
   EXCLUDED_SET_IDS,
   JUNGLE_PIECE_EQUIVALENTS,
+  formatSetKindTotals,
   getPiecesMissingFromCollection,
   getSetsToBuildMapCatalog,
 } from '../utils/setsToBuildMap'
@@ -25,6 +26,37 @@ const category = (
   getSetsToBuildMapCatalog(mapPieces).categories.find((item) => item.id === id)
 
 describe('sets to build this map', () => {
+  it('assigns a kind to every terrain set', () => {
+    const kinds = Object.fromEntries(
+      Object.values(terrainSetsByShortID).map((set) => [set.id, set.kind]),
+    )
+
+    expect(kinds).toEqual(
+      expect.objectContaining({
+        C: 'masterSet',
+        S: 'masterSet',
+        T: 'masterSet',
+        U: 'masterSet',
+        EE: 'promo',
+      }),
+    )
+    expect(
+      Object.values(kinds).every((kind) =>
+        ['masterSet', 'expansion', 'promo'].includes(kind),
+      ),
+    ).toBe(true)
+  })
+
+  it('formats option totals by kind in the required order', () => {
+    expect(
+      formatSetKindTotals([
+        { kind: 'expansion', count: 3 },
+        { kind: 'promo', count: 1 },
+        { kind: 'masterSet', count: 1 },
+      ]),
+    ).toBe('1 Master Set, 3 Expansions, 1 Promo')
+  })
+
   it('excludes MSTK, TOTK, and TOTK2 from every catalog option', () => {
     const result = getSetsToBuildMapCatalog(
       pieces(Pieces.grass1, Pieces.shipBow, Pieces.castleBaseCorner),
