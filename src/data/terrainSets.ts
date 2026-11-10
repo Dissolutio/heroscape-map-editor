@@ -257,7 +257,7 @@ export const terrainSetsByShortID = {
     era: 'contemporary',
   },
   X: {
-    name: 'Shores of Valhlla',
+    name: 'Shores of Valhalla',
     abbreviation: 'ShoV',
     kind: 'expansion',
     inventory: setInventories.shoresOfValhalla,
