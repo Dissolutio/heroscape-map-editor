@@ -1,4 +1,5 @@
-import { BufferAttribute, BufferGeometry } from 'three'
+import { BufferAttribute, BufferGeometry, Object3D } from 'three'
+import type { InstancedMesh } from 'three'
 import type { GraphicsTier } from '../../local-storage/settings'
 
 export type PalmStyle = 'laur' | 'ticalla'
@@ -19,6 +20,22 @@ export type PalmFrondTransform = {
   length: number
   droopScale: number
   widthScale: number
+}
+
+export function applyPalmFrondInstances(
+  mesh: InstancedMesh,
+  instances: PalmFrondTransform[],
+) {
+  const object = new Object3D()
+  instances.forEach((instance, index) => {
+    object.position.set(...instance.position)
+    object.rotation.set(...instance.rotation)
+    object.scale.set(instance.length, instance.droopScale, instance.widthScale)
+    object.updateMatrix()
+    mesh.setMatrixAt(index, object.matrix)
+  })
+  mesh.instanceMatrix.needsUpdate = true
+  mesh.computeBoundingSphere()
 }
 
 export const PALM_FROND_BASE_DROOP = 0.8
