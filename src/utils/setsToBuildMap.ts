@@ -84,7 +84,6 @@ export type SetsToBuildMapCategory = {
 
 export type SetsToBuildMapCatalog = {
   categories: SetsToBuildMapCategory[]
-  reasons: string[]
   notInAnySet: PieceCount[]
   ignored: PieceCount[]
 }
@@ -339,7 +338,7 @@ const impossibleReason = (
   category: 'contemporary' | 'classic',
   blockers: string[],
 ) =>
-  `Not possible with ${categoryTitle[category]} sets: this map uses ${blockers
+  `Not possible: this map uses ${blockers
     .slice(0, 3)
     .map(pieceTitle)
     .join(
@@ -371,7 +370,7 @@ const solveCategory = (
       options: [] as SetsToBuildMapOption[],
       reason:
         category === 'mixed'
-          ? `Not possible with Mixed sets: this map uses ${blockers
+          ? `Not possible: this map uses ${blockers
               .slice(0, 3)
               .map(pieceTitle)
               .join(
@@ -588,50 +587,45 @@ export function getSetsToBuildMapCatalog(
   const contemporaryPossible = contemporary.options.length > 0
   const classicPossible = classic.options.length > 0
   const categories: SetsToBuildMapCategory[] = []
-  const reasons: string[] = []
+  const addCategory = (
+    id: SetsToBuildMapCategory['id'],
+    result: ReturnType<typeof solveCategory>,
+  ) => {
+    categories.push({ id, title: categoryTitle[id], ...result })
+  }
 
   if (contemporaryPossible && classicPossible) {
-    categories.push({
-      id: 'contemporary',
-      title: 'Contemporary',
-      ...contemporary,
-    })
-    categories.push({ id: 'classic', title: 'Classic', ...classic })
+    addCategory('contemporary', contemporary)
+    addCategory('classic', classic)
     const mixed = solveCategory('mixed', neededCounts, deadline, [
       ...contemporary.options,
       ...classic.options,
     ])
-    if (mixed.options.length > 0) {
-      categories.push({ id: 'mixed', title: 'Mixed', ...mixed })
-    } else if (mixed.reason) {
-      reasons.push(mixed.reason)
+    if (mixed.options.length > 0 || mixed.reason) {
+      addCategory('mixed', mixed)
     }
   } else if (!contemporaryPossible && !classicPossible) {
     const mixed = solveCategory('mixed', neededCounts, deadline)
-    if (mixed.options.length > 0) {
-      categories.push({ id: 'mixed', title: 'Mixed', ...mixed })
-    } else if (mixed.reason) {
-      reasons.push(mixed.reason)
+    if (mixed.options.length > 0 || mixed.reason) {
+      addCategory('mixed', mixed)
     }
-    if (contemporary.reason) reasons.push(contemporary.reason)
-    if (classic.reason) reasons.push(classic.reason)
+    if (contemporary.reason) {
+      addCategory('contemporary', contemporary)
+    }
+    if (classic.reason) {
+      addCategory('classic', classic)
+    }
   } else {
-    if (contemporaryPossible) {
-      categories.push({
-        id: 'contemporary',
-        title: 'Contemporary',
-        ...contemporary,
-      })
-      if (classic.reason) reasons.push(classic.reason)
-    } else {
-      categories.push({ id: 'classic', title: 'Classic', ...classic })
-      if (contemporary.reason) reasons.push(contemporary.reason)
+    if (contemporaryPossible || contemporary.reason) {
+      addCategory('contemporary', contemporary)
+    }
+    if (classicPossible || classic.reason) {
+      addCategory('classic', classic)
     }
   }
 
   return {
     categories,
-    reasons,
     notInAnySet: getPieceCounts(notInAnySet),
     ignored: getPieceCounts(ignoredCounts),
   }

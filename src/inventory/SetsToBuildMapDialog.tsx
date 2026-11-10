@@ -76,6 +76,9 @@ const SetsToBuildMapDialog = () => {
               <Typography variant="h6" component="h2">
                 {category.title}
               </Typography>
+              {category.reason && (
+                <Typography variant="body2">{category.reason}</Typography>
+              )}
               {visibleOptions.map((option, index) => {
                 const sets = option.sets
                   .map(
@@ -113,11 +116,6 @@ const SetsToBuildMapDialog = () => {
             </Box>
           )
         })}
-        {catalog?.reasons.map((reason) => (
-          <Typography key={reason} variant="body2" sx={{ mb: 1 }}>
-            {reason}
-          </Typography>
-        ))}
         {catalog?.notInAnySet.length ? (
           <Typography variant="body2">
             Not in any set:{' '}

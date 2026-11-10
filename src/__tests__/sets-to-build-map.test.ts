@@ -73,20 +73,29 @@ describe('sets to build this map', () => {
 
   it('reports the Classic blocker for Contemporary-only Laur walls', () => {
     const result = getSetsToBuildMapCatalog(pieces(Pieces.laurWallShort))
+    const classic = result.categories.find((item) => item.id === 'classic')
 
-    expect(result.categories.map((item) => item.id)).toEqual(['contemporary'])
-    expect(result.reasons.join(' ')).toContain('Classic')
-    expect(result.reasons.join(' ')).toContain('Laur Wall')
-    expect(result.reasons.join(' ')).toContain('no Classic set has')
+    expect(result.categories.map((item) => item.id)).toEqual([
+      'contemporary',
+      'classic',
+    ])
+    expect(classic?.reason).toContain('Laur Wall')
+    expect(classic?.reason).toContain('no Classic set has')
+    expect(result.categories.some((item) => item.id === 'mixed')).toBe(false)
   })
 
   it('reports the Contemporary blocker for Classic-only Marvel ruins', () => {
     const result = getSetsToBuildMapCatalog(pieces(Pieces.marvel))
+    const contemporary = result.categories.find(
+      (item) => item.id === 'contemporary',
+    )
 
-    expect(result.categories.map((item) => item.id)).toEqual(['classic'])
-    expect(result.reasons.join(' ')).toContain('Contemporary')
-    expect(result.reasons.join(' ')).toContain('Warehouse Ruin')
-    expect(result.reasons.join(' ')).toContain('no Contemporary set has')
+    expect(result.categories.map((item) => item.id)).toEqual([
+      'contemporary',
+      'classic',
+    ])
+    expect(contemporary?.reason).toContain('Warehouse Ruin')
+    expect(contemporary?.reason).toContain('no Contemporary set has')
   })
 
   it('uses Mixed alone when Laur walls and Marvel ruins both block pure catalogs', () => {
@@ -94,12 +103,16 @@ describe('sets to build this map', () => {
       pieces(Pieces.laurWallShort, Pieces.marvel),
     )
 
-    expect(result.categories.map((item) => item.id)).toEqual(['mixed'])
+    expect(result.categories.map((item) => item.id)).toEqual([
+      'mixed',
+      'contemporary',
+      'classic',
+    ])
     expect(
       result.categories[0]?.options[0]?.sets.map((set) => set.setID),
     ).toEqual(expect.arrayContaining(['O']))
-    expect(result.reasons.join(' ')).toContain('Laur Wall')
-    expect(result.reasons.join(' ')).toContain('Warehouse Ruin')
+    expect(result.categories[1]?.reason).toContain('Laur Wall')
+    expect(result.categories[2]?.reason).toContain('Warehouse Ruin')
   })
 
   it('maps Ticalla palms to GaLE in Contemporary recommendations', () => {
@@ -116,12 +129,15 @@ describe('sets to build this map', () => {
 
   it('omits Mixed options that only add boxes to a valid pure option', () => {
     const result = getSetsToBuildMapCatalog(pieces(Pieces.grass1))
+    const mixed = result.categories.find((item) => item.id === 'mixed')
 
     expect(result.categories.map((item) => item.id)).toEqual([
       'contemporary',
       'classic',
+      'mixed',
     ])
-    expect(result.reasons.join(' ')).toContain(
+    expect(mixed?.options).toEqual([])
+    expect(mixed?.reason).toContain(
       'do not offer a better combination',
     )
   })
@@ -221,12 +237,13 @@ describe('sets to build this map', () => {
     ])
   })
 
-  it('does not mark a finished search with no Mixed option as approximate', () => {
+  it('does not mark a finished search with no Mixed options as approximate', () => {
     const result = getSetsToBuildMapCatalog(pieces(Pieces.grass1))
+    const mixed = result.categories.find((item) => item.id === 'mixed')
 
-    expect(result.categories.some((item) => item.id === 'mixed')).toBe(false)
+    expect(mixed?.options).toEqual([])
     expect(result.categories.every((item) => !item.approximate)).toBe(true)
-    expect(result.reasons.join(' ')).not.toContain('Approximate')
+    expect(mixed?.reason).not.toContain('Approximate')
   })
 
   it('reports approximate options promptly when the time budget is zero', () => {
