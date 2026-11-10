@@ -45,6 +45,7 @@ export type PieceKeySpecialGroup = {
   id: string
   title: string
   description: string
+  descriptionWithoutColorBorders?: string
   entries: PieceKeyEntry[]
 }
 
@@ -164,15 +165,12 @@ const PIECE_KEY_METADATA: {
       id: 'evergreen',
       title: 'Evergreen Trees',
       description: 'green borders and centers; number indicates tree height',
-      descriptionWithoutColorBorders:
-        'dark borders and green centers; number indicates tree height',
       terrains: [HexTerrain.tree, HexTerrain.snowTree],
     },
     {
       id: 'jungle',
       title: 'Jungle Trees',
       description: 'brown borders, yellow centers',
-      descriptionWithoutColorBorders: 'dark borders, yellow centers',
       terrains: [HexTerrain.palm, HexTerrain.brush],
     },
     {
@@ -187,8 +185,6 @@ const PIECE_KEY_METADATA: {
       title: 'Pillars and Walls (Laur)',
       description:
         'pillars have pink borders and purple centers; wall add-ons are pink',
-      descriptionWithoutColorBorders:
-        'pillars and wall add-ons have dark borders; pillars have purple centers',
       terrains: [HexTerrain.laurWall, HexTerrain.laurWallAddon],
       inventoryIDs: [
         Pieces.laurWallSquarePillar,
@@ -253,6 +249,9 @@ const PIECE_KEY_METADATA: {
       title: 'Other Special Tiles',
       description: 'special pieces used on this map',
       fallback: true,
+      captions: {
+        [Pieces.concrete6]: 'Concrete (6)',
+      },
     },
   ],
 }
@@ -272,6 +271,15 @@ export const getPieceKeyTerrainDescription = (
 
 export const getPieceKeyDescriptionGaps = (terrains: string[]) =>
   terrains.filter((terrain) => !PIECE_KEY_METADATA.terrains[terrain])
+
+export const shouldUseTerrainBorderColorForPieceKeyEntry = (
+  entry: PieceKeyEntry,
+  useTerrainBorderColor: boolean,
+) =>
+  !(
+    piecesSoFar[entry.inventoryID]?.landPrefix &&
+    isSolidTerrainHex(entry.terrain)
+  ) || useTerrainBorderColor
 
 const getCanonicalPieceKeyShape = (piece: Piece) => {
   const uid = `piece-key-${piece.id}`
@@ -331,7 +339,8 @@ export const getPieceKeyModel = (
   const allEntries = [...entries.values()]
   const isLandEntry = (entry: PieceKeyEntry) =>
     piecesSoFar[entry.inventoryID]?.landPrefix &&
-    entry.terrain !== HexTerrain.wood
+    entry.terrain !== HexTerrain.wood &&
+    entry.inventoryID !== Pieces.concrete6
   const roadsAndWallWalks = allEntries.filter(
     (entry) =>
       isLandEntry(entry) &&
@@ -417,7 +426,7 @@ export const getPieceKeyModel = (
   const fluidRows = fluidSizes.map((size) => ({
     size,
     title: `${size} space`,
-    description: useTerrainBorderColor ? 'blue borders' : 'dark borders',
+    description: 'blue borders',
   }))
   const fluidColumns = orderedFluidTerrains.map((terrain) => {
     const terrainEntries = fluidEntries.filter(

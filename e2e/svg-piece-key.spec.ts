@@ -491,12 +491,16 @@ test('renders issue 350 key evidence with all tree and Laur variants', async ({
         ])
       }
 
+      // Shapes are centered in their row; ship pieces share a bottom line.
+      const isShipGroup = group.getAttribute('data-group-id') === 'ship'
       for (const [row, entries] of rows) {
-        const shapeTops = entries.map(({ shapeTop }) => shapeTop)
+        const shapeLines = entries.map(({ shapeTop, shapeBottom }) =>
+          isShipGroup ? shapeBottom : (shapeTop + shapeBottom) / 2,
+        )
         const captionTops = entries.map(({ captionTop }) => captionTop)
-        if (Math.max(...shapeTops) - Math.min(...shapeTops) > 2) {
+        if (Math.max(...shapeLines) - Math.min(...shapeLines) > 3) {
           errors.push(
-            `shapes do not share a top line in row ${row}: ${JSON.stringify(entries)}`,
+            `shapes do not share a ${isShipGroup ? 'bottom' : 'center'} line in row ${row}: ${JSON.stringify(entries)}`,
           )
         }
         if (Math.max(...captionTops) - Math.min(...captionTops) > 2) {

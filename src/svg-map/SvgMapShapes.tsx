@@ -49,6 +49,7 @@ import {
   getShipWallSvgPolygonPoints,
 } from '../pdf-svg-shared/hexPolygonPoints'
 import {
+  getOutcropTextColor,
   getSvgHexBorderColor,
   getSvgHexFillColor,
   getSvgHexSubLevelBorderColor,
@@ -1566,28 +1567,6 @@ const outcrop6TextXYForRotation = [
   [posO3_1, posO3_6, posO3_7, posO4_5, posO6_1_5, posO3_2],
   [posO3_1, posO3_7, posO3_2, posO4_6, posO6_1_6, posO3_3],
 ]
-export const getOutcropTextColor = ({
-  hex,
-  isSubLevel,
-}: {
-  hex: BoardHex
-  isSubLevel?: boolean
-}) => {
-  const subLevelTextColor =
-    hex.terrain === HexTerrain.glacier
-      ? svgSubLevelColors.glacierText
-      : hex.terrain === HexTerrain.outcrop
-        ? svgSubLevelColors.outcropText
-        : svgSubLevelColors.lavaRockOutcropText
-  const currentLevelTextColor =
-    hex.terrain === HexTerrain.glacier
-      ? svgColors.glacierText
-      : hex.terrain === HexTerrain.outcrop
-        ? svgColors.outcropText
-        : svgColors.lavaRockOutcropText
-  const textColor = isSubLevel ? subLevelTextColor : currentLevelTextColor
-  return textColor
-}
 export const SvgOutcrop6 = ({
   hex,
   isSubLevel,
@@ -1603,7 +1582,7 @@ export const SvgOutcrop6 = ({
   const borderColor = isSubLevel
     ? getSvgHexSubLevelBorderColor(hex, useTerrainBorderColor)
     : getSvgHexBorderColor(hex, useTerrainBorderColor)
-  const textColor = getOutcropTextColor({ hex, isSubLevel })
+  const textColor = getOutcropTextColor(hex.terrain, isSubLevel)
   const { points } = get6HexSvgPolygonPointsAt00(SVG_HEX_RADIUS)
   const { points: outlinePoints } = get6HexOutlineSvgPolygonPoints(
     SVG_HEX_RADIUS,
@@ -1683,7 +1662,7 @@ export const SvgOutcrop3 = ({
   const borderColor = isSubLevel
     ? getSvgHexSubLevelBorderColor(hex, useTerrainBorderColor)
     : getSvgHexBorderColor(hex, useTerrainBorderColor)
-  const textColor = getOutcropTextColor({ hex, isSubLevel })
+  const textColor = getOutcropTextColor(hex.terrain, isSubLevel)
   const { points } = get3HexSvgPolygonPointsAt00(SVG_HEX_RADIUS)
   const { points: outlinePoints } = get3HexOutlineSvgPolygonPoints(
     SVG_HEX_RADIUS,
@@ -1733,7 +1712,7 @@ export const SvgOutcrop4 = ({
   const borderColor = isSubLevel
     ? getSvgHexSubLevelBorderColor(hex, useTerrainBorderColor)
     : getSvgHexBorderColor(hex, useTerrainBorderColor)
-  const textColor = getOutcropTextColor({ hex, isSubLevel })
+  const textColor = getOutcropTextColor(hex.terrain, isSubLevel)
   const { points } = get4HexSvgPolygonPointsAt00(SVG_HEX_RADIUS)
   const { points: outlinePoints } = get4HexOutlineSvgPolygonPoints(
     SVG_HEX_RADIUS,

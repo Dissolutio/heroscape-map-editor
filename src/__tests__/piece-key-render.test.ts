@@ -15,6 +15,7 @@ import { PdfLaurWallArchText } from '../pdf-map/PdfMapShapes'
 import { PdfPieceLegend, PieceKeyShape } from '../pdf-map/PdfPieceLegend'
 import {
   getHexagonSvgPolygonPointsAt00,
+  getBattlementSvgPolygonPoints,
   getLadderSvgPolygonPoints,
   getLaurLongWallPdfPolygonPoints,
   getLaurLongWallSvgPolygonPoints,
@@ -196,6 +197,9 @@ const getShapePolygonPoints = (entry: PieceKeyEntry) => {
   const hexPoints = getHexagonSvgPolygonPointsAt00(SVG_HEX_RADIUS).corners
   const isStandaloneSymbol =
     entry.inventoryID === Pieces.ropeLadder ||
+    entry.inventoryID === Pieces.shipWall ||
+    entry.inventoryID === Pieces.shipBow ||
+    entry.inventoryID === Pieces.battlement ||
     Boolean(getLaurAddonSymbol(entry.inventoryID))
   const points = (isStandaloneSymbol ? [] : entry.hexes).flatMap((hex) => {
     const center = hexUtilsHexToPixel(hex)
@@ -207,6 +211,8 @@ const getShapePolygonPoints = (entry: PieceKeyEntry) => {
 
   if (entry.inventoryID === Pieces.ladder) {
     points.push(...getLadderSvgPolygonPoints(SVG_HEX_RADIUS * 2, 0).corners)
+  } else if (entry.inventoryID === Pieces.battlement) {
+    points.push(...getBattlementSvgPolygonPoints(SVG_HEX_RADIUS, 0).corners)
   } else if (entry.inventoryID === Pieces.shipWall) {
     points.push(...getShipWallSvgPolygonPoints(SVG_HEX_RADIUS, 0).corners)
   } else if (entry.inventoryID === Pieces.shipBow) {
@@ -587,7 +593,10 @@ describe('piece key shape rendering', () => {
       Pieces.palm14,
       Pieces.wood2,
       Pieces.laurWallSquarePillar,
+      Pieces.laurWallTrianglePillar,
       Pieces.laurWallLong,
+      Pieces.laurWallShort,
+      Pieces.laurWallRuin1,
       Pieces.ladder,
     ]
     const boardPieces: BoardPiece[] = inventoryIDs.map(
@@ -604,21 +613,12 @@ describe('piece key shape rendering', () => {
         ['roads-and-wall-walks', 'gray centers'],
         [
           'evergreen',
-          useTerrainBorderColor
-            ? 'green borders and centers; number indicates tree height'
-            : 'dark borders and green centers; number indicates tree height',
+          'green borders and centers; number indicates tree height',
         ],
-        [
-          'jungle',
-          useTerrainBorderColor
-            ? 'brown borders, yellow centers'
-            : 'dark borders, yellow centers',
-        ],
+        ['jungle', 'brown borders, yellow centers'],
         [
           'laur',
-          useTerrainBorderColor
-            ? 'pillars have pink borders and purple centers; wall add-ons are pink'
-            : 'pillars and wall add-ons have dark borders; pillars have purple centers',
+          'pillars have pink borders and purple centers; wall add-ons are pink',
         ],
         ['ladder', 'black borders'],
       ])
@@ -646,20 +646,17 @@ describe('piece key shape rendering', () => {
             expect(svg).toContain(`fill="${svgColors[HexTerrain.road]}"`)
           } else if (groupID === 'evergreen') {
             expect(svg).toContain(`fill="${svgColors[HexTerrain.tree]}"`)
-            expect(svg).toContain(
-              `fill="${useTerrainBorderColor ? svgColors.outlineTree : '#000000'}"`,
-            )
+            expect(svg).toContain(`fill="${svgColors.outlineTree}"`)
           } else if (groupID === 'jungle') {
             expect(svg).toContain(`fill="${svgColors.fillJungle}"`)
-            expect(svg).toContain(
-              `fill="${useTerrainBorderColor ? svgColors.outlineJungle : '#000000'}"`,
-            )
+            expect(svg).toContain(`fill="${svgColors.outlineJungle}"`)
           } else if (groupID === 'laur') {
-            if (entry.inventoryID === Pieces.laurWallSquarePillar) {
+            if (
+              entry.inventoryID === Pieces.laurWallSquarePillar ||
+              entry.inventoryID === Pieces.laurWallTrianglePillar
+            ) {
               expect(svg).toContain(`fill="${svgColors[HexTerrain.laurWall]}"`)
-              expect(svg).toContain(
-                `fill="${useTerrainBorderColor ? svgColors.outlineLaurWall : '#000000'}"`,
-              )
+              expect(svg).toContain(`fill="${svgColors.outlineLaurWall}"`)
             } else {
               expect(svg).toContain(
                 `fill="${svgColors[HexTerrain.laurWallAddon]}"`,
@@ -667,6 +664,24 @@ describe('piece key shape rendering', () => {
             }
           } else if (groupID === 'ladder') {
             expect(svg).toContain('stroke="black"')
+          }
+
+          if (groupID !== 'roads-and-wall-walks') {
+            const pdfColors = collectShapeColors(
+              PieceKeyShape({
+                entry,
+                useTerrainBorderColor,
+                scale: 0.075,
+              }),
+            )
+            const pdfColorsInOtherMode = collectShapeColors(
+              PieceKeyShape({
+                entry,
+                useTerrainBorderColor: !useTerrainBorderColor,
+                scale: 0.075,
+              }),
+            )
+            expect(pdfColors).toEqual(pdfColorsInOtherMode)
           }
         }
       }
@@ -683,9 +698,7 @@ describe('piece key shape rendering', () => {
         expect(entry).toBeDefined()
         if (!entry) continue
 
-        expect(model.fluidRows[0]?.description).toBe(
-          useTerrainBorderColor ? 'blue borders' : 'dark borders',
-        )
+        expect(model.fluidRows[0]?.description).toBe('blue borders')
         const svg = renderToStaticMarkup(
           SvgPieceKeyShape(
             entry,
@@ -697,9 +710,7 @@ describe('piece key shape rendering', () => {
           ),
         )
         expect(svg).toContain(`fill="${svgColors[terrain]}"`)
-        expect(svg).toContain(
-          `fill="${useTerrainBorderColor ? svgColors.outlineWater : '#000000'}"`,
-        )
+        expect(svg).toContain(`fill="${svgColors.outlineWater}"`)
         const pdfColors = collectShapeColors(
           PieceKeyShape({
             entry,
@@ -709,6 +720,15 @@ describe('piece key shape rendering', () => {
         )
         expect(pdfColors).toContainEqual(
           expect.objectContaining({ fill: expect.any(String) }),
+        )
+        expect(pdfColors).toEqual(
+          collectShapeColors(
+            PieceKeyShape({
+              entry,
+              useTerrainBorderColor: !useTerrainBorderColor,
+              scale: 0.075,
+            }),
+          ),
         )
       }
 
@@ -734,6 +754,21 @@ describe('piece key shape rendering', () => {
         expect(svg).toContain(`fill="${svgColors[HexTerrain.wood]}"`)
         expect(svg).toContain(
           `fill="${useTerrainBorderColor ? svgColors.outline2 : '#000000'}"`,
+        )
+        // Wood is solid land, so (unlike evergreen/jungle/laur) its PDF
+        // border is expected to follow the color-borders toggle too.
+        expect(
+          collectShapeColors(
+            PieceKeyShape({
+              entry: woodEntry,
+              useTerrainBorderColor,
+              scale: 0.075,
+            }),
+          ),
+        ).toContainEqual(
+          expect.objectContaining({
+            stroke: useTerrainBorderColor ? svgColors.outline2 : '#000000',
+          }),
         )
       }
       const ladder = model.specialGroups.find(({ id }) => id === 'ladder')
@@ -868,6 +903,8 @@ describe('piece key shape rendering', () => {
 
       expect(svgColors(svgKey)).toEqual(svgColors(svgMap))
 
+      // The PDF map never passes the Color Borders toggle to pieces, so Laur
+      // add-ons keep their own colors; the key must match in both modes.
       const pdfMapColors = collectShapeColors(
         PdfMapBoardPiece({
           piece: decoded,
@@ -876,20 +913,28 @@ describe('piece key shape rendering', () => {
           useLegacyStartZones: false,
         }),
       )
-      const pdfKeyColors = collectShapeColors(
-        PieceKeyShape({
-          entry,
-          useTerrainBorderColor: true,
-          scale: 0.075,
-        }),
-      )
+      for (const useTerrainBorderColor of [true, false]) {
+        const pdfKeyColors = collectShapeColors(
+          PieceKeyShape({
+            entry,
+            useTerrainBorderColor,
+            scale: 0.075,
+          }),
+        )
 
-      expect(pdfKeyColors).toEqual(pdfMapColors)
+        expect(pdfKeyColors).toEqual(pdfMapColors)
+      }
     }
   })
 
-  it('centers the rope ladder and every Laur add-on over their captions', () => {
-    const inventoryIDs = [Pieces.ropeLadder, ...laurAddonIDs]
+  it('centers standalone special shapes over their captions', () => {
+    const inventoryIDs = [
+      Pieces.ropeLadder,
+      Pieces.shipWall,
+      Pieces.shipBow,
+      Pieces.battlement,
+      ...laurAddonIDs,
+    ]
     const boardPieces: BoardPiece[] = inventoryIDs.map(
       (inventoryID, index) => ({
         uid: `key-${inventoryID}`,
@@ -913,7 +958,10 @@ describe('piece key shape rendering', () => {
       expect(svgLayout.center).toEqual(boundsCenter(svgBounds))
 
       const pdfBounds =
-        entry.inventoryID === Pieces.ropeLadder
+        entry.inventoryID === Pieces.ropeLadder ||
+        entry.inventoryID === Pieces.shipWall ||
+        entry.inventoryID === Pieces.shipBow ||
+        entry.inventoryID === Pieces.battlement
           ? svgBounds
           : entry.inventoryID === Pieces.laurWallLong ||
               entry.inventoryID === Pieces.laurWallLongStackable ||
@@ -938,9 +986,16 @@ describe('piece key shape rendering', () => {
       expect(pdfViewBox[0] + pdfViewBox[2] / 2).toBeCloseTo(
         pdfLayout.origin.x + pdfLayout.center.x,
       )
-      expect(pdfViewBox[1] + pdfViewBox[3] / 2).toBeCloseTo(
-        pdfLayout.origin.y + pdfLayout.center.y,
-      )
+      if (entry.inventoryID === Pieces.battlement) {
+        // The PDF key lowers the Battlement toward its caption on purpose.
+        expect(pdfViewBox[1] + pdfViewBox[3] / 2).toBeLessThan(
+          pdfLayout.origin.y + pdfLayout.center.y,
+        )
+      } else {
+        expect(pdfViewBox[1] + pdfViewBox[3] / 2).toBeCloseTo(
+          pdfLayout.origin.y + pdfLayout.center.y,
+        )
+      }
 
       const svg = renderToStaticMarkup(
         SvgPieceKeyShape(entry, 500, 600, 1, `centered-${entry.inventoryID}`),
@@ -1133,7 +1188,7 @@ describe('piece key shape rendering', () => {
     expect(label?.props.style).toMatchObject({ maxWidth: '100%' })
   })
 
-  it('top-aligns every Special Tiles entry row in both key layouts', () => {
+  it('aligns Special Tiles shapes per renderer and group', () => {
     const boardPieces = Object.keys(piecesSoFar).map((inventoryID, index) => ({
       uid: `layout-${index}`,
       inventoryID,
@@ -1159,16 +1214,160 @@ describe('piece key shape rendering', () => {
           renderer,
         )
         for (const row of rows) {
-          const layout = getPieceKeySpecialEntryRowLayout(row, scale, renderer)
-          expect(
-            layout.entries.map(({ shapeTopOffset }) => shapeTopOffset),
-          ).toEqual(row.map(() => 0))
+          const layout = getPieceKeySpecialEntryRowLayout(
+            row,
+            scale,
+            renderer,
+            group.id,
+          )
+          for (const { shapeHeight, shapeTopOffset } of layout.entries) {
+            const expectedOffset =
+              group.id === 'ship'
+                ? layout.shapeHeight - shapeHeight
+                : renderer === 'pdf'
+                  ? 0
+                  : (layout.shapeHeight - shapeHeight) / 2
+            expect(shapeTopOffset).toBeCloseTo(expectedOffset)
+          }
           expect(layout.shapeHeight).toBe(
             Math.max(...layout.entries.map(({ shapeHeight }) => shapeHeight)),
           )
         }
       }
     }
+  })
+
+  it('bottom-aligns a Ship Wall beside the Ship Bow', () => {
+    const model = getPieceKeyModel(
+      [Pieces.shipBow, Pieces.shipWall].map((inventoryID, index) => ({
+        uid: `ship-key-${inventoryID}`,
+        inventoryID,
+        altitude: 0,
+        rotation: 0,
+        pieceCoords: { q: index, r: 0, s: -index },
+      })),
+      {},
+      true,
+    )
+    const shipGroup = model.specialGroups.find(({ id }) => id === 'ship')
+    const shipBow = shipGroup?.entries.find(
+      ({ inventoryID }) => inventoryID === Pieces.shipBow,
+    )
+    const shipWall = shipGroup?.entries.find(
+      ({ inventoryID }) => inventoryID === Pieces.shipWall,
+    )
+
+    expect(shipBow).toBeDefined()
+    expect(shipWall).toBeDefined()
+    if (!shipBow || !shipWall) return
+
+    const layout = getPieceKeySpecialEntryRowLayout(
+      [shipBow, shipWall],
+      1,
+      'svg',
+      'ship',
+    )
+    const wallLayout = layout.entries.find(
+      ({ entry }) => entry.inventoryID === Pieces.shipWall,
+    )
+
+    expect(wallLayout?.shapeTopOffset).toBeGreaterThan(0)
+    expect(wallLayout?.shapeTopOffset).toBeCloseTo(
+      layout.shapeHeight - (wallLayout?.shapeHeight ?? 0),
+    )
+  })
+
+  it('centers SVG land header text blocks in their cells', () => {
+    const model = getPieceKeyModel(
+      [
+        {
+          uid: 'land-header-grass',
+          inventoryID: Pieces.grass24,
+          altitude: 0,
+          rotation: 0,
+          pieceCoords: { q: 0, r: 0, s: 0 },
+        },
+      ],
+      {},
+      true,
+    )
+    const keyWidth = getSvgPieceKeyWidth(model, SVG_HEX_RADIUS * 4)
+    const markup = renderToStaticMarkup(
+      SvgPieceKey({
+        model,
+        renderOptions: {
+          viewingLevel: 1,
+          overlayLevel: 1,
+          isOverlayViewing: false,
+          is2DOverlayLevelEnabled: false,
+          isShow2DExportTileLetters: false,
+          isShow2DExportBuriedMarks: false,
+          glyphCoordinates: new Set(),
+          glyphExportSettings: { isHideHeightsOnGlyphs: false },
+        },
+        useTerrainBorderColor: true,
+        x: 0,
+        y: 0,
+        width: keyWidth,
+      }),
+    )
+    const textAttributes = (text: string) =>
+      [...markup.matchAll(/<text\b([^>]*)>([\s\S]*?)<\/text>/g)].find(
+        ([, , content]) => content.replace(/<[^>]+>/g, '').trim() === text,
+      )?.[1]
+    const attributeNumber = (attributes: string, name: string) =>
+      Number(attributes.match(new RegExp(`${name}="([^"]+)"`))?.[1])
+    const tableMarkupStart = markup.indexOf(
+      '<g data-testid="svg-piece-key-land-table">',
+    )
+    expect(tableMarkupStart).toBeGreaterThanOrEqual(0)
+    // Each cell's first rect is an unfilled rect carrying its full bounds.
+    const allRects = [
+      ...markup.slice(tableMarkupStart).matchAll(/<rect\b([^>]*)>/g),
+    ]
+    const headerRects = allRects
+      .filter(([, attributes]) => attributes.includes('fill="none"'))
+      .slice(0, 2)
+    expect(headerRects).toHaveLength(2)
+
+    const expectCenteredBlock = (texts: string[], cellAttributes: string) => {
+      const elements = texts.map((text) => textAttributes(text))
+      expect(elements.every(Boolean)).toBe(true)
+      if (elements.some((attributes) => !attributes)) return
+
+      const lineAttributes = elements as string[]
+      const fontSizes = lineAttributes.map((attributes) =>
+        attributeNumber(attributes, 'font-size'),
+      )
+      const cellTop = attributeNumber(cellAttributes, 'y')
+      const cellHeight = attributeNumber(cellAttributes, 'height')
+      const cellCenterX =
+        attributeNumber(cellAttributes, 'x') +
+        attributeNumber(cellAttributes, 'width') / 2
+      const lineGap = SVG_HEX_RADIUS * 0.24 * 0.25
+      const blockHeight =
+        fontSizes.reduce((sum, size) => sum + size, 0) +
+        lineGap * (fontSizes.length - 1)
+      let expectedBaseline =
+        cellTop + (cellHeight - blockHeight) / 2 + fontSizes[0]
+
+      lineAttributes.forEach((attributes, index) => {
+        if (index > 0) expectedBaseline += lineGap + fontSizes[index]
+        expect(
+          Math.abs(attributeNumber(attributes, 'y') - expectedBaseline),
+        ).toBeLessThanOrEqual(1)
+        expect(attributes).toContain('text-anchor="middle"')
+        expect(
+          Math.abs(attributeNumber(attributes, 'x') - cellCenterX),
+        ).toBeLessThanOrEqual(1)
+      })
+    }
+
+    expectCenteredBlock(
+      ['Notice centers', 'and border colors'],
+      headerRects[0][1],
+    )
+    expectCenteredBlock(['Grass', 'green centers'], headerRects[1][1])
   })
 
   it('uses the map hive artwork in the key', () => {
@@ -1207,29 +1406,6 @@ describe('piece key shape rendering', () => {
     const expectedBlobPath = `${blobPath} fill="${getSvgHexFillColor(originHex)}" stroke="black" stroke-width="${SVG_BORDER_WIDTH / 2.4}"`
     expect(keySvg).toContain(expectedBlobPath)
     expect(mapSvg).toContain(expectedBlobPath)
-  })
-
-  it('uses dark borders for every Laur wall add-on in the PDF key', () => {
-    for (const inventoryID of laurAddonIDs) {
-      const piece = boardPieceToDecodedPieceID({
-        uid: `dark-${inventoryID}`,
-        inventoryID,
-        altitude: 0,
-        rotation: 0,
-        pieceCoords: { q: 0, r: 0, s: 0 },
-      })
-      const markup = renderToStaticMarkup(
-        PdfMapBoardPiece({
-          piece,
-          viewingLevel: 1,
-          overlayLevel: 1,
-          isPieceKeyLegend: true,
-          useTerrainBorderColor: false,
-        }),
-      )
-
-      expect(markup).toContain(`stroke="${svgColors.glacierText}"`)
-    }
   })
 
   it('converts every multiline key line with its own SVG text anchor', () => {

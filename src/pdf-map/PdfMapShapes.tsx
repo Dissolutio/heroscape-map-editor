@@ -48,6 +48,7 @@ import {
   getShipWallSvgPolygonPoints,
 } from '../pdf-svg-shared/hexPolygonPoints'
 import {
+  getOutcropTextColor,
   getSvgHexBorderColor,
   getSvgHexFillColor,
   getSvgHexSubLevelBorderColor,
@@ -300,6 +301,11 @@ const getPdfHexBorderForView = (
   borderMode: PdfBorderMode = true,
 ) => {
   if (PDF_BORDER_WIDTH <= 0) return ''
+  if (hex.terrain === HexTerrain.toxicOutcrop) {
+    return isSubLevel
+      ? svgSubLevelColors.toxicOutcropBorder
+      : svgColors.toxicOutcropBorder
+  }
   if (borderMode === 'force-dark') {
     return isSubLevel ? svgSubLevelColors.glacierText : svgColors.glacierText
   }
@@ -949,13 +955,11 @@ export const PdfBoardPieceLaurWallLong = ({
   piece,
   isSubLevel,
   isPieceKeyPreview,
-  isPieceKeyLegend,
   useTerrainBorderColor = true,
 }: {
   piece: DecodedPieceID
   isSubLevel?: boolean
   isPieceKeyPreview?: boolean
-  isPieceKeyLegend?: boolean
   useTerrainBorderColor?: PdfBorderMode
 }) => {
   const fillColor = isSubLevel
@@ -966,8 +970,6 @@ export const PdfBoardPieceLaurWallLong = ({
     isSubLevel,
     useTerrainBorderColor,
   )
-  const showDarkKeyBorder =
-    isPieceKeyLegend && useTerrainBorderColor === 'force-dark'
   const { points } = isPieceKeyPreview
     ? getLaurLongWallSvgPolygonPoints(SVG_HEX_RADIUS)
     : getLaurLongWallPdfPolygonPoints(SVG_HEX_RADIUS, PDF_BORDER_WIDTH)
@@ -975,10 +977,8 @@ export const PdfBoardPieceLaurWallLong = ({
     <Polygon
       points={points}
       fill={fillColor}
-      stroke={isPieceKeyPreview || showDarkKeyBorder ? borderColor : ''}
-      strokeWidth={
-        isPieceKeyPreview || showDarkKeyBorder ? PDF_BORDER_WIDTH : 0
-      }
+      stroke={isPieceKeyPreview ? borderColor : ''}
+      strokeWidth={isPieceKeyPreview ? PDF_BORDER_WIDTH : 0}
     />
   )
 }
@@ -986,13 +986,11 @@ export const PdfBoardPieceLaurWallLongArch = ({
   piece,
   isSubLevel,
   isPieceKeyPreview,
-  isPieceKeyLegend,
   useTerrainBorderColor = true,
 }: {
   piece: DecodedPieceID
   isSubLevel?: boolean
   isPieceKeyPreview?: boolean
-  isPieceKeyLegend?: boolean
   useTerrainBorderColor?: PdfBorderMode
 }) => {
   const fillColor = isSubLevel
@@ -1003,8 +1001,6 @@ export const PdfBoardPieceLaurWallLongArch = ({
     isSubLevel,
     useTerrainBorderColor,
   )
-  const showDarkKeyBorder =
-    isPieceKeyLegend && useTerrainBorderColor === 'force-dark'
   const { points } = isPieceKeyPreview
     ? getLaurLongWallSvgPolygonPoints(SVG_HEX_RADIUS)
     : getLaurLongWallPdfPolygonPoints(SVG_HEX_RADIUS, PDF_BORDER_WIDTH)
@@ -1012,10 +1008,8 @@ export const PdfBoardPieceLaurWallLongArch = ({
     <Polygon
       points={points}
       fill={fillColor}
-      stroke={isPieceKeyPreview || showDarkKeyBorder ? borderColor : ''}
-      strokeWidth={
-        isPieceKeyPreview || showDarkKeyBorder ? PDF_BORDER_WIDTH : 0
-      }
+      stroke={isPieceKeyPreview ? borderColor : ''}
+      strokeWidth={isPieceKeyPreview ? PDF_BORDER_WIDTH : 0}
     />
   )
 }
@@ -1527,14 +1521,7 @@ export const PdfSvgOutcrop6 = ({
     SVG_HEX_RADIUS,
     PDF_BORDER_WIDTH,
   )
-  const glacierTextColor = isSubLevel
-    ? svgSubLevelColors.glacierText
-    : svgColors.glacierText
-  const outcropTextColor = isSubLevel
-    ? svgSubLevelColors.outcropText
-    : svgColors.outcropText
-  const textColor =
-    hex.terrain === HexTerrain.glacier ? glacierTextColor : outcropTextColor
+  const textColor = getOutcropTextColor(hex.terrain, isSubLevel)
   const pieceRotation = ((hex?.pieceRotation ?? 0) % 6) * 60
   return (
     <>
@@ -1628,14 +1615,7 @@ export const PdfSvgOutcrop3 = ({
     SVG_HEX_RADIUS,
     PDF_BORDER_WIDTH,
   )
-  const glacierTextColor = isSubLevel
-    ? svgSubLevelColors.glacierText
-    : svgColors.glacierText
-  const outcropTextColor = isSubLevel
-    ? svgSubLevelColors.outcropText
-    : svgColors.outcropText
-  const textColor =
-    hex.terrain === HexTerrain.glacier ? glacierTextColor : outcropTextColor
+  const textColor = getOutcropTextColor(hex.terrain, isSubLevel)
   const pieceRotation = ((hex?.pieceRotation ?? 0) % 6) * 60
   return (
     <>
@@ -1693,14 +1673,7 @@ export const PdfSvgOutcrop4 = ({
     SVG_HEX_RADIUS,
     PDF_BORDER_WIDTH,
   )
-  const glacierTextColor = isSubLevel
-    ? svgSubLevelColors.glacierText
-    : svgColors.glacierText
-  const outcropTextColor = isSubLevel
-    ? svgSubLevelColors.outcropText
-    : svgColors.outcropText
-  const textColor =
-    hex.terrain === HexTerrain.glacier ? glacierTextColor : outcropTextColor
+  const textColor = getOutcropTextColor(hex.terrain, isSubLevel)
   const pieceRotation = ((hex?.pieceRotation ?? 0) % 6) * 60
   return (
     <>

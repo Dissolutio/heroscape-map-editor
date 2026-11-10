@@ -12,6 +12,8 @@ import {
   getLaurShortWallPolygonPoints,
   getLaurWallRuinPdfPolygonPoints,
   getLaurWallRuinSvgPolygonPoints,
+  getBattlementSvgPolygonPoints,
+  getRoadWallSvgPolygonPoints,
   getShipBowSvgPolygonPoints,
   getShipWallSvgPolygonPoints,
 } from './hexPolygonPoints'
@@ -21,6 +23,10 @@ import type {
   PieceKeyModel,
   PieceKeySpecialGroup,
 } from './pieceKey'
+
+export const PIECE_KEY_LINE_WIDTH = 2
+
+const PDF_BATTLEMENT_KEY_DOWNWARD_OFFSET = 24 * 0.55
 
 export const getPieceKeyShapeLayout = (
   entry: PieceKeyEntry,
@@ -33,7 +39,12 @@ export const getPieceKeyShapeLayout = (
   })
   const laurSymbol = getLaurAddonExportSymbol(entry.inventoryID)
   const footprintBounds =
-    laurSymbol || entry.inventoryID === Pieces.ropeLadder
+    laurSymbol ||
+    entry.inventoryID === Pieces.ropeLadder ||
+    entry.inventoryID === Pieces.roadWall ||
+    entry.inventoryID === Pieces.shipWall ||
+    entry.inventoryID === Pieces.shipBow ||
+    entry.inventoryID === Pieces.battlement
       ? []
       : positions.length
         ? positions.flatMap(({ x, y }) => [
@@ -72,7 +83,11 @@ export const getPieceKeyShapeLayout = (
         : renderer === 'pdf'
           ? getLaurWallRuinPdfPolygonPoints(SVG_HEX_RADIUS).corners
           : getLaurWallRuinSvgPolygonPoints(SVG_HEX_RADIUS).corners
-    : []
+    : entry.inventoryID === Pieces.roadWall
+      ? getRoadWallSvgPolygonPoints(SVG_HEX_RADIUS, 0).corners
+      : entry.inventoryID === Pieces.battlement
+        ? getBattlementSvgPolygonPoints(SVG_HEX_RADIUS, 0).corners
+        : []
   const addonCenterX = addonBounds.length
     ? (Math.min(...addonBounds.map(({ x }) => x)) +
         Math.max(...addonBounds.map(({ x }) => x))) /
@@ -139,7 +154,10 @@ export const getPieceKeyShapeLayout = (
     origin,
     center: { x: (minX + maxX) / 2, y: (minY + maxY) / 2 },
     minX,
-    minY,
+    minY:
+      renderer === 'pdf' && entry.inventoryID === Pieces.battlement
+        ? minY - PDF_BATTLEMENT_KEY_DOWNWARD_OFFSET
+        : minY,
     width: maxX - minX,
     height: maxY - minY,
   }
@@ -224,17 +242,27 @@ export const getPieceKeySpecialEntryRowLayout = (
   entries: PieceKeyEntry[],
   scale: number,
   renderer: 'pdf' | 'svg' = 'svg',
+  groupID?: string,
 ) => {
-  const entryLayouts = entries.map((entry) => ({
-    entry,
-    shapeHeight: getPieceKeyShapeLayout(entry, renderer).height * scale,
-    shapeTopOffset: 0,
-  }))
+  const shapeHeights = entries.map(
+    (entry) => getPieceKeyShapeLayout(entry, renderer).height * scale,
+  )
+  const shapeHeight = Math.max(0, ...shapeHeights)
+  const entryLayouts = entries.map((entry, index) => {
+    const entryShapeHeight = shapeHeights[index]
+    return {
+      entry,
+      shapeHeight: entryShapeHeight,
+      shapeTopOffset:
+        groupID === 'ship'
+          ? shapeHeight - entryShapeHeight
+          : renderer === 'pdf'
+            ? 0
+            : (shapeHeight - entryShapeHeight) / 2,
+    }
+  })
   return {
-    shapeHeight: Math.max(
-      0,
-      ...entryLayouts.map(({ shapeHeight }) => shapeHeight),
-    ),
+    shapeHeight,
     entries: entryLayouts,
   }
 }

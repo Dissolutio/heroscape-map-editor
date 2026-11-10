@@ -1,4 +1,5 @@
 import { G, Page, Svg, Text, View } from '@react-pdf/renderer'
+import type { ComponentProps } from 'react'
 import {
   type GlyphCoordinateLookup,
   type GlyphExportSettings,
@@ -11,8 +12,10 @@ import {
   type PieceKeyLandRow,
   getPieceKeyModel,
   getPieceKeyRowsForColumns,
+  shouldUseTerrainBorderColorForPieceKeyEntry,
 } from '../pdf-svg-shared/pieceKey'
 import {
+  PIECE_KEY_LINE_WIDTH,
   getPieceKeyRowShapeHeight,
   getPieceKeyShapeLayout,
   getPieceKeyShapeScale,
@@ -32,6 +35,12 @@ const SHAPE_PADDING = 24
 const PAGE_CONTENT_WIDTH = 564
 const PDF_TABLE_HEADER_HEIGHT = 36
 const MAX_LAND_TABLE_CHUNK_HEIGHT = 650
+
+const legendHyphenationCallback = (word: string) => [word]
+
+const LegendText = (props: ComponentProps<typeof Text>) => (
+  <Text {...props} hyphenationCallback={legendHyphenationCallback} />
+)
 
 const getLandShapeScale = (model: ReturnType<typeof getPieceKeyModel>) =>
   getPieceKeyShapeScale(
@@ -91,6 +100,8 @@ export function PieceKeyShape({
     glyphCoordinatesProp ?? makeGlyphCoordinateLookup(settings.boardHexes)
   const glyphExportSettings = glyphExportSettingsProp ?? settings
   const layout = getPieceKeyShapeLayout(entry, 'pdf')
+  const entryUsesTerrainBorderColor =
+    shouldUseTerrainBorderColorForPieceKeyEntry(entry, useTerrainBorderColor)
   const viewBox = getPieceKeySymbolViewBox(layout)
   const viewWidth = viewBox.width
   const viewHeight = viewBox.height
@@ -117,7 +128,7 @@ export function PieceKeyShape({
                 hex={hex}
                 viewingLevel={1}
                 isOverlayViewing
-                isPdfColorBorders={useTerrainBorderColor}
+                isPdfColorBorders={entryUsesTerrainBorderColor}
                 isShowPdfOverlayOnPlacedLevel
                 isShowPdfTileLetters={settings.isShowPdfTileLetters}
                 isShowPdfBuriedMarks={false}
@@ -137,8 +148,7 @@ export function PieceKeyShape({
             useLegacyStartZones={settings.useLegacyStartZones}
             is2DOverlayLevelEnabled
             isPieceKeyPreview={!isLaurAddon}
-            isPieceKeyLegend={isLaurAddon}
-            useTerrainBorderColor={useTerrainBorderColor}
+            useTerrainBorderColor={entryUsesTerrainBorderColor}
             archTextOffsetX={
               getLaurAddonExportSymbol(entry.inventoryID) === 'arch'
                 ? layout.center.x
@@ -204,15 +214,24 @@ function LandGrid({
           width: '20%',
           minHeight: PDF_TABLE_HEADER_HEIGHT,
           padding: 3,
-          borderRightWidth: 1,
-          borderBottomWidth: 1,
+          borderRightWidth: PIECE_KEY_LINE_WIDTH,
+          borderBottomWidth: PIECE_KEY_LINE_WIDTH,
+          alignItems: 'center',
           justifyContent: 'center',
         }}
       >
-        <Text style={{ fontSize: 7, fontWeight: 'bold' }}>Notice centers</Text>
-        <Text style={{ fontSize: 7, fontWeight: 'bold' }}>
-          and border colors
-        </Text>
+        <View style={{ alignItems: 'flex-start' }}>
+          <LegendText
+            style={{ fontSize: 7, fontWeight: 'bold', textAlign: 'left' }}
+          >
+            Notice centers
+          </LegendText>
+          <LegendText
+            style={{ fontSize: 7, fontWeight: 'bold', textAlign: 'left' }}
+          >
+            and border colors
+          </LegendText>
+        </View>
       </View>
       {columns.map((column) => (
         <View
@@ -221,16 +240,25 @@ function LandGrid({
             width: `${80 / Math.max(columns.length, 1)}%`,
             minHeight: PDF_TABLE_HEADER_HEIGHT,
             padding: 2,
-            borderRightWidth: 1,
-            borderBottomWidth: 1,
+            borderTopWidth: PIECE_KEY_LINE_WIDTH,
+            borderRightWidth: PIECE_KEY_LINE_WIDTH,
+            borderBottomWidth: PIECE_KEY_LINE_WIDTH,
             justifyContent: 'center',
             alignItems: 'center',
           }}
         >
-          <Text style={{ fontSize: 9, fontWeight: 'bold' }}>
+          <LegendText
+            style={{
+              fontSize: 9,
+              fontWeight: 'bold',
+              textAlign: 'center',
+            }}
+          >
             {column.title}
-          </Text>
-          <Text style={{ fontSize: 6 }}>{column.description}</Text>
+          </LegendText>
+          <LegendText style={{ fontSize: 6, textAlign: 'center' }}>
+            {column.description}
+          </LegendText>
         </View>
       ))}
     </View>
@@ -252,14 +280,17 @@ function LandGrid({
             width: '20%',
             minHeight: rowHeight,
             padding: 2,
-            borderRightWidth: 1,
-            borderBottomWidth: 1,
+            borderLeftWidth: PIECE_KEY_LINE_WIDTH,
+            borderRightWidth: PIECE_KEY_LINE_WIDTH,
+            borderBottomWidth: PIECE_KEY_LINE_WIDTH,
             justifyContent: 'center',
             alignItems: 'center',
           }}
         >
-          <Text style={{ fontSize: 8, fontWeight: 'bold' }}>{row.title}</Text>
-          <Text style={{ fontSize: 6 }}>{row.description}</Text>
+          <LegendText style={{ fontSize: 8, fontWeight: 'bold' }}>
+            {row.title}
+          </LegendText>
+          <LegendText style={{ fontSize: 6 }}>{row.description}</LegendText>
         </View>
         {columns.map((column) => {
           const entry = column.cells.find(
@@ -272,8 +303,8 @@ function LandGrid({
                 width: `${80 / Math.max(columns.length, 1)}%`,
                 minHeight: rowHeight,
                 padding: 1,
-                borderRightWidth: 1,
-                borderBottomWidth: 1,
+                borderRightWidth: PIECE_KEY_LINE_WIDTH,
+                borderBottomWidth: PIECE_KEY_LINE_WIDTH,
                 justifyContent: 'center',
                 alignItems: 'center',
               }}
@@ -287,7 +318,9 @@ function LandGrid({
                     glyphCoordinates={glyphCoordinates}
                     glyphExportSettings={glyphExportSettings}
                   />
-                  <Text style={{ fontSize: 6 }}>x{entry.count}</Text>
+                  <LegendText style={{ fontSize: 6 }}>
+                    x{entry.count}
+                  </LegendText>
                 </>
               )}
             </View>
@@ -307,8 +340,6 @@ function LandGrid({
               wrap={false}
               style={{
                 marginBottom: chunkIndex === chunks.length - 1 ? 8 : 0,
-                borderTopWidth: 1,
-                borderLeftWidth: 1,
               }}
             >
               {chunk.map((chunkRow) =>
@@ -338,7 +369,7 @@ function LandGrid({
                 }
               >
                 {showPieceKeyTitle && (
-                  <Text
+                  <LegendText
                     style={{
                       fontSize: 15,
                       fontWeight: 'bold',
@@ -346,9 +377,9 @@ function LandGrid({
                     }}
                   >
                     Piece Key
-                  </Text>
+                  </LegendText>
                 )}
-                <Text
+                <LegendText
                   style={{
                     fontSize: showPieceKeyTitle ? 11 : 15,
                     fontWeight: 'bold',
@@ -356,7 +387,7 @@ function LandGrid({
                   }}
                 >
                   {sectionTitle ?? 'Piece Key'}
-                </Text>
+                </LegendText>
                 {table}
               </View>
             )
@@ -397,17 +428,17 @@ function SpecialTiles({
           {index === 0 && (
             <>
               {!model.landColumns.length && !model.fluidColumns.length && (
-                <Text
+                <LegendText
                   style={{ fontSize: 15, fontWeight: 'bold', marginBottom: 6 }}
                 >
                   Piece Key
-                </Text>
+                </LegendText>
               )}
-              <Text
+              <LegendText
                 style={{ fontSize: 11, fontWeight: 'bold', marginBottom: 4 }}
               >
                 Special Tiles
-              </Text>
+              </LegendText>
             </>
           )}
           <View
@@ -423,16 +454,16 @@ function SpecialTiles({
                 style={{
                   width: '33.333%',
                   padding: 3,
-                  borderWidth: 1,
+                  borderWidth: PIECE_KEY_LINE_WIDTH,
                   flexDirection: 'column',
                 }}
               >
-                <Text style={{ fontSize: 8, fontWeight: 'bold' }}>
+                <LegendText style={{ fontSize: 8, fontWeight: 'bold' }}>
                   {group.title}
-                </Text>
-                <Text style={{ fontSize: 6, marginBottom: 2 }}>
+                </LegendText>
+                <LegendText style={{ fontSize: 6, marginBottom: 2 }}>
                   {group.description}
-                </Text>
+                </LegendText>
                 <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
                   {(() => {
                     const { entriesPerRow, rows } = getPieceKeySpecialEntryRows(
@@ -446,56 +477,67 @@ function SpecialTiles({
                         entries,
                         scale,
                         'pdf',
+                        group.id,
                       )
                       const shapeHeight = rowLayout.shapeHeight
                       return (
                         <View
                           key={`${group.id}-entries-${rowIndex}`}
                           style={{
+                            width: '100%',
                             flexDirection: 'row',
                             alignItems: 'flex-start',
                           }}
                         >
-                          {rowLayout.entries.map(({ entry }) => (
-                            <View
-                              key={entry.inventoryID}
-                              style={{
-                                width: `${100 / entriesPerRow}%`,
-                                padding: 1,
-                                alignItems: 'center',
-                                justifyContent: 'flex-start',
-                              }}
-                            >
+                          {rowLayout.entries.map(
+                            ({ entry, shapeTopOffset }) => (
                               <View
+                                key={entry.inventoryID}
                                 style={{
-                                  height: shapeHeight,
+                                  width: `${100 / entriesPerRow}%`,
+                                  padding: 1,
                                   alignItems: 'center',
+                                  justifyContent: 'flex-start',
                                 }}
                               >
-                                <PieceKeyShape
-                                  entry={entry}
-                                  useTerrainBorderColor={useTerrainBorderColor}
-                                  scale={scale}
-                                  glyphCoordinates={glyphCoordinates}
-                                  glyphExportSettings={glyphExportSettings}
-                                />
+                                <View
+                                  style={{
+                                    height: shapeHeight,
+                                    alignItems: 'center',
+                                  }}
+                                >
+                                  <View style={{ marginTop: shapeTopOffset }}>
+                                    <PieceKeyShape
+                                      entry={entry}
+                                      useTerrainBorderColor={
+                                        useTerrainBorderColor
+                                      }
+                                      scale={scale}
+                                      glyphCoordinates={glyphCoordinates}
+                                      glyphExportSettings={glyphExportSettings}
+                                    />
+                                  </View>
+                                </View>
+                                <LegendText
+                                  style={{
+                                    fontSize: 5,
+                                    textAlign: 'center',
+                                    maxWidth: '100%',
+                                  }}
+                                >
+                                  {entry.title}
+                                </LegendText>
+                                <LegendText
+                                  style={{
+                                    fontSize: 5,
+                                    textAlign: 'center',
+                                  }}
+                                >
+                                  x{entry.count}
+                                </LegendText>
                               </View>
-                              <Text
-                                style={{
-                                  fontSize: 5,
-                                  textAlign: 'center',
-                                  maxWidth: '100%',
-                                }}
-                              >
-                                {entry.title}
-                              </Text>
-                              <Text
-                                style={{ fontSize: 5, textAlign: 'center' }}
-                              >
-                                x{entry.count}
-                              </Text>
-                            </View>
-                          ))}
+                            ),
+                          )}
                         </View>
                       )
                     })

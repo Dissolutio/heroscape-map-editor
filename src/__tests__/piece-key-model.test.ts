@@ -77,11 +77,16 @@ describe('piece key model', () => {
         makePiece(Pieces.grass3, 2),
         makePiece(Pieces.grass7, 3),
         makePiece(Pieces.grass24, 4),
-        makePiece(Pieces.concrete6, 5),
-        makePiece(Pieces.ice4, 6),
-        makePiece(Pieces.road5, 7),
-        makePiece(Pieces.wallWalk7, 8),
-        makePiece(Pieces.swampWater6, 9),
+        makePiece(Pieces.concrete1, 5),
+        makePiece(Pieces.concrete2, 6),
+        makePiece(Pieces.concrete3, 7),
+        makePiece(Pieces.concrete6, 8),
+        makePiece(Pieces.concrete7, 9),
+        makePiece(Pieces.concrete24, 10),
+        makePiece(Pieces.ice4, 11),
+        makePiece(Pieces.road5, 12),
+        makePiece(Pieces.wallWalk7, 13),
+        makePiece(Pieces.swampWater6, 14),
       ],
       {},
       true,
@@ -90,7 +95,7 @@ describe('piece key model', () => {
     expect(model.landRows.map(({ size }) => size)).toEqual([24, 7, 3, 2, 1])
     expect(model.specialGroups.map(({ id }) => id)).toEqual([
       'roads-and-wall-walks',
-      'special-land-concrete',
+      'other',
     ])
     expect(
       model.specialGroups[0].entries.map(({ inventoryID }) => inventoryID),
@@ -98,11 +103,69 @@ describe('piece key model', () => {
     expect(
       model.specialGroups.slice(1).map(({ entries }) => entries[0].inventoryID),
     ).toEqual([Pieces.concrete6])
+    expect(model.specialGroups[1].entries.map(({ title }) => title)).toEqual([
+      'Concrete (6)',
+    ])
+    expect(
+      model.landColumns.some(({ terrain }) => terrain === HexTerrain.concrete),
+    ).toBe(true)
+    const concreteColumn = model.landColumns.find(
+      ({ terrain }) => terrain === HexTerrain.concrete,
+    )
+    expect(
+      concreteColumn?.cells.map(({ size, entry }) => [size, entry.inventoryID]),
+    ).toEqual([
+      [24, Pieces.concrete24],
+      [7, Pieces.concrete7],
+      [3, Pieces.concrete3],
+      [2, Pieces.concrete2],
+      [1, Pieces.concrete1],
+    ])
+    const concreteEntries = [
+      ...model.landColumns.flatMap((column) =>
+        column.cells.map(({ entry }) => entry),
+      ),
+      ...model.specialGroups.flatMap(({ entries }) => entries),
+    ].filter(({ terrain }) => terrain === HexTerrain.concrete)
+    expect(
+      concreteEntries.map(({ inventoryID }) => inventoryID).sort(),
+    ).toEqual(
+      [
+        Pieces.concrete1,
+        Pieces.concrete2,
+        Pieces.concrete3,
+        Pieces.concrete6,
+        Pieces.concrete7,
+        Pieces.concrete24,
+      ].sort(),
+    )
+    expect(
+      concreteEntries.filter(
+        ({ inventoryID }) => inventoryID === Pieces.concrete6,
+      ),
+    ).toHaveLength(1)
     expect(
       model.fluidColumns
         .flatMap((column) => column.cells)
         .map(({ entry }) => entry.inventoryID),
     ).toEqual([Pieces.swampWater6, Pieces.ice4])
+  })
+
+  it('keeps the Concrete column absent when only the 6-hex piece is used', () => {
+    const model = getPieceKeyModel([makePiece(Pieces.concrete6, 0)], {}, true)
+
+    expect(
+      model.landColumns.some(({ terrain }) => terrain === HexTerrain.concrete),
+    ).toBe(false)
+    expect(
+      model.specialGroups
+        .find(({ id }) => id === 'other')
+        ?.entries.map(({ inventoryID, title, count }) => [
+          inventoryID,
+          title,
+          count,
+        ]),
+    ).toEqual([[Pieces.concrete6, 'Concrete (6)', 1]])
   })
 
   it('updates Special Tiles descriptions when border colors are disabled', () => {
@@ -143,23 +206,13 @@ describe('piece key model', () => {
       expect(model.specialGroups.some(({ id }) => id === 'wellspring')).toBe(
         false,
       )
-      expect(model.fluidRows[0]?.description).toBe(
-        useTerrainBorderColor ? 'blue borders' : 'dark borders',
-      )
+      expect(model.fluidRows[0]?.description).toBe('blue borders')
       expect(descriptions.get('evergreen')).toBe(
-        useTerrainBorderColor
-          ? 'green borders and centers; number indicates tree height'
-          : 'dark borders and green centers; number indicates tree height',
+        'green borders and centers; number indicates tree height',
       )
-      expect(descriptions.get('jungle')).toBe(
-        useTerrainBorderColor
-          ? 'brown borders, yellow centers'
-          : 'dark borders, yellow centers',
-      )
+      expect(descriptions.get('jungle')).toBe('brown borders, yellow centers')
       expect(descriptions.get('laur')).toBe(
-        useTerrainBorderColor
-          ? 'pillars have pink borders and purple centers; wall add-ons are pink'
-          : 'pillars and wall add-ons have dark borders; pillars have purple centers',
+        'pillars have pink borders and purple centers; wall add-ons are pink',
       )
     }
   })
@@ -245,7 +298,7 @@ describe('piece key model', () => {
     expect(laur).toMatchObject({
       title: 'Pillars and Walls (Laur)',
       description:
-        'pillars and wall add-ons have dark borders; pillars have purple centers',
+        'pillars have pink borders and purple centers; wall add-ons are pink',
     })
     expect(laur?.entries.map(({ title }) => title)).toEqual([
       'long wall',
