@@ -640,14 +640,45 @@ export function getPiecesMissingFromCollection(
     availableInventory: collection,
   }).reconciledUsedInventory
   const missing: Record<string, number> = {}
+  const jungleIDs = new Set(
+    JUNGLE_PIECE_EQUIVALENTS.flatMap(({ laur, ticalla }) => [laur, ticalla]),
+  )
 
   for (const [inventoryID, usedCount] of Object.entries(used)) {
-    if (isIgnoredPiece(inventoryID)) continue
+    if (isIgnoredPiece(inventoryID) || jungleIDs.has(inventoryID)) continue
     const ownedCount = collection[inventoryID] ?? 0
     if (usedCount > ownedCount) {
       missing[inventoryID] = usedCount - ownedCount
     }
   }
 
-  return getPieceCounts(missing)
+  for (const { laur, ticalla } of JUNGLE_PIECE_EQUIVALENTS) {
+    const usedLaur = used[laur] ?? 0
+    const usedTicalla = used[ticalla] ?? 0
+    const ownedLaur = collection[laur] ?? 0
+    const ownedTicalla = collection[ticalla] ?? 0
+    const missingLaur = Math.max(usedLaur - ownedLaur, 0)
+    const missingTicalla = Math.max(usedTicalla - ownedTicalla, 0)
+    const surplusLaur = Math.max(ownedLaur - usedLaur, 0)
+    const surplusTicalla = Math.max(ownedTicalla - usedTicalla, 0)
+    const remainingLaur = Math.max(missingLaur - surplusTicalla, 0)
+    const remainingTicalla = Math.max(missingTicalla - surplusLaur, 0)
+
+    if (remainingLaur > 0) missing[laur] = remainingLaur
+    if (remainingTicalla > 0) missing[ticalla] = remainingTicalla
+  }
+
+  return getPieceCounts(missing).map((piece) => {
+    const equivalent = JUNGLE_PIECE_EQUIVALENTS.find(
+      ({ laur, ticalla }) =>
+        piece.inventoryID === laur || piece.inventoryID === ticalla,
+    )
+    if (!equivalent) return piece
+    const family =
+      piece.inventoryID === equivalent.ticalla ? 'Laur' : 'Ticalla'
+    return {
+      ...piece,
+      title: `${piece.title} (or the ${family} equivalent)`,
+    }
+  })
 }

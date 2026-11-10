@@ -271,4 +271,31 @@ describe('sets to build this map', () => {
       },
     ])
   })
+
+  it('covers Ticalla palms with matching Laur jungle trees', () => {
+    expect(
+      getPiecesMissingFromCollection(
+        pieces(Pieces.palm14, Pieces.palm15, Pieces.palm16),
+        {
+          [Pieces.laurPalm13]: 1,
+          [Pieces.laurPalm14]: 1,
+          [Pieces.laurPalm15]: 1,
+        },
+      ),
+    ).toEqual([])
+  })
+
+  it('names the map jungle piece and offers its interchangeable equivalent', () => {
+    const missing = getPiecesMissingFromCollection(
+      pieces(Pieces.palm14, Pieces.palm14, Pieces.palm14),
+      { [Pieces.laurPalm13]: 2 },
+    )
+
+    expect(missing).toHaveLength(1)
+    expect(missing[0]).toMatchObject({
+      inventoryID: Pieces.palm14,
+      count: 1,
+    })
+    expect(missing[0]?.title).toContain('(or the Laur equivalent)')
+  })
 })
