@@ -22,6 +22,19 @@ export type PalmFrondTransform = {
   widthScale: number
 }
 
+export const PALM_FROND_BLADE_WIDTH: Record<PalmStyle, number> = {
+  laur: 3,
+  ticalla: 3,
+}
+export const PALM_FROND_FOLD = 0.08
+// Measured from the Palm_Trunk POSITION accessor in public/laur-jungle.glb.
+// Both styles render this geometry directly beside their procedural fronds.
+export const PALM_TRUNK_TOP_Y: Record<PalmStyle, number> = {
+  laur: 4.375,
+  ticalla: 4.375,
+}
+export const PALM_CANOPY_TRUNK_OVERLAP = 0.05
+
 export function applyPalmFrondInstances(
   mesh: InstancedMesh,
   instances: PalmFrondTransform[],
@@ -175,7 +188,18 @@ export function getPalmFrondRings(
   tier: GraphicsTier,
 ): PalmFrondRing[] {
   if (tier === 'low') return []
-  return ringProfiles[style][tier]
+  const rings = ringProfiles[style][tier]
+  const lowestBaseY = Math.min(...rings.map((ring) => ring.baseY))
+  const baseOffset =
+    PALM_TRUNK_TOP_Y[style] - PALM_CANOPY_TRUNK_OVERLAP - lowestBaseY
+  return rings.map((ring) => ({
+    ...ring,
+    baseY: ring.baseY + baseOffset,
+  }))
+}
+
+export function shouldRenderPalmCrownHub(tier: GraphicsTier) {
+  return tier !== 'low'
 }
 
 function seedNumber(seed: string): number {
@@ -233,18 +257,42 @@ export function buildPalmFrondGeometry(
   const positions: number[] = []
   const uvs: number[] = []
   const indices: number[] = []
+  const halfWidthAt = (along: number) =>
+    ring.width * Math.sin(Math.PI * along) ** 0.72 * 0.5
 
   for (let step = 0; step <= ring.segments; step += 1) {
     const along = step / ring.segments
-    const width = ring.width * Math.sin(Math.PI * along) ** 0.72 * 0.5
     const curve = -ring.droop * along * along
-    positions.push(along, curve, -width, along, curve, width)
-    uvs.push(along, 0, along, 1)
+    const width = halfWidthAt(along)
+    positions.push(
+      along,
+      curve,
+      -width,
+      along,
+      curve + PALM_FROND_FOLD,
+      0,
+      along,
+      curve,
+      width,
+    )
+    uvs.push(along, 0, along, 0.5, along, 1)
 
     if (step < ring.segments) {
-      const left = step * 2
-      const right = left + 1
-      indices.push(left, left + 2, right, right, left + 2, right + 2)
+      const left = step * 3
+      indices.push(
+        left,
+        left + 3,
+        left + 1,
+        left + 1,
+        left + 3,
+        left + 4,
+        left + 1,
+        left + 4,
+        left + 2,
+        left + 2,
+        left + 4,
+        left + 5,
+      )
     }
   }
 

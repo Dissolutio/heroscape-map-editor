@@ -11,6 +11,9 @@ import type { GraphicsTier } from '../../local-storage/settings'
 import { PIECE_PREVIEW_OPACITY } from '../../utils/constants'
 import type { TextureLoadStatus } from '../textures/terrainTextureArrays'
 
+export const MODEL_HIGHLIGHT_EMISSIVE = 'yellow'
+export const MODEL_HIGHLIGHT_EMISSIVE_INTENSITY = 0.3
+
 export function shouldUseTieredModelTexture(
   tier: GraphicsTier,
   textureLoadStatus: TextureLoadStatus,
@@ -60,8 +63,8 @@ export function useTexturedModelMaterial({
       normalMap: isHigh ? sourceMaterial.normalMap : null,
       roughnessMap: isHigh ? sourceMaterial.roughnessMap : null,
       color: 'white',
-      emissive: isHighlighted ? 'yellow' : 'black',
-      emissiveIntensity: isHighlighted ? 0.3 : 0,
+      emissive: isHighlighted ? MODEL_HIGHLIGHT_EMISSIVE : 'black',
+      emissiveIntensity: isHighlighted ? MODEL_HIGHLIGHT_EMISSIVE_INTENSITY : 0,
       metalness: isHigh ? sourceMaterial.metalness : 0,
       roughness: isHigh ? (highRoughness ?? sourceMaterial.roughness) : 1,
       side: doubleSided ? DoubleSide : FrontSide,
