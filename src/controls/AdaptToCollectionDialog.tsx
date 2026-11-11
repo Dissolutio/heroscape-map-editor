@@ -18,10 +18,12 @@ import {
   TableCell,
   TableHead,
   TableRow,
+  Tooltip,
   Typography,
 } from '@mui/material'
 import { useSnackbar } from 'notistack'
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { MdInfoOutline } from 'react-icons/md'
 import { piecesSoFar } from '../data/pieces'
 import { MapAuthorNotesFields } from '../layout/MapAuthorNotesFields'
 import { MapNameField } from '../layout/MapNameField'
@@ -356,7 +358,35 @@ export function AdaptToCollectionDialog({
                     <TableCell align="right">Surface hexes</TableCell>
                     <TableCell align="right">Buried hexes</TableCell>
                     <TableCell>Substitutes and coverage</TableCell>
-                    <TableCell>Scope</TableCell>
+                    <TableCell>
+                      <Box
+                        sx={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: 0.5,
+                        }}
+                      >
+                        Covered pieces
+                        <Tooltip
+                          title="Pieces under other pieces can't be seen, so any spare land of the same kind works."
+                          arrow
+                          describeChild
+                        >
+                          <Box
+                            component="span"
+                            aria-label="About covered pieces"
+                            tabIndex={0}
+                            sx={{
+                              display: 'inline-flex',
+                              color: 'text.secondary',
+                              cursor: 'help',
+                            }}
+                          >
+                            <MdInfoOutline size={16} aria-hidden="true" />
+                          </Box>
+                        </Tooltip>
+                      </Box>
+                    </TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -366,6 +396,7 @@ export function AdaptToCollectionDialog({
                     )
                     const surfaceHexes = counts?.surfaceHexes ?? 0
                     const buriedHexes = counts?.buriedHexes ?? 0
+                    const totalHexes = surfaceHexes + buriedHexes
                     const choice = choices[terrain] ?? {
                       targetTerrains: [''],
                       scope: 'wholeColumn' as const,
@@ -373,6 +404,39 @@ export function AdaptToCollectionDialog({
                     const coverage = plan.surfaceCoverageByTerrain[terrain] ?? [
                       0, 0, 0,
                     ]
+                    const buriedCoverage = plan.buriedCoverageByTerrain[
+                      terrain
+                    ] ?? [0, 0, 0]
+                    const convertedBuriedHexes = buriedCoverage.reduce(
+                      (total, count) => total + count,
+                      0,
+                    )
+                    const unconvertedBuriedHexes = Math.max(
+                      0,
+                      buriedHexes - convertedBuriedHexes,
+                    )
+                    const buriedFill = isFluidTerrainHex(terrain)
+                      ? buriedFillByKind.fluid
+                      : buriedFillByKind.solid
+                    const buriedTarget =
+                      choice.scope === 'surfaceOnly'
+                        ? buriedFill
+                          ? `spare ${formatTerrainLabel(buriedFill)}`
+                          : 'spare land'
+                        : 'your picks'
+                    const coveredHexNoun =
+                      convertedBuriedHexes === 1
+                        ? 'covered hex'
+                        : 'covered hexes'
+                    const buriedCoverageText = `${
+                      convertedBuriedHexes
+                    } ${coveredHexNoun} ${
+                      convertedBuriedHexes === 1 ? 'uses' : 'use'
+                    } ${buriedTarget}${
+                      unconvertedBuriedHexes > 0
+                        ? `; ${unconvertedBuriedHexes} left unconverted`
+                        : ''
+                    }`
                     const first = choice.targetTerrains[0] ?? ''
                     const second = choice.targetTerrains[1] ?? ''
                     const afterFirst = surfaceHexes - (coverage[0] ?? 0)
@@ -484,6 +548,11 @@ export function AdaptToCollectionDialog({
                               No owned same-kind terrain is available.
                             </Typography>
                           )}
+                          {buriedHexes > 0 && (
+                            <Typography variant="body2" sx={{ mt: 1 }}>
+                              {buriedCoverageText}
+                            </Typography>
+                          )}
                           {otherSharedRows.length > 0 && (
                             <Typography variant="caption" display="block">
                               Shared supply with{' '}
@@ -495,31 +564,42 @@ export function AdaptToCollectionDialog({
                           )}
                         </TableCell>
                         <TableCell>
-                          <RadioGroup
-                            aria-label={`${formatTerrainLabel(terrain)} scope`}
-                            value={choice.scope}
-                            onChange={(event) => {
-                              clearSummary()
-                              setChoices((current) => ({
-                                ...current,
-                                [terrain]: {
-                                  ...choice,
-                                  scope: event.target.value as AdaptScope,
-                                },
-                              }))
-                            }}
-                          >
-                            <FormControlLabel
-                              value="wholeColumn"
-                              control={<Radio size="small" />}
-                              label="Whole column"
-                            />
-                            <FormControlLabel
-                              value="surfaceOnly"
-                              control={<Radio size="small" />}
-                              label="Surface only"
-                            />
-                          </RadioGroup>
+                          {buriedHexes > 0 ? (
+                            <>
+                              <Typography variant="body2" sx={{ mb: 0.5 }}>
+                                {buriedHexes} of {totalHexes} hexes
+                              </Typography>
+                              <RadioGroup
+                                aria-label={`${formatTerrainLabel(terrain)} covered pieces`}
+                                value={choice.scope}
+                                onChange={(event) => {
+                                  clearSummary()
+                                  setChoices((current) => ({
+                                    ...current,
+                                    [terrain]: {
+                                      ...choice,
+                                      scope: event.target.value as AdaptScope,
+                                    },
+                                  }))
+                                }}
+                              >
+                                <FormControlLabel
+                                  value="wholeColumn"
+                                  control={<Radio size="small" />}
+                                  label="Use my picks"
+                                />
+                                <FormControlLabel
+                                  value="surfaceOnly"
+                                  control={<Radio size="small" />}
+                                  label="Any spare land"
+                                />
+                              </RadioGroup>
+                            </>
+                          ) : (
+                            <Typography variant="body2" color="text.secondary">
+                              No covered pieces
+                            </Typography>
+                          )}
                         </TableCell>
                       </TableRow>
                     )

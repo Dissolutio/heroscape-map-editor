@@ -26,7 +26,11 @@ test('Sets to build dialog lists catalog options outside Map Inventory', async (
     dialog.getByRole('heading', { name: 'Contemporary' }),
   ).toBeVisible()
   await expect(dialog.getByRole('heading', { name: 'Classic' })).toBeVisible()
-  await expect(dialog.getByText(/\d+× .+ — \d+ boxes?/).first()).toBeVisible()
+  await expect(
+    dialog
+      .getByText(/\d+× .+ — \d+ (Master Sets?|Expansions?|Promos?)/)
+      .first(),
+  ).toBeVisible()
   await expect(dialog.getByText(/MSTK|Max Shared Terrain Kit/)).toHaveCount(0)
 
   await page.getByRole('button', { name: 'Close' }).click()

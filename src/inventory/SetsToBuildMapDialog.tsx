@@ -14,6 +14,7 @@ import useBoundStore from '../store/store'
 import { getCollectionLandSupply } from '../utils/adaptToCollection'
 import {
   DEFAULT_VISIBLE_OPTION_COUNT,
+  formatSetKindTotals,
   getPiecesMissingFromCollection,
   getSetsToBuildMapCatalog,
 } from '../utils/setsToBuildMap'
@@ -75,17 +76,20 @@ const SetsToBuildMapDialog = () => {
               <Typography variant="h6" component="h2">
                 {category.title}
               </Typography>
+              {category.reason && (
+                <Typography variant="body2">{category.reason}</Typography>
+              )}
               {visibleOptions.map((option, index) => {
                 const sets = option.sets
                   .map(
                     (set) => `${set.count}× ${set.name} (${set.abbreviation})`,
                   )
                   .join(' + ')
-                const total =
-                  option.boxCount === 1 ? '1 box' : `${option.boxCount} boxes`
+                const total = formatSetKindTotals(option.sets)
                 return (
                   <Typography key={`${category.id}-${index}`} variant="body2">
-                    {sets || 'No terrain set boxes needed'} — {total}
+                    {sets || 'No terrain set boxes needed'}
+                    {total && ` — ${total}`}
                   </Typography>
                 )
               })}
@@ -112,11 +116,6 @@ const SetsToBuildMapDialog = () => {
             </Box>
           )
         })}
-        {catalog?.reasons.map((reason) => (
-          <Typography key={reason} variant="body2" sx={{ mb: 1 }}>
-            {reason}
-          </Typography>
-        ))}
         {catalog?.notInAnySet.length ? (
           <Typography variant="body2">
             Not in any set:{' '}
@@ -126,7 +125,7 @@ const SetsToBuildMapDialog = () => {
           </Typography>
         ) : null}
         {catalog?.ignored.length ? (
-          <Typography variant="body2">
+          <Typography variant="body2" color="text.secondary">
             Not counted (generic, start zones, or glyphs):{' '}
             {catalog.ignored
               .map((piece) => `${piece.count}× ${piece.title}`)
@@ -134,13 +133,15 @@ const SetsToBuildMapDialog = () => {
           </Typography>
         ) : null}
         {objectiveMarkerCount > 0 && (
-          <Typography variant="body2">
+          <Typography variant="body2" color="text.secondary">
             Objective markers: {objectiveMarkerCount} (not counted)
           </Typography>
         )}
         {collectionSupply.hasAnyPieces && (
           <Box sx={{ mt: 1 }}>
-            <Typography variant="subtitle1">You also need</Typography>
+            <Typography variant="subtitle1">
+              Missing from your inventory to build this map:
+            </Typography>
             {missingFromCollection.length > 0 ? (
               missingFromCollection.map((piece) => (
                 <Typography key={piece.inventoryID} variant="body2">
@@ -149,7 +150,7 @@ const SetsToBuildMapDialog = () => {
               ))
             ) : (
               <Typography variant="body2">
-                Your collection covers all pieces on this map.
+                Nothing is missing from your inventory.
               </Typography>
             )}
           </Box>

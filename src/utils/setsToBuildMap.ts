@@ -1,5 +1,5 @@
 import { piecesSoFar } from '../data/pieces'
-import { terrainSetsByShortID } from '../data/terrainSets'
+import { type TerrainSetKind, terrainSetsByShortID } from '../data/terrainSets'
 import {
   countPiecesUsedWithLaurStacking,
   reconcileLaurLegacyToStackableUsage,
@@ -37,8 +37,30 @@ export type SetCount = {
   setID: string
   name: string
   abbreviation: string
+  kind: TerrainSetKind
   count: number
 }
+
+const setKindLabels: {
+  kind: TerrainSetKind
+  singular: string
+  plural: string
+}[] = [
+  { kind: 'masterSet', singular: 'Master Set', plural: 'Master Sets' },
+  { kind: 'expansion', singular: 'Expansion', plural: 'Expansions' },
+  { kind: 'promo', singular: 'Promo', plural: 'Promos' },
+]
+
+export const formatSetKindTotals = (sets: Pick<SetCount, 'kind' | 'count'>[]) =>
+  setKindLabels
+    .flatMap(({ kind, singular, plural }) => {
+      const count = sets.reduce(
+        (total, set) => total + (set.kind === kind ? set.count : 0),
+        0,
+      )
+      return count ? [`${count} ${count === 1 ? singular : plural}`] : []
+    })
+    .join(', ')
 
 export type SetsToBuildMapOption = {
   sets: SetCount[]
@@ -55,7 +77,6 @@ export type SetsToBuildMapCategory = {
 
 export type SetsToBuildMapCatalog = {
   categories: SetsToBuildMapCategory[]
-  reasons: string[]
   notInAnySet: PieceCount[]
   ignored: PieceCount[]
 }
@@ -65,6 +86,7 @@ type SetCandidate = {
   id: string
   name: string
   abbreviation: string
+  kind: TerrainSetKind
   era: Era
   inventory: PieceInventory
 }
@@ -116,6 +138,7 @@ const allSets: SetCandidate[] = Object.values(terrainSetsByShortID).map(
     id: set.id,
     name: set.name,
     abbreviation: set.abbreviation,
+    kind: set.kind,
     era: set.era as Era,
     inventory: set.inventory,
   }),
@@ -267,6 +290,7 @@ const toOption = (counts: number[], candidates: SetCandidate[]) => {
             setID: candidate.id,
             name: candidate.name,
             abbreviation: candidate.abbreviation,
+            kind: candidate.kind,
             count,
           },
         ]
@@ -307,7 +331,7 @@ const impossibleReason = (
   category: 'contemporary' | 'classic',
   blockers: string[],
 ) =>
-  `Not possible with ${categoryTitle[category]} sets: this map uses ${blockers
+  `Not possible: this map uses ${blockers
     .slice(0, 3)
     .map(pieceTitle)
     .join(
@@ -339,7 +363,7 @@ const solveCategory = (
       options: [] as SetsToBuildMapOption[],
       reason:
         category === 'mixed'
-          ? `Not possible with Mixed sets: this map uses ${blockers
+          ? `Not possible: this map uses ${blockers
               .slice(0, 3)
               .map(pieceTitle)
               .join(
@@ -556,50 +580,45 @@ export function getSetsToBuildMapCatalog(
   const contemporaryPossible = contemporary.options.length > 0
   const classicPossible = classic.options.length > 0
   const categories: SetsToBuildMapCategory[] = []
-  const reasons: string[] = []
+  const addCategory = (
+    id: SetsToBuildMapCategory['id'],
+    result: ReturnType<typeof solveCategory>,
+  ) => {
+    categories.push({ id, title: categoryTitle[id], ...result })
+  }
 
   if (contemporaryPossible && classicPossible) {
-    categories.push({
-      id: 'contemporary',
-      title: 'Contemporary',
-      ...contemporary,
-    })
-    categories.push({ id: 'classic', title: 'Classic', ...classic })
+    addCategory('contemporary', contemporary)
+    addCategory('classic', classic)
     const mixed = solveCategory('mixed', neededCounts, deadline, [
       ...contemporary.options,
       ...classic.options,
     ])
-    if (mixed.options.length > 0) {
-      categories.push({ id: 'mixed', title: 'Mixed', ...mixed })
-    } else if (mixed.reason) {
-      reasons.push(mixed.reason)
+    if (mixed.options.length > 0 || mixed.reason) {
+      addCategory('mixed', mixed)
     }
   } else if (!contemporaryPossible && !classicPossible) {
     const mixed = solveCategory('mixed', neededCounts, deadline)
-    if (mixed.options.length > 0) {
-      categories.push({ id: 'mixed', title: 'Mixed', ...mixed })
-    } else if (mixed.reason) {
-      reasons.push(mixed.reason)
+    if (mixed.options.length > 0 || mixed.reason) {
+      addCategory('mixed', mixed)
     }
-    if (contemporary.reason) reasons.push(contemporary.reason)
-    if (classic.reason) reasons.push(classic.reason)
+    if (contemporary.reason) {
+      addCategory('contemporary', contemporary)
+    }
+    if (classic.reason) {
+      addCategory('classic', classic)
+    }
   } else {
-    if (contemporaryPossible) {
-      categories.push({
-        id: 'contemporary',
-        title: 'Contemporary',
-        ...contemporary,
-      })
-      if (classic.reason) reasons.push(classic.reason)
-    } else {
-      categories.push({ id: 'classic', title: 'Classic', ...classic })
-      if (contemporary.reason) reasons.push(contemporary.reason)
+    if (contemporaryPossible || contemporary.reason) {
+      addCategory('contemporary', contemporary)
+    }
+    if (classicPossible || classic.reason) {
+      addCategory('classic', classic)
     }
   }
 
   return {
     categories,
-    reasons,
     notInAnySet: getPieceCounts(notInAnySet),
     ignored: getPieceCounts(ignoredCounts),
   }
@@ -614,14 +633,44 @@ export function getPiecesMissingFromCollection(
     availableInventory: collection,
   }).reconciledUsedInventory
   const missing: Record<string, number> = {}
+  const jungleIDs = new Set(
+    JUNGLE_PIECE_EQUIVALENTS.flatMap(({ laur, ticalla }) => [laur, ticalla]),
+  )
 
   for (const [inventoryID, usedCount] of Object.entries(used)) {
-    if (isIgnoredPiece(inventoryID)) continue
+    if (isIgnoredPiece(inventoryID) || jungleIDs.has(inventoryID)) continue
     const ownedCount = collection[inventoryID] ?? 0
     if (usedCount > ownedCount) {
       missing[inventoryID] = usedCount - ownedCount
     }
   }
 
-  return getPieceCounts(missing)
+  for (const { laur, ticalla } of JUNGLE_PIECE_EQUIVALENTS) {
+    const usedLaur = used[laur] ?? 0
+    const usedTicalla = used[ticalla] ?? 0
+    const ownedLaur = collection[laur] ?? 0
+    const ownedTicalla = collection[ticalla] ?? 0
+    const missingLaur = Math.max(usedLaur - ownedLaur, 0)
+    const missingTicalla = Math.max(usedTicalla - ownedTicalla, 0)
+    const surplusLaur = Math.max(ownedLaur - usedLaur, 0)
+    const surplusTicalla = Math.max(ownedTicalla - usedTicalla, 0)
+    const remainingLaur = Math.max(missingLaur - surplusTicalla, 0)
+    const remainingTicalla = Math.max(missingTicalla - surplusLaur, 0)
+
+    if (remainingLaur > 0) missing[laur] = remainingLaur
+    if (remainingTicalla > 0) missing[ticalla] = remainingTicalla
+  }
+
+  return getPieceCounts(missing).map((piece) => {
+    const equivalent = JUNGLE_PIECE_EQUIVALENTS.find(
+      ({ laur, ticalla }) =>
+        piece.inventoryID === laur || piece.inventoryID === ticalla,
+    )
+    if (!equivalent) return piece
+    const family = piece.inventoryID === equivalent.ticalla ? 'Laur' : 'Ticalla'
+    return {
+      ...piece,
+      title: `${piece.title} (or the ${family} equivalent)`,
+    }
+  })
 }

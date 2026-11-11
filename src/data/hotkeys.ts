@@ -206,7 +206,7 @@ export const PEN_MODE_ACTION_TARGETS = {
   togglePenModeShip: Pieces.shipWall,
   togglePenModeLadder: Pieces.ladder,
   togglePenModeBattlement: Pieces.battlement,
-  togglePenModeCastleWall: Pieces.castleWallEnd,
+  togglePenModeCastleWall: Pieces.castleWallStraight,
   togglePenModeTicallaUnderbrush: Pieces.brush9,
   togglePenModeSwampUnderbrush: Pieces.swampBrush10,
   togglePenModeLaurUnderbrush: Pieces.laurBrush10,
@@ -371,7 +371,7 @@ export const HOTKEY_ACTIONS: {
   { id: 'togglePenModeShip', label: 'Ship pieces', group: 'Pens' },
   { id: 'togglePenModeLadder', label: 'Ladder', group: 'Pens' },
   { id: 'togglePenModeBattlement', label: 'Battlement', group: 'Pens' },
-  { id: 'togglePenModeCastleWall', label: 'Castle Wall (End)', group: 'Pens' },
+  { id: 'togglePenModeCastleWall', label: 'Castle Wall', group: 'Pens' },
   {
     id: 'togglePenModeTicallaUnderbrush',
     label: 'Ticalla underbrush',
@@ -426,15 +426,31 @@ export const HOTKEY_ACTIONS: {
   },
   {
     id: 'togglePenModeObjectiveMarker',
-    label: 'Objective marker',
+    label: 'Objective marker (black)',
     group: 'Pens',
   },
   {
     id: 'togglePenModeObjectiveMarkerWhite',
-    label: 'White objective marker',
+    label: 'Objective marker (white)',
     group: 'Pens',
   },
 ]
+
+export function filterHotkeyActions(
+  actions: readonly (typeof HOTKEY_ACTIONS)[number][],
+  bindings: Record<HotkeyAction, string[]>,
+  query: string,
+): (typeof HOTKEY_ACTIONS)[number][] {
+  const textQuery = query.trim().toLowerCase()
+  if (!textQuery) return [...actions]
+  const keyQuery = textQuery.replace(/\s+/g, '')
+
+  return actions.filter(
+    ({ id, label }) =>
+      label.toLowerCase().includes(textQuery) ||
+      bindings[id].some((key) => key.toLowerCase() === keyQuery),
+  )
+}
 
 const actionIds = new Set(HOTKEY_ACTIONS.map(({ id }) => id))
 const newDefaultHotkeyKeys = new Set([
@@ -668,6 +684,20 @@ export function getActionHotkeys(
   overrides: HotkeyOverrides,
 ): Record<HotkeyAction, string[]> {
   return bindingsFromOverrides(overrides)
+}
+
+export function getCustomHotkeyCount(overrides: HotkeyOverrides): number {
+  const bindings = bindingsFromOverrides(overrides)
+  const defaults = getDefaultActionHotkeys()
+  return HOTKEY_ACTIONS.filter(
+    ({ id }) =>
+      bindings[id].length !== defaults[id].length ||
+      bindings[id].some((key, index) => key !== defaults[id][index]),
+  ).length
+}
+
+export function shouldConfirmHotkeyReset(overrides: HotkeyOverrides): boolean {
+  return getCustomHotkeyCount(overrides) > 0
 }
 
 export function buildHotkeyConfig(

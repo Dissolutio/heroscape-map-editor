@@ -69,7 +69,6 @@ const initialGenericColors = {
 }
 const initialBorderSettings = {
   isPdfColorBorders: useBoundStore.getState().isPdfColorBorders,
-  isSvgColorBorders: useBoundStore.getState().isSvgColorBorders,
   boardHexes: useBoundStore.getState().boardHexes,
   boardPieces: useBoundStore.getState().boardPieces,
   isShowPdfPieceLegend: useBoundStore.getState().isShowPdfPieceLegend,
@@ -210,7 +209,10 @@ const getShapePolygonPoints = (entry: PieceKeyEntry) => {
   })
 
   if (entry.inventoryID === Pieces.ladder) {
-    points.push(...getLadderSvgPolygonPoints(SVG_HEX_RADIUS * 2, 0).corners)
+    points.push(
+      ...getLadderSvgPolygonPoints(SVG_HEX_RADIUS * 2, 0, -SVG_HEX_RADIUS)
+        .corners,
+    )
   } else if (entry.inventoryID === Pieces.battlement) {
     points.push(...getBattlementSvgPolygonPoints(SVG_HEX_RADIUS, 0).corners)
   } else if (entry.inventoryID === Pieces.shipWall) {
@@ -456,10 +458,10 @@ describe('piece key shape rendering', () => {
       const viewBottom = viewY + viewHeight
 
       for (const point of getShapePolygonPoints(entry)) {
-        expect(point.x).toBeGreaterThanOrEqual(viewX)
-        expect(point.x).toBeLessThanOrEqual(viewRight)
-        expect(point.y).toBeGreaterThanOrEqual(viewY)
-        expect(point.y).toBeLessThanOrEqual(viewBottom)
+        expect(point.x, inventoryID).toBeGreaterThanOrEqual(viewX)
+        expect(point.x, inventoryID).toBeLessThanOrEqual(viewRight)
+        expect(point.y, inventoryID).toBeGreaterThanOrEqual(viewY)
+        expect(point.y, inventoryID).toBeLessThanOrEqual(viewBottom)
       }
     }
   })
@@ -552,6 +554,41 @@ describe('piece key shape rendering', () => {
     ).toBeGreaterThan(0)
   })
 
+  it('renders a half-step cannon arrow at 30 degrees in SVG', () => {
+    const pieceCoords = { q: 2, r: 2, s: -4 }
+    const land = place({
+      board: makeTable(8),
+      pieceID: Pieces.grass1,
+      at: pieceCoords,
+      altitude: 0,
+    })
+    if (land.error) throw new Error(String(land.error))
+    const cannon = place({
+      board: land.board,
+      pieceID: Pieces.cannon,
+      at: pieceCoords,
+      altitude: 1,
+      rotation: 0.5,
+      uid: 'cannon',
+      permissive: true,
+    })
+    if (cannon.error) throw new Error(String(cannon.error))
+    const cannonHex = Object.values(cannon.board.boardHexes).find(
+      (hex) => hex.boardPieceUID === 'cannon' && hex.isObstacleOrigin,
+    )
+    if (!cannonHex) throw new Error('Missing cannon origin hex')
+
+    const markup = renderToStaticMarkup(
+      createElement(SvgMapHex, {
+        hex: cannonHex,
+        buriedMarksByUID: new Map(),
+        isVisible: true,
+      }),
+    )
+
+    expect(markup).toContain('transform="rotate(30)"')
+  })
+
   it('prints the game height (not the physical height) in both keys', () => {
     const board = place({
       board: makeTable(12),
@@ -608,7 +645,7 @@ describe('piece key shape rendering', () => {
         pieceCoords: { q: index, r: 0, s: -index },
       }),
     )
-    for (const useTerrainBorderColor of [true, false]) {
+    for (const useTerrainBorderColor of [true]) {
       const expectedDescriptions = new Map([
         ['roads-and-wall-walks', 'gray centers'],
         [
@@ -733,11 +770,7 @@ describe('piece key shape rendering', () => {
       }
 
       const wood = model.specialGroups.find(({ id }) => id === 'wood')
-      expect(wood?.description).toBe(
-        useTerrainBorderColor
-          ? 'orange borders, brown wood-grain centers'
-          : 'dark borders, brown wood-grain centers',
-      )
+      expect(wood?.description).toBe('orange borders, brown wood-grain centers')
       const woodEntry = wood?.entries[0]
       expect(woodEntry).toBeDefined()
       if (woodEntry) {
@@ -752,9 +785,7 @@ describe('piece key shape rendering', () => {
           ),
         )
         expect(svg).toContain(`fill="${svgColors[HexTerrain.wood]}"`)
-        expect(svg).toContain(
-          `fill="${useTerrainBorderColor ? svgColors.outline2 : '#000000'}"`,
-        )
+        expect(svg).toContain(`fill="${svgColors.outline2}"`)
         // Wood is solid land, so (unlike evergreen/jungle/laur) its PDF
         // border is expected to follow the color-borders toggle too.
         expect(
@@ -767,7 +798,7 @@ describe('piece key shape rendering', () => {
           ),
         ).toContainEqual(
           expect.objectContaining({
-            stroke: useTerrainBorderColor ? svgColors.outline2 : '#000000',
+            stroke: svgColors.outline2,
           }),
         )
       }
@@ -789,7 +820,7 @@ describe('piece key shape rendering', () => {
     }
   })
 
-  it('keeps SVG and PDF legend border settings independent of map output', () => {
+  it('keeps SVG legend color borders on and PDF borders independent', () => {
     const boardPieces: BoardPiece[] = [Pieces.grass1, Pieces.grass7].map(
       (inventoryID, index) => ({
         uid: `border-${inventoryID}`,
@@ -808,7 +839,6 @@ describe('piece key shape rendering', () => {
       boardPieces,
       isShowPdfPieceLegend: true,
       isPdfColorBorders: false,
-      isSvgColorBorders: true,
     })
 
     const renderSvgLegend = () =>
@@ -820,21 +850,14 @@ describe('piece key shape rendering', () => {
     const svgColorMarkup = renderSvgLegend()
     const mapMarkup = renderSvgMap()
 
-    setRenderState({ isPdfColorBorders: true })
-    expect(renderSvgLegend()).toBe(svgColorMarkup)
-
-    setRenderState({ isSvgColorBorders: false })
-    const svgDarkMarkup = renderSvgLegend()
-    expect(svgDarkMarkup).not.toBe(svgColorMarkup)
     for (const borderColor of [svgColors.outline1, svgColors.outline7]) {
       expect(svgColorMarkup).toContain(`fill="${borderColor}"`)
-      expect(svgDarkMarkup).not.toContain(`fill="${borderColor}"`)
     }
-
-    setRenderState({ isSvgColorBorders: true })
     expect(renderSvgMap()).toBe(mapMarkup)
 
     setRenderState({ isPdfColorBorders: true })
+    expect(renderSvgLegend()).toBe(svgColorMarkup)
+    expect(renderSvgMap()).toBe(mapMarkup)
     const pdfColorShapes = collectShapeColors(PdfPieceLegend({ boardPieces }))
     expect(
       pdfColorShapes.some(
@@ -847,11 +870,6 @@ describe('piece key shape rendering', () => {
           ),
       ),
     ).toBe(true)
-
-    setRenderState({ isSvgColorBorders: false })
-    expect(collectShapeColors(PdfPieceLegend({ boardPieces }))).toEqual(
-      pdfColorShapes,
-    )
 
     setRenderState({ isPdfColorBorders: false })
     const pdfDarkShapes = collectShapeColors(PdfPieceLegend({ boardPieces }))
@@ -866,6 +884,62 @@ describe('piece key shape rendering', () => {
           ),
       ),
     ).toBe(false)
+  })
+
+  it('uses map border colors for Asphalt and Toxic Land in the PDF legend', () => {
+    const inventoryIDs = [Pieces.asphalt1, Pieces.toxic1, Pieces.grass1]
+    const boardPieces = inventoryIDs.map((inventoryID, index) => ({
+      uid: `border-${inventoryID}`,
+      inventoryID,
+      altitude: 1,
+      rotation: 0,
+      pieceCoords: { q: index, r: 0, s: -index },
+    }))
+    const model = getPieceKeyModel(boardPieces, {}, false)
+    const getStrokeColors = (node: ReactNode) =>
+      collectShapeColors(node).flatMap((shape) =>
+        typeof shape === 'object' &&
+        shape !== null &&
+        'stroke' in shape &&
+        typeof shape.stroke === 'string' &&
+        shape.stroke.length > 0
+          ? [shape.stroke]
+          : [],
+      )
+
+    for (const inventoryID of inventoryIDs) {
+      const entry = pieceKeyEntry(model, inventoryID)
+      if (!entry) throw new Error(`Missing key entry for ${inventoryID}`)
+      const sourceHex = entry.hexes[0]
+      if (!sourceHex) throw new Error(`Missing key hex for ${inventoryID}`)
+      const mapColors = getStrokeColors(
+        PdfMapHex({
+          hex: { ...sourceHex, altitude: 1 },
+          viewingLevel: 1,
+          isOverlayViewing: false,
+          isPdfColorBorders: false,
+          isShowPdfOverlayOnPlacedLevel: false,
+          isShowPdfTileLetters: false,
+          isShowPdfBuriedMarks: false,
+          buriedMarksByUID: new Map(),
+          useLegacyStartZones: false,
+        }),
+      )
+      const legendColors = getStrokeColors(
+        PieceKeyShape({
+          entry,
+          useTerrainBorderColor: false,
+          scale: 0.075,
+        }),
+      )
+
+      expect(legendColors).toEqual(mapColors)
+      expect(legendColors).toContain(
+        inventoryID === Pieces.asphalt1 || inventoryID === Pieces.toxic1
+          ? '#767676'
+          : svgColors.glacierText,
+      )
+    }
   })
 
   it('matches map-level fill and stroke colors for every Laur wall add-on', () => {
@@ -913,7 +987,7 @@ describe('piece key shape rendering', () => {
           useLegacyStartZones: false,
         }),
       )
-      for (const useTerrainBorderColor of [true, false]) {
+      for (const useTerrainBorderColor of [true]) {
         const pdfKeyColors = collectShapeColors(
           PieceKeyShape({
             entry,
@@ -1494,7 +1568,7 @@ describe('piece key shape rendering', () => {
     expect(multilineLines).toBeGreaterThanOrEqual(4)
   })
 
-  it('matches map fill and stroke in both border modes with Generic colors', () => {
+  it('matches map fill and stroke with Generic colors', () => {
     const piece: BoardPiece = {
       uid: 'key-generic',
       inventoryID: Pieces.generic1,
@@ -1568,22 +1642,10 @@ describe('piece key shape rendering', () => {
     const keySvg = renderToStaticMarkup(
       SvgPieceKeyShape(entry, 0, 0, 0.075, 'generic', true),
     )
-    const darkMapSvg = renderToStaticMarkup(
-      createElement(SvgMapHex, {
-        hex,
-        buriedMarksByUID: new Map(),
-        isPieceKeyPreview: true,
-        useTerrainBorderColor: false,
-      }),
-    )
-    const darkKeySvg = renderToStaticMarkup(
-      SvgPieceKeyShape(entry, 0, 0, 0.075, 'generic-dark', false),
-    )
     const svgColors = (markup: string) =>
       markup.match(/(?:fill|stroke)="[^"]+"/g) ?? []
 
     expect(svgColors(keySvg)).toEqual(svgColors(mapSvg))
-    expect(svgColors(darkKeySvg)).toEqual(svgColors(darkMapSvg))
   })
 
   it('uses the selected user colors for Generic Fluid key shapes', () => {

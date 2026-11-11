@@ -57,7 +57,6 @@ describe('settings persistence', () => {
 
   it('uses defaults when no settings are stored', () => {
     expect(loadSettings()).toEqual(SETTINGS_DEFAULTS)
-    expect(SETTINGS_DEFAULTS.isSvgColorBorders).toBe(true)
     expect(SETTINGS_DEFAULTS).toMatchObject({
       genericSolidCapColor: '#e63cc8',
       genericSolidSideColor: '#a01e8c',
@@ -91,7 +90,6 @@ describe('settings persistence', () => {
       useHighQualityForPicture: true,
       isShowPdfBuriedMarks: true,
       isShowPdfPieceLegend: true,
-      isSvgColorBorders: false,
       isShow2DExportBuriedMarks: true,
       isHideHeightsOnGlyphs: true,
       lightPositions: { key: [1, 2, 3] as [number, number, number] },
@@ -120,7 +118,6 @@ describe('settings persistence', () => {
         isShowActionLog: false,
         isShowPdfBuriedMarks: true,
         isShowPdfPieceLegend: true,
-        isSvgColorBorders: false,
         isShow2DExportBuriedMarks: true,
         isHideHeightsOnGlyphs: true,
         lightPositions: { key: [1, 2, 3] },
@@ -271,21 +268,17 @@ describe('settings persistence', () => {
     expect(loadSettings().isShowPdfLadderOverlay).toBe(true)
   })
 
-  it('defaults SVG color borders on and resets the persisted setting', () => {
-    expect(SETTINGS_DEFAULTS.isSvgColorBorders).toBe(true)
-    expect(serializeSettings(SETTINGS_DEFAULTS)).toBeNull()
+  it('ignores the removed SVG color borders setting in saved data', () => {
+    storage.setItem(
+      LS_KEYS.settings,
+      JSON.stringify({
+        v: 1,
+        values: { isSvgColorBorders: false, isPdfColorBorders: true },
+      }),
+    )
 
-    const changed = { ...SETTINGS_DEFAULTS, isSvgColorBorders: false }
-    const serialized = serializeSettings(changed)
-    expect(serialized).toEqual({
-      v: 1,
-      values: { isSvgColorBorders: false },
-    })
-    storage.setItem(LS_KEYS.settings, JSON.stringify(serialized))
-    expect(loadSettings().isSvgColorBorders).toBe(false)
-
-    expect(resetSettings()).toBe(true)
-    expect(loadSettings().isSvgColorBorders).toBe(true)
+    expect(loadSettings().isPdfColorBorders).toBe(true)
+    expect(loadSettings()).not.toHaveProperty('isSvgColorBorders')
   })
 
   it('defaults marker text billboarding off and resets the persisted setting', () => {

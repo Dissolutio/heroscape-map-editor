@@ -13,8 +13,11 @@ import {
   parseMapDataArrayFromCrushed,
 } from '../data/jsonCrush'
 import { buildShareUrlWithFallback } from '../data/shareUrl'
-import type { BoardPiece, HexMap } from '../types'
-import { encodeBoardPiecesToIds } from '../utils/map-utils'
+import { Pieces, type BoardPiece, type HexMap } from '../types'
+import {
+  encodeBoardPiecesToIds,
+  inflateBoardPiecesFromIds,
+} from '../utils/map-utils'
 import {
   getViewModeFromQueryParam,
   parseMapShareUrlParams,
@@ -268,6 +271,29 @@ describe('buildShareUrlWithFallback', () => {
         baseUrl: shareUrlBase,
       }),
     ).toEqual({ error: 'too-large' })
+  })
+})
+
+describe('cannon share rotations', () => {
+  it('preserves a half-step cannon rotation through share and load', () => {
+    const cannon = {
+      ...makeBoardPiece(Pieces.cannon, 3),
+      rotation: 1.5,
+    }
+    const payload = getUrlMapString({
+      hexMap: fixtureHexMap,
+      boardPieces: [cannon],
+    })
+    const parsed = parseMapDataArrayFromCrushed(payload)
+    const inflated = inflateBoardPiecesFromIds(parsed.boardPiecesEncodedArr)
+
+    expect(parsed.boardPiecesEncodedArr).toEqual(
+      encodeBoardPiecesToIds([cannon]),
+    )
+    expect(inflated[0]?.rotation).toBe(1.5)
+    expect(
+      buildupJsonFileMap(inflated, parsed.hexMap).boardPieces[0]?.rotation,
+    ).toBe(1.5)
   })
 })
 

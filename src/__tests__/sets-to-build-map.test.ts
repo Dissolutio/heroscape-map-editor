@@ -5,6 +5,7 @@ import {
   DEFAULT_VISIBLE_OPTION_COUNT,
   EXCLUDED_SET_IDS,
   JUNGLE_PIECE_EQUIVALENTS,
+  formatSetKindTotals,
   getPiecesMissingFromCollection,
   getSetsToBuildMapCatalog,
 } from '../utils/setsToBuildMap'
@@ -25,6 +26,37 @@ const category = (
   getSetsToBuildMapCatalog(mapPieces).categories.find((item) => item.id === id)
 
 describe('sets to build this map', () => {
+  it('assigns a kind to every terrain set', () => {
+    const kinds = Object.fromEntries(
+      Object.values(terrainSetsByShortID).map((set) => [set.id, set.kind]),
+    )
+
+    expect(kinds).toEqual(
+      expect.objectContaining({
+        C: 'masterSet',
+        S: 'masterSet',
+        T: 'masterSet',
+        U: 'masterSet',
+        EE: 'promo',
+      }),
+    )
+    expect(
+      Object.values(kinds).every((kind) =>
+        ['masterSet', 'expansion', 'promo'].includes(kind),
+      ),
+    ).toBe(true)
+  })
+
+  it('formats option totals by kind in the required order', () => {
+    expect(
+      formatSetKindTotals([
+        { kind: 'expansion', count: 3 },
+        { kind: 'promo', count: 1 },
+        { kind: 'masterSet', count: 1 },
+      ]),
+    ).toBe('1 Master Set, 3 Expansions, 1 Promo')
+  })
+
   it('excludes MSTK, TOTK, and TOTK2 from every catalog option', () => {
     const result = getSetsToBuildMapCatalog(
       pieces(Pieces.grass1, Pieces.shipBow, Pieces.castleBaseCorner),
@@ -41,20 +73,29 @@ describe('sets to build this map', () => {
 
   it('reports the Classic blocker for Contemporary-only Laur walls', () => {
     const result = getSetsToBuildMapCatalog(pieces(Pieces.laurWallShort))
+    const classic = result.categories.find((item) => item.id === 'classic')
 
-    expect(result.categories.map((item) => item.id)).toEqual(['contemporary'])
-    expect(result.reasons.join(' ')).toContain('Classic')
-    expect(result.reasons.join(' ')).toContain('Laur Wall')
-    expect(result.reasons.join(' ')).toContain('no Classic set has')
+    expect(result.categories.map((item) => item.id)).toEqual([
+      'contemporary',
+      'classic',
+    ])
+    expect(classic?.reason).toContain('Laur Wall')
+    expect(classic?.reason).toContain('no Classic set has')
+    expect(result.categories.some((item) => item.id === 'mixed')).toBe(false)
   })
 
   it('reports the Contemporary blocker for Classic-only Marvel ruins', () => {
     const result = getSetsToBuildMapCatalog(pieces(Pieces.marvel))
+    const contemporary = result.categories.find(
+      (item) => item.id === 'contemporary',
+    )
 
-    expect(result.categories.map((item) => item.id)).toEqual(['classic'])
-    expect(result.reasons.join(' ')).toContain('Contemporary')
-    expect(result.reasons.join(' ')).toContain('Warehouse Ruin')
-    expect(result.reasons.join(' ')).toContain('no Contemporary set has')
+    expect(result.categories.map((item) => item.id)).toEqual([
+      'contemporary',
+      'classic',
+    ])
+    expect(contemporary?.reason).toContain('Warehouse Ruin')
+    expect(contemporary?.reason).toContain('no Contemporary set has')
   })
 
   it('uses Mixed alone when Laur walls and Marvel ruins both block pure catalogs', () => {
@@ -62,12 +103,18 @@ describe('sets to build this map', () => {
       pieces(Pieces.laurWallShort, Pieces.marvel),
     )
 
-    expect(result.categories.map((item) => item.id)).toEqual(['mixed'])
+    expect(result.categories.map((item) => item.id)).toEqual([
+      'mixed',
+      'contemporary',
+      'classic',
+    ])
     expect(
       result.categories[0]?.options[0]?.sets.map((set) => set.setID),
     ).toEqual(expect.arrayContaining(['O']))
-    expect(result.reasons.join(' ')).toContain('Laur Wall')
-    expect(result.reasons.join(' ')).toContain('Warehouse Ruin')
+    expect(result.categories[1]?.reason).toContain('Warehouse Ruin')
+    expect(result.categories[1]?.reason).toContain('no Contemporary set has')
+    expect(result.categories[2]?.reason).toContain('Laur Wall')
+    expect(result.categories[2]?.reason).toContain('no Classic set has')
   })
 
   it('maps Ticalla palms to GaLE in Contemporary recommendations', () => {
@@ -84,14 +131,15 @@ describe('sets to build this map', () => {
 
   it('omits Mixed options that only add boxes to a valid pure option', () => {
     const result = getSetsToBuildMapCatalog(pieces(Pieces.grass1))
+    const mixed = result.categories.find((item) => item.id === 'mixed')
 
     expect(result.categories.map((item) => item.id)).toEqual([
       'contemporary',
       'classic',
+      'mixed',
     ])
-    expect(result.reasons.join(' ')).toContain(
-      'do not offer a better combination',
-    )
+    expect(mixed?.options).toEqual([])
+    expect(mixed?.reason).toContain('do not offer a better combination')
   })
 
   it('exports the complete one-to-one jungle interchange table', () => {
@@ -189,12 +237,13 @@ describe('sets to build this map', () => {
     ])
   })
 
-  it('does not mark a finished search with no Mixed option as approximate', () => {
+  it('does not mark a finished search with no Mixed options as approximate', () => {
     const result = getSetsToBuildMapCatalog(pieces(Pieces.grass1))
+    const mixed = result.categories.find((item) => item.id === 'mixed')
 
-    expect(result.categories.some((item) => item.id === 'mixed')).toBe(false)
+    expect(mixed?.options).toEqual([])
     expect(result.categories.every((item) => !item.approximate)).toBe(true)
-    expect(result.reasons.join(' ')).not.toContain('Approximate')
+    expect(mixed?.reason).not.toContain('Approximate')
   })
 
   it('reports approximate options promptly when the time budget is zero', () => {
@@ -221,5 +270,32 @@ describe('sets to build this map', () => {
         count: 1,
       },
     ])
+  })
+
+  it('covers Ticalla palms with matching Laur jungle trees', () => {
+    expect(
+      getPiecesMissingFromCollection(
+        pieces(Pieces.palm14, Pieces.palm15, Pieces.palm16),
+        {
+          [Pieces.laurPalm13]: 1,
+          [Pieces.laurPalm14]: 1,
+          [Pieces.laurPalm15]: 1,
+        },
+      ),
+    ).toEqual([])
+  })
+
+  it('names the map jungle piece and offers its interchangeable equivalent', () => {
+    const missing = getPiecesMissingFromCollection(
+      pieces(Pieces.palm14, Pieces.palm14, Pieces.palm14),
+      { [Pieces.laurPalm13]: 2 },
+    )
+
+    expect(missing).toHaveLength(1)
+    expect(missing[0]).toMatchObject({
+      inventoryID: Pieces.palm14,
+      count: 1,
+    })
+    expect(missing[0]?.title).toContain('(or the Laur equivalent)')
   })
 })

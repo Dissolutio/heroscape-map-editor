@@ -232,7 +232,7 @@ loads cleanly, so format drift fails in `npm test` rather than in the browser.
 | Window typings | `src/e2e/e2e-globals.d.ts` |
 | Tests, fixtures | `e2e/` |
 | Viewing-level regression | `e2e/viewing-level.spec.ts` |
-| Default obstacle pen hotkeys plus hotkey rebind, export, reset, and import | `e2e/hotkeys.spec.ts` |
+| Pen hotkeys, hotkey search/recording, and rebind/export/reset/import | `e2e/hotkeys.spec.ts` |
 | Load-time map fitting | `e2e/load-fits-map.spec.ts` |
 | Group rotation around a clicked footprint hex | `e2e/group-rotate-pivot.spec.ts` |
 | Single-piece rotation around a clicked footprint hex | `e2e/single-rotate-pivot.spec.ts` |
@@ -248,7 +248,7 @@ loads cleanly, so format drift fails in `npm test` rather than in the browser.
 | Selection clearing on placement-pen hotkeys, preview rotation, and action-log recall | `e2e/action-log.spec.ts` |
 | Collection inventory gating, missing-terrain and obstacle rows, ranked substitutes, same-footprint evergreen-to-snow-tree adaptation and undo, naming/cancel, metadata persistence, buried fill, and leftovers | `e2e/adapt-to-collection.spec.ts` |
 | Opaque glyph SVG fills and hide-heights export option | `e2e/glyph-export-options.spec.ts` |
-| Legend viewing step, SVG Color Borders toggling for 1-/7-hex shapes, Illustrator-safe level/legend SVGs, ZIP and layered whole-map downloads, and PDF downloads with both border modes | `e2e/svg-piece-key.spec.ts` |
+| Legend viewing step, color-bordered SVG key shapes, Illustrator-safe level/legend SVGs, ZIP and layered whole-map downloads, and PDF downloads with both border modes | `e2e/svg-piece-key.spec.ts` |
 | View tooltips, 3D/2D/PDF navbar switching, camera visibility, map inventory pen selection, Pieces Grid filter persistence, map shrink safety, and new-map author details | `e2e/ui-polish.spec.ts` |
 | Per-hex land pixels, diffuse textures, tier changes, and lights toggles | `e2e/per-hex-land.spec.ts` |
 | Multi-hex fluid cap join vertices and dark-pixel checks at Medium/High | `e2e/fluid-cap-vertices.spec.ts` |

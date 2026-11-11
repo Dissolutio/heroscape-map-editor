@@ -536,15 +536,15 @@ describe('registry-wide piece lifecycle', () => {
         (hex) => cubeDistance(hex, fixture.subject.pieceCoords) > 0,
       )
 
-      if (!hasIntegerRotationSteps(pieceID)) {
-        // SelectedPieceControls refuses non-origin rotation for fractional
-        // Laur rotation families with this same generic warning.
-        expect(hasIntegerRotationSteps(pieceID)).toBe(false)
-        expect(BLOCKED_ROTATION_MESSAGE).toBe('That rotation is blocked.')
-        return
-      }
       if (!pivot) {
         expect(footprint).toHaveLength(1)
+        return
+      }
+      if (!hasIntegerRotationSteps(pieceID)) {
+        // SelectedPieceControls refuses non-origin rotation for half-step
+        // pieces with this same generic warning.
+        expect(hasIntegerRotationSteps(pieceID)).toBe(false)
+        expect(BLOCKED_ROTATION_MESSAGE).toBe('That rotation is blocked.')
         return
       }
 

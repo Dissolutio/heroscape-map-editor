@@ -4,13 +4,16 @@ import {
   buildHotkeyConfig,
   defaultHotkeyConfig,
   exportHotkeyFile,
+  filterHotkeyActions,
   getActionHotkeys,
+  getCustomHotkeyCount,
   getDefaultActionHotkeys,
   HOTKEY_ACTIONS,
   PEN_MODE_ACTION_TARGETS,
   parseHotkeyFile,
   resetActionHotkeys,
   sanitizeHotkeyOverrides,
+  shouldConfirmHotkeyReset,
   swapActionHotkeys,
   updateActionHotkeys,
 } from './hotkeys'
@@ -135,6 +138,48 @@ describe('hotkey overrides', () => {
     expect(new Set(keys).size).toBe(keys.length)
   })
 
+  it('counts overridden commands and only confirms when there are changes', () => {
+    expect(getCustomHotkeyCount({})).toBe(0)
+    expect(shouldConfirmHotkeyReset({})).toBe(false)
+
+    const overrides = updateActionHotkeys(
+      updateActionHotkeys({}, 'zoomToMap', ['f12']),
+      'undoWorld',
+      ['alt+u', 'shift+u'],
+    )
+    expect(getCustomHotkeyCount(overrides)).toBe(2)
+    expect(shouldConfirmHotkeyReset(overrides)).toBe(true)
+  })
+
+  it('filters hotkeys by text and exact assigned key tokens', () => {
+    const keyOnlyActions = HOTKEY_ACTIONS.filter(({ id }) =>
+      ['zoomToMap', 'undoWorld'].includes(id),
+    )
+    const bindings = getActionHotkeys({})
+    bindings.zoomToMap = ['l']
+    bindings.undoWorld = ['shift+l']
+
+    expect(
+      filterHotkeyActions(keyOnlyActions, bindings, ' L ').map(({ id }) => id),
+    ).toEqual(['zoomToMap'])
+    expect(
+      filterHotkeyActions(keyOnlyActions, bindings, 'SHIFT+L').map(
+        ({ id }) => id,
+      ),
+    ).toEqual(['undoWorld'])
+
+    const lavaAction = HOTKEY_ACTIONS.filter(
+      ({ id }) => id === 'togglePenModeLavaField',
+    )
+    expect(
+      filterHotkeyActions(lavaAction, bindings, 'LAVA').map(({ id }) => id),
+    ).toEqual(['togglePenModeLavaField'])
+    expect(filterHotkeyActions(keyOnlyActions, bindings, 'missing')).toEqual([])
+    expect(filterHotkeyActions(keyOnlyActions, bindings, '')).toEqual(
+      keyOnlyActions,
+    )
+  })
+
   it('binds the requested obstacle and castle pen modes', () => {
     expect({
       f: defaultHotkeyConfig.f,
@@ -198,19 +243,24 @@ describe('hotkey overrides', () => {
       togglePenModeShip: Pieces.shipWall,
       togglePenModeLadder: Pieces.ladder,
       togglePenModeBattlement: Pieces.battlement,
-      togglePenModeCastleWall: Pieces.castleWallEnd,
+      togglePenModeCastleWall: Pieces.castleWallStraight,
     })
   })
 
   it('lists every obstacle family and standalone obstacle/castle pen mode', () => {
     const targets = Object.values(PEN_MODE_ACTION_TARGETS)
     const actionIds = HOTKEY_ACTIONS.map(({ id }) => id)
+    const obstacleAndCastlePieces = pieceGroups
+      .filter((group) =>
+        ['Obstacles & Jungle', 'Castle & Walls'].includes(group.label),
+      )
+      .flatMap((group) => group.pieces)
     for (const action of Object.keys(PEN_MODE_ACTION_TARGETS)) {
       expect(actionIds).toContain(action)
     }
     const families = new Set(
-      Object.values(piecesSoFar)
-        .map((piece) => piece.pieceSizeFamily)
+      obstacleAndCastlePieces
+        .map((id) => piecesSoFar[id].pieceSizeFamily)
         .filter((family): family is string => Boolean(family)),
     )
 
@@ -223,11 +273,6 @@ describe('hotkey overrides', () => {
       ).toBe(true)
     }
 
-    const obstacleAndCastlePieces = pieceGroups
-      .filter((group) =>
-        ['Obstacles & Jungle', 'Castle & Walls'].includes(group.label),
-      )
-      .flatMap((group) => group.pieces)
     for (const id of obstacleAndCastlePieces) {
       const piece = piecesSoFar[id]
       const hasAction = targets.some((target) => {
