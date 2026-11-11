@@ -235,10 +235,14 @@ export const EditControlsTab = () => {
         </Tooltip>
       </List>
 
-      <AdaptToCollectionDialog
-        open={isAdaptToCollectionOpen}
-        onClose={() => setIsAdaptToCollectionOpen(false)}
-      />
+      {/* Mount only while open: the dialog analyzes the whole map and builds
+          its adaptation plan on mount, which froze the Edit tab on big maps. */}
+      {isAdaptToCollectionOpen && (
+        <AdaptToCollectionDialog
+          open
+          onClose={() => setIsAdaptToCollectionOpen(false)}
+        />
+      )}
 
       <Card>
         <CardContent>
