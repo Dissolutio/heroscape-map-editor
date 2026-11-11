@@ -1171,6 +1171,7 @@ export const SvgLadder = ({
   const { points } = getLadderSvgPolygonPoints(
     SVG_HEX_RADIUS * (isPieceKeyPreview ? 2 : 1),
     0,
+    isPieceKeyPreview ? -SVG_HEX_RADIUS : 0,
   )
   return (
     <>

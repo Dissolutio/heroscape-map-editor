@@ -179,10 +179,11 @@ export function resolvePlacement(
  */
 export function hangsOffMap(
   boardHexes: BoardHexes,
-  { piece, coords, rotation }: Pick<
-    ResolvedPlacement,
-    'piece' | 'coords' | 'rotation'
-  >,
+  {
+    piece,
+    coords,
+    rotation,
+  }: Pick<ResolvedPlacement, 'piece' | 'coords' | 'rotation'>,
 ) {
   if (piece.id === Pieces.battlement || piece.id === Pieces.roadWall) {
     return false

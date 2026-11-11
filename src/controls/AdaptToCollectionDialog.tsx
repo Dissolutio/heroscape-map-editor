@@ -404,8 +404,9 @@ export function AdaptToCollectionDialog({
                     const coverage = plan.surfaceCoverageByTerrain[terrain] ?? [
                       0, 0, 0,
                     ]
-                    const buriedCoverage =
-                      plan.buriedCoverageByTerrain[terrain] ?? [0, 0, 0]
+                    const buriedCoverage = plan.buriedCoverageByTerrain[
+                      terrain
+                    ] ?? [0, 0, 0]
                     const convertedBuriedHexes = buriedCoverage.reduce(
                       (total, count) => total + count,
                       0,
@@ -595,10 +596,7 @@ export function AdaptToCollectionDialog({
                               </RadioGroup>
                             </>
                           ) : (
-                            <Typography
-                              variant="body2"
-                              color="text.secondary"
-                            >
+                            <Typography variant="body2" color="text.secondary">
                               No covered pieces
                             </Typography>
                           )}

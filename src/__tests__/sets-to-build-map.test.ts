@@ -111,8 +111,10 @@ describe('sets to build this map', () => {
     expect(
       result.categories[0]?.options[0]?.sets.map((set) => set.setID),
     ).toEqual(expect.arrayContaining(['O']))
-    expect(result.categories[1]?.reason).toContain('Laur Wall')
-    expect(result.categories[2]?.reason).toContain('Warehouse Ruin')
+    expect(result.categories[1]?.reason).toContain('Warehouse Ruin')
+    expect(result.categories[1]?.reason).toContain('no Contemporary set has')
+    expect(result.categories[2]?.reason).toContain('Laur Wall')
+    expect(result.categories[2]?.reason).toContain('no Classic set has')
   })
 
   it('maps Ticalla palms to GaLE in Contemporary recommendations', () => {
@@ -137,9 +139,7 @@ describe('sets to build this map', () => {
       'mixed',
     ])
     expect(mixed?.options).toEqual([])
-    expect(mixed?.reason).toContain(
-      'do not offer a better combination',
-    )
+    expect(mixed?.reason).toContain('do not offer a better combination')
   })
 
   it('exports the complete one-to-one jungle interchange table', () => {

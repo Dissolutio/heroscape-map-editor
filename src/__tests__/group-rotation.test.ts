@@ -151,9 +151,7 @@ describe('rotateGroupAroundPivot', () => {
     const pivotPiece = uidPiece('pivot', Pieces.grass1, at(6, 5))
     const moves = rotateGroupAroundPivot([cannon, pivotPiece], 'pivot', 1)
 
-    expect(
-      moves.find((move) => move.uid === 'cannon')?.newRotation,
-    ).toBe(1.5)
+    expect(moves.find((move) => move.uid === 'cannon')?.newRotation).toBe(1.5)
   })
 
   it('returns every selected piece to its exact start after six steps', () => {
@@ -606,8 +604,7 @@ describe('group rotation placement checks', () => {
         }
       | undefined
 
-    search:
-    for (const anchor of tableCoords) {
+    search: for (const anchor of tableCoords) {
       const placed = place({
         board: table,
         pieceID: Pieces.grass24,
@@ -661,11 +658,7 @@ describe('group rotation placement checks', () => {
     if (!found) throw new Error('Could not find an off-map Grass 24 rotation')
     const before = structuredClone(found.board)
     expect(
-      getGroupRotationBlockedReason(
-        found.board,
-        [found.selected],
-        found.moves,
-      ),
+      getGroupRotationBlockedReason(found.board, [found.selected], found.moves),
     ).toBe('offMap')
     expect(found.board).toEqual(before)
   })
@@ -680,9 +673,7 @@ describe('group rotation placement checks', () => {
       uid: 'tile',
     })
     if (placed.error) throw new Error('Could not place Grass 24 at the center')
-    const tile = placed.board.boardPieces.find(
-      (piece) => piece.uid === 'tile',
-    )
+    const tile = placed.board.boardPieces.find((piece) => piece.uid === 'tile')
     if (!tile) throw new Error('Missing Grass 24')
     const pivotHex = Object.values(placed.board.boardHexes).find(
       (hex) =>

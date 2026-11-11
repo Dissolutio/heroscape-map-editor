@@ -344,4 +344,4 @@ export const terrainSetsByShortID = {
     releaseDate: '02/2027',
     era: 'contemporary',
   },
-}
+} as const

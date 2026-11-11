@@ -40,7 +40,6 @@ export const getPieceKeyShapeLayout = (
   const laurSymbol = getLaurAddonExportSymbol(entry.inventoryID)
   const footprintBounds =
     laurSymbol ||
-    entry.inventoryID === Pieces.ladder ||
     entry.inventoryID === Pieces.ropeLadder ||
     entry.inventoryID === Pieces.roadWall ||
     entry.inventoryID === Pieces.shipWall ||
@@ -94,6 +93,8 @@ export const getPieceKeyShapeLayout = (
         Math.max(...addonBounds.map(({ x }) => x))) /
       2
     : 0
+  // The key glyph's drawn width is one map-hex radius.
+  // Map renderers use the default zero offset.
   const symbolBounds = addonBounds.length
     ? [
         ...addonBounds,
@@ -105,7 +106,8 @@ export const getPieceKeyShapeLayout = (
           : []),
       ]
     : entry.inventoryID === Pieces.ladder
-      ? getLadderSvgPolygonPoints(SVG_HEX_RADIUS * 2, 0).corners
+      ? getLadderSvgPolygonPoints(SVG_HEX_RADIUS * 2, 0, -SVG_HEX_RADIUS)
+          .corners
       : entry.inventoryID === Pieces.shipWall
         ? getShipWallSvgPolygonPoints(SVG_HEX_RADIUS, 0).corners
         : entry.inventoryID === Pieces.shipBow

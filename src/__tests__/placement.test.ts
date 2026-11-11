@@ -796,9 +796,7 @@ describe('map edge', () => {
           hangsOffMap(map.board.boardHexes, {
             piece: piecesSoFar[pieceID],
             coords: origin,
-            altitude: 0,
             rotation,
-            rule: 'land',
           }),
         )
         // some placement fits, so the check is not vacuous; a g24 does not

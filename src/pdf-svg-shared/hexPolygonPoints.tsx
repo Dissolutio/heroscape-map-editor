@@ -334,12 +334,16 @@ export function getBattlementSvgPolygonPoints(
   return { points, corners }
 }
 // Identical in both the SVG (2D) and PDF render branches.
-export function getLadderSvgPolygonPoints(radius: number, borderWidth: number) {
+export function getLadderSvgPolygonPoints(
+  radius: number,
+  borderWidth: number,
+  offsetX = 0,
+) {
   const halfBorder = borderWidth / 2
   // Inner hexagon
   const radiusInner = radius - halfBorder
   const apothemInner = (Math.sqrt(3) * radiusInner) / 2
-  const rightXInner = apothemInner
+  const rightXInner = apothemInner + offsetX
   const bottomSideYInner = 0.5 * radiusInner
   const topSideYInner = -0.5 * radiusInner
 

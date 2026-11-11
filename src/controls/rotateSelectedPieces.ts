@@ -94,14 +94,14 @@ export function rotateSelectedPieces(
   }
 
   const moves = selectedBoardPieces.map((piece) => ({
-      uid: piece.uid,
-      newPieceCoords: piece.pieceCoords,
-      newRotation: getRotationByListStep(
-        piece.inventoryID,
-        piece.rotation,
-        direction,
-      ),
-    }))
+    uid: piece.uid,
+    newPieceCoords: piece.pieceCoords,
+    newRotation: getRotationByListStep(
+      piece.inventoryID,
+      piece.rotation,
+      direction,
+    ),
+  }))
   const singlePiece = piecesSoFar[firstBp.inventoryID]
   if (!singlePiece) {
     throw new Error(`Missing piece definition for ${firstBp.inventoryID}`)

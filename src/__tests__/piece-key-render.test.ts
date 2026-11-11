@@ -210,7 +210,10 @@ const getShapePolygonPoints = (entry: PieceKeyEntry) => {
   })
 
   if (entry.inventoryID === Pieces.ladder) {
-    points.push(...getLadderSvgPolygonPoints(SVG_HEX_RADIUS * 2, 0).corners)
+    points.push(
+      ...getLadderSvgPolygonPoints(SVG_HEX_RADIUS * 2, 0, -SVG_HEX_RADIUS)
+        .corners,
+    )
   } else if (entry.inventoryID === Pieces.battlement) {
     points.push(...getBattlementSvgPolygonPoints(SVG_HEX_RADIUS, 0).corners)
   } else if (entry.inventoryID === Pieces.shipWall) {
@@ -456,10 +459,10 @@ describe('piece key shape rendering', () => {
       const viewBottom = viewY + viewHeight
 
       for (const point of getShapePolygonPoints(entry)) {
-        expect(point.x).toBeGreaterThanOrEqual(viewX)
-        expect(point.x).toBeLessThanOrEqual(viewRight)
-        expect(point.y).toBeGreaterThanOrEqual(viewY)
-        expect(point.y).toBeLessThanOrEqual(viewBottom)
+        expect(point.x, inventoryID).toBeGreaterThanOrEqual(viewX)
+        expect(point.x, inventoryID).toBeLessThanOrEqual(viewRight)
+        expect(point.y, inventoryID).toBeGreaterThanOrEqual(viewY)
+        expect(point.y, inventoryID).toBeLessThanOrEqual(viewBottom)
       }
     }
   })

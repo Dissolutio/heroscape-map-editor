@@ -1,8 +1,5 @@
 import { piecesSoFar } from '../data/pieces'
-import {
-  type TerrainSetKind,
-  terrainSetsByShortID,
-} from '../data/terrainSets'
+import { type TerrainSetKind, terrainSetsByShortID } from '../data/terrainSets'
 import {
   countPiecesUsedWithLaurStacking,
   reconcileLaurLegacyToStackableUsage,
@@ -54,18 +51,14 @@ const setKindLabels: {
   { kind: 'promo', singular: 'Promo', plural: 'Promos' },
 ]
 
-export const formatSetKindTotals = (
-  sets: Pick<SetCount, 'kind' | 'count'>[],
-) =>
+export const formatSetKindTotals = (sets: Pick<SetCount, 'kind' | 'count'>[]) =>
   setKindLabels
     .flatMap(({ kind, singular, plural }) => {
       const count = sets.reduce(
         (total, set) => total + (set.kind === kind ? set.count : 0),
         0,
       )
-      return count
-        ? [`${count} ${count === 1 ? singular : plural}`]
-        : []
+      return count ? [`${count} ${count === 1 ? singular : plural}`] : []
     })
     .join(', ')
 
@@ -674,8 +667,7 @@ export function getPiecesMissingFromCollection(
         piece.inventoryID === laur || piece.inventoryID === ticalla,
     )
     if (!equivalent) return piece
-    const family =
-      piece.inventoryID === equivalent.ticalla ? 'Laur' : 'Ticalla'
+    const family = piece.inventoryID === equivalent.ticalla ? 'Laur' : 'Ticalla'
     return {
       ...piece,
       title: `${piece.title} (or the ${family} equivalent)`,
