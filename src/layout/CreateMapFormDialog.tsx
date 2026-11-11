@@ -243,12 +243,11 @@ export default function CreateMapFormDialog() {
           <Box
             sx={{
               display: 'flex',
-              alignItems: 'center',
+              flexDirection: 'column',
               gap: 2,
-              flexWrap: 'wrap',
             }}
           >
-            <Box sx={{ flex: '1 1 260px', minWidth: 220 }}>
+            <Box sx={{ width: '100%' }}>
               {mapShape === 'rectangle' ? (
                 <>
                   <Box sx={{ marginY: '1em' }}>
@@ -300,9 +299,7 @@ export default function CreateMapFormDialog() {
                 </Box>
               )}
             </Box>
-            <Box sx={{ flex: '0 1 190px', minWidth: 180 }}>
-              <MapSizeDisplay hexMap={physicalSizeMap} showDiagram />
-            </Box>
+            <MapSizeDisplay hexMap={physicalSizeMap} showDiagram />
           </Box>
           {/* TERRAIN SETS */}
           <InputSetsUsedCard isCreateNewMap />
