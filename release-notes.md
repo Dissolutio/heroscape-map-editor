@@ -9,6 +9,9 @@ TLDR: "Sets to build this map" dialog. Edit your hotkeys. Better 3D palms. Adapt
 - **Share links**: If a map is too big for a link, it drops start zones, then objective markers, then glyphs to fit.
 - **Legend (PDF/SVG)**: Shapes aligned, bolder lines, centered headers, fewer overlaps.
 - **Cannons**: Can now face hex corners.
+- **Windows desktop app**: 3D and PDF now load. A security setting was blocking them on every Windows install. If 3D ever can't start, you get a message and a "Switch to 2D" button instead of "Loading page...".
+- **Edit tab**: No more multi-second freeze when opening it on big maps.
+- **Convert map shape**: Edit tab: turn a hexagon map into a rectangle map or back. Only the empty table changes; your pieces stay exactly where they are. Hexagon maps can now be bigger (size 32).
 - **Fixes**: Rotating can't push a piece off the map. Marro Hive no longer scribbled in SVG downloads. Toxic outcrops get black numbers and a border. Toxic Land gets a gray border when color borders are off.
 
 Nov-07-2026
