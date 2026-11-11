@@ -4,15 +4,16 @@ TLDR: "Sets to build this map" dialog. Edit your hotkeys. Better 3D palms. Adapt
 - **Sets to build this map**: View tab: a new dialog lists the set combinations that build your map, as Contemporary, Classic, or Mixed. It also lists what's missing from your inventory. Jungle sets count as interchangeable.
 - **Hotkey editor**: Change any hotkey, search by name or key, and import/export your setup. Reset all asks first and offers a download.
 - **More pen hotkeys**: Most obstacles now have a key (J = Laur jungle, Shift+J = Ticalla, F = Evergreen, U = Laur Wall, and more). Number keys pick sizes in more families: jungle brush, castle walls/arches, castle bases, start zones, glyphs.
-- **Adapt to my Collection**: Now swaps obstacles too. "Covered pieces" lets buried tiles use any spare land.
-- **3D palms**: Solid drooping fronds that no longer vanish, and they highlight when selected.
+- **Adapt to my Collection**: Slight improvement on land conversion, still a WIP on obstacle conversion.
+- **Palms**: Tried making some palms, less rollie polie ollie. Will make better ones soon.
 - **Share links**: If a map is too big for a link, it drops start zones, then objective markers, then glyphs to fit.
-- **Legend (PDF/SVG)**: Shapes aligned, bolder lines, centered headers, fewer overlaps.
+- **Legend (PDF/SVG)**: Improved styles.
 - **Cannons**: Can now face hex corners.
 - **Windows desktop app**: 3D and PDF now load. A security setting was blocking them on every Windows install. If 3D ever can't start, you get a message and a "Switch to 2D" button instead of "Loading page...".
 - **Edit tab**: No more multi-second freeze when opening it on big maps.
 - **Convert map shape**: Edit tab: turn a hexagon map into a rectangle map or back. Only the empty table changes; your pieces stay exactly where they are. Hexagon maps can now be bigger (size 32).
 - **Fixes**: Rotating can't push a piece off the map. Marro Hive no longer scribbled in SVG downloads. Toxic outcrops get black numbers and a border. Toxic Land gets a gray border when color borders are off.
+- **Toxic Rock Outcrops**: Gave them a proper border color.
 
 Nov-07-2026
 TLDR: Adapt a map to the pieces you own. A right-click selection menu (extensible). Textured trees, ruins, marvel warehouse, hive from Virtualscape. Hotkey for trees/outcrops+. Saved selections. Click empty hexes to deselect. PDF/SVG piece legend, and ladder summaries. Toggle Show Objective Markers. Fixes for wood, side textures and missing hex sides.
