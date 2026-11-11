@@ -234,6 +234,7 @@ loads cleanly, so format drift fails in `npm test` rather than in the browser.
 | Viewing-level regression | `e2e/viewing-level.spec.ts` |
 | Pen hotkeys, hotkey search/recording, and rebind/export/reset/import | `e2e/hotkeys.spec.ts` |
 | Load-time map fitting | `e2e/load-fits-map.spec.ts` |
+| Converting between hexagon and rectangle tables without moving pieces | `e2e/convert-map-shape.spec.ts` |
 | Group rotation around a clicked footprint hex | `e2e/group-rotate-pivot.spec.ts` |
 | Single-piece rotation around a clicked footprint hex | `e2e/single-rotate-pivot.spec.ts` |
 | Deleting unrelated water beside a permissively overlapped Ship Wall and reloading its share link | `e2e/conflicted-delete.spec.ts` |

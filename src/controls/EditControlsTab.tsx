@@ -8,11 +8,13 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material'
+import { useSnackbar } from 'notistack'
 import { FcVlc } from 'react-icons/fc'
 import { FcRules } from 'react-icons/fc'
 import { useState } from 'react'
 import { AdaptToCollectionDialog } from './AdaptToCollectionDialog'
 import { buildupJsonFileMap } from '../data/buildupMap'
+import { convertMapShape } from '../data/convertMapShape'
 import { canShrinkMapWithoutDroppingPieces, resizeMap } from '../data/resizeMap'
 import { DIALOGS } from '../layout/dialogNames'
 import { useMuiMediaQuery } from '../layout/useMuiMediaQuery'
@@ -45,6 +47,7 @@ export const EditControlsTab = () => {
   const boardPieces = useBoundStore((s) => s.boardPieces)
   const userPieceInventory = useBoundStore((s) => s.userPieceInventory)
   const hexMap = useBoundStore((s) => s.hexMap)
+  const savedSelections = useBoundStore((s) => s.savedSelections)
   // const conflictedPieceUIDs = useBoundStore((s) => s.conflictedPieceUIDs)
   const loadMap = useBoundStore((s) => s.loadMap)
   const setPiecePreviews = useBoundStore((s) => s.setPiecePreviews)
@@ -75,6 +78,7 @@ export const EditControlsTab = () => {
     (state) => state.toggleIsPieceInventoryDialogOpen,
   )
   const [isAdaptToCollectionOpen, setIsAdaptToCollectionOpen] = useState(false)
+  const { enqueueSnackbar } = useSnackbar()
   const hasPersonalInventory =
     getCollectionLandSupply(userPieceInventory).hasAnyPieces
   const handleClickLogState = () => {
@@ -131,6 +135,36 @@ export const EditControlsTab = () => {
   const resizeAndLoad = (dimension: 'length' | 'width', delta: 1 | -1) => {
     const resized = resizeMap(hexMap, boardPieces, dimension, delta)
     loadMap(buildupJsonFileMap(resized.boardPieces, resized.hexMap))
+  }
+  const convertMap = () => {
+    const targetShape = hexMap.shape === 'hexagon' ? 'rectangle' : 'hexagon'
+    const result = convertMapShape(hexMap, boardPieces, targetShape)
+    if (!result.ok) {
+      enqueueSnackbar({
+        message:
+          result.error === 'too-large'
+            ? 'These pieces cannot fit within the maximum map size.'
+            : 'The map margin must be a non-negative whole number.',
+        variant: 'error',
+      })
+      return
+    }
+
+    loadMap(
+      buildupJsonFileMap(
+        boardPieces,
+        result.hexMap,
+        undefined,
+        savedSelections,
+      ),
+    )
+    enqueueSnackbar({
+      message:
+        targetShape === 'rectangle'
+          ? `Converted to a rectangle map (${result.hexMap.width} × ${result.hexMap.length})`
+          : `Converted to a hexagon map (radius ${result.hexMap.length - 1})`,
+      variant: 'success',
+    })
   }
   const lengthShrinkBlockedByPieces =
     hexMap.length > 1 &&
@@ -208,12 +242,29 @@ export const EditControlsTab = () => {
 
       <Card>
         <CardContent>
-          <Typography
-            gutterBottom
-            sx={{ color: 'text.secondary', fontSize: 14 }}
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              flexWrap: 'wrap',
+              gap: 1,
+              mb: 1,
+            }}
           >
-            Adjust map dimensions
-          </Typography>
+            <Typography sx={{ color: 'text.secondary', fontSize: 14 }}>
+              Adjust map dimensions
+            </Typography>
+            <Tooltip
+              describeChild
+              title="Changes only the empty table under your map. Pieces stay where they are."
+            >
+              <Button size="small" onClick={convertMap}>
+                {hexMap.shape === 'hexagon'
+                  ? 'Convert to rectangle map'
+                  : 'Convert to hexagon map'}
+              </Button>
+            </Tooltip>
+          </Box>
           <ButtonGroup
             // variant="contained"
             aria-label="Adjust map dimensions button group"

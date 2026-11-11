@@ -1,4 +1,4 @@
-import type { BoardPiece, HexMap } from '../types'
+import type { BoardPiece, CubeCoordinate, HexMap } from '../types'
 import { Pieces } from '../types'
 import {
   MAX_HEXAGON_MAP_DIMENSION,
@@ -18,7 +18,7 @@ import getPieceTemplateCoords from './rotationTransforms'
 
 const rimPieces = new Set([Pieces.battlement, Pieces.roadWall])
 
-// The UI allows 20 hexagon cells per side; four extra rings preserve overhangs.
+// Four extra rings beyond the UI limit preserve overhangs during loading.
 export const MAX_HEXAGON_FIT_RADIUS = MAX_HEXAGON_MAP_DIMENSION - 1 + 4
 // The UI allows 40 rectangle cells per side; eight extra cells allow growth.
 export const MAX_RECTANGLE_FIT_DIMENSION = MAX_RECTANGLE_MAP_DIMENSION + 8
@@ -66,6 +66,18 @@ function getObjectiveMarkerFootprintCoords(marker: ObjectiveMarker) {
   }))
 }
 
+export function getMapTableFootprintCoords(
+  hexMap: HexMap,
+  boardPieces: readonly BoardPiece[],
+): CubeCoordinate[] {
+  return [
+    ...boardPieces.flatMap(getPieceFootprintCoords),
+    ...(hexMap.objectiveMarkers ?? []).flatMap(
+      getObjectiveMarkerFootprintCoords,
+    ),
+  ]
+}
+
 function addHexagonCoordsToExtents(
   extents: HexagonExtents,
   coords: ReturnType<typeof getPieceTemplateCoords>,
@@ -95,6 +107,70 @@ function getHexagonFitRadius(extents: HexagonExtents) {
     Math.abs(extents.minS - centerS),
     Math.abs(extents.maxS - centerS),
   )
+}
+
+export function getHexagonTableFit(
+  coords: readonly CubeCoordinate[],
+  minimumRadius = 0,
+  margin = 0,
+  maximumRadius = Number.POSITIVE_INFINITY,
+): { radius: number; originQ: number; originR: number } | null {
+  if (!coords.length) return null
+
+  const extents = coords.reduce<HexagonExtents>(
+    (next, { q, r, s }) => ({
+      minQ: Math.min(next.minQ, q),
+      maxQ: Math.max(next.maxQ, q),
+      minR: Math.min(next.minR, r),
+      maxR: Math.max(next.maxR, r),
+      minS: Math.min(next.minS, s),
+      maxS: Math.max(next.maxS, s),
+    }),
+    {
+      minQ: Number.POSITIVE_INFINITY,
+      maxQ: Number.NEGATIVE_INFINITY,
+      minR: Number.POSITIVE_INFINITY,
+      maxR: Number.NEGATIVE_INFINITY,
+      minS: Number.POSITIVE_INFINITY,
+      maxS: Number.NEGATIVE_INFINITY,
+    },
+  )
+  const centerQ = Math.floor((extents.minQ + extents.maxQ) / 2)
+  const centerR = Math.floor((extents.minR + extents.maxR) / 2)
+  let fittingRadius = Math.max(minimumRadius, getHexagonFitRadius(extents))
+  if (fittingRadius + margin > maximumRadius) return null
+
+  while (true) {
+    const fittingOriginQ =
+      centerQ -
+      (fittingRadius % 2 === 0
+        ? fittingRadius / 2
+        : Math.floor(fittingRadius / 2 + 0.5))
+    const fittingOriginR = centerR - fittingRadius
+    const fittingHexes = new Set(
+      hexUtilsGenHexagonGrid(fittingRadius, fittingOriginQ, fittingOriginR).map(
+        (coords) => genBoardHexID({ ...coords, altitude: 0 }),
+      ),
+    )
+
+    if (
+      coords.every((coord) =>
+        fittingHexes.has(genBoardHexID({ ...coord, altitude: 0 })),
+      )
+    ) {
+      const radius = fittingRadius + margin
+      const originQ =
+        centerQ - (radius % 2 === 0 ? radius / 2 : Math.floor(radius / 2 + 0.5))
+      return {
+        radius,
+        originQ,
+        originR: centerR - radius,
+      }
+    }
+
+    fittingRadius += 1
+    if (fittingRadius + margin > maximumRadius) return null
+  }
 }
 
 function getFittingHexagonFootprints(
@@ -262,38 +338,68 @@ function getRectangleMapWithPieces(
 ): HexMap {
   const originQ = hexMap.originQ ?? 0
   const originR = hexMap.originR ?? 0
-  const minR = Math.min(originR, ...footprintCoords.map(({ r }) => r))
-  const maxR = Math.max(
-    originR + hexMap.length - 1,
-    ...footprintCoords.map(({ r }) => r),
-  )
-  const nextOriginQ = Math.min(
-    originQ,
-    ...footprintCoords.map(({ q, r }) => q + Math.floor(r / 2)),
-  )
-  const width = Math.max(
-    hexMap.width + originQ - nextOriginQ,
-    ...footprintCoords.map(
-      ({ q, r }) => q + Math.floor(r / 2) - nextOriginQ + 1,
-    ),
-  )
-  const length = maxR - minR + 1
+  const fit = getRectangleTableFit(footprintCoords, { existingMap: hexMap })
+  if (!fit) return hexMap
   const changed =
-    width !== hexMap.width ||
-    length !== hexMap.length ||
-    nextOriginQ !== originQ ||
-    minR !== originR
+    fit.width !== hexMap.width ||
+    fit.length !== hexMap.length ||
+    fit.originQ !== originQ ||
+    fit.originR !== originR
 
   if (!changed) return hexMap
 
   return {
     ...hexMap,
-    width,
-    length,
-    ...(nextOriginQ !== 0 || hexMap.originQ !== undefined
-      ? { originQ: nextOriginQ }
+    width: fit.width,
+    length: fit.length,
+    ...(fit.originQ !== 0 || hexMap.originQ !== undefined
+      ? { originQ: fit.originQ }
       : {}),
-    ...(minR !== 0 || hexMap.originR !== undefined ? { originR: minR } : {}),
+    ...(fit.originR !== 0 || hexMap.originR !== undefined
+      ? { originR: fit.originR }
+      : {}),
+  }
+}
+
+export function getRectangleTableFit(
+  coords: readonly CubeCoordinate[],
+  options: {
+    existingMap?: Pick<HexMap, 'length' | 'width' | 'originQ' | 'originR'>
+    margin?: number
+  } = {},
+): { length: number; width: number; originQ: number; originR: number } | null {
+  if (!coords.length) return null
+
+  const { existingMap, margin = 0 } = options
+  const mapOriginQ = existingMap?.originQ ?? 0
+  const mapOriginR = existingMap?.originR ?? 0
+  const bounds = coords.reduce(
+    (next, { q, r }) => {
+      const col = q + Math.floor(r / 2)
+      return {
+        minR: Math.min(next.minR, r),
+        maxR: Math.max(next.maxR, r),
+        minCol: Math.min(next.minCol, col),
+        maxCol: Math.max(next.maxCol, col),
+      }
+    },
+    {
+      minR: existingMap ? mapOriginR : Number.POSITIVE_INFINITY,
+      maxR: existingMap
+        ? mapOriginR + existingMap.length - 1
+        : Number.NEGATIVE_INFINITY,
+      minCol: existingMap ? mapOriginQ : Number.POSITIVE_INFINITY,
+      maxCol: existingMap
+        ? mapOriginQ + existingMap.width - 1
+        : Number.NEGATIVE_INFINITY,
+    },
+  )
+
+  return {
+    originQ: bounds.minCol - margin,
+    originR: bounds.minR - margin,
+    width: bounds.maxCol - bounds.minCol + 1 + margin * 2,
+    length: bounds.maxR - bounds.minR + 1 + margin * 2,
   }
 }
 
@@ -321,65 +427,43 @@ export function fitMapToPieces(
   }
 
   if (hexMap.shape === 'hexagon') {
-    let radius = Math.max(1, hexMap.length, hexMap.width) - 1
+    const minimumRadius = Math.max(1, hexMap.length, hexMap.width) - 1
     const requiredHexes = [
       ...hexUtilsGenHexagonGrid(
-        radius,
+        minimumRadius,
         hexMap.originQ ?? 0,
         hexMap.originR ?? 0,
       ),
       ...footprintCoords,
     ]
-    const minQ = Math.min(...requiredHexes.map(({ q }) => q))
-    const maxQ = Math.max(...requiredHexes.map(({ q }) => q))
-    const minR = Math.min(...requiredHexes.map(({ r }) => r))
-    const maxR = Math.max(...requiredHexes.map(({ r }) => r))
-
-    while (true) {
-      const centerQ = Math.floor((minQ + maxQ) / 2)
-      const centerR = Math.floor((minR + maxR) / 2)
-      const originQ =
-        centerQ - (radius % 2 === 0 ? radius / 2 : Math.floor(radius / 2 + 0.5))
-      const originR = centerR - radius
-      const tableHexes = new Set(
-        hexUtilsGenHexagonGrid(radius, originQ, originR).map((coords) =>
-          genBoardHexID({ ...coords, altitude: 0 }),
-        ),
-      )
-      const fits = requiredHexes.every((coords) =>
-        tableHexes.has(genBoardHexID({ ...coords, altitude: 0 })),
-      )
-
-      if (fits) {
-        const size = radius + 1
-        const changed =
-          size !== hexMap.length ||
-          size !== hexMap.width ||
-          originQ !== (hexMap.originQ ?? 0) ||
-          originR !== (hexMap.originR ?? 0)
-        if (!changed) {
-          return withDroppedItems({ hexMap, changed: false }, fitting)
-        }
-        return withDroppedItems(
-          {
-            hexMap: {
-              ...hexMap,
-              length: size,
-              width: size,
-              ...(originQ !== 0 || hexMap.originQ !== undefined
-                ? { originQ }
-                : {}),
-              ...(originR !== 0 || hexMap.originR !== undefined
-                ? { originR }
-                : {}),
-            },
-            changed: true,
-          },
-          fitting,
-        )
-      }
-      radius += 1
+    const fit = getHexagonTableFit(requiredHexes, minimumRadius)
+    if (!fit) throw new Error('Cannot fit an empty hexagon footprint')
+    const size = fit.radius + 1
+    const changed =
+      size !== hexMap.length ||
+      size !== hexMap.width ||
+      fit.originQ !== (hexMap.originQ ?? 0) ||
+      fit.originR !== (hexMap.originR ?? 0)
+    if (!changed) {
+      return withDroppedItems({ hexMap, changed: false }, fitting)
     }
+    return withDroppedItems(
+      {
+        hexMap: {
+          ...hexMap,
+          length: size,
+          width: size,
+          ...(fit.originQ !== 0 || hexMap.originQ !== undefined
+            ? { originQ: fit.originQ }
+            : {}),
+          ...(fit.originR !== 0 || hexMap.originR !== undefined
+            ? { originR: fit.originR }
+            : {}),
+        },
+        changed: true,
+      },
+      fitting,
+    )
   }
 
   const nextHexMap = getRectangleMapWithPieces(hexMap, footprintCoords)

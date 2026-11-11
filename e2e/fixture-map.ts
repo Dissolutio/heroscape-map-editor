@@ -15,6 +15,15 @@ export const FIXTURE_HEX_MAP = {
   length: 6,
 }
 
+export const FIXTURE_HEXAGON_MAP = {
+  ...FIXTURE_HEX_MAP,
+  id: 'e2e-convert-map-hexagon',
+  name: 'Convert Map Shape Fixture',
+  shape: 'hexagon',
+  width: 3,
+  length: 3,
+}
+
 export const FIXTURE_PIECE_IDS = [
   '0~0~2~0~g1', // grass
   '0~1~2~0~g1', // grass, with the rock below stacked on top of it

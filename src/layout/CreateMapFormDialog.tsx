@@ -16,6 +16,9 @@ import { useLocation } from 'wouter'
 import { ROUTES } from '../ROUTES'
 import useBoundStore from '../store/store'
 import {
+  DEFAULT_NEW_HEXAGON_MAP_SIZE,
+  DEFAULT_NEW_RECTANGLE_MAP_LENGTH,
+  DEFAULT_NEW_RECTANGLE_MAP_WIDTH,
   MAX_HEXAGON_MAP_DIMENSION,
   MAX_RECTANGLE_MAP_DIMENSION,
 } from '../utils/constants'
@@ -69,9 +72,13 @@ export default function CreateMapFormDialog() {
   // new map form state
   const [mapName, setMapName] = React.useState(() => genRandomMapName())
   const [mapShape, setMapShape] = React.useState('rectangle')
-  const [mapWidth, setMapWidth] = React.useState(20)
-  const [mapLength, setMapLength] = React.useState(20)
-  const [mapSize, setMapSize] = React.useState(10)
+  const [mapWidth, setMapWidth] = React.useState(
+    DEFAULT_NEW_RECTANGLE_MAP_WIDTH,
+  )
+  const [mapLength, setMapLength] = React.useState(
+    DEFAULT_NEW_RECTANGLE_MAP_LENGTH,
+  )
+  const [mapSize, setMapSize] = React.useState(DEFAULT_NEW_HEXAGON_MAP_SIZE)
   const rememberedMapAuthor = useBoundStore(
     (state) => state.rememberedMapAuthor,
   )
