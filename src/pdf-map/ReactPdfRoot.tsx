@@ -50,7 +50,7 @@ function ReactPdfRoot() {
   const isShowPdfBuriedMarks = useBoundStore((s) => s.isShowPdfBuriedMarks)
   const genericTerrainColorsKey = useBoundStore(
     (s) =>
-      `${s.genericSolidCapColor}|${s.genericSolidSideColor}|${s.genericFluidCapColor}|${s.genericFluidSideColor}|${s.isHideHeightsOnGlyphs}|${s.isShowPdfPieceLegend}|${s.isShowPdfLadderOverlay}`,
+      `${s.genericSolidCapColor}|${s.genericSolidSideColor}|${s.genericFluidCapColor}|${s.genericFluidSideColor}|${s.isShowPdfPieceLegend}|${s.isShowPdfLadderOverlay}`,
   )
   const useLegacyStartZones = useBoundStore((s) => s.useLegacyStartZones)
   const pdfRenderFormat = useBoundStore((s) => s.pdfRenderFormat)

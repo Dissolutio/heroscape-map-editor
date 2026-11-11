@@ -1,12 +1,6 @@
 import { G, Line, Text } from '@react-pdf/renderer'
 import { getPieceGameHeight, piecesSoFar } from '../data/pieces'
 import { blendColorWithWhite } from '../pdf-svg-shared/blendColorWithWhite'
-import {
-  type GlyphCoordinateLookup,
-  type GlyphExportSettings,
-  getGlyphExportOptions,
-  makeGlyphCoordinateLookup,
-} from '../pdf-svg-shared/glyphExportOptions'
 import { getPieceExportSymbol } from '../pdf-svg-shared/pieceLegend'
 import {
   SHROUDSHROOM13_ORIGIN_LINE_COLOR,
@@ -194,8 +188,6 @@ export const PdfMapHex = ({
   buriedMarksByUID,
   useLegacyStartZones,
   isPieceKeyPreview = false,
-  glyphCoordinates,
-  glyphExportSettings,
 }: {
   hex: BoardHex
   viewingLevel: number
@@ -207,8 +199,6 @@ export const PdfMapHex = ({
   buriedMarksByUID: BuriedMarksByUID
   useLegacyStartZones: boolean
   isPieceKeyPreview?: boolean
-  glyphCoordinates?: GlyphCoordinateLookup
-  glyphExportSettings?: GlyphExportSettings
 }) => {
   const pixel = hexUtilsHexToPixel(hex)
   const useLegendBorderColor = isPieceKeyPreview
@@ -229,17 +219,6 @@ export const PdfMapHex = ({
   const isLandHex =
     isSolidTerrainHex(hex.terrain) || isFluidTerrainHex(hex.terrain)
   const pieceHeightText = getPieceGameHeight(inventoryID)
-  const fallbackState =
-    glyphCoordinates && glyphExportSettings
-      ? undefined
-      : useBoundStore.getState()
-  const glyphLookup =
-    glyphCoordinates ??
-    makeGlyphCoordinateLookup(fallbackState?.boardHexes ?? {})
-  const glyphSettings =
-    glyphExportSettings ?? fallbackState ?? useBoundStore.getState()
-  const getHexGlyphExportOptions = (targetHex: BoardHex) =>
-    getGlyphExportOptions(targetHex, glyphLookup, glyphSettings)
   const pieceRotation = ((hex?.pieceRotation ?? 0) % 6) * 60
   // EARLY RETURN: NOT VISIBLE
   if (!isVisible || isAuxiliaryNotRenderedIn2D) {
@@ -464,7 +443,6 @@ export const PdfMapHex = ({
     inventoryID === Pieces.toxicOutcrop1 ||
     inventoryID === Pieces.glacier1
   ) {
-    const { hideHeight } = getHexGlyphExportOptions(hex)
     const textColor = getOutcropTextColor(hex.terrain, isSubLevel)
     return (
       <G transform={`translate(${pixel.x}, ${pixel.y})`}>
@@ -473,22 +451,20 @@ export const PdfMapHex = ({
           isSubLevel={isSubLevel}
           useTerrainBorderColor={useLegendBorderColor}
         />
-        {!hideHeight && (
-          <Text
-            fill={textColor}
-            // white text (not glaciers, so far) needs a little opacity boost
-            opacity={
-              isSubLevel
-                ? hex.terrain === HexTerrain.glacier
-                  ? 1
-                  : OPACITY_SUBLEVEL * 2
-                : 1
-            }
-            {...pdfTextProps()}
-          >
-            {pieceHeightText}
-          </Text>
-        )}
+        <Text
+          fill={textColor}
+          // white text (not glaciers, so far) needs a little opacity boost
+          opacity={
+            isSubLevel
+              ? hex.terrain === HexTerrain.glacier
+                ? 1
+                : OPACITY_SUBLEVEL * 2
+              : 1
+          }
+          {...pdfTextProps()}
+        >
+          {pieceHeightText}
+        </Text>
       </G>
     )
   }
@@ -599,7 +575,6 @@ export const PdfMapHex = ({
   }
   // Single hex trees
   if (isEvergreenTree(hex.terrain)) {
-    const { hideHeight } = getHexGlyphExportOptions(hex)
     return (
       <G transform={`translate(${pixel.x}, ${pixel.y})`}>
         <PdfMultiHex1
@@ -607,26 +582,21 @@ export const PdfMapHex = ({
           isSubLevel={isSubLevel}
           useTerrainBorderColor={useLegendBorderColor}
         />
-        {!hideHeight && (
-          <Text
-            fill="white"
-            // white text needs a little opacity boost
-            opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
-            {...pdfTextProps()}
-          >
-            {pieceHeightText}
-          </Text>
-        )}
+        <Text
+          fill="white"
+          // white text needs a little opacity boost
+          opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
+          {...pdfTextProps()}
+        >
+          {pieceHeightText}
+        </Text>
       </G>
     )
   }
   // CASTLE WALLS
   if (isCastleTerrain(hex.terrain) && hex.isObstacleOrigin) {
-    const { hideHeight } = getHexGlyphExportOptions(hex)
     const heightText =
-      !hideHeight && pieceHeightText != null && pieceHeightText > 0
-        ? pieceHeightText
-        : ''
+      pieceHeightText != null && pieceHeightText > 0 ? pieceHeightText : ''
     //  Return Castle Corner
     if (
       hex.inventoryID === Pieces.castleBaseCorner ||
