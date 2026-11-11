@@ -1,0 +1,27 @@
+{
+  "hexMap": {
+    "id": "convert-map-shape-hexagon",
+    "name": "Convert map shape hexagon fixture",
+    "author": "Tests",
+    "version": 1,
+    "shape": "hexagon",
+    "width": 4,
+    "length": 4
+  },
+  "boardPieces": [
+    {
+      "uid": "fixture-water",
+      "inventoryID": "w1",
+      "altitude": 0,
+      "rotation": 0,
+      "pieceCoords": { "q": 2, "r": 3, "s": -5 }
+    },
+    {
+      "uid": "fixture-ladder",
+      "inventoryID": "ld",
+      "altitude": 1,
+      "rotation": 0,
+      "pieceCoords": { "q": 2, "r": 3, "s": -5 }
+    }
+  ]
+}

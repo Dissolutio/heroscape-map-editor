@@ -49,6 +49,9 @@ export const HEXGRID_MAX_ALTITUDE = 100 // Arbitrary
 export const CLICK_DRAG_TOLERANCE_PX = 5
 export const MAX_RECTANGLE_MAP_DIMENSION = 40 // Arbitrary : BUT a 3ft/6ft table with 27mm based minis would be 34x68 hex rectangle
 export const MAX_HEXAGON_MAP_DIMENSION = 20 // Arbitrary
+export const DEFAULT_NEW_RECTANGLE_MAP_LENGTH = 20
+export const DEFAULT_NEW_RECTANGLE_MAP_WIDTH = 20
+export const DEFAULT_NEW_HEXAGON_MAP_SIZE = 10
 export const INSTANCE_LIMIT =
   MAX_RECTANGLE_MAP_DIMENSION *
   MAX_RECTANGLE_MAP_DIMENSION *
