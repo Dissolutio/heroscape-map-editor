@@ -3,8 +3,10 @@ import {
   Box,
   Button,
   Divider,
+  Fade,
   Paper,
   Stack,
+  TextField,
   Typography,
 } from '@mui/material'
 import { useEffect, useRef, useState, type ReactNode } from 'react'
@@ -12,6 +14,7 @@ import { useSnackbar } from 'notistack'
 import {
   assignActionHotkey,
   exportHotkeyFile,
+  filterHotkeyActions,
   getActionHotkeys,
   HOTKEY_ACTIONS,
   hotkeyFromKeyboardEvent,
@@ -29,13 +32,48 @@ type PendingConflict = {
   reset?: boolean
 }
 
-const formatHotkey = (key: string) =>
-  key
-    .split('+')
-    .map((part) =>
-      part === 'mod' ? 'Ctrl/Cmd' : part[0].toUpperCase() + part.slice(1),
-    )
-    .join(' + ')
+const isMacPlatform = () =>
+  typeof navigator !== 'undefined' &&
+  /Mac|iPhone|iPad/.test(navigator.platform)
+
+const formatHotkeyPart = (part: string) =>
+  part === 'mod'
+    ? isMacPlatform()
+      ? 'Cmd'
+      : 'Ctrl'
+    : part[0].toUpperCase() + part.slice(1)
+
+const formatHotkey = (key: string) => {
+  const parts = key.split('+')
+  const keyPart = parts.pop() ?? ''
+  const orderedModifiers = ['shift', 'mod', 'alt'].filter((part) =>
+    parts.includes(part),
+  )
+  return [...orderedModifiers, keyPart].map(formatHotkeyPart).join(' + ')
+}
+
+const formatRecordingPreview = (event: KeyboardEvent) => {
+  const modifiers = [
+    ...(event.shiftKey ? ['shift'] : []),
+    ...(event.ctrlKey || event.metaKey ? ['mod'] : []),
+    ...(event.altKey ? ['alt'] : []),
+  ]
+  const isModifierKey = [
+    'shift',
+    'control',
+    'ctrl',
+    'meta',
+    'alt',
+  ].includes(event.key.toLowerCase())
+
+  if (isModifierKey) {
+    return modifiers.length
+      ? `${modifiers.map(formatHotkeyPart).join(' + ')} + …`
+      : ''
+  }
+  const key = hotkeyFromKeyboardEvent(event)
+  return key ? formatHotkey(key) : ''
+}
 
 export default function HotkeysDialog({
   open,
@@ -48,20 +86,49 @@ export default function HotkeysDialog({
   const setHotkeyOverrides = useBoundStore((state) => state.setHotkeyOverrides)
   const { enqueueSnackbar } = useSnackbar()
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const pendingRecordingKeyRef = useRef<{ key: string; code: string } | null>(
+    null,
+  )
   const [listeningAction, setListeningAction] = useState<HotkeyAction | null>(
     null,
   )
+  const [recordingPreview, setRecordingPreview] = useState('')
+  const [recordedFeedback, setRecordedFeedback] = useState<{
+    action: HotkeyAction
+    key: string
+  } | null>(null)
+  const [searchText, setSearchText] = useState('')
   const [pendingConflict, setPendingConflict] =
     useState<PendingConflict | null>(null)
   const currentBindings = getActionHotkeys(overrides)
   const defaultBindings = getActionHotkeys({})
+  const filteredActions = filterHotkeyActions(
+    HOTKEY_ACTIONS,
+    currentBindings,
+    searchText,
+  )
 
   useEffect(() => {
     if (!open) {
       setListeningAction(null)
+      setRecordingPreview('')
+      setRecordedFeedback(null)
+      setSearchText('')
+      pendingRecordingKeyRef.current = null
       setPendingConflict(null)
     }
   }, [open])
+
+  useEffect(() => {
+    if (!recordedFeedback) return
+    const timeout = window.setTimeout(() => setRecordedFeedback(null), 3000)
+    const dismiss = () => setRecordedFeedback(null)
+    window.addEventListener('pointerdown', dismiss, true)
+    return () => {
+      window.clearTimeout(timeout)
+      window.removeEventListener('pointerdown', dismiss, true)
+    }
+  }, [recordedFeedback])
 
   useEffect(() => {
     if (!open || !listeningAction) return
@@ -69,27 +136,55 @@ export default function HotkeysDialog({
       if (event.key === 'Escape') {
         event.preventDefault()
         event.stopPropagation()
+        pendingRecordingKeyRef.current = null
+        setRecordingPreview('')
         setListeningAction(null)
         return
       }
       const key = hotkeyFromKeyboardEvent(event)
-      if (!key) return
       event.preventDefault()
       event.stopPropagation()
-      const result = assignActionHotkey(overrides, listeningAction, key)
+      setRecordingPreview(formatRecordingPreview(event))
+      if (!key) return
+      pendingRecordingKeyRef.current = {
+        key,
+        code: event.code || event.key.toLowerCase(),
+      }
+    }
+    const handleKeyUp = (event: KeyboardEvent) => {
+      const pending = pendingRecordingKeyRef.current
+      const code = event.code || event.key.toLowerCase()
+      if (!pending || pending.code !== code) {
+        setRecordingPreview(formatRecordingPreview(event))
+        return
+      }
+      event.preventDefault()
+      event.stopPropagation()
+      pendingRecordingKeyRef.current = null
+      const result = assignActionHotkey(
+        overrides,
+        listeningAction,
+        pending.key,
+      )
       if (result.conflict) {
         setPendingConflict({
           action: listeningAction,
-          conflicts: [{ action: result.conflict, key }],
+          conflicts: [{ action: result.conflict, key: pending.key }],
         })
       } else {
         setHotkeyOverrides(result.overrides)
         setPendingConflict(null)
+        setRecordingPreview('')
         setListeningAction(null)
+        setRecordedFeedback({ action: listeningAction, key: pending.key })
       }
     }
     window.addEventListener('keydown', handleKeyDown, true)
-    return () => window.removeEventListener('keydown', handleKeyDown, true)
+    window.addEventListener('keyup', handleKeyUp, true)
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown, true)
+      window.removeEventListener('keyup', handleKeyUp, true)
+    }
   }, [listeningAction, open, overrides, setHotkeyOverrides])
 
   const downloadOverrides = () => {
@@ -165,12 +260,28 @@ export default function HotkeysDialog({
             Close
           </Button>
         </Box>
-        {listeningAction && (
+        <TextField
+          label="Search hotkeys"
+          size="small"
+          fullWidth
+          value={searchText}
+          onChange={(event) => setSearchText(event.target.value)}
+        />
+        <Fade
+          in={Boolean(listeningAction || recordedFeedback)}
+          timeout={400}
+          unmountOnExit
+        >
           <Alert severity="info">
-            Press a key combination for {actionName(listeningAction)}. Escape
-            cancels.
+            {listeningAction
+              ? recordingPreview
+                ? `Recording ${actionName(listeningAction)}: ${recordingPreview}. Release to set. Escape cancels.`
+                : `Press a key combination for ${actionName(listeningAction)}. Escape cancels.`
+              : recordedFeedback
+                ? `${actionName(recordedFeedback.action)}: ${formatHotkey(recordedFeedback.key)}`
+                : ''}
           </Alert>
-        )}
+        </Fade>
         {pendingConflict && (
           <Alert
             severity="warning"
@@ -180,22 +291,31 @@ export default function HotkeysDialog({
                   color="inherit"
                   size="small"
                   onClick={() => {
+                    const conflict = pendingConflict
                     setHotkeyOverrides(
-                      pendingConflict.reset
+                      conflict.reset
                         ? resetActionHotkeys(
                             overrides,
-                            pendingConflict.action,
+                            conflict.action,
                             true,
                           ).overrides
                         : swapActionHotkeys(
                             overrides,
-                            pendingConflict.action,
-                            pendingConflict.conflicts[0].action,
-                            pendingConflict.conflicts[0].key,
+                            conflict.action,
+                            conflict.conflicts[0].action,
+                            conflict.conflicts[0].key,
                           ),
                     )
                     setPendingConflict(null)
                     setListeningAction(null)
+                    setRecordingPreview('')
+                    pendingRecordingKeyRef.current = null
+                    if (!conflict.reset) {
+                      setRecordedFeedback({
+                        action: conflict.action,
+                        key: conflict.conflicts[0].key,
+                      })
+                    }
                   }}
                 >
                   Swap
@@ -206,6 +326,8 @@ export default function HotkeysDialog({
                   onClick={() => {
                     setPendingConflict(null)
                     setListeningAction(null)
+                    setRecordingPreview('')
+                    pendingRecordingKeyRef.current = null
                   }}
                 >
                   Cancel
@@ -256,86 +378,98 @@ export default function HotkeysDialog({
             }}
           />
         </Stack>
-        {HOTKEY_ACTIONS.reduce<ReactNode[]>((sections, action, index) => {
-          if (index === 0 || HOTKEY_ACTIONS[index - 1].group !== action.group) {
+        {filteredActions.length ? (
+          filteredActions.reduce<ReactNode[]>((sections, action, index) => {
+            if (
+              index === 0 ||
+              filteredActions[index - 1].group !== action.group
+            ) {
+              sections.push(
+                <Typography key={`group-${action.group}`} variant="subtitle1">
+                  {action.group}
+                </Typography>,
+              )
+            }
             sections.push(
-              <Typography key={`group-${action.group}`} variant="subtitle1">
-                {action.group}
-              </Typography>,
-            )
-          }
-          sections.push(
-            <Box
-              key={action.id}
-              component="fieldset"
-              display="flex"
-              aria-label={`${action.label} hotkey`}
-              alignItems="center"
-              gap={1}
-              flexWrap="wrap"
-              sx={{ border: 0, m: 0, minWidth: 0, p: 0, py: 0.5 }}
-            >
-              <Typography sx={{ flex: '1 1 190px' }}>{action.label}</Typography>
-              <Typography
-                variant="body2"
-                color="text.secondary"
-                sx={{ minWidth: 105 }}
-                aria-label={`${action.label} current keys`}
+              <Box
+                key={action.id}
+                component="fieldset"
+                display="flex"
+                aria-label={`${action.label} hotkey`}
+                alignItems="center"
+                gap={1}
+                flexWrap="wrap"
+                sx={{ border: 0, m: 0, minWidth: 0, p: 0, py: 0.5 }}
               >
-                {currentBindings[action.id].length
-                  ? currentBindings[action.id].map(formatHotkey).join(', ')
-                  : 'Unbound'}
-              </Typography>
-              <Button
-                size="small"
-                onClick={() => {
-                  setPendingConflict(null)
-                  setListeningAction(action.id)
-                }}
-              >
-                Change
-              </Button>
-              <Button
-                size="small"
-                onClick={() =>
-                  setHotkeyOverrides(
-                    updateActionHotkeys(overrides, action.id, []),
-                  )
-                }
-              >
-                Clear
-              </Button>
-              <Button
-                size="small"
-                onClick={() => {
-                  const result = resetActionHotkeys(overrides, action.id)
-                  if (result.conflicts.length) {
-                    setPendingConflict({
-                      action: action.id,
-                      conflicts: result.conflicts,
-                      reset: true,
-                    })
-                  } else {
-                    setHotkeyOverrides(result.overrides)
+                <Typography sx={{ flex: '1 1 190px' }}>
+                  {action.label}
+                </Typography>
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  sx={{ minWidth: 105 }}
+                  aria-label={`${action.label} current keys`}
+                >
+                  {currentBindings[action.id].length
+                    ? currentBindings[action.id].map(formatHotkey).join(', ')
+                    : 'Unbound'}
+                </Typography>
+                <Button
+                  size="small"
+                  onClick={() => {
+                    setPendingConflict(null)
+                    setRecordedFeedback(null)
+                    setRecordingPreview('')
+                    pendingRecordingKeyRef.current = null
+                    setListeningAction(action.id)
+                  }}
+                >
+                  Change
+                </Button>
+                <Button
+                  size="small"
+                  onClick={() =>
+                    setHotkeyOverrides(
+                      updateActionHotkeys(overrides, action.id, []),
+                    )
                   }
-                }}
-                disabled={
-                  currentBindings[action.id].join(',') ===
-                  defaultBindings[action.id].join(',')
-                }
-              >
-                Reset
-              </Button>
-            </Box>,
-          )
-          if (
-            index === HOTKEY_ACTIONS.length - 1 ||
-            HOTKEY_ACTIONS[index + 1].group !== action.group
-          ) {
-            sections.push(<Divider key={`divider-${action.group}`} />)
-          }
-          return sections
-        }, [])}
+                >
+                  Clear
+                </Button>
+                <Button
+                  size="small"
+                  onClick={() => {
+                    const result = resetActionHotkeys(overrides, action.id)
+                    if (result.conflicts.length) {
+                      setPendingConflict({
+                        action: action.id,
+                        conflicts: result.conflicts,
+                        reset: true,
+                      })
+                    } else {
+                      setHotkeyOverrides(result.overrides)
+                    }
+                  }}
+                  disabled={
+                    currentBindings[action.id].join(',') ===
+                    defaultBindings[action.id].join(',')
+                  }
+                >
+                  Reset
+                </Button>
+              </Box>,
+            )
+            if (
+              index === filteredActions.length - 1 ||
+              filteredActions[index + 1].group !== action.group
+            ) {
+              sections.push(<Divider key={`divider-${action.group}`} />)
+            }
+            return sections
+          }, [])
+        ) : (
+          <Typography role="status">No matches</Typography>
+        )}
       </Stack>
     </Paper>
   )

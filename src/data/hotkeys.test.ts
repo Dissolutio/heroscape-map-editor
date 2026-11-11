@@ -4,6 +4,7 @@ import {
   buildHotkeyConfig,
   defaultHotkeyConfig,
   exportHotkeyFile,
+  filterHotkeyActions,
   getActionHotkeys,
   getDefaultActionHotkeys,
   HOTKEY_ACTIONS,
@@ -135,6 +136,37 @@ describe('hotkey overrides', () => {
     expect(new Set(keys).size).toBe(keys.length)
   })
 
+  it('filters hotkeys by text and exact assigned key tokens', () => {
+    const keyOnlyActions = HOTKEY_ACTIONS.filter(({ id }) =>
+      ['zoomToMap', 'undoWorld'].includes(id),
+    )
+    const bindings = getActionHotkeys({})
+    bindings.zoomToMap = ['l']
+    bindings.undoWorld = ['shift+l']
+
+    expect(
+      filterHotkeyActions(keyOnlyActions, bindings, ' L ').map(({ id }) => id),
+    ).toEqual(['zoomToMap'])
+    expect(
+      filterHotkeyActions(keyOnlyActions, bindings, 'SHIFT+L').map(
+        ({ id }) => id,
+      ),
+    ).toEqual(['undoWorld'])
+
+    const lavaAction = HOTKEY_ACTIONS.filter(
+      ({ id }) => id === 'togglePenModeLavaField',
+    )
+    expect(
+      filterHotkeyActions(lavaAction, bindings, 'LAVA').map(({ id }) => id),
+    ).toEqual(['togglePenModeLavaField'])
+    expect(filterHotkeyActions(keyOnlyActions, bindings, 'missing')).toEqual(
+      [],
+    )
+    expect(filterHotkeyActions(keyOnlyActions, bindings, '')).toEqual(
+      keyOnlyActions,
+    )
+  })
+
   it('binds the requested obstacle and castle pen modes', () => {
     expect({
       f: defaultHotkeyConfig.f,
@@ -198,7 +230,7 @@ describe('hotkey overrides', () => {
       togglePenModeShip: Pieces.shipWall,
       togglePenModeLadder: Pieces.ladder,
       togglePenModeBattlement: Pieces.battlement,
-      togglePenModeCastleWall: Pieces.castleWallEnd,
+      togglePenModeCastleWall: Pieces.castleWallStraight,
     })
   })
 

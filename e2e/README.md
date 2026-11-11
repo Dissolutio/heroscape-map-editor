@@ -232,7 +232,7 @@ loads cleanly, so format drift fails in `npm test` rather than in the browser.
 | Window typings | `src/e2e/e2e-globals.d.ts` |
 | Tests, fixtures | `e2e/` |
 | Viewing-level regression | `e2e/viewing-level.spec.ts` |
-| Default obstacle pen hotkeys plus hotkey rebind, export, reset, and import | `e2e/hotkeys.spec.ts` |
+| Pen hotkeys, hotkey search/recording, and rebind/export/reset/import | `e2e/hotkeys.spec.ts` |
 | Load-time map fitting | `e2e/load-fits-map.spec.ts` |
 | Group rotation around a clicked footprint hex | `e2e/group-rotate-pivot.spec.ts` |
 | Single-piece rotation around a clicked footprint hex | `e2e/single-rotate-pivot.spec.ts` |

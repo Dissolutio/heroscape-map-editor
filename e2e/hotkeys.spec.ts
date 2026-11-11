@@ -28,7 +28,7 @@ test('default obstacle hotkeys select Evergreen Tree, Ship, and Laur Wall', asyn
     page.getByRole('option', { name: 'Ship Wall [SHIFT+S]' }),
   ).toBeVisible()
   await expect(
-    page.getByRole('option', { name: 'Wall End [SHIFT+C]' }),
+    page.getByRole('option', { name: 'Wall Straight [SHIFT+C]' }),
   ).toBeVisible()
   await page.keyboard.press('Escape')
 
@@ -88,9 +88,39 @@ test('rebinds, exports, resets, and imports hotkeys', async ({ page }) => {
   await page.locator('#simple-tab-3').click()
   await page.getByRole('button', { name: 'Hotkeys' }).click()
   const dialog = page.getByRole('dialog', { name: 'Hotkeys' })
+  const search = dialog.getByRole('textbox', { name: 'Search hotkeys' })
+  const zoomRow = dialog.getByRole('group', {
+    name: 'Zoom to map hotkey',
+  })
+  await zoomRow.getByRole('button', { name: 'Change' }).click()
+  await page.keyboard.press('l')
+  await dialog.getByRole('button', { name: 'Swap' }).click()
+  await search.fill('L')
+  await expect(zoomRow).toBeVisible()
+  await expect(zoomRow).toContainText('L')
+  await search.fill('Lava')
+  await expect(
+    dialog.getByRole('group', { name: 'Lava field hotkey' }),
+  ).toBeVisible()
+  await search.fill('')
+
   const rotateRow = dialog.getByRole('group', {
     name: 'Rotate clockwise hotkey',
   })
+  await rotateRow.getByRole('button', { name: 'Change' }).click()
+  await page.keyboard.down('Shift')
+  await page.keyboard.down('Control')
+  const recordingAlert = dialog.getByRole('alert').first()
+  await expect(recordingAlert).toContainText('Shift + Ctrl + …')
+  await page.keyboard.down('K')
+  await expect(recordingAlert).toContainText('Shift + Ctrl + K')
+  await page.keyboard.up('K')
+  await expect(recordingAlert).toContainText(
+    'Rotate clockwise: Shift + Ctrl + K',
+  )
+  await page.keyboard.up('Control')
+  await page.keyboard.up('Shift')
+
   await rotateRow.getByRole('button', { name: 'Change' }).click()
   await page.keyboard.press('Alt+Q')
   await expect(rotateRow).toContainText('Alt + Q')

@@ -436,6 +436,22 @@ export const HOTKEY_ACTIONS: {
   },
 ]
 
+export function filterHotkeyActions(
+  actions: readonly (typeof HOTKEY_ACTIONS)[number][],
+  bindings: Record<HotkeyAction, string[]>,
+  query: string,
+): (typeof HOTKEY_ACTIONS)[number][] {
+  const textQuery = query.trim().toLowerCase()
+  if (!textQuery) return [...actions]
+  const keyQuery = textQuery.replace(/\s+/g, '')
+
+  return actions.filter(
+    ({ id, label }) =>
+      label.toLowerCase().includes(textQuery) ||
+      bindings[id].some((key) => key.toLowerCase() === keyQuery),
+  )
+}
+
 const actionIds = new Set(HOTKEY_ACTIONS.map(({ id }) => id))
 const newDefaultHotkeyKeys = new Set([
   'f',
