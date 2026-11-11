@@ -206,7 +206,7 @@ export const PEN_MODE_ACTION_TARGETS = {
   togglePenModeShip: Pieces.shipWall,
   togglePenModeLadder: Pieces.ladder,
   togglePenModeBattlement: Pieces.battlement,
-  togglePenModeCastleWall: Pieces.castleWallEnd,
+  togglePenModeCastleWall: Pieces.castleWallStraight,
   togglePenModeTicallaUnderbrush: Pieces.brush9,
   togglePenModeSwampUnderbrush: Pieces.swampBrush10,
   togglePenModeLaurUnderbrush: Pieces.laurBrush10,
@@ -371,7 +371,7 @@ export const HOTKEY_ACTIONS: {
   { id: 'togglePenModeShip', label: 'Ship pieces', group: 'Pens' },
   { id: 'togglePenModeLadder', label: 'Ladder', group: 'Pens' },
   { id: 'togglePenModeBattlement', label: 'Battlement', group: 'Pens' },
-  { id: 'togglePenModeCastleWall', label: 'Castle Wall (End)', group: 'Pens' },
+  { id: 'togglePenModeCastleWall', label: 'Castle Wall', group: 'Pens' },
   {
     id: 'togglePenModeTicallaUnderbrush',
     label: 'Ticalla underbrush',

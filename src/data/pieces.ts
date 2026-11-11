@@ -22,6 +22,9 @@ export const piecesSoFar: Dictionary<Piece> = {
     size: 1,
     template: '1',
     height: 0,
+    pieceSizeFamily: 'startZone',
+    variantOrder: 1,
+    variantLabel: 'Player 1',
   },
   [Pieces.startZone2]: {
     id: Pieces.startZone2,
@@ -33,6 +36,9 @@ export const piecesSoFar: Dictionary<Piece> = {
     size: 1,
     template: '1',
     height: 0,
+    pieceSizeFamily: 'startZone',
+    variantOrder: 2,
+    variantLabel: 'Player 2',
   },
   [Pieces.startZone3]: {
     id: Pieces.startZone3,
@@ -44,6 +50,9 @@ export const piecesSoFar: Dictionary<Piece> = {
     size: 1,
     template: '1',
     height: 0,
+    pieceSizeFamily: 'startZone',
+    variantOrder: 3,
+    variantLabel: 'Player 3',
   },
   [Pieces.startZone4]: {
     id: Pieces.startZone4,
@@ -55,6 +64,9 @@ export const piecesSoFar: Dictionary<Piece> = {
     size: 1,
     template: '1',
     height: 0,
+    pieceSizeFamily: 'startZone',
+    variantOrder: 4,
+    variantLabel: 'Player 4',
   },
   [Pieces.startZone5]: {
     id: Pieces.startZone5,
@@ -66,6 +78,9 @@ export const piecesSoFar: Dictionary<Piece> = {
     size: 1,
     template: '1',
     height: 0,
+    pieceSizeFamily: 'startZone',
+    variantOrder: 5,
+    variantLabel: 'Player 5',
   },
   [Pieces.startZone6]: {
     id: Pieces.startZone6,
@@ -77,6 +92,9 @@ export const piecesSoFar: Dictionary<Piece> = {
     size: 1,
     template: '1',
     height: 0,
+    pieceSizeFamily: 'startZone',
+    variantOrder: 6,
+    variantLabel: 'Player 6',
   },
   [Pieces.startZone7]: {
     id: Pieces.startZone7,
@@ -88,6 +106,9 @@ export const piecesSoFar: Dictionary<Piece> = {
     size: 1,
     template: '1',
     height: 0,
+    pieceSizeFamily: 'startZone',
+    variantOrder: 7,
+    variantLabel: 'Player 7',
   },
   [Pieces.startZone8]: {
     id: Pieces.startZone8,
@@ -99,6 +120,9 @@ export const piecesSoFar: Dictionary<Piece> = {
     size: 1,
     template: '1',
     height: 0,
+    pieceSizeFamily: 'startZone',
+    variantOrder: 8,
+    variantLabel: 'Player 8',
   },
   [Pieces.glyphPower]: {
     id: Pieces.glyphPower,
@@ -111,6 +135,9 @@ export const piecesSoFar: Dictionary<Piece> = {
     template: '1',
     height: 0,
     glyphLetter: '?',
+    pieceSizeFamily: 'glyph',
+    variantOrder: 1,
+    variantLabel: 'Power Glyph',
   },
   [Pieces.glyphTreasure]: {
     id: Pieces.glyphTreasure,
@@ -123,6 +150,9 @@ export const piecesSoFar: Dictionary<Piece> = {
     template: '1',
     height: 0,
     glyphLetter: '?',
+    pieceSizeFamily: 'glyph',
+    variantOrder: 2,
+    variantLabel: 'Treasure Glyph',
   },
 
   // INVENTORIED
@@ -1402,6 +1432,9 @@ export const piecesSoFar: Dictionary<Piece> = {
     size: 1,
     template: '1',
     height: 10,
+    pieceSizeFamily: 'laurJungleTree',
+    variantOrder: 5,
+    variantLabel: 'Swamp Underbrush',
   },
   [Pieces.laurBrush10]: {
     id: Pieces.laurBrush10,
@@ -1412,6 +1445,9 @@ export const piecesSoFar: Dictionary<Piece> = {
     size: 1,
     template: '1',
     height: 10,
+    pieceSizeFamily: 'laurJungleTree',
+    variantOrder: 4,
+    variantLabel: 'Laur Underbrush',
   },
   [Pieces.laurPalm13]: {
     id: Pieces.laurPalm13,
@@ -1461,6 +1497,9 @@ export const piecesSoFar: Dictionary<Piece> = {
     size: 1,
     template: '1',
     height: 9,
+    pieceSizeFamily: 'ticallaPalm',
+    variantOrder: 4,
+    variantLabel: 'Ticalla Underbrush',
   },
   [Pieces.palm14]: {
     id: Pieces.palm14,
@@ -1743,6 +1782,9 @@ export const piecesSoFar: Dictionary<Piece> = {
     size: 1,
     template: '1',
     height: 1,
+    pieceSizeFamily: 'castleBase',
+    variantOrder: 3,
+    variantLabel: 'End Base',
   },
   [Pieces.castleBaseStraight]: {
     id: Pieces.castleBaseStraight,
@@ -1753,6 +1795,9 @@ export const piecesSoFar: Dictionary<Piece> = {
     size: 1,
     template: '1',
     height: 1,
+    pieceSizeFamily: 'castleBase',
+    variantOrder: 1,
+    variantLabel: 'Straight Base',
   },
   [Pieces.castleBaseCorner]: {
     id: Pieces.castleBaseCorner,
@@ -1763,6 +1808,9 @@ export const piecesSoFar: Dictionary<Piece> = {
     size: 1,
     template: '1',
     height: 1,
+    pieceSizeFamily: 'castleBase',
+    variantOrder: 2,
+    variantLabel: 'Corner Base',
   },
   [Pieces.castleArch]: {
     id: Pieces.castleArch,
@@ -1773,6 +1821,9 @@ export const piecesSoFar: Dictionary<Piece> = {
     size: 1,
     template: Pieces.castleArch,
     height: 9,
+    pieceSizeFamily: 'castleWall',
+    variantOrder: 4,
+    variantLabel: 'Arch',
   },
   [Pieces.castleArchNoDoor]: {
     id: Pieces.castleArchNoDoor,
@@ -1784,6 +1835,9 @@ export const piecesSoFar: Dictionary<Piece> = {
     template: Pieces.castleArch,
     height: 9,
     isUninventoried: true,
+    pieceSizeFamily: 'castleWall',
+    variantOrder: 5,
+    variantLabel: 'Arch (No Door)',
   },
   [Pieces.castleWallEnd]: {
     id: Pieces.castleWallEnd,
@@ -1794,6 +1848,9 @@ export const piecesSoFar: Dictionary<Piece> = {
     size: 1,
     template: '1',
     height: 9,
+    pieceSizeFamily: 'castleWall',
+    variantOrder: 3,
+    variantLabel: 'End Wall',
   },
   [Pieces.castleWallStraight]: {
     id: Pieces.castleWallStraight,
@@ -1804,6 +1861,9 @@ export const piecesSoFar: Dictionary<Piece> = {
     size: 1,
     template: '1',
     height: 9,
+    pieceSizeFamily: 'castleWall',
+    variantOrder: 1,
+    variantLabel: 'Straight Wall',
   },
   [Pieces.castleWallCorner]: {
     id: Pieces.castleWallCorner,
@@ -1814,6 +1874,9 @@ export const piecesSoFar: Dictionary<Piece> = {
     size: 1,
     template: '1',
     height: 9,
+    pieceSizeFamily: 'castleWall',
+    variantOrder: 2,
+    variantLabel: 'Corner Wall',
   },
   [Pieces.ladder]: {
     id: Pieces.ladder,

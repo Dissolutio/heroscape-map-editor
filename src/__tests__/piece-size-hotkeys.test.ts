@@ -3,6 +3,7 @@ import {
   getPieceSizeForHotkey,
   getPieceSizeHotkeyMap,
 } from '../controls/useApplyHotkeys'
+import { PEN_MODE_ACTION_TARGETS, defaultHotkeyConfig } from '../data/hotkeys'
 import {
   getNewPieceSizeForPenMode,
   getPieceIDForPenMode,
@@ -76,6 +77,135 @@ describe('obstacle piece variant hotkeys', () => {
       }
     },
   )
+
+  it('groups the new piece-size families in their requested order', () => {
+    const families = [
+      {
+        family: 'ticallaPalm',
+        ids: [Pieces.palm14, Pieces.palm15, Pieces.palm16, Pieces.brush9],
+        labels: [
+          'Ticalla Palm (14)',
+          'Ticalla Palm (15)',
+          'Ticalla Palm (16)',
+          'Ticalla Underbrush',
+        ],
+      },
+      {
+        family: 'laurJungleTree',
+        ids: [
+          Pieces.laurPalm13,
+          Pieces.laurPalm14,
+          Pieces.laurPalm15,
+          Pieces.laurBrush10,
+          Pieces.swampBrush10,
+        ],
+        labels: [
+          'Laur Jungle Tree (13)',
+          'Laur Jungle Tree (14)',
+          'Laur Jungle Tree (15)',
+          'Laur Underbrush',
+          'Swamp Underbrush',
+        ],
+      },
+      {
+        family: 'castleWall',
+        ids: [
+          Pieces.castleWallStraight,
+          Pieces.castleWallCorner,
+          Pieces.castleWallEnd,
+          Pieces.castleArch,
+          Pieces.castleArchNoDoor,
+        ],
+        labels: [
+          'Straight Wall',
+          'Corner Wall',
+          'End Wall',
+          'Arch',
+          'Arch (No Door)',
+        ],
+      },
+      {
+        family: 'castleBase',
+        ids: [
+          Pieces.castleBaseStraight,
+          Pieces.castleBaseCorner,
+          Pieces.castleBaseEnd,
+        ],
+        labels: ['Straight Base', 'Corner Base', 'End Base'],
+      },
+      {
+        family: 'startZone',
+        ids: [
+          Pieces.startZone1,
+          Pieces.startZone2,
+          Pieces.startZone3,
+          Pieces.startZone4,
+          Pieces.startZone5,
+          Pieces.startZone6,
+          Pieces.startZone7,
+          Pieces.startZone8,
+        ],
+        labels: [
+          'Player 1',
+          'Player 2',
+          'Player 3',
+          'Player 4',
+          'Player 5',
+          'Player 6',
+          'Player 7',
+          'Player 8',
+        ],
+      },
+      {
+        family: 'glyph',
+        ids: [Pieces.glyphPower, Pieces.glyphTreasure],
+        labels: ['Power Glyph', 'Treasure Glyph'],
+      },
+    ] as const
+
+    for (const { family, ids, labels } of families) {
+      const baseID = ids[0]
+      const options = ids.map((_, index) => index + 1)
+
+      expect(ids.map((id) => piecesSoFar[id].pieceSizeFamily)).toEqual(
+        ids.map(() => family),
+      )
+      expect(ids.map((id) => piecesSoFar[id].variantOrder)).toEqual(options)
+      expect(ids.map((id) => piecesSoFar[id].variantLabel)).toEqual(labels)
+      expect(getPieceSizeOptionsForPenMode(baseID)).toEqual(options)
+      expect(
+        options.map((option) => getPieceIDForPenMode(baseID, option)),
+      ).toEqual(ids)
+    }
+  })
+
+  it('keeps Swamp Underbrush and castle bases in their own families', () => {
+    expect(piecesSoFar[Pieces.swampBrush10].pieceSizeFamily).toBe(
+      'laurJungleTree',
+    )
+    expect(piecesSoFar[Pieces.brush9].pieceSizeFamily).toBe('ticallaPalm')
+    expect(
+      piecesSoFar[Pieces.castleBaseStraight].pieceSizeFamily,
+    ).toBe('castleBase')
+    expect(
+      piecesSoFar[Pieces.castleWallStraight].pieceSizeFamily,
+    ).toBe('castleWall')
+  })
+
+  it('opens family pen hotkeys at their first member', () => {
+    expect(defaultHotkeyConfig.j).toBe('togglePenModeLaurJungleTree')
+    expect(PEN_MODE_ACTION_TARGETS.togglePenModeLaurJungleTree).toBe(
+      Pieces.laurPalm13,
+    )
+    expect(defaultHotkeyConfig['shift+j']).toBe('togglePenModeTicallaPalm')
+    expect(PEN_MODE_ACTION_TARGETS.togglePenModeTicallaPalm).toBe(
+      Pieces.palm14,
+    )
+    expect(defaultHotkeyConfig['shift+c']).toBe('togglePenModeCastleWall')
+    expect(PEN_MODE_ACTION_TARGETS.togglePenModeCastleWall).toBe(
+      Pieces.castleWallStraight,
+    )
+  })
 
   it('orders Evergreen Trees as tr10, tr11, tr12, then the Large Tree', () => {
     const tree = piecesSoFar.tr10

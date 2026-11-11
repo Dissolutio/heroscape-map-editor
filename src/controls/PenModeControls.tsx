@@ -974,7 +974,6 @@ export default function PenModeControls() {
             <TbHexagonLetterE />
           </ListItemIcon>
           <span>Wall End</span>
-          {penModeHotkey('togglePenModeCastleWall')}
         </MenuItem>
         <MenuItem
           title="Add castle straight wall (base is added automatically if needed)"
@@ -985,6 +984,7 @@ export default function PenModeControls() {
             <TbHexagonLetterS />
           </ListItemIcon>
           <span>Wall Straight</span>
+          {penModeHotkey('togglePenModeCastleWall')}
           {penModeHotkey('togglePenModeCastleWallStraight')}
         </MenuItem>
         <MenuItem
