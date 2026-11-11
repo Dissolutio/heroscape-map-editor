@@ -4,20 +4,18 @@ import {
   ButtonGroup,
   Card,
   CardContent,
+  IconButton,
   List,
   Tooltip,
   Typography,
 } from '@mui/material'
-import { useSnackbar } from 'notistack'
 import { FcVlc } from 'react-icons/fc'
 import { FcRules } from 'react-icons/fc'
 import { useState } from 'react'
 import { AdaptToCollectionDialog } from './AdaptToCollectionDialog'
 import { buildupJsonFileMap } from '../data/buildupMap'
-import { convertMapShape } from '../data/convertMapShape'
 import { canShrinkMapWithoutDroppingPieces, resizeMap } from '../data/resizeMap'
 import { DIALOGS } from '../layout/dialogNames'
-import { MapSizeDisplay } from '../layout/MapSizeDisplay'
 import { useMuiMediaQuery } from '../layout/useMuiMediaQuery'
 import useBoundStore from '../store/store'
 import type { BoardPiece, MapFileState } from '../types'
@@ -27,6 +25,11 @@ import {
 } from '../utils/constants'
 import { getCollectionLandSupply } from '../utils/adaptToCollection'
 import { HEX_DIRECTIONS, hexUtilsAdd } from '../utils/hex-utils'
+import {
+  formatMapPhysicalDimension,
+  formatMapPhysicalInches,
+  getMapPhysicalSize,
+} from '../utils/mapPhysicalSize'
 import { ControlTabsListItemButton } from './ControlTabsListItemButton'
 
 const shiftInDirectionBoardPieces = (
@@ -43,12 +46,98 @@ const shiftInDirectionBoardPieces = (
   })
   return newBoardPieces
 }
+
+function MapSizeStepper({
+  label,
+  value,
+  measurement,
+  valueTestId,
+  addLabel,
+  removeLabel,
+  addTitle,
+  removeTitle,
+  removeBlocked,
+  removeBlockedTitle,
+  addDisabled,
+  removeDisabled,
+  onAdd,
+  onRemove,
+}: {
+  label: string
+  value: number
+  measurement: string
+  valueTestId: string
+  addLabel: string
+  removeLabel: string
+  addTitle: string
+  removeTitle: string
+  removeBlocked: boolean
+  removeBlockedTitle: string
+  addDisabled: boolean
+  removeDisabled: boolean
+  onAdd: () => void
+  onRemove: () => void
+}) {
+  return (
+    <>
+      <Typography variant="body2">{label}</Typography>
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        <Tooltip
+          title={removeBlocked ? removeBlockedTitle : ''}
+          disableHoverListener={!removeBlocked}
+        >
+          <span>
+            <IconButton
+              aria-label={removeLabel}
+              disabled={removeDisabled}
+              onClick={onRemove}
+              size="small"
+              title={removeTitle}
+              sx={{ p: 0.5 }}
+            >
+              <span aria-hidden="true">−</span>
+            </IconButton>
+          </span>
+        </Tooltip>
+        <Typography
+          data-testid={valueTestId}
+          sx={{ minWidth: 24, textAlign: 'center' }}
+          variant="body2"
+        >
+          {value}
+        </Typography>
+        <IconButton
+          aria-label={addLabel}
+          disabled={addDisabled}
+          onClick={onAdd}
+          size="small"
+          title={addTitle}
+          sx={{ p: 0.5 }}
+        >
+          <span aria-hidden="true">+</span>
+        </IconButton>
+      </Box>
+      <Typography
+        sx={{ textAlign: 'right', overflowWrap: 'anywhere' }}
+        variant="body2"
+      >
+        {measurement}
+      </Typography>
+    </>
+  )
+}
+
 export const EditControlsTab = () => {
   const boardHexes = useBoundStore((s) => s.boardHexes)
   const boardPieces = useBoundStore((s) => s.boardPieces)
   const userPieceInventory = useBoundStore((s) => s.userPieceInventory)
   const hexMap = useBoundStore((s) => s.hexMap)
-  const savedSelections = useBoundStore((s) => s.savedSelections)
   // const conflictedPieceUIDs = useBoundStore((s) => s.conflictedPieceUIDs)
   const loadMap = useBoundStore((s) => s.loadMap)
   const setPiecePreviews = useBoundStore((s) => s.setPiecePreviews)
@@ -79,7 +168,7 @@ export const EditControlsTab = () => {
     (state) => state.toggleIsPieceInventoryDialogOpen,
   )
   const [isAdaptToCollectionOpen, setIsAdaptToCollectionOpen] = useState(false)
-  const { enqueueSnackbar } = useSnackbar()
+  const physicalSize = getMapPhysicalSize(hexMap)
   const hasPersonalInventory =
     getCollectionLandSupply(userPieceInventory).hasAnyPieces
   const handleClickLogState = () => {
@@ -136,36 +225,6 @@ export const EditControlsTab = () => {
   const resizeAndLoad = (dimension: 'length' | 'width', delta: 1 | -1) => {
     const resized = resizeMap(hexMap, boardPieces, dimension, delta)
     loadMap(buildupJsonFileMap(resized.boardPieces, resized.hexMap))
-  }
-  const convertMap = () => {
-    const targetShape = hexMap.shape === 'hexagon' ? 'rectangle' : 'hexagon'
-    const result = convertMapShape(hexMap, boardPieces, targetShape)
-    if (!result.ok) {
-      enqueueSnackbar({
-        message:
-          result.error === 'too-large'
-            ? 'These pieces cannot fit within the maximum map size.'
-            : 'The map margin must be a non-negative whole number.',
-        variant: 'error',
-      })
-      return
-    }
-
-    loadMap(
-      buildupJsonFileMap(
-        boardPieces,
-        result.hexMap,
-        undefined,
-        savedSelections,
-      ),
-    )
-    enqueueSnackbar({
-      message:
-        targetShape === 'rectangle'
-          ? `Converted to a rectangle map (${result.hexMap.width} × ${result.hexMap.length})`
-          : `Converted to a hexagon map (radius ${result.hexMap.length - 1})`,
-      variant: 'success',
-    })
   }
   const lengthShrinkBlockedByPieces =
     hexMap.length > 1 &&
@@ -246,102 +305,115 @@ export const EditControlsTab = () => {
           <Box
             sx={{
               display: 'flex',
-              alignItems: 'center',
-              flexWrap: 'wrap',
-              gap: 1,
-              mb: 1,
+              justifyContent: 'space-between',
+              mb: 0.75,
             }}
           >
             <Typography sx={{ color: 'text.secondary', fontSize: 14 }}>
-              Adjust map dimensions
+              Map size
             </Typography>
-            <Tooltip
-              describeChild
-              title="Changes only the empty table under your map. Pieces stay where they are."
-            >
-              <Button size="small" onClick={convertMap}>
-                {hexMap.shape === 'hexagon'
-                  ? 'Convert to rectangle map'
-                  : 'Convert to hexagon map'}
-              </Button>
-            </Tooltip>
+            <Typography sx={{ color: 'text.secondary', fontSize: 14 }}>
+              {hexMap.shape === 'hexagon' ? 'Hexagon' : 'Rectangle'}
+            </Typography>
           </Box>
-          <MapSizeDisplay hexMap={hexMap} />
-          <ButtonGroup
-            // variant="contained"
-            aria-label="Adjust map dimensions button group"
-            size="small"
+          <Box
+            sx={{
+              display: 'grid',
+              gridTemplateColumns: '52px 82px minmax(0, 1fr)',
+              alignItems: 'center',
+              columnGap: 0.5,
+              rowGap: 0.25,
+            }}
           >
-            <Button
-              size="small"
-              disabled={
-                (hexMap.shape === 'hexagon' &&
-                  hexMap.length >= MAX_HEXAGON_MAP_DIMENSION) ||
-                (hexMap.shape === 'rectangle' &&
-                  hexMap.length >= MAX_RECTANGLE_MAP_DIMENSION)
-              }
-              title={
-                hexMap.shape === 'hexagon'
-                  ? 'Add one outer ring of hexes'
-                  : 'Add one row of hexes to bottom'
-              }
-              onClick={() => resizeAndLoad('length', 1)}
-              sx={{
-                fontSize: buttonFontSize,
-              }}
-            >
-              + length
-            </Button>
-            <Tooltip
-              title={lengthShrinkBlockedByPieces ? lengthShrinkTitle : ''}
-              disableHoverListener={!lengthShrinkBlockedByPieces}
-            >
-              <span>
-                <Button
-                  disabled={hexMap.length <= 1 || lengthShrinkBlockedByPieces}
-                  title={lengthShrinkTitle}
-                  onClick={() => resizeAndLoad('length', -1)}
-                  sx={{
-                    fontSize: buttonFontSize,
-                  }}
+            {hexMap.shape === 'hexagon' ? (
+              <>
+                <MapSizeStepper
+                  label="Size"
+                  value={hexMap.length}
+                  measurement={`${formatMapPhysicalInches(
+                    physicalSize.lengthIn,
+                  )} × ${formatMapPhysicalInches(
+                    physicalSize.widthIn,
+                  )} in (${Math.round(physicalSize.lengthCm)} × ${Math.round(
+                    physicalSize.widthCm,
+                  )} cm)`}
+                  valueTestId="map-size-length-value"
+                  addLabel="Add an outer ring"
+                  removeLabel="Remove the outer ring"
+                  addTitle="Add one outer ring of hexes"
+                  removeTitle={lengthShrinkTitle}
+                  removeBlocked={lengthShrinkBlockedByPieces}
+                  removeBlockedTitle={lengthShrinkTitle}
+                  addDisabled={hexMap.length >= MAX_HEXAGON_MAP_DIMENSION}
+                  removeDisabled={
+                    hexMap.length <= 1 || lengthShrinkBlockedByPieces
+                  }
+                  onAdd={() => resizeAndLoad('length', 1)}
+                  onRemove={() => resizeAndLoad('length', -1)}
+                />
+              </>
+            ) : (
+              <>
+                <MapSizeStepper
+                  label="Length"
+                  value={hexMap.length}
+                  measurement={formatMapPhysicalDimension(
+                    physicalSize.lengthIn,
+                    physicalSize.lengthCm,
+                  )}
+                  valueTestId="map-size-length-value"
+                  addLabel="Add a row at the bottom"
+                  removeLabel="Remove the bottom row"
+                  addTitle="Add one row of hexes to bottom"
+                  removeTitle={lengthShrinkTitle}
+                  removeBlocked={lengthShrinkBlockedByPieces}
+                  removeBlockedTitle={lengthShrinkTitle}
+                  addDisabled={hexMap.length >= MAX_RECTANGLE_MAP_DIMENSION}
+                  removeDisabled={
+                    hexMap.length <= 1 || lengthShrinkBlockedByPieces
+                  }
+                  onAdd={() => resizeAndLoad('length', 1)}
+                  onRemove={() => resizeAndLoad('length', -1)}
+                />
+                <MapSizeStepper
+                  label="Width"
+                  value={hexMap.width}
+                  measurement={formatMapPhysicalDimension(
+                    physicalSize.widthIn,
+                    physicalSize.widthCm,
+                  )}
+                  valueTestId="map-size-width-value"
+                  addLabel="Add a column on the right"
+                  removeLabel="Remove the right column"
+                  addTitle="Add one column of hexes to right side"
+                  removeTitle={widthShrinkTitle}
+                  removeBlocked={widthShrinkBlockedByPieces}
+                  removeBlockedTitle={widthShrinkTitle}
+                  addDisabled={hexMap.width >= MAX_RECTANGLE_MAP_DIMENSION}
+                  removeDisabled={
+                    hexMap.width <= 1 || widthShrinkBlockedByPieces
+                  }
+                  onAdd={() => resizeAndLoad('width', 1)}
+                  onRemove={() => resizeAndLoad('width', -1)}
+                />
+              </>
+            )}
+            {hexMap.shape === 'rectangle' && (
+              <>
+                <Typography variant="body2">Diagonal</Typography>
+                <Box />
+                <Typography
+                  sx={{ textAlign: 'right', overflowWrap: 'anywhere' }}
+                  variant="body2"
                 >
-                  - length
-                </Button>
-              </span>
-            </Tooltip>
-            <Button
-              disabled={
-                (hexMap.shape === 'hexagon' &&
-                  hexMap.width >= MAX_HEXAGON_MAP_DIMENSION) ||
-                (hexMap.shape === 'rectangle' &&
-                  hexMap.width >= MAX_RECTANGLE_MAP_DIMENSION)
-              }
-              title="Add one column of hexes to right side"
-              onClick={() => resizeAndLoad('width', 1)}
-              sx={{
-                fontSize: buttonFontSize,
-              }}
-            >
-              + width
-            </Button>
-            <Tooltip
-              title={widthShrinkBlockedByPieces ? widthShrinkTitle : ''}
-              disableHoverListener={!widthShrinkBlockedByPieces}
-            >
-              <span>
-                <Button
-                  disabled={hexMap.width <= 1 || widthShrinkBlockedByPieces}
-                  title={widthShrinkTitle}
-                  onClick={() => resizeAndLoad('width', -1)}
-                  sx={{
-                    fontSize: buttonFontSize,
-                  }}
-                >
-                  - width
-                </Button>
-              </span>
-            </Tooltip>
-          </ButtonGroup>
+                  {formatMapPhysicalDimension(
+                    physicalSize.diagonalIn,
+                    physicalSize.diagonalCm,
+                  )}
+                </Typography>
+              </>
+            )}
+          </Box>
         </CardContent>
       </Card>
 

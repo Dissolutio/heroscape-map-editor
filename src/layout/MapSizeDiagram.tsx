@@ -49,8 +49,8 @@ export function MapSizeDiagram({
   const hexagonPoints = hexagonPointCoords
     .map(([pointX, pointY]) => `${pointX},${pointY}`)
     .join(' ')
-  const widthLabel = formatMapPhysicalDimension(size.widthIn, size.widthCm)
-  const lengthLabel = formatMapPhysicalDimension(size.lengthIn, size.lengthCm)
+  const widthLabel = `Width ${formatMapPhysicalDimension(size.widthIn, size.widthCm)}`
+  const lengthLabel = `Length ${formatMapPhysicalDimension(size.lengthIn, size.lengthCm)}`
   const diagonalLabel = formatMapPhysicalDimension(
     size.diagonalIn,
     size.diagonalCm,

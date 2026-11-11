@@ -39,7 +39,14 @@ test('converts a hexagon map to a rectangle and back without moving pieces', asy
     })
     .click()
 
-  await page.getByRole('button', { name: 'Convert to rectangle map' }).click()
+  await expect(
+    page.getByRole('button', { name: 'Convert to rectangle map' }),
+  ).toHaveCount(0)
+  await page.getByRole('button', { name: 'Edit Map Details' }).click()
+  const detailsDialog = page.getByRole('dialog', { name: 'Edit Map' })
+  await detailsDialog
+    .getByRole('button', { name: 'Convert to rectangle map' })
+    .click()
   await expect(
     page.getByText(/Converted to a rectangle map \(\d+ × \d+\)/),
   ).toBeVisible()
@@ -47,6 +54,7 @@ test('converts a hexagon map to a rectangle and back without moving pieces', asy
   await saveEvidence(page, 'convert-map-shape-rectangle')
 
   expect(await mapPieces(page)).toEqual(originalPieces)
+  await detailsDialog.getByRole('button', { name: 'Cancel' }).click()
   expect(await mapInventoryText(page)).toBe(originalInventory)
   expect(await undoCount(page)).toBe(originalUndoCount + 1)
 
@@ -55,7 +63,11 @@ test('converts a hexagon map to a rectangle and back without moving pieces', asy
       name: 'Show controls for editing details of the current map',
     })
     .click()
-  await page.getByRole('button', { name: 'Convert to hexagon map' }).click()
+  await page.getByRole('button', { name: 'Edit Map Details' }).click()
+  const rectangleDetailsDialog = page.getByRole('dialog', { name: 'Edit Map' })
+  await rectangleDetailsDialog
+    .getByRole('button', { name: 'Convert to hexagon map' })
+    .click()
   await expect(
     page.getByText(/Converted to a hexagon map \(radius \d+\)/),
   ).toBeVisible()
@@ -63,6 +75,7 @@ test('converts a hexagon map to a rectangle and back without moving pieces', asy
   await saveEvidence(page, 'convert-map-shape-hexagon')
 
   expect(await mapPieces(page)).toEqual(originalPieces)
+  await rectangleDetailsDialog.getByRole('button', { name: 'Cancel' }).click()
   expect(await mapInventoryText(page)).toBe(originalInventory)
   expect(await undoCount(page)).toBe(originalUndoCount + 2)
 })

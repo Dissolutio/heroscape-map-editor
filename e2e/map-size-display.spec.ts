@@ -12,7 +12,7 @@ const rectangleMap = {
   version: 1,
 }
 
-test('shows live map size in the Edit tab and Create New Map', async ({
+test('shows live map size controls and conversion across map dialogs', async ({
   page,
 }) => {
   await page.goto(mapUrl(rectangleMap, []))
@@ -24,29 +24,67 @@ test('shows live map size in the Edit tab and Create New Map', async ({
     })
     .click()
   const editSummary = page.getByTestId('map-size-summary')
-  await expect(editSummary).toContainText('4 × 3 hexes')
+  await expect(editSummary).toHaveCount(0)
+  const lengthValue = page.getByTestId('map-size-length-value')
+  const widthValue = page.getByTestId('map-size-width-value')
+  await expect(lengthValue).toHaveText('3')
+  await expect(widthValue).toHaveText('4')
+  await expect(
+    page.getByRole('button', { name: 'Convert to hexagon map' }),
+  ).toHaveCount(0)
 
-  await page.getByRole('button', { name: '+ width' }).click()
+  await page.getByRole('button', { name: 'Add a row at the bottom' }).click()
   await waitForAppReady(page)
-  await expect(editSummary).toContainText('5 × 3 hexes')
-  await saveEvidence(page, 'map-size-display-edit')
+  await expect(lengthValue).toHaveText('4')
+  await expect(widthValue).toHaveText('4')
+  await page.getByRole('button', { name: 'Add a column on the right' }).click()
+  await waitForAppReady(page)
+  await expect(lengthValue).toHaveText('4')
+  await expect(widthValue).toHaveText('5')
+  await saveEvidence(page, 'map-size-display-edit-rectangle')
 
   await page.getByRole('button', { name: 'Edit Map Details' }).click()
   const detailsDialog = page.getByRole('dialog', { name: 'Edit Map' })
   await expect(detailsDialog.getByTestId('map-size-summary')).toContainText(
-    '5 × 3 hexes',
+    'Length 4 · Width 5 hexes',
   )
+  await expect(detailsDialog.getByText('Shape: Rectangle')).toBeVisible()
+  await saveEvidence(page, 'map-size-display-details')
+  await detailsDialog
+    .getByRole('button', { name: 'Convert to hexagon map' })
+    .click()
   await expect(
-    detailsDialog.getByText('Change the map size in the Edit tab.'),
+    detailsDialog.getByRole('button', { name: 'Convert to rectangle map' }),
+  ).toBeVisible()
+  await expect(detailsDialog.getByText('Shape: Hexagon')).toBeVisible()
+  await expect(
+    page.getByText(/Converted to a hexagon map \(radius \d+\)/),
   ).toBeVisible()
   await detailsDialog.getByRole('button', { name: 'Cancel' }).click()
+  await expect(page.getByTestId('map-size-length-value')).toHaveText(/^\d+$/)
+  await expect(
+    page.getByRole('button', { name: 'Add an outer ring' }),
+  ).toBeVisible()
+  await saveEvidence(page, 'map-size-display-edit-hexagon')
+
+  await page.getByRole('button', { name: 'Edit Map Details' }).click()
+  const hexagonDetailsDialog = page.getByRole('dialog', { name: 'Edit Map' })
+  await expect(hexagonDetailsDialog.getByText('Shape: Hexagon')).toBeVisible()
+  await hexagonDetailsDialog
+    .getByRole('button', { name: 'Convert to rectangle map' })
+    .click()
+  await expect(hexagonDetailsDialog.getByText('Shape: Rectangle')).toBeVisible()
+  await expect(
+    page.getByText(/Converted to a rectangle map \(\d+ × \d+\)/),
+  ).toBeVisible()
+  await hexagonDetailsDialog.getByRole('button', { name: 'Cancel' }).click()
 
   await page.locator('#simple-tab-1').click()
   await page.getByRole('button', { name: 'Create New Map' }).click()
   const newMapDialog = page.getByRole('dialog', { name: 'New Map' })
   const createSummary = newMapDialog.getByTestId('map-size-summary')
   const diagram = newMapDialog.getByTestId('map-size-diagram')
-  await expect(createSummary).toContainText('20 × 20 hexes')
+  await expect(createSummary).toContainText('Length 20 · Width 20 hexes')
   await expect(diagram).toHaveAttribute(
     'aria-label',
     await createSummary.innerText(),
@@ -58,7 +96,7 @@ test('shows live map size in the Edit tab and Create New Map', async ({
   })
   await mapWidthSlider.focus()
   await mapWidthSlider.press('ArrowRight')
-  await expect(createSummary).toContainText('21 × 20 hexes')
+  await expect(createSummary).toContainText('Length 20 · Width 21 hexes')
   await expect(diagram).toHaveAttribute(
     'aria-label',
     await createSummary.innerText(),

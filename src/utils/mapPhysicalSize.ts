@@ -38,10 +38,10 @@ export function formatMapPhysicalDimension(
 
 export function formatMapPhysicalSize(size: MapPhysicalSize) {
   return `${size.label} · ${formatMapPhysicalInches(
-    size.widthIn,
-  )} × ${formatMapPhysicalInches(size.lengthIn)} in (${Math.round(
-    size.widthCm,
-  )} × ${Math.round(size.lengthCm)} cm)`
+    size.lengthIn,
+  )} × ${formatMapPhysicalInches(size.widthIn)} in (${Math.round(
+    size.lengthCm,
+  )} × ${Math.round(size.widthCm)} cm)`
 }
 
 export function getMapPhysicalSize(
@@ -83,7 +83,7 @@ export function getMapPhysicalSize(
   const label =
     hexMap.shape === 'hexagon'
       ? `Hexagon, radius ${radius}`
-      : `${hexMap.width} × ${hexMap.length} hexes`
+      : `Length ${hexMap.length} · Width ${hexMap.width} hexes`
 
   return {
     hexCount: coords.length,

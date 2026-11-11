@@ -44,13 +44,15 @@ describe('getMapPhysicalSize', () => {
     expect(size.hexCount).toBe(24 * 18)
     expect(size.widthIn).toBeCloseTo(expectedWidth)
     expect(size.lengthIn).toBeCloseTo(expectedLength)
+    expect(size.widthCm).toBeCloseTo(expectedWidth * 2.54)
+    expect(size.lengthCm).toBeCloseTo(expectedLength * 2.54)
     expect(size.diagonalIn).toBeCloseTo(
       Math.hypot(expectedWidth, expectedLength),
     )
     expect(size.diagonalCm).toBeCloseTo(size.diagonalIn * 2.54)
-    expect(size.label).toBe('24 × 18 hexes')
+    expect(size.label).toBe('Length 18 · Width 24 hexes')
     expect(formatMapPhysicalSize(size)).toBe(
-      '24 × 18 hexes · 43 × 27¾ in (109 × 71 cm)',
+      'Length 18 · Width 24 hexes · 27¾ × 43 in (71 × 109 cm)',
     )
   })
 
@@ -69,7 +71,7 @@ describe('getMapPhysicalSize', () => {
     expect(size.diagonalCm).toBeCloseTo(size.diagonalIn * 2.54)
     expect(size.label).toBe('Hexagon, radius 12')
     expect(formatMapPhysicalSize(size)).toBe(
-      'Hexagon, radius 12 · 43¾ × 38½ in (111 × 98 cm)',
+      'Hexagon, radius 12 · 38½ × 43¾ in (98 × 111 cm)',
     )
   })
 })

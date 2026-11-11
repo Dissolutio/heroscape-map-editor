@@ -1,4 +1,4 @@
-import { Box, useMediaQuery } from '@mui/material'
+import { Box, Tooltip, useMediaQuery } from '@mui/material'
 import Button from '@mui/material/Button'
 import Dialog from '@mui/material/Dialog'
 import DialogActions from '@mui/material/DialogActions'
@@ -21,6 +21,7 @@ import {
 } from './InputSetsUsedCard'
 import { DIALOGS } from './dialogNames'
 import { MapSizeDisplay } from './MapSizeDisplay'
+import { useConvertMapShape } from '../hooks/useConvertMapShape'
 
 export default function EditMapFormDialog() {
   const fullScreen = useMediaQuery('(max-width:900px)')
@@ -51,6 +52,7 @@ export default function EditMapFormDialog() {
   const currentDialog = useBoundStore((state) => state.currentDialog)
   const handleClose = () => toggleIsEditMapDialogOpen(false)
   const { enqueueSnackbar } = useSnackbar()
+  const convertMap = useConvertMapShape()
   const [newName, setNewName] = React.useState(mapName)
   const [newAuthor, setNewAuthor] = React.useState(authorName)
   const [newNotes, setNewNotes] = React.useState(mapNotes)
@@ -143,6 +145,29 @@ export default function EditMapFormDialog() {
             hint="Change the map size in the Edit tab."
             showDiagram
           />
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: 1,
+              mt: 1,
+            }}
+          >
+            <Box component="span">
+              Shape: {hexMap.shape === 'hexagon' ? 'Hexagon' : 'Rectangle'}
+            </Box>
+            <Tooltip
+              describeChild
+              title="Changes only the empty table under your map. Pieces stay where they are."
+            >
+              <Button type="button" size="small" onClick={convertMap}>
+                {hexMap.shape === 'hexagon'
+                  ? 'Convert to rectangle map'
+                  : 'Convert to hexagon map'}
+              </Button>
+            </Tooltip>
+          </Box>
         </Box>
 
         {/* TERRAIN SETS */}
