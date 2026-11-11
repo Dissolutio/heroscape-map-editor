@@ -770,9 +770,7 @@ describe('piece key shape rendering', () => {
       }
 
       const wood = model.specialGroups.find(({ id }) => id === 'wood')
-      expect(wood?.description).toBe(
-        'orange borders, brown wood-grain centers',
-      )
+      expect(wood?.description).toBe('orange borders, brown wood-grain centers')
       const woodEntry = wood?.entries[0]
       expect(woodEntry).toBeDefined()
       if (woodEntry) {

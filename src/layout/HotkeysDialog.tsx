@@ -44,8 +44,7 @@ type RecordedFeedback =
   | { message: string }
 
 const isMacPlatform = () =>
-  typeof navigator !== 'undefined' &&
-  /Mac|iPhone|iPad/.test(navigator.platform)
+  typeof navigator !== 'undefined' && /Mac|iPhone|iPad/.test(navigator.platform)
 
 const formatHotkeyPart = (part: string) =>
   part === 'mod'
@@ -69,13 +68,9 @@ const formatRecordingPreview = (event: KeyboardEvent) => {
     ...(event.ctrlKey || event.metaKey ? ['mod'] : []),
     ...(event.altKey ? ['alt'] : []),
   ]
-  const isModifierKey = [
-    'shift',
-    'control',
-    'ctrl',
-    'meta',
-    'alt',
-  ].includes(event.key.toLowerCase())
+  const isModifierKey = ['shift', 'control', 'ctrl', 'meta', 'alt'].includes(
+    event.key.toLowerCase(),
+  )
 
   if (isModifierKey) {
     return modifiers.length
@@ -173,11 +168,7 @@ export default function HotkeysDialog({
       event.preventDefault()
       event.stopPropagation()
       pendingRecordingKeyRef.current = null
-      const result = assignActionHotkey(
-        overrides,
-        listeningAction,
-        pending.key,
-      )
+      const result = assignActionHotkey(overrides, listeningAction, pending.key)
       if (result.conflict) {
         setPendingConflict({
           action: listeningAction,
@@ -321,11 +312,8 @@ export default function HotkeysDialog({
                     const conflict = pendingConflict
                     setHotkeyOverrides(
                       conflict.reset
-                        ? resetActionHotkeys(
-                            overrides,
-                            conflict.action,
-                            true,
-                          ).overrides
+                        ? resetActionHotkeys(overrides, conflict.action, true)
+                            .overrides
                         : swapActionHotkeys(
                             overrides,
                             conflict.action,
@@ -501,7 +489,7 @@ export default function HotkeysDialog({
             return sections
           }, [])
         ) : (
-          <Typography role="status">No matches</Typography>
+          <output>No matches</output>
         )}
       </Stack>
       <Dialog

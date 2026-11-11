@@ -174,9 +174,7 @@ describe('hotkey overrides', () => {
     expect(
       filterHotkeyActions(lavaAction, bindings, 'LAVA').map(({ id }) => id),
     ).toEqual(['togglePenModeLavaField'])
-    expect(filterHotkeyActions(keyOnlyActions, bindings, 'missing')).toEqual(
-      [],
-    )
+    expect(filterHotkeyActions(keyOnlyActions, bindings, 'missing')).toEqual([])
     expect(filterHotkeyActions(keyOnlyActions, bindings, '')).toEqual(
       keyOnlyActions,
     )
@@ -252,12 +250,17 @@ describe('hotkey overrides', () => {
   it('lists every obstacle family and standalone obstacle/castle pen mode', () => {
     const targets = Object.values(PEN_MODE_ACTION_TARGETS)
     const actionIds = HOTKEY_ACTIONS.map(({ id }) => id)
+    const obstacleAndCastlePieces = pieceGroups
+      .filter((group) =>
+        ['Obstacles & Jungle', 'Castle & Walls'].includes(group.label),
+      )
+      .flatMap((group) => group.pieces)
     for (const action of Object.keys(PEN_MODE_ACTION_TARGETS)) {
       expect(actionIds).toContain(action)
     }
     const families = new Set(
-      Object.values(piecesSoFar)
-        .map((piece) => piece.pieceSizeFamily)
+      obstacleAndCastlePieces
+        .map((id) => piecesSoFar[id].pieceSizeFamily)
         .filter((family): family is string => Boolean(family)),
     )
 
@@ -270,11 +273,6 @@ describe('hotkey overrides', () => {
       ).toBe(true)
     }
 
-    const obstacleAndCastlePieces = pieceGroups
-      .filter((group) =>
-        ['Obstacles & Jungle', 'Castle & Walls'].includes(group.label),
-      )
-      .flatMap((group) => group.pieces)
     for (const id of obstacleAndCastlePieces) {
       const piece = piecesSoFar[id]
       const hasAction = targets.some((target) => {

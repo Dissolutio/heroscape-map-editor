@@ -184,12 +184,12 @@ describe('obstacle piece variant hotkeys', () => {
       'laurJungleTree',
     )
     expect(piecesSoFar[Pieces.brush9].pieceSizeFamily).toBe('ticallaPalm')
-    expect(
-      piecesSoFar[Pieces.castleBaseStraight].pieceSizeFamily,
-    ).toBe('castleBase')
-    expect(
-      piecesSoFar[Pieces.castleWallStraight].pieceSizeFamily,
-    ).toBe('castleWall')
+    expect(piecesSoFar[Pieces.castleBaseStraight].pieceSizeFamily).toBe(
+      'castleBase',
+    )
+    expect(piecesSoFar[Pieces.castleWallStraight].pieceSizeFamily).toBe(
+      'castleWall',
+    )
   })
 
   it('opens family pen hotkeys at their first member', () => {
@@ -198,9 +198,7 @@ describe('obstacle piece variant hotkeys', () => {
       Pieces.laurPalm13,
     )
     expect(defaultHotkeyConfig['shift+j']).toBe('togglePenModeTicallaPalm')
-    expect(PEN_MODE_ACTION_TARGETS.togglePenModeTicallaPalm).toBe(
-      Pieces.palm14,
-    )
+    expect(PEN_MODE_ACTION_TARGETS.togglePenModeTicallaPalm).toBe(Pieces.palm14)
     expect(defaultHotkeyConfig['shift+c']).toBe('togglePenModeCastleWall')
     expect(PEN_MODE_ACTION_TARGETS.togglePenModeCastleWall).toBe(
       Pieces.castleWallStraight,

@@ -188,7 +188,7 @@ const SvgMapDisplay = ({
       isLegendOnly
         ? getPieceKeyModel(boardPieces, boardHexes, useTerrainBorderColor)
         : null,
-    [isLegendOnly, boardPieces, boardHexes, useTerrainBorderColor],
+    [isLegendOnly, boardPieces, boardHexes],
   )
   const legendWidth = pieceKeyModel
     ? getSvgPieceKeyWidth(pieceKeyModel, mapDimensions.width)
