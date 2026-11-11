@@ -139,7 +139,9 @@ const SetsToBuildMapDialog = () => {
         )}
         {collectionSupply.hasAnyPieces && (
           <Box sx={{ mt: 1 }}>
-            <Typography variant="subtitle1">You also need</Typography>
+            <Typography variant="subtitle1">
+              Missing from your inventory to build this map:
+            </Typography>
             {missingFromCollection.length > 0 ? (
               missingFromCollection.map((piece) => (
                 <Typography key={piece.inventoryID} variant="body2">
@@ -148,7 +150,7 @@ const SetsToBuildMapDialog = () => {
               ))
             ) : (
               <Typography variant="body2">
-                Your collection covers all pieces on this map.
+                Nothing is missing from your inventory.
               </Typography>
             )}
           </Box>
