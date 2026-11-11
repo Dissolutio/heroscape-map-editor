@@ -1,11 +1,10 @@
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { parseReleaseNotes } from '../data/releaseNotes'
+import { headingPattern, parseReleaseNotes } from '../data/releaseNotes'
 
 const text = readFileSync(resolve(process.cwd(), 'release-notes.md'), 'utf8')
 const lines = text.split(/\r?\n/)
-const headingPattern = /^[A-Z][a-z]{2}-\d{2}-\d{4}$/
 // A line that starts like a date heading ("Sep-8-2026", "sep-08-2026") but is not a valid one.
 const malformedHeadingPattern = /^[A-Za-z]{3,}-\d/
 
