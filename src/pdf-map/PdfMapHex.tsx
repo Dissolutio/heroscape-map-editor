@@ -216,9 +216,7 @@ export const PdfMapHex = ({
       ? true
       : 'force-dark'
     : true
-  const usePieceKeyBorderColor = isPieceKeyPreview
-    ? useLegendBorderColor
-    : isPdfColorBorders
+  const usePieceKeyBorderColor = isPdfColorBorders
   const isSubLevel = !isPieceKeyPreview && hex.altitude < viewingLevel
   const { inventoryID } = hex
   const exportSymbol = getPieceExportSymbol(inventoryID)

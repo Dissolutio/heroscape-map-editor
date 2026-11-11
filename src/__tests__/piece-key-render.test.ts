@@ -906,6 +906,62 @@ describe('piece key shape rendering', () => {
     ).toBe(false)
   })
 
+  it('uses map border colors for Asphalt and Toxic Land in the PDF legend', () => {
+    const inventoryIDs = [Pieces.asphalt1, Pieces.toxic1, Pieces.grass1]
+    const boardPieces = inventoryIDs.map((inventoryID, index) => ({
+      uid: `border-${inventoryID}`,
+      inventoryID,
+      altitude: 1,
+      rotation: 0,
+      pieceCoords: { q: index, r: 0, s: -index },
+    }))
+    const model = getPieceKeyModel(boardPieces, {}, false)
+    const getStrokeColors = (node: ReactNode) =>
+      collectShapeColors(node).flatMap((shape) =>
+        typeof shape === 'object' &&
+        shape !== null &&
+        'stroke' in shape &&
+        typeof shape.stroke === 'string' &&
+        shape.stroke.length > 0
+          ? [shape.stroke]
+          : [],
+      )
+
+    for (const inventoryID of inventoryIDs) {
+      const entry = pieceKeyEntry(model, inventoryID)
+      if (!entry) throw new Error(`Missing key entry for ${inventoryID}`)
+      const sourceHex = entry.hexes[0]
+      if (!sourceHex) throw new Error(`Missing key hex for ${inventoryID}`)
+      const mapColors = getStrokeColors(
+        PdfMapHex({
+          hex: { ...sourceHex, altitude: 1 },
+          viewingLevel: 1,
+          isOverlayViewing: false,
+          isPdfColorBorders: false,
+          isShowPdfOverlayOnPlacedLevel: false,
+          isShowPdfTileLetters: false,
+          isShowPdfBuriedMarks: false,
+          buriedMarksByUID: new Map(),
+          useLegacyStartZones: false,
+        }),
+      )
+      const legendColors = getStrokeColors(
+        PieceKeyShape({
+          entry,
+          useTerrainBorderColor: false,
+          scale: 0.075,
+        }),
+      )
+
+      expect(legendColors).toEqual(mapColors)
+      expect(legendColors).toContain(
+        inventoryID === Pieces.asphalt1 || inventoryID === Pieces.toxic1
+          ? '#767676'
+          : svgColors.glacierText,
+      )
+    }
+  })
+
   it('matches map-level fill and stroke colors for every Laur wall add-on', () => {
     const boardPieces: BoardPiece[] = laurAddonIDs.map(
       (inventoryID, index) => ({
