@@ -25,10 +25,10 @@ TLDR: Adapt a map to the pieces you own. A right-click selection menu (extensibl
 - **Action log**: The "seconds ago" labels are gone. Entries just fade away when you are idle, and hovering still shows the full history.
 - **Rotate hotkeys bugfix**: Rotating a selected piece with Q or E no longer leaves a ghost piece behind.
 - **Show Objective Markers**: Just like Start Zones, you can hide them. This will always start ON when you come back to Hexoscape.
-- **Objective marker numbers face you**: The number or letter on a marker now always turns to face the camera.
+- **Objective marker numbers face you**: Toggle on/off: the numbers follow the camera.
 - **Textured Hive, Ruins, RoadWall, Marvel**: We got really lucky and the models from Virtualscape had texture info already in them. If you see Didier, you buy him une bière.
 - **Click empty ground to deselect**: Clicking an empty hex clears your selection.
-- **Ladder stack counts**: When ladders are stacked, the 2D and PDF build instructions show how many (for example "x3") next to the bottom ladder.
+- **Ladder stack counts**: Toggle on/off a ladder summary level, shows all the ladders and how many ladder segments they use.
 - **PDF colors for lower levels**: One last pass on sublevel pieces, now use flat colors that match the 2D map. The 2D map itself did not change.
 - **Missing hex sides**: Some hex sides were showing white or transparent, our "neighbor" function should work better now.
 
