@@ -24,7 +24,9 @@ import {
 } from '../utils/constants'
 import { genRandomMapName } from '../utils/genRandomMapName'
 import { makeHexagonScenario, makeRectangleScenario } from '../utils/map-gen'
+import type { MapPhysicalSizeInput } from '../utils/mapPhysicalSize'
 import { DIALOGS } from './dialogNames'
+import { MapSizeDisplay } from './MapSizeDisplay'
 import { terrainSetsByShortID } from '../data/terrainSets'
 import {
   InputSetsUsedCard,
@@ -71,7 +73,9 @@ export default function CreateMapFormDialog() {
   const fullScreen = useMediaQuery('(max-width:900px)')
   // new map form state
   const [mapName, setMapName] = React.useState(() => genRandomMapName())
-  const [mapShape, setMapShape] = React.useState('rectangle')
+  const [mapShape, setMapShape] = React.useState<'rectangle' | 'hexagon'>(
+    'rectangle',
+  )
   const [mapWidth, setMapWidth] = React.useState(
     DEFAULT_NEW_RECTANGLE_MAP_WIDTH,
   )
@@ -128,8 +132,17 @@ export default function CreateMapFormDialog() {
     setRememberedMapAuthor(checked ? mapAuthor : '')
   }
   const handleChangeMapShape = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setMapShape((event.target as HTMLInputElement).value)
+    const shape = event.target.value
+    if (shape === 'rectangle' || shape === 'hexagon') setMapShape(shape)
   }
+  const physicalSizeMap = React.useMemo<MapPhysicalSizeInput>(
+    () => ({
+      shape: mapShape,
+      width: mapShape === 'hexagon' ? mapSize : mapWidth,
+      length: mapShape === 'hexagon' ? mapSize : mapLength,
+    }),
+    [mapShape, mapLength, mapSize, mapWidth],
+  )
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     // setsUsed is uncontrolled react form state, we extract it from form data
     const formData = new FormData(event.currentTarget)
@@ -227,55 +240,70 @@ export default function CreateMapFormDialog() {
               />
             </RadioGroup>
           </FormControl>
-          {mapShape === 'rectangle' ? (
-            <>
-              <Box sx={{ marginY: '1em' }}>
-                <div>Map length: </div>
-                <Slider
-                  // size='small'
-                  min={1}
-                  max={MAX_RECTANGLE_MAP_DIMENSION}
-                  value={mapLength}
-                  onChange={(_e: Event, value: number | number[]) => {
-                    setMapLength(value as number)
-                  }}
-                  step={1}
-                  valueLabelDisplay="on"
-                  marks={rectangleMarks}
-                />
-              </Box>
-              <Box sx={{ marginY: '1em' }}>
-                <div>Map width: </div>
-                <Slider
-                  // size='small'
-                  min={1}
-                  max={MAX_RECTANGLE_MAP_DIMENSION}
-                  value={mapWidth}
-                  onChange={(_e: Event, value: number | number[]) => {
-                    setMapWidth(value as number)
-                  }}
-                  step={1}
-                  valueLabelDisplay="on"
-                  marks={rectangleMarks}
-                />
-              </Box>
-            </>
-          ) : (
-            <Box sx={{ marginY: '1em' }}>
-              <div>Map radius/side-length: </div>
-              <Slider
-                min={1}
-                max={MAX_HEXAGON_MAP_DIMENSION}
-                value={mapSize}
-                onChange={(_e: Event, value: number | number[]) => {
-                  setMapSize(value as number)
-                }}
-                step={1}
-                valueLabelDisplay="on"
-                marks={hexagonMarks}
-              />
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 2,
+              flexWrap: 'wrap',
+            }}
+          >
+            <Box sx={{ flex: '1 1 260px', minWidth: 220 }}>
+              {mapShape === 'rectangle' ? (
+                <>
+                  <Box sx={{ marginY: '1em' }}>
+                    <div>Map length: </div>
+                    <Slider
+                      aria-label="Map length"
+                      min={1}
+                      max={MAX_RECTANGLE_MAP_DIMENSION}
+                      value={mapLength}
+                      onChange={(_e: Event, value: number | number[]) => {
+                        setMapLength(value as number)
+                      }}
+                      step={1}
+                      valueLabelDisplay="on"
+                      marks={rectangleMarks}
+                    />
+                  </Box>
+                  <Box sx={{ marginY: '1em' }}>
+                    <div>Map width: </div>
+                    <Slider
+                      aria-label="Map width"
+                      min={1}
+                      max={MAX_RECTANGLE_MAP_DIMENSION}
+                      value={mapWidth}
+                      onChange={(_e: Event, value: number | number[]) => {
+                        setMapWidth(value as number)
+                      }}
+                      step={1}
+                      valueLabelDisplay="on"
+                      marks={rectangleMarks}
+                    />
+                  </Box>
+                </>
+              ) : (
+                <Box sx={{ marginY: '1em' }}>
+                  <div>Map radius/side-length: </div>
+                  <Slider
+                    aria-label="Map radius"
+                    min={1}
+                    max={MAX_HEXAGON_MAP_DIMENSION}
+                    value={mapSize}
+                    onChange={(_e: Event, value: number | number[]) => {
+                      setMapSize(value as number)
+                    }}
+                    step={1}
+                    valueLabelDisplay="on"
+                    marks={hexagonMarks}
+                  />
+                </Box>
+              )}
             </Box>
-          )}
+            <Box sx={{ flex: '0 1 190px', minWidth: 180 }}>
+              <MapSizeDisplay hexMap={physicalSizeMap} showDiagram />
+            </Box>
+          </Box>
           {/* TERRAIN SETS */}
           <InputSetsUsedCard isCreateNewMap />
           <MapAuthorNotesFields

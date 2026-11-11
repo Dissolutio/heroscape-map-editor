@@ -1,4 +1,6 @@
 export const HEXGRID_SPACING = 1 // removed for the sake of blender/grid niceness
+// Measured by John on 2026-11-11.
+export const HEX_FLAT_TO_FLAT_INCHES = 1.75
 export const HEXGRID_HEX_RADIUS = 1
 export const HEXGRID_HEX_APOTHEM = (Math.sqrt(3) / 2) * HEXGRID_HEX_RADIUS
 export const SVG_HEX_RADIUS = 100 // PDF HEX RADIUS ALSO

@@ -20,6 +20,7 @@ import {
   setsUsedInputNameForFormData,
 } from './InputSetsUsedCard'
 import { DIALOGS } from './dialogNames'
+import { MapSizeDisplay } from './MapSizeDisplay'
 
 export default function EditMapFormDialog() {
   const fullScreen = useMediaQuery('(max-width:900px)')
@@ -134,6 +135,13 @@ export default function EditMapFormDialog() {
             type="text"
             fullWidth
             variant="outlined"
+          />
+        </Box>
+        <Box sx={{ px: '4px', pb: 1 }}>
+          <MapSizeDisplay
+            hexMap={hexMap}
+            hint="Change the map size in the Edit tab."
+            showDiagram
           />
         </Box>
 

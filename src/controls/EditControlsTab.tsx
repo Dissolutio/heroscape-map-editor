@@ -17,6 +17,7 @@ import { buildupJsonFileMap } from '../data/buildupMap'
 import { convertMapShape } from '../data/convertMapShape'
 import { canShrinkMapWithoutDroppingPieces, resizeMap } from '../data/resizeMap'
 import { DIALOGS } from '../layout/dialogNames'
+import { MapSizeDisplay } from '../layout/MapSizeDisplay'
 import { useMuiMediaQuery } from '../layout/useMuiMediaQuery'
 import useBoundStore from '../store/store'
 import type { BoardPiece, MapFileState } from '../types'
@@ -265,6 +266,7 @@ export const EditControlsTab = () => {
               </Button>
             </Tooltip>
           </Box>
+          <MapSizeDisplay hexMap={hexMap} />
           <ButtonGroup
             // variant="contained"
             aria-label="Adjust map dimensions button group"
