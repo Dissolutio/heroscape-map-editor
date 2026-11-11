@@ -1,7 +1,9 @@
 import { enqueueSnackbar } from 'notistack'
 import { getGroupRotationBlockedReason } from '../data/evaluateGroupRotation'
+import { piecesSoFar } from '../data/pieces'
 import {
   type PlacementBlockedReason,
+  hangsOffMap,
   placementBlockedMessages,
 } from '../data/placement'
 import { rotateGroupAroundPivot } from '../data/rotateGroup'
@@ -91,9 +93,7 @@ export function rotateSelectedPieces(
     return
   }
 
-  setPiecePreviews(null)
-  movePieces({
-    moves: selectedBoardPieces.map((piece) => ({
+  const moves = selectedBoardPieces.map((piece) => ({
       uid: piece.uid,
       newPieceCoords: piece.pieceCoords,
       newRotation: getRotationByListStep(
@@ -101,8 +101,26 @@ export function rotateSelectedPieces(
         piece.rotation,
         direction,
       ),
-    })),
-  })
+    }))
+  const singlePiece = piecesSoFar[firstBp.inventoryID]
+  if (!singlePiece) {
+    throw new Error(`Missing piece definition for ${firstBp.inventoryID}`)
+  }
+  const move = moves[0]
+  if (
+    move &&
+    hangsOffMap(boardHexes, {
+      piece: singlePiece,
+      coords: move.newPieceCoords,
+      rotation: move.newRotation ?? firstBp.rotation,
+    })
+  ) {
+    showBlockedRotation('offMap')
+    setPiecePreviews(null)
+    return
+  }
+  setPiecePreviews(null)
+  movePieces({ moves })
   if (!previewNext) return
   setPiecePreviews(
     selectedBoardPieces.map((piece) => ({

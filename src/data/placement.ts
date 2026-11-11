@@ -179,9 +179,14 @@ export function resolvePlacement(
  */
 export function hangsOffMap(
   boardHexes: BoardHexes,
-  { piece, coords, rotation, rule }: ResolvedPlacement,
+  { piece, coords, rotation }: Pick<
+    ResolvedPlacement,
+    'piece' | 'coords' | 'rotation'
+  >,
 ) {
-  if (rule === 'battlement' || rule === 'roadWall') return false
+  if (piece.id === Pieces.battlement || piece.id === Pieces.roadWall) {
+    return false
+  }
   return isFootprintOffMap(
     (hex) => Boolean(boardHexes[genBoardHexID({ ...hex, altitude: 0 })]),
     { piece, coords, rotation },
