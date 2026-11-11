@@ -1,5 +1,5 @@
 Nov-11-2026
-TLDR: "Sets to build this map" dialog. Edit your hotkeys. Better 3D palms. Adapt handles obstacles. Cleaner PDF/SVG legend. Cannons can aim at hex corners.
+TLDR: "Sets to build this map" dialog. Edit your hotkeys. Better 3D palms. Adapt handles obstacles. Cleaner PDF/SVG legend. Cannons can aim at hex corners. Windows desktop 3D fixed. Convert hexagon and rectangle maps.
 
 - **Sets to build this map**: View tab: a new dialog lists the set combinations that build your map, as Contemporary, Classic, or Mixed. It also lists what's missing from your inventory. Jungle sets count as interchangeable.
 - **Hotkey editor**: Change any hotkey, search by name or key, and import/export your setup. Reset all asks first and offers a download.
