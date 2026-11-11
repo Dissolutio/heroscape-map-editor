@@ -1,10 +1,10 @@
 # Hexoscape roadmap
 
-Updated 2026-11-08. One page. This file and the project doc
+Updated 2026-11-11. One page. This file and the project doc
 `claude/roadmap.md` are kept identical.
 
 Legend:
-- 🔧 Copilot has it (issue #)
+- 🔧 in progress (PR or local batch)
 - 👀 needs your eyes
 - 👤 waiting on you
 - ❓ needs a decision or measurement
@@ -12,99 +12,69 @@ Legend:
 
 ## Where we are
 
-Released to `main` on Nov 8 (`e517d0ec`). Since then on `dev`:
+`main` is at v1.0.30 (Nov 9). That release holds only Dependabot #377
+(minimatch, @sentry/vite-plugin 11). It reached `main` by a PM mistake.
+#382 brought it back into `dev`. See `claude/pm-merge-checklist.md`.
 
-- react-hotkeys-hook 5
-- Dependabot holds MUI and Vitest major upgrades
-- this TODO update
+Last feature release: Nov 8 (v1.0.29). Since then on `dev`:
 
-The release notes still end at Nov-07. A Nov-08 entry is drafted in chat.
-Two Nov-07 bullets no longer match what shipped:
-
-- "Objective marker numbers face you" (now an option, off by default)
-- "Ladder stack counts" (the "x3" text was replaced by the PDF ladder
-  overlay)
-
-Shipped in the Nov 8 release:
-
-- Adapt to my Collection (land only)
-  - ranked substitutes, a new-map naming step, no Generic pieces
-- Right-click selection menu
-  - same type, connected, same level, invert
-  - "connected" means land, obstacles on their land, Laur, edge pieces
-- Navbar: the original 3D, 2D and PDF icons, showing the two other views
-- Piece key in SVG and PDF
-  - official-style table with real shapes
-  - drawn from a rotation-0 placement
-  - PDF pages break only between rows
-- SVG downloads
-  - one level, the Legend, or the whole map as a .zip or one SVG
-  - the Legend is its own step in the 2D view
-  - key text is paths, no strokes
-- PDF ladder overlay (replaces the "x3" text)
-- 2D view about 4x faster
-- Printed heights use the game height
-  - Evergreen Tree (10) prints 10, Laur walls print 9
-- Ship family: Ship Wall, Ship Bow, Rope Ladder, Cannon on keys 1-4
-- Switching to a placement pen clears the selection
-  - logged and recallable; "Use as Pen" keeps it
-- "Objective text follow camera" option, off by default
-- "Show Glyphs" switch for 3D ("Transparent glyph spaces" removed)
+- Sets to build this map: its own dialog (View controls)
+  - Contemporary, Classic, Mixed; no MSTK or TOTK
+  - jungle sets swap; only irreducible options
+- Hotkey editor with import and export; default keys for most pen modes
+- Share links shrink to fit: drop start zones, then markers, then glyphs
+- Adapt to my Collection handles obstacles
+- 3D jungle palms: cut-out drooping fronds, a solid body, a crown
+  - they no longer vanish; they glow when hovered or selected
+- Piece key polish (PDF and SVG)
+  - shapes centered and aligned, bolder lines, centered headers
+  - Laur colors stay put with Color Borders off
+  - 6-hex Concrete moved to Other Special Tiles
+  - no mid-word breaks in PDF text
+- SVG Color Borders option for the key
+- Color-lock test for export colors
 - Fixes
-  - deleting a piece no longer makes other pieces vanish
-  - ship pieces always show in 2D, SVG and PDF
-- e2e runs in 5 shards; Dependabot targets `dev`
-
-Earlier (Nov 2-6):
-
-- textures for the Marro Hive, Evergreen Trees, Warehouse Ruin,
-  Stone Wall, Ruins 2 and 3
-- numbered obstacle variants
-- action log and saved selections
-- Show Objective Markers
-- Windows 3D recovery
+  - Marro Hive scribbles in exported SVG
+  - toxic outcrops: black numbers and a border
+  - Toxic Land: gray border with Color Borders off
+  - Pieces Grid opens full screen
 
 ## 1. Now
 
-- 🔧 Piece key fixes (#350, PR #351)
-  - ladder text, rope ladder centering
-  - Laur add-ons drawn as on the map
-  - SVG caption overlap and spacing, "Toxic Land"
-- 👀 Hand-test the Nov 8 release
-  - right-click menu: all four actions, right-drag still orbits, Escape,
-    Select connected with start zones shown
-  - Adapt to my Collection: 2nd and 3rd substitute only when needed,
-    buried fill, naming step, one Undo
-  - piece key in SVG and PDF on a real map with rotated pieces
-  - SVG downloads: zip, one SVG, the Legend step
-  - PDF ladder overlay, including two runs on one edge
-  - pen switch clears the selection, and the log row brings it back
-  - ship family keys 1-4, Show Glyphs
-  - "Objective text follow camera" at low camera angles
-  - deleting near ships no longer eats water; ship walls and bows print
-- 👀 Hotkeys after react-hotkeys-hook 5 (merged)
-  - Q/E rotate, number keys, Shift+1, arrows, Ctrl+Z, pen hotkeys
-- 👀 Delete speed on a big map (delete now replays the board, like move)
-- 👀 Older hand-tests still open
-  - Warehouse Ruin variants, Stone Wall, big-tree squash
-  - Laur wall variant buttons (label fit, Shift+1)
-  - textured hive and trees
-  - hex sides under start zones and beside water
-- 👀 First release build after the Rust 1.90 minimum; the two zip
-  Dependabot alerts close once the updater fix ships
-- 👤 Release notes: add the Nov-08 entry, fix the two stale Nov-07 bullets
+- 🔧 Pre-release nit batch (local, `fix/pre-release-nits`, 10 commits)
+  - Sets dialog: Master Set / Expansion / Promo totals, a heading per
+    era, gray notes, jungle swap in the missing list, "Shores of
+    Valhalla", "Missing from your inventory..."
+  - Ladder centered in the key
+  - Rotations can't hang a piece off the map
+  - Adapt: "Covered pieces" column with counts and clear labels
+  - Cannons can face hex corners (#378)
+  - next: wrap up, push, PR, merge
+- 👤 Windows desktop app stuck on "Loading page..." (#379)
+  - you run Claude CLI on a Windows machine (Nov 11)
+  - earlier Sentry: "Error creating WebGL context" (15 events,
+    Oct 16 - Nov 1)
+- 👤 Release to `main` after the nit PR merges, with a release notes
+  entry
+- 👀 Hand-test before release
+  - Sets dialog on a few real maps
+  - piece key in PDF and SVG, Color Borders on and off
+  - palms in Low, Medium, High: hover, select, drag, tier switch
+  - hotkey editor; share link on a big map
+  - Adapt with obstacles and covered pieces
+  - rotating near the map edge; cannon rotations
 
 ## 2. Next (catch-up, in rough order)
 
 **Bugs and quality**
 
-- Ship conflict rules to match the real pieces (ships over water)
-  👤 your rules first
+- 3D load timeout: after about 20 s show "3D couldn't start", offer 2D,
+  and report to Sentry with graphics details (pairs with #379)
+- Web build release version: Sentry shows web errors as
+  `hexoscape@local-development`; set the release on the site build
+- Ship conflict rules to match the real pieces 👤 your rules first
 - Piece key text is small next to full-size pieces ❓ say go
-- Lock the SVG colors with a snapshot test, so any change fails CI
-  ❓ say go
-- 2D view still takes about 1 s to open on big maps; profile it against
-  Oct 1 ❓ say go
+- 2D view still takes about 1 s to open on big maps ❓ say go
 
 **Selection**
 
@@ -113,22 +83,22 @@ Earlier (Nov 2-6):
 - More moments to drop the selection ❓ pick which
   - a level change hides the selection, leaving 3D, inventory jump
 
-**Adapt to my Collection**
+**Piece key**
 
-- Obstacle substitution: trees for trees; Jungle, Shroudshrooms and
-  Cannons only as a last resort
-- What sets can build this map
+- Font: Renegade uses Proxima Nova Condensed (commercial) ❓ license
+  check, or the free Sofia Sans Condensed
+- "Notice centers and border colors" wording ❓ maybe "Size and border
+  color"
 
 **Hotkeys**
 
-- Edit hotkeys; import and export a config file
 - More actions on keys (inventory dialog, convert terrain)
 
 **Exports (SVG / PDF)**
 
 - Preset for OHS pictures: see-through jungle leaves, quiet glyph hexes,
   no table
-- Classic shapes (Marvel ruin, hive) that don't scale well in SVG
+- Classic shapes (Marvel ruin) that don't scale well in SVG
 - Virtualscape-style colors option (after the above)
 
 **Edges and nodes** (steps 1-4 are done; see
@@ -145,10 +115,8 @@ Earlier (Nov 2-6):
 
 **3D looks**
 
-- Jungle palms (Laur and Ticalla) with cut-out, drooping fronds, 3D only
-  - issue drafted in `claude/jungle-palm-3d-issue-draft.md`
-  - file it after the release
-  - 👤 frond photos from the community
+- Palm fronds modeled from real photos 💤 (the code-only fronds look good
+  for now)
 
 **Planned upgrades** (Dependabot skips these on purpose)
 
@@ -168,11 +136,11 @@ Earlier (Nov 2-6):
 
 ## 3. Waiting on you 👤
 
+- Windows test session for #379
 - Laur Ruin 1 redo
-- Frond photos for the jungle palms: one frond with a sheet of colored
-  card slid behind it, shot straight down in daylight
 - Ship physical rules
 - Where to take the UI layout (you said the layout is "way off")
+- Frond photos (optional now)
 - Hand-testing after each deploy (list in section 1)
 
 ## 4. After catch-up
@@ -196,6 +164,7 @@ Earlier (Nov 2-6):
   - accounts, save and share maps with short URLs, browse by terrain
   - the collection moves there too (Adapt already reads it through one
     function)
+  - tournament view: TOTK kits plus a group of maps within their limits
 - Shareable map image URL (needs a small server piece)
 
 **2D builder**
@@ -219,10 +188,14 @@ Earlier (Nov 2-6):
 
 ## 5. Done and retired
 
+- Since Nov 8: Sets dialog, hotkey editor and default pen keys, share
+  link fallback, Adapt for obstacles, 3D palms, piece key polish, SVG
+  Color Borders, color lock, hive SVG export fix
+- Nov 8 release: Adapt (land), right-click menu, piece key in SVG and
+  PDF, SVG downloads, PDF ladder overlay, 2D view 4x faster, game
+  heights, ship family, pen switch clears the selection
 - Fluid stacks beyond 2: done. Fluid stacks a half level per tile, and
-  loading a map warns when a straight run is over 8 tiles (measured: 8
-  fluid = 4 solid, 10 fluid is taller than 5)
-- Nov 8 release: everything listed under "Where we are"
+  loading a map warns when a straight run is over 8 tiles
 - Textured Warehouse Ruin, Stone Wall, Ruins 2 and 3, Marro Hive and
   Evergreen Trees
 - Numbered obstacle variants, Show Objective Markers, Dependabot setup
