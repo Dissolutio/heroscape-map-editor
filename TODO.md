@@ -1,6 +1,6 @@
 # Hexoscape roadmap
 
-Updated 2026-11-11. One page. This file and the project doc
+Updated 2026-11-11 (evening). One page. This file and the project doc
 `claude/roadmap.md` are kept identical.
 
 Legend:
@@ -12,64 +12,40 @@ Legend:
 
 ## Where we are
 
-`main` is at v1.0.30 (Nov 9). That release holds only Dependabot #377
-(minimatch, @sentry/vite-plugin 11). It reached `main` by a PM mistake.
-#382 brought it back into `dev`. See `claude/pm-merge-checklist.md`.
+`main` is at **v1.0.34** (Nov 11). Releases on Nov 11:
 
-Last feature release: Nov 8 (v1.0.29). Since then on `dev`:
+- v1.0.31 / v1.0.32: the Nov 11 feature release
+  - Sets dialog, hotkey editor and pen keys, share-link fallback
+  - Adapt for obstacles and covered pieces, 3D palms, piece key polish
+  - cannons face corners (#378), rotation can't hang a piece off the map
+- v1.0.33: Windows desktop 3D and PDF fixed (#379, #393), the Edit tab
+  freeze fixed (#392), convert hexagon and rectangle maps (#390)
+- v1.0.34 ("Nov-11-2026 Hotfix"): Windows desktop textures and map picture
+  (#395), map size in hexes and inches/cm with a diagram (#391)
 
-- Sets to build this map: its own dialog (View controls)
-  - Contemporary, Classic, Mixed; no MSTK or TOTK
-  - jungle sets swap; only irreducible options
-- Hotkey editor with import and export; default keys for most pen modes
-- Share links shrink to fit: drop start zones, then markers, then glyphs
-- Adapt to my Collection handles obstacles
-- 3D jungle palms: cut-out drooping fronds, a solid body, a crown
-  - they no longer vanish; they glow when hovered or selected
-- Piece key polish (PDF and SVG)
-  - shapes centered and aligned, bolder lines, centered headers
-  - Laur colors stay put with Color Borders off
-  - 6-hex Concrete moved to Other Special Tiles
-  - no mid-word breaks in PDF text
-- SVG Color Borders option for the key
-- Color-lock test for export colors
-- Fixes
-  - Marro Hive scribbles in exported SVG
-  - toxic outcrops: black numbers and a border
-  - Toxic Land: gray border with Color Borders off
-  - Pieces Grid opens full screen
+The Windows desktop app is confirmed working (3D, PDF, SVG, textures, map
+picture) on an installed MSI.
 
 ## 1. Now
 
-- 🔧 Pre-release nit batch (local, `fix/pre-release-nits`, 10 commits)
-  - Sets dialog: Master Set / Expansion / Promo totals, a heading per
-    era, gray notes, jungle swap in the missing list, "Shores of
-    Valhalla", "Missing from your inventory..."
-  - Ladder centered in the key
-  - Rotations can't hang a piece off the map
-  - Adapt: "Covered pieces" column with counts and clear labels
-  - Cannons can face hex corners (#378)
-  - next: wrap up, push, PR, merge
-- 👤 Windows desktop app stuck on "Loading page..." (#379)
-  - you run Claude CLI on a Windows machine (Nov 11)
-  - earlier Sentry: "Error creating WebGL context" (15 events,
-    Oct 16 - Nov 1)
-- 👤 Release to `main` after the nit PR merges, with a release notes
-  entry
-- 👀 Hand-test before release
+- 🔧 Fix the preview crash over castle wall caps (#397, Sentry 7G)
+- 🔧 Remove "Hide heights on glyphs" (local prompt)
+- 🔧 Dependabot #387 (@sentry/react 11): PM added the v10 privacy
+  baseline (`dataCollection`); merge when green
+- 🔧 Dependabot #386 (Biome 2): local migration prompt; run it last, when no
+  other PRs are open
+- 👀 Hand-test after each deploy
   - Sets dialog on a few real maps
-  - piece key in PDF and SVG, Color Borders on and off
-  - palms in Low, Medium, High: hover, select, drag, tier switch
-  - hotkey editor; share link on a big map
+  - piece key in PDF and SVG, PDF Color Borders on and off
+  - palms in Low, Medium, High
+  - hotkey editor (search, recording, reset)
   - Adapt with obstacles and covered pieces
-  - rotating near the map edge; cannon rotations
+  - map size steppers and convert in Edit Map Details
 
 ## 2. Next (catch-up, in rough order)
 
 **Bugs and quality**
 
-- 3D load timeout: after about 20 s show "3D couldn't start", offer 2D,
-  and report to Sentry with graphics details (pairs with #379)
 - Web build release version: Sentry shows web errors as
   `hexoscape@local-development`; set the release on the site build
 - Ship conflict rules to match the real pieces 👤 your rules first
@@ -136,7 +112,6 @@ Last feature release: Nov 8 (v1.0.29). Since then on `dev`:
 
 ## 3. Waiting on you 👤
 
-- Windows test session for #379
 - Laur Ruin 1 redo
 - Ship physical rules
 - Where to take the UI layout (you said the layout is "way off")
@@ -188,9 +163,10 @@ Last feature release: Nov 8 (v1.0.29). Since then on `dev`:
 
 ## 5. Done and retired
 
-- Since Nov 8: Sets dialog, hotkey editor and default pen keys, share
-  link fallback, Adapt for obstacles, 3D palms, piece key polish, SVG
-  Color Borders, color lock, hive SVG export fix
+- Nov 11 (v1.0.31 to v1.0.34): Sets dialog, hotkey editor and pen keys,
+  share link fallback, Adapt for obstacles, 3D palms, piece key polish,
+  color lock, hive SVG export fix, convert map shape, map size display,
+  Windows desktop fixes, 3D load watchdog, cannon corners
 - Nov 8 release: Adapt (land), right-click menu, piece key in SVG and
   PDF, SVG downloads, PDF ladder overlay, 2D view 4x faster, game
   heights, ship family, pen switch clears the selection
