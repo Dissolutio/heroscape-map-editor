@@ -129,6 +129,16 @@ describe('resolvePlacement', () => {
     },
   )
 
+  it('blocks instead of crashing when the hex above a wall cap is missing', () => {
+    const wall = add(table, 'cws', c, 1, 0, 'CW')
+    const wallHex = topHex(wall, c, 2)
+    // HEXOSCAPE-7G: the cap lookup found no hex and the preview crashed.
+    const capWithNoHexAbove = { ...wallHex, obstacleHeight: 999 }
+    expect(resolve(wall, 'cws', capWithNoHexAbove)).toEqual({
+      blocked: 'notAHex',
+    })
+  })
+
   it('names the rule it took, castle walls first', () => {
     const wall = add(table, 'cws', c, 1, 0, 'CW')
     const wallHex = topHex(wall, c, 2)
