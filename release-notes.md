@@ -1,3 +1,10 @@
+Nov-11-2026 Hotfix
+TLDR: Windows desktop textures and map picture fixed. Map size in inches and cm.
+
+- **Windows desktop app**: Trees, ruins, the Marro Hive, the warehouse and the stone wall show their textures again, and the map picture shows in the crop dialog.
+- **Map size**: The Edit tab shows Length and Width with their own +/- buttons and real size in inches and cm. Create New Map and Edit Map Details show a small size diagram, diagonal included.
+- **Convert map shape**: Moved to Edit Map Details.
+
 Nov-11-2026
 TLDR: "Sets to build this map" dialog. Edit your hotkeys. Better 3D palms. Adapt handles obstacles. Cleaner PDF/SVG legend. Cannons can aim at hex corners. Windows desktop 3D fixed. Convert hexagon and rectangle maps.
 
