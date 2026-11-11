@@ -69,7 +69,6 @@ const initialGenericColors = {
 }
 const initialBorderSettings = {
   isPdfColorBorders: useBoundStore.getState().isPdfColorBorders,
-  isSvgColorBorders: useBoundStore.getState().isSvgColorBorders,
   boardHexes: useBoundStore.getState().boardHexes,
   boardPieces: useBoundStore.getState().boardPieces,
   isShowPdfPieceLegend: useBoundStore.getState().isShowPdfPieceLegend,
@@ -646,7 +645,7 @@ describe('piece key shape rendering', () => {
         pieceCoords: { q: index, r: 0, s: -index },
       }),
     )
-    for (const useTerrainBorderColor of [true, false]) {
+    for (const useTerrainBorderColor of [true]) {
       const expectedDescriptions = new Map([
         ['roads-and-wall-walks', 'gray centers'],
         [
@@ -772,9 +771,7 @@ describe('piece key shape rendering', () => {
 
       const wood = model.specialGroups.find(({ id }) => id === 'wood')
       expect(wood?.description).toBe(
-        useTerrainBorderColor
-          ? 'orange borders, brown wood-grain centers'
-          : 'dark borders, brown wood-grain centers',
+        'orange borders, brown wood-grain centers',
       )
       const woodEntry = wood?.entries[0]
       expect(woodEntry).toBeDefined()
@@ -790,9 +787,7 @@ describe('piece key shape rendering', () => {
           ),
         )
         expect(svg).toContain(`fill="${svgColors[HexTerrain.wood]}"`)
-        expect(svg).toContain(
-          `fill="${useTerrainBorderColor ? svgColors.outline2 : '#000000'}"`,
-        )
+        expect(svg).toContain(`fill="${svgColors.outline2}"`)
         // Wood is solid land, so (unlike evergreen/jungle/laur) its PDF
         // border is expected to follow the color-borders toggle too.
         expect(
@@ -805,7 +800,7 @@ describe('piece key shape rendering', () => {
           ),
         ).toContainEqual(
           expect.objectContaining({
-            stroke: useTerrainBorderColor ? svgColors.outline2 : '#000000',
+            stroke: svgColors.outline2,
           }),
         )
       }
@@ -827,7 +822,7 @@ describe('piece key shape rendering', () => {
     }
   })
 
-  it('keeps SVG and PDF legend border settings independent of map output', () => {
+  it('keeps SVG legend color borders on and PDF borders independent', () => {
     const boardPieces: BoardPiece[] = [Pieces.grass1, Pieces.grass7].map(
       (inventoryID, index) => ({
         uid: `border-${inventoryID}`,
@@ -846,7 +841,6 @@ describe('piece key shape rendering', () => {
       boardPieces,
       isShowPdfPieceLegend: true,
       isPdfColorBorders: false,
-      isSvgColorBorders: true,
     })
 
     const renderSvgLegend = () =>
@@ -858,21 +852,14 @@ describe('piece key shape rendering', () => {
     const svgColorMarkup = renderSvgLegend()
     const mapMarkup = renderSvgMap()
 
-    setRenderState({ isPdfColorBorders: true })
-    expect(renderSvgLegend()).toBe(svgColorMarkup)
-
-    setRenderState({ isSvgColorBorders: false })
-    const svgDarkMarkup = renderSvgLegend()
-    expect(svgDarkMarkup).not.toBe(svgColorMarkup)
     for (const borderColor of [svgColors.outline1, svgColors.outline7]) {
       expect(svgColorMarkup).toContain(`fill="${borderColor}"`)
-      expect(svgDarkMarkup).not.toContain(`fill="${borderColor}"`)
     }
-
-    setRenderState({ isSvgColorBorders: true })
     expect(renderSvgMap()).toBe(mapMarkup)
 
     setRenderState({ isPdfColorBorders: true })
+    expect(renderSvgLegend()).toBe(svgColorMarkup)
+    expect(renderSvgMap()).toBe(mapMarkup)
     const pdfColorShapes = collectShapeColors(PdfPieceLegend({ boardPieces }))
     expect(
       pdfColorShapes.some(
@@ -885,11 +872,6 @@ describe('piece key shape rendering', () => {
           ),
       ),
     ).toBe(true)
-
-    setRenderState({ isSvgColorBorders: false })
-    expect(collectShapeColors(PdfPieceLegend({ boardPieces }))).toEqual(
-      pdfColorShapes,
-    )
 
     setRenderState({ isPdfColorBorders: false })
     const pdfDarkShapes = collectShapeColors(PdfPieceLegend({ boardPieces }))
@@ -1007,7 +989,7 @@ describe('piece key shape rendering', () => {
           useLegacyStartZones: false,
         }),
       )
-      for (const useTerrainBorderColor of [true, false]) {
+      for (const useTerrainBorderColor of [true]) {
         const pdfKeyColors = collectShapeColors(
           PieceKeyShape({
             entry,
@@ -1588,7 +1570,7 @@ describe('piece key shape rendering', () => {
     expect(multilineLines).toBeGreaterThanOrEqual(4)
   })
 
-  it('matches map fill and stroke in both border modes with Generic colors', () => {
+  it('matches map fill and stroke with Generic colors', () => {
     const piece: BoardPiece = {
       uid: 'key-generic',
       inventoryID: Pieces.generic1,
@@ -1662,22 +1644,10 @@ describe('piece key shape rendering', () => {
     const keySvg = renderToStaticMarkup(
       SvgPieceKeyShape(entry, 0, 0, 0.075, 'generic', true),
     )
-    const darkMapSvg = renderToStaticMarkup(
-      createElement(SvgMapHex, {
-        hex,
-        buriedMarksByUID: new Map(),
-        isPieceKeyPreview: true,
-        useTerrainBorderColor: false,
-      }),
-    )
-    const darkKeySvg = renderToStaticMarkup(
-      SvgPieceKeyShape(entry, 0, 0, 0.075, 'generic-dark', false),
-    )
     const svgColors = (markup: string) =>
       markup.match(/(?:fill|stroke)="[^"]+"/g) ?? []
 
     expect(svgColors(keySvg)).toEqual(svgColors(mapSvg))
-    expect(svgColors(darkKeySvg)).toEqual(svgColors(darkMapSvg))
   })
 
   it('uses the selected user colors for Generic Fluid key shapes', () => {
