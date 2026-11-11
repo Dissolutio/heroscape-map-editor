@@ -426,12 +426,12 @@ export const HOTKEY_ACTIONS: {
   },
   {
     id: 'togglePenModeObjectiveMarker',
-    label: 'Objective marker',
+    label: 'Objective marker (black)',
     group: 'Pens',
   },
   {
     id: 'togglePenModeObjectiveMarkerWhite',
-    label: 'White objective marker',
+    label: 'Objective marker (white)',
     group: 'Pens',
   },
 ]
