@@ -146,6 +146,16 @@ describe('rotateGroupAroundPivot', () => {
     },
   )
 
+  it('preserves a cannon half-step during a multi-select rotation', () => {
+    const cannon = uidPiece('cannon', Pieces.cannon, at(5, 5), 0, 0.5)
+    const pivotPiece = uidPiece('pivot', Pieces.grass1, at(6, 5))
+    const moves = rotateGroupAroundPivot([cannon, pivotPiece], 'pivot', 1)
+
+    expect(
+      moves.find((move) => move.uid === 'cannon')?.newRotation,
+    ).toBe(1.5)
+  })
+
   it('returns every selected piece to its exact start after six steps', () => {
     for (const direction of [1, -1] as const) {
       let current = members

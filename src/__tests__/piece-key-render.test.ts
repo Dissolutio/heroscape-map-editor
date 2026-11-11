@@ -552,6 +552,41 @@ describe('piece key shape rendering', () => {
     ).toBeGreaterThan(0)
   })
 
+  it('renders a half-step cannon arrow at 30 degrees in SVG', () => {
+    const pieceCoords = { q: 2, r: 2, s: -4 }
+    const land = place({
+      board: makeTable(8),
+      pieceID: Pieces.grass1,
+      at: pieceCoords,
+      altitude: 0,
+    })
+    if (land.error) throw new Error(String(land.error))
+    const cannon = place({
+      board: land.board,
+      pieceID: Pieces.cannon,
+      at: pieceCoords,
+      altitude: 1,
+      rotation: 0.5,
+      uid: 'cannon',
+      permissive: true,
+    })
+    if (cannon.error) throw new Error(String(cannon.error))
+    const cannonHex = Object.values(cannon.board.boardHexes).find(
+      (hex) => hex.boardPieceUID === 'cannon' && hex.isObstacleOrigin,
+    )
+    if (!cannonHex) throw new Error('Missing cannon origin hex')
+
+    const markup = renderToStaticMarkup(
+      createElement(SvgMapHex, {
+        hex: cannonHex,
+        buriedMarksByUID: new Map(),
+        isVisible: true,
+      }),
+    )
+
+    expect(markup).toContain('transform="rotate(30)"')
+  })
+
   it('prints the game height (not the physical height) in both keys', () => {
     const board = place({
       board: makeTable(12),
