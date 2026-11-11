@@ -18,8 +18,8 @@ import {
   Tooltip,
 } from '@mui/material'
 import type { CameraControls } from '@react-three/drei'
-import React from 'react'
 import { useSnackbar } from 'notistack'
+import React from 'react'
 import {
   FcCollect,
   FcLock,
@@ -27,13 +27,17 @@ import {
   FcSettings,
   FcSwitchCamera,
   FcSynchronize,
+  FcTodoList,
   FcUnlock,
 } from 'react-icons/fc'
 import { MdExpandLess, MdExpandMore } from 'react-icons/md'
 import type { Group, Object3DEventMap } from 'three'
 import useEvent from '../hooks/useEvent'
-import useBoundStore from '../store/store'
+import HotkeysDialog from '../layout/HotkeysDialog'
+import { DIALOGS } from '../layout/dialogNames'
+import { isLookSettingsAvailable } from '../layout/lookSettingsVisibility'
 import type { GraphicsTier } from '../local-storage/settings'
+import useBoundStore from '../store/store'
 import { zoomToMap } from '../utils/camera-utils'
 import { EVENTS } from '../utils/constants'
 import {
@@ -42,16 +46,15 @@ import {
   PDF_RENDER_FORMATS,
 } from '../utils/constants'
 import { getBoardHexesRectangularMapDimensions } from '../utils/map-utils'
+import {
+  type PictureCaptureOptions,
+  resolvePictureCaptureOptions,
+} from '../world/camera/pictureCaptureOptions'
+import { captureWithOptionalHighQuality } from '../world/camera/pictureQuality'
 import { ControlTabsListItemButton } from './ControlTabsListItemButton'
 import { HotkeyText } from './HotKeyText'
 import { useHotkeyConfig } from './useHotkeyConfig'
 import { getViewMode } from './viewMode'
-import { captureWithOptionalHighQuality } from '../world/camera/pictureQuality'
-import {
-  resolvePictureCaptureOptions,
-  type PictureCaptureOptions,
-} from '../world/camera/pictureCaptureOptions'
-import { isLookSettingsAvailable } from '../layout/lookSettingsVisibility'
 
 const GENERIC_PIECE_COLORS_TOOLTIP =
   'Cap colors also drive SVG/PDF; 2D sub-level shades are derived automatically. Side colors affect only 3D.'
@@ -108,6 +111,9 @@ export default function ViewControlsTab({
     textureLoadStatus === 'error'
   const [isTakingPictureOptionsOpen, setIsTakingPictureOptionsOpen] =
     React.useState(false)
+  const [isHotkeysDialogOpen, setIsHotkeysDialogOpen] = React.useState(false)
+  const currentDialog = useBoundStore((s) => s.currentDialog)
+  const toggleCurrentDialog = useBoundStore((s) => s.toggleCurrentDialog)
   const boardHexes = useBoundStore((s) => s.boardHexes)
   const { hotkeyLookup } = useHotkeyConfig()
   const isPdfOpen = useBoundStore((s) => s.isPdfOpen)
@@ -250,6 +256,26 @@ export default function ViewControlsTab({
           padding: 0,
         }}
       >
+        <List>
+          <ControlTabsListItemButton
+            title="View and edit keyboard shortcuts"
+            primary="Hotkeys"
+            onClick={() => setIsHotkeysDialogOpen(true)}
+            icon={<FcSettings />}
+          />
+          <ControlTabsListItemButton
+            title="View set combinations that can build this map"
+            primary="Sets to build this map"
+            onClick={() =>
+              toggleCurrentDialog(
+                currentDialog === DIALOGS.setsToBuildMap
+                  ? ''
+                  : DIALOGS.setsToBuildMap,
+              )
+            }
+            icon={<FcTodoList />}
+          />
+        </List>
         {is3DOpen && (
           <List>
             {/* Center map in camera view */}
@@ -438,6 +464,10 @@ export default function ViewControlsTab({
           </List>
         )}
       </div>
+      <HotkeysDialog
+        open={isHotkeysDialogOpen}
+        onClose={() => setIsHotkeysDialogOpen(false)}
+      />
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
         {is3DOpen && <ViewPreferencesSwitchForm />}
         {isPdfOpen && <PdfPreferencesSwitchForm />}

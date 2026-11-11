@@ -62,10 +62,10 @@ describe('SVG/PDF export border color decision', () => {
       terrain: HexTerrain.toxicOutcrop,
     } as unknown as BoardHex
 
-    expect(getSvgHexBorderColor(hex)).toBe(svgColors[HexTerrain.toxicOutcrop])
+    expect(getSvgHexBorderColor(hex)).toBe(svgColors.toxicOutcropBorder)
     expect(getSvgHexFillColor(hex)).toBe(svgColors[HexTerrain.toxicOutcrop])
     expect(getSvgHexSubLevelBorderColor(hex)).toBe(
-      svgSubLevelColors[HexTerrain.toxicOutcrop],
+      svgSubLevelColors.toxicOutcropBorder,
     )
     expect(getSvgHexSubLevelFillColor(hex)).toBe(
       svgSubLevelColors[HexTerrain.toxicOutcrop],
@@ -106,7 +106,8 @@ describe('SVG/PDF export border color decision', () => {
         ).toBe(
           isFluid
             ? coloredBorder
-            : isSolid && terrain === HexTerrain.asphalt
+            : isSolid &&
+                (terrain === HexTerrain.asphalt || terrain === HexTerrain.toxic)
               ? isSubLevel
                 ? ASPHALT_SUBLEVEL_BORDER_COLOR
                 : ASPHALT_BORDER_COLOR

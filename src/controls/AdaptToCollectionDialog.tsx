@@ -1,4 +1,5 @@
 import {
+  Alert,
   Box,
   Button,
   Dialog,
@@ -17,10 +18,12 @@ import {
   TableCell,
   TableHead,
   TableRow,
+  Tooltip,
   Typography,
 } from '@mui/material'
 import { useSnackbar } from 'notistack'
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { MdInfoOutline } from 'react-icons/md'
 import { piecesSoFar } from '../data/pieces'
 import { MapAuthorNotesFields } from '../layout/MapAuthorNotesFields'
 import { MapNameField } from '../layout/MapNameField'
@@ -32,13 +35,18 @@ import {
   buildCollectionAdaptationPlan,
   getAdaptedMapName,
   getCollectionLandSupply,
+  getMissingObstacles,
   getMissingLandTerrains,
+  getObstacleSubstituteCandidates,
   getRemainingLandShortfalls,
   suggestBuriedFillTerrain,
   suggestTerrainTarget,
   type AdaptScope,
+  type ObstacleAdaptChoice,
   type TerrainAdaptChoice,
+  type UnconvertedObstaclePieceCount,
   type UnconvertedLandPieceCount,
+  isGameplayAffectingObstacle,
 } from '../utils/adaptToCollection'
 import { isFluidTerrainHex, isSolidTerrainHex } from '../utils/board-utils'
 
@@ -53,6 +61,7 @@ type AdaptSummary = {
   missingTerrains: string[]
   quantityShortfalls: { inventoryID: string; shortfall: number }[]
   unconvertedPieces: UnconvertedLandPieceCount[]
+  unconvertedObstacles: UnconvertedObstaclePieceCount[]
   obstacles: number
   markers: number
   startZones: number
@@ -76,6 +85,9 @@ export function AdaptToCollectionDialog({
   )
   const { enqueueSnackbar } = useSnackbar()
   const [choices, setChoices] = useState<Record<string, TerrainAdaptChoice>>({})
+  const [obstacleChoices, setObstacleChoices] = useState<
+    Record<string, ObstacleAdaptChoice>
+  >({})
   const [buriedFillByKind, setBuriedFillByKind] = useState<{
     solid: string
     fluid: string
@@ -98,6 +110,24 @@ export function AdaptToCollectionDialog({
     () => getMissingLandTerrains(analysis, supply),
     [analysis, supply],
   )
+  const obstacleRows = useMemo(
+    () => getMissingObstacles(boardPieces, userPieceInventory),
+    [boardPieces, userPieceInventory],
+  )
+  const obstacleOptionsByID = useMemo(
+    () =>
+      new Map(
+        obstacleRows.map(({ inventoryID }) => [
+          inventoryID,
+          getObstacleSubstituteCandidates(
+            inventoryID,
+            userPieceInventory,
+            boardPieces,
+          ),
+        ]),
+      ),
+    [boardPieces, obstacleRows, userPieceInventory],
+  )
   const hasInitializedChoices = useRef(false)
 
   useEffect(() => {
@@ -118,13 +148,25 @@ export function AdaptToCollectionDialog({
         ]),
       ),
     )
+    setObstacleChoices(
+      Object.fromEntries(
+        obstacleRows.map(({ inventoryID }) => [
+          inventoryID,
+          {
+            targetInventoryIDs: [
+              obstacleOptionsByID.get(inventoryID)?.[0] ?? '',
+            ],
+          },
+        ]),
+      ),
+    )
     setBuriedFillByKind({
       solid: suggestBuriedFillTerrain(supply, false),
       fluid: suggestBuriedFillTerrain(supply, true),
     })
     setSummary(null)
     setStep('choices')
-  }, [open, supply, terrains])
+  }, [open, obstacleOptionsByID, obstacleRows, supply, terrains])
 
   const plan = useMemo(
     () =>
@@ -134,8 +176,16 @@ export function AdaptToCollectionDialog({
         supply,
         choices,
         buriedFillByKind,
+        obstacleChoices,
       }),
-    [boardHexes, boardPieces, supply, choices, buriedFillByKind],
+    [
+      boardHexes,
+      boardPieces,
+      supply,
+      choices,
+      buriedFillByKind,
+      obstacleChoices,
+    ],
   )
 
   const optionsForTerrain = (terrain: string) => {
@@ -157,6 +207,19 @@ export function AdaptToCollectionDialog({
     }
     return rowsByTarget
   }, [choices])
+
+  const sharedObstacleRowsByTarget = useMemo(() => {
+    const rowsByTarget = new Map<string, string[]>()
+    for (const [source, choice] of Object.entries(obstacleChoices)) {
+      for (const target of choice.targetInventoryIDs) {
+        if (!target) continue
+        const rows = rowsByTarget.get(target) ?? []
+        rows.push(source)
+        rowsByTarget.set(target, rows)
+      }
+    }
+    return rowsByTarget
+  }, [obstacleChoices])
 
   const clearSummary = () => setSummary(null)
 
@@ -212,9 +275,9 @@ export function AdaptToCollectionDialog({
       current.boardPieces,
     )
     const nextSupply = getCollectionLandSupply(current.userPieceInventory)
-    const untouchedPieces = current.boardPieces.map(
-      (piece) => piecesSoFar[piece.inventoryID],
-    )
+    const untouchedPieces = current.boardPieces
+      .filter((piece) => !plan.mapping[piece.uid])
+      .map((piece) => piecesSoFar[piece.inventoryID])
     const nextSummary: AdaptSummary = {
       changed,
       changedByTerrain,
@@ -224,6 +287,7 @@ export function AdaptToCollectionDialog({
         current.userPieceInventory,
       ),
       unconvertedPieces: plan.unconvertedPieces,
+      unconvertedObstacles: plan.unconvertedObstacles,
       obstacles: untouchedPieces.filter(
         (piece) =>
           piece?.isObstaclePiece &&
@@ -242,11 +306,12 @@ export function AdaptToCollectionDialog({
     const remainingCount =
       nextSummary.missingTerrains.length +
       nextSummary.quantityShortfalls.length +
-      nextSummary.unconvertedPieces.length
+      nextSummary.unconvertedPieces.length +
+      nextSummary.unconvertedObstacles.length
     enqueueSnackbar({
       message: `Adapted ${changed} ${changed === 1 ? 'piece' : 'pieces'} to your collection.${
         remainingCount
-          ? ` ${remainingCount} remaining terrain or quantity issue${remainingCount === 1 ? '' : 's'} are listed in the dialog.`
+          ? ` ${remainingCount} remaining adaptation issue${remainingCount === 1 ? '' : 's'} are listed in the dialog.`
           : ''
       }`,
       variant: changed ? 'success' : 'info',
@@ -293,7 +358,35 @@ export function AdaptToCollectionDialog({
                     <TableCell align="right">Surface hexes</TableCell>
                     <TableCell align="right">Buried hexes</TableCell>
                     <TableCell>Substitutes and coverage</TableCell>
-                    <TableCell>Scope</TableCell>
+                    <TableCell>
+                      <Box
+                        sx={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: 0.5,
+                        }}
+                      >
+                        Covered pieces
+                        <Tooltip
+                          title="Pieces under other pieces can't be seen, so any spare land of the same kind works."
+                          arrow
+                          describeChild
+                        >
+                          <Box
+                            component="span"
+                            aria-label="About covered pieces"
+                            tabIndex={0}
+                            sx={{
+                              display: 'inline-flex',
+                              color: 'text.secondary',
+                              cursor: 'help',
+                            }}
+                          >
+                            <MdInfoOutline size={16} aria-hidden="true" />
+                          </Box>
+                        </Tooltip>
+                      </Box>
+                    </TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -303,6 +396,7 @@ export function AdaptToCollectionDialog({
                     )
                     const surfaceHexes = counts?.surfaceHexes ?? 0
                     const buriedHexes = counts?.buriedHexes ?? 0
+                    const totalHexes = surfaceHexes + buriedHexes
                     const choice = choices[terrain] ?? {
                       targetTerrains: [''],
                       scope: 'wholeColumn' as const,
@@ -310,6 +404,39 @@ export function AdaptToCollectionDialog({
                     const coverage = plan.surfaceCoverageByTerrain[terrain] ?? [
                       0, 0, 0,
                     ]
+                    const buriedCoverage = plan.buriedCoverageByTerrain[
+                      terrain
+                    ] ?? [0, 0, 0]
+                    const convertedBuriedHexes = buriedCoverage.reduce(
+                      (total, count) => total + count,
+                      0,
+                    )
+                    const unconvertedBuriedHexes = Math.max(
+                      0,
+                      buriedHexes - convertedBuriedHexes,
+                    )
+                    const buriedFill = isFluidTerrainHex(terrain)
+                      ? buriedFillByKind.fluid
+                      : buriedFillByKind.solid
+                    const buriedTarget =
+                      choice.scope === 'surfaceOnly'
+                        ? buriedFill
+                          ? `spare ${formatTerrainLabel(buriedFill)}`
+                          : 'spare land'
+                        : 'your picks'
+                    const coveredHexNoun =
+                      convertedBuriedHexes === 1
+                        ? 'covered hex'
+                        : 'covered hexes'
+                    const buriedCoverageText = `${
+                      convertedBuriedHexes
+                    } ${coveredHexNoun} ${
+                      convertedBuriedHexes === 1 ? 'uses' : 'use'
+                    } ${buriedTarget}${
+                      unconvertedBuriedHexes > 0
+                        ? `; ${unconvertedBuriedHexes} left unconverted`
+                        : ''
+                    }`
                     const first = choice.targetTerrains[0] ?? ''
                     const second = choice.targetTerrains[1] ?? ''
                     const afterFirst = surfaceHexes - (coverage[0] ?? 0)
@@ -421,6 +548,11 @@ export function AdaptToCollectionDialog({
                               No owned same-kind terrain is available.
                             </Typography>
                           )}
+                          {buriedHexes > 0 && (
+                            <Typography variant="body2" sx={{ mt: 1 }}>
+                              {buriedCoverageText}
+                            </Typography>
+                          )}
                           {otherSharedRows.length > 0 && (
                             <Typography variant="caption" display="block">
                               Shared supply with{' '}
@@ -432,31 +564,42 @@ export function AdaptToCollectionDialog({
                           )}
                         </TableCell>
                         <TableCell>
-                          <RadioGroup
-                            aria-label={`${formatTerrainLabel(terrain)} scope`}
-                            value={choice.scope}
-                            onChange={(event) => {
-                              clearSummary()
-                              setChoices((current) => ({
-                                ...current,
-                                [terrain]: {
-                                  ...choice,
-                                  scope: event.target.value as AdaptScope,
-                                },
-                              }))
-                            }}
-                          >
-                            <FormControlLabel
-                              value="wholeColumn"
-                              control={<Radio size="small" />}
-                              label="Whole column"
-                            />
-                            <FormControlLabel
-                              value="surfaceOnly"
-                              control={<Radio size="small" />}
-                              label="Surface only"
-                            />
-                          </RadioGroup>
+                          {buriedHexes > 0 ? (
+                            <>
+                              <Typography variant="body2" sx={{ mb: 0.5 }}>
+                                {buriedHexes} of {totalHexes} hexes
+                              </Typography>
+                              <RadioGroup
+                                aria-label={`${formatTerrainLabel(terrain)} covered pieces`}
+                                value={choice.scope}
+                                onChange={(event) => {
+                                  clearSummary()
+                                  setChoices((current) => ({
+                                    ...current,
+                                    [terrain]: {
+                                      ...choice,
+                                      scope: event.target.value as AdaptScope,
+                                    },
+                                  }))
+                                }}
+                              >
+                                <FormControlLabel
+                                  value="wholeColumn"
+                                  control={<Radio size="small" />}
+                                  label="Use my picks"
+                                />
+                                <FormControlLabel
+                                  value="surfaceOnly"
+                                  control={<Radio size="small" />}
+                                  label="Any spare land"
+                                />
+                              </RadioGroup>
+                            </>
+                          ) : (
+                            <Typography variant="body2" color="text.secondary">
+                              No covered pieces
+                            </Typography>
+                          )}
                         </TableCell>
                       </TableRow>
                     )
@@ -520,6 +663,176 @@ export function AdaptToCollectionDialog({
               uses only owned pieces and shares their remaining quantities with
               surface and whole-column substitutions.
             </Typography>
+
+            <Typography variant="subtitle1" sx={{ mt: 2 }}>
+              Obstacles
+            </Typography>
+            <Box sx={{ overflowX: 'auto', mb: 2 }}>
+              <Table size="small">
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Obstacle</TableCell>
+                    <TableCell align="right">Missing pieces</TableCell>
+                    <TableCell>Substitutes and coverage</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {obstacleRows.map(({ inventoryID, count }) => {
+                    const source = piecesSoFar[inventoryID]
+                    const choice = obstacleChoices[inventoryID] ?? {
+                      targetInventoryIDs: [''],
+                    }
+                    const options = obstacleOptionsByID.get(inventoryID) ?? []
+                    const coverage = plan.obstacleCoverageByInventoryID[
+                      inventoryID
+                    ] ?? [0, 0, 0]
+                    const first = choice.targetInventoryIDs[0] ?? ''
+                    const second = choice.targetInventoryIDs[1] ?? ''
+                    const afterFirst = count - (coverage[0] ?? 0)
+                    const afterSecond = afterFirst - (coverage[1] ?? 0)
+                    const otherSharedRows = [
+                      ...new Set(
+                        choice.targetInventoryIDs.flatMap((target) =>
+                          target
+                            ? (
+                                sharedObstacleRowsByTarget.get(target) ?? []
+                              ).filter((other) => other !== inventoryID)
+                            : [],
+                        ),
+                      ),
+                    ]
+                    const hasGameplayWarning =
+                      choice.targetInventoryIDs.some(
+                        (target) =>
+                          target && isGameplayAffectingObstacle(target),
+                      ) ||
+                      (choice.targetInventoryIDs.some(Boolean) &&
+                        isGameplayAffectingObstacle(inventoryID))
+                    const renderSubstitute = (
+                      rank: number,
+                      value: string,
+                      excluded: string[],
+                    ) => {
+                      const rankName = substituteRanks[rank]
+                      const selectID = `${dialogID}-${inventoryID}-${rankName}`
+                      const available = options.filter(
+                        (candidate) => !excluded.includes(candidate),
+                      )
+                      const covered = coverage[rank] ?? 0
+                      return (
+                        <Box
+                          key={rankName}
+                          sx={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 1,
+                            mb: 1,
+                          }}
+                        >
+                          <FormControl
+                            size="small"
+                            sx={{ minWidth: 220 }}
+                            disabled={!available.length}
+                          >
+                            <InputLabel id={`${selectID}-label`}>
+                              {rankName} substitute
+                            </InputLabel>
+                            <Select
+                              id={selectID}
+                              labelId={`${selectID}-label`}
+                              label={`${rankName} substitute`}
+                              value={value}
+                              inputProps={{
+                                'aria-label': `${source?.title ?? inventoryID} ${rankName} substitute`,
+                              }}
+                              onChange={(event) => {
+                                clearSummary()
+                                setObstacleChoices((current) => {
+                                  const currentTargets = current[inventoryID]
+                                    ?.targetInventoryIDs ?? ['']
+                                  const targetInventoryIDs = [...currentTargets]
+                                  targetInventoryIDs[rank] = event.target.value
+                                  targetInventoryIDs.splice(rank + 1)
+                                  return {
+                                    ...current,
+                                    [inventoryID]: { targetInventoryIDs },
+                                  }
+                                })
+                              }}
+                            >
+                              {available.map((target) => (
+                                <MenuItem key={target} value={target}>
+                                  {piecesSoFar[target]?.title ?? target}
+                                  {isGameplayAffectingObstacle(target)
+                                    ? ' — changes gameplay'
+                                    : ''}
+                                </MenuItem>
+                              ))}
+                            </Select>
+                          </FormControl>
+                          <Typography variant="body2">
+                            {rank === 0
+                              ? `${covered} of ${count} missing pieces covered`
+                              : `${covered} more pieces covered`}
+                          </Typography>
+                        </Box>
+                      )
+                    }
+
+                    return (
+                      <TableRow key={inventoryID}>
+                        <TableCell>{source?.title ?? inventoryID}</TableCell>
+                        <TableCell align="right">{count}</TableCell>
+                        <TableCell>
+                          {renderSubstitute(0, first, [])}
+                          {first &&
+                            afterFirst > 0 &&
+                            renderSubstitute(1, second, [first])}
+                          {first &&
+                            second &&
+                            afterSecond > 0 &&
+                            renderSubstitute(
+                              2,
+                              choice.targetInventoryIDs[2] ?? '',
+                              [first, second],
+                            )}
+                          {!options.length && (
+                            <Typography variant="body2">
+                              No owned same-footprint substitute is available.
+                            </Typography>
+                          )}
+                          {hasGameplayWarning && (
+                            <Alert severity="warning" sx={{ mt: 1 }}>
+                              Changes gameplay: this obstacle affects gameplay.
+                            </Alert>
+                          )}
+                          {otherSharedRows.length > 0 && (
+                            <Typography variant="caption" display="block">
+                              Shared supply with{' '}
+                              {otherSharedRows
+                                .map(
+                                  (other) => piecesSoFar[other]?.title ?? other,
+                                )
+                                .join(', ')}
+                              ; obstacle rows allocate in name order, with
+                              gameplay-affecting pieces last.
+                            </Typography>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    )
+                  })}
+                  {!obstacleRows.length && (
+                    <TableRow>
+                      <TableCell colSpan={3}>
+                        Your collection can already supply every eligible
+                        obstacle in this map.
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </Box>
           </>
         )}
 
@@ -569,6 +882,17 @@ export function AdaptToCollectionDialog({
                 : 'none'}
             </Typography>
             <Typography variant="body2">
+              Unconverted obstacles:{' '}
+              {summary.unconvertedObstacles.length
+                ? summary.unconvertedObstacles
+                    .map(
+                      ({ inventoryID, count }) =>
+                        `${count} × ${piecesSoFar[inventoryID]?.title ?? inventoryID}`,
+                    )
+                    .join('; ')
+                : 'none'}
+            </Typography>
+            <Typography variant="body2">
               Collection quantity shortfalls:{' '}
               {summary.quantityShortfalls.length
                 ? summary.quantityShortfalls
@@ -580,7 +904,7 @@ export function AdaptToCollectionDialog({
                 : 'none'}
             </Typography>
             <Typography variant="body2">
-              Left untouched: {summary.obstacles} obstacles, {summary.markers}{' '}
+              Left unchanged: {summary.obstacles} obstacles, {summary.markers}{' '}
               markers, {summary.startZones} start zones.
             </Typography>
           </Box>
@@ -593,7 +917,7 @@ export function AdaptToCollectionDialog({
             <Button
               variant="contained"
               onClick={continueToNaming}
-              disabled={!terrains.length}
+              disabled={!terrains.length && !obstacleRows.length}
             >
               Continue to name adapted map
             </Button>

@@ -19,6 +19,7 @@ import {
   yTransformForMultiHex3Rotation,
 } from '../pdf-svg-shared/textRotations'
 import useBoundStore from '../store/store'
+import { getOutcropTextColor } from '../svg-map/getSvgHexColors'
 import { pdfHexTextStyle, pdfTextProps } from '../svg-map/pdfText'
 import { type BoardHex, HexTerrain, Pieces } from '../types'
 import {
@@ -210,6 +211,12 @@ export const PdfMapHex = ({
   glyphExportSettings?: GlyphExportSettings
 }) => {
   const pixel = hexUtilsHexToPixel(hex)
+  const useLegendBorderColor = isPieceKeyPreview
+    ? isPdfColorBorders
+      ? true
+      : 'force-dark'
+    : true
+  const usePieceKeyBorderColor = isPdfColorBorders
   const isSubLevel = !isPieceKeyPreview && hex.altitude < viewingLevel
   const { inventoryID } = hex
   const exportSymbol = getPieceExportSymbol(inventoryID)
@@ -292,7 +299,11 @@ export const PdfMapHex = ({
       <G
         transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
       >
-        <PdfHive6 hex={hex} isSubLevel={isSubLevel} />
+        <PdfHive6
+          hex={hex}
+          isSubLevel={isSubLevel}
+          useTerrainBorderColor={useLegendBorderColor}
+        />
       </G>
     )
   }
@@ -318,7 +329,11 @@ export const PdfMapHex = ({
   if (inventoryID === Pieces.shroudshroom7) {
     return (
       <G transform={`translate(${pixel.x}, ${pixel.y})`}>
-        <PdfMultiHex1 hex={hex} isSubLevel={isSubLevel} />
+        <PdfMultiHex1
+          hex={hex}
+          isSubLevel={isSubLevel}
+          useTerrainBorderColor={useLegendBorderColor}
+        />
         <Text
           fill={svgColors.shroudshroomText}
           // white text (not glaciers, so far) needs a little opacity boost
@@ -337,7 +352,11 @@ export const PdfMapHex = ({
   if (inventoryID === Pieces.shroudshroom10) {
     return (
       <G transform={`translate(${pixel.x}, ${pixel.y})`}>
-        <PdfMultiHex1 hex={hex} isSubLevel={isSubLevel} />
+        <PdfMultiHex1
+          hex={hex}
+          isSubLevel={isSubLevel}
+          useTerrainBorderColor={useLegendBorderColor}
+        />
         <Text
           fill={svgColors.shroudshroomText}
           // white text (not glaciers, so far) needs a little opacity boost
@@ -364,7 +383,11 @@ export const PdfMapHex = ({
     return (
       <G transform={`translate(${pixel.x}, ${pixel.y})`}>
         <G transform={`rotate(${pieceRotation})`}>
-          <PdfMultiHex3 hex={hex} isSubLevel={isSubLevel} />
+          <PdfMultiHex3
+            hex={hex}
+            isSubLevel={isSubLevel}
+            useTerrainBorderColor={useLegendBorderColor}
+          />
         </G>
         {originLine && (
           <Line
@@ -442,17 +465,14 @@ export const PdfMapHex = ({
     inventoryID === Pieces.glacier1
   ) {
     const { hideHeight } = getHexGlyphExportOptions(hex)
-    const glacierTextColor = isSubLevel
-      ? svgSubLevelColors.glacierText
-      : svgColors.glacierText
-    const outcropTextColor = isSubLevel
-      ? svgSubLevelColors.outcropText
-      : svgColors.outcropText
-    const textColor =
-      hex.terrain === HexTerrain.glacier ? glacierTextColor : outcropTextColor
+    const textColor = getOutcropTextColor(hex.terrain, isSubLevel)
     return (
       <G transform={`translate(${pixel.x}, ${pixel.y})`}>
-        <PdfMultiHex1 hex={hex} isSubLevel={isSubLevel} />
+        <PdfMultiHex1
+          hex={hex}
+          isSubLevel={isSubLevel}
+          useTerrainBorderColor={useLegendBorderColor}
+        />
         {!hideHeight && (
           <Text
             fill={textColor}
@@ -481,7 +501,11 @@ export const PdfMapHex = ({
   ) {
     return (
       <G transform={`translate(${pixel.x}, ${pixel.y})`}>
-        <PdfSvgOutcrop3 hex={hex} isSubLevel={isSubLevel} />
+        <PdfSvgOutcrop3
+          hex={hex}
+          isSubLevel={isSubLevel}
+          useTerrainBorderColor={useLegendBorderColor}
+        />
       </G>
     )
   }
@@ -489,7 +513,11 @@ export const PdfMapHex = ({
   if (inventoryID === Pieces.glacier6) {
     return (
       <G transform={`translate(${pixel.x}, ${pixel.y})`}>
-        <PdfSvgOutcrop6 hex={hex} isSubLevel={isSubLevel} />
+        <PdfSvgOutcrop6
+          hex={hex}
+          isSubLevel={isSubLevel}
+          useTerrainBorderColor={useLegendBorderColor}
+        />
       </G>
     )
   }
@@ -497,7 +525,11 @@ export const PdfMapHex = ({
   if (inventoryID === Pieces.glacier4) {
     return (
       <G transform={`translate(${pixel.x}, ${pixel.y})`}>
-        <PdfSvgOutcrop4 hex={hex} isSubLevel={isSubLevel} />
+        <PdfSvgOutcrop4
+          hex={hex}
+          isSubLevel={isSubLevel}
+          useTerrainBorderColor={useLegendBorderColor}
+        />
       </G>
     )
   }
@@ -505,7 +537,11 @@ export const PdfMapHex = ({
   if (inventoryID === Pieces.tree415) {
     return (
       <G transform={`translate(${pixel.x}, ${pixel.y})`}>
-        <PdfSvgTree415 hex={hex} isSubLevel={isSubLevel} />
+        <PdfSvgTree415
+          hex={hex}
+          isSubLevel={isSubLevel}
+          useTerrainBorderColor={useLegendBorderColor}
+        />
       </G>
     )
   }
@@ -566,7 +602,11 @@ export const PdfMapHex = ({
     const { hideHeight } = getHexGlyphExportOptions(hex)
     return (
       <G transform={`translate(${pixel.x}, ${pixel.y})`}>
-        <PdfMultiHex1 hex={hex} isSubLevel={isSubLevel} />
+        <PdfMultiHex1
+          hex={hex}
+          isSubLevel={isSubLevel}
+          useTerrainBorderColor={useLegendBorderColor}
+        />
         {!hideHeight && (
           <Text
             fill="white"
@@ -594,7 +634,11 @@ export const PdfMapHex = ({
     ) {
       return (
         <G transform={`translate(${pixel.x}, ${pixel.y})`}>
-          <PdfMultiHex1 hex={hex} isSubLevel={isSubLevel} />
+          <PdfMultiHex1
+            hex={hex}
+            isSubLevel={isSubLevel}
+            useTerrainBorderColor={useLegendBorderColor}
+          />
           <G transform={`rotate(${pieceRotation})`}>
             <PdfCastleCorner hex={hex} isSubLevel={isSubLevel} />
           </G>
@@ -612,7 +656,11 @@ export const PdfMapHex = ({
     ) {
       return (
         <G transform={`translate(${pixel.x}, ${pixel.y})`}>
-          <PdfMultiHex1 hex={hex} isSubLevel={isSubLevel} />
+          <PdfMultiHex1
+            hex={hex}
+            isSubLevel={isSubLevel}
+            useTerrainBorderColor={useLegendBorderColor}
+          />
           <G transform={`rotate(${pieceRotation})`}>
             <PdfCastleStraight hex={hex} isSubLevel={isSubLevel} />
           </G>
@@ -630,7 +678,11 @@ export const PdfMapHex = ({
     ) {
       return (
         <G transform={`translate(${pixel.x}, ${pixel.y})`}>
-          <PdfMultiHex1 hex={hex} isSubLevel={isSubLevel} />
+          <PdfMultiHex1
+            hex={hex}
+            isSubLevel={isSubLevel}
+            useTerrainBorderColor={useLegendBorderColor}
+          />
           <G transform={`rotate(${pieceRotation})`}>
             <PdfCastleEnd hex={hex} isSubLevel={isSubLevel} />
           </G>
@@ -649,7 +701,11 @@ export const PdfMapHex = ({
       return (
         <G transform={`translate(${pixel.x}, ${pixel.y})`}>
           <G transform={`rotate(${pieceRotation})`}>
-            <PdfCastleArchStraight3 hex={hex} isSubLevel={isSubLevel} />
+            <PdfCastleArchStraight3
+              hex={hex}
+              isSubLevel={isSubLevel}
+              useTerrainBorderColor={useLegendBorderColor}
+            />
             <PdfCastleArch hex={hex} isSubLevel={isSubLevel} />
 
             <G
@@ -670,7 +726,11 @@ export const PdfMapHex = ({
   if (isJungleTerrainHex(hex.terrain)) {
     return (
       <G transform={`translate(${pixel.x}, ${pixel.y})`}>
-        <PdfJungle hex={hex} isSubLevel={isSubLevel} />
+        <PdfJungle
+          hex={hex}
+          isSubLevel={isSubLevel}
+          useTerrainBorderColor={useLegendBorderColor}
+        />
       </G>
     )
   }
@@ -682,7 +742,11 @@ export const PdfMapHex = ({
   ) {
     return (
       <G transform={`translate(${pixel.x}, ${pixel.y})`}>
-        <PdfLaurPillar hex={hex} isSubLevel={isSubLevel} />
+        <PdfLaurPillar
+          hex={hex}
+          isSubLevel={isSubLevel}
+          useTerrainBorderColor={useLegendBorderColor}
+        />
       </G>
     )
   }
@@ -693,7 +757,7 @@ export const PdfMapHex = ({
         <PdfMultiHex1
           hex={hex}
           isSubLevel={isSubLevel}
-          useTerrainBorderColor={isPdfColorBorders}
+          useTerrainBorderColor={usePieceKeyBorderColor}
         />
         <TerrainTileLetterText
           hex={hex}
@@ -717,7 +781,7 @@ export const PdfMapHex = ({
           <PdfMultiHex2
             hex={hex}
             isSubLevel={isSubLevel}
-            useTerrainBorderColor={isPdfColorBorders}
+            useTerrainBorderColor={usePieceKeyBorderColor}
           />
           <PdfSvgHexDecor hex={hex} isSubLevel={isSubLevel} />
         </G>
@@ -742,7 +806,7 @@ export const PdfMapHex = ({
           <PdfMultiHex4
             hex={hex}
             isSubLevel={isSubLevel}
-            useTerrainBorderColor={isPdfColorBorders}
+            useTerrainBorderColor={usePieceKeyBorderColor}
           />
           <PdfSvgHexDecor hex={hex} isSubLevel={isSubLevel} />
         </G>
@@ -767,7 +831,7 @@ export const PdfMapHex = ({
           <PdfMultiHex3
             hex={hex}
             isSubLevel={isSubLevel}
-            useTerrainBorderColor={isPdfColorBorders}
+            useTerrainBorderColor={usePieceKeyBorderColor}
           />
           <PdfSvgHexDecor hex={hex} isSubLevel={isSubLevel} />
         </G>
@@ -792,7 +856,7 @@ export const PdfMapHex = ({
           <PdfMultiHex5
             hex={hex}
             isSubLevel={isSubLevel}
-            useTerrainBorderColor={isPdfColorBorders}
+            useTerrainBorderColor={usePieceKeyBorderColor}
           />
           <PdfSvgHexDecor hex={hex} isSubLevel={isSubLevel} />
         </G>
@@ -817,7 +881,7 @@ export const PdfMapHex = ({
           <PdfMultiHex7
             hex={hex}
             isSubLevel={isSubLevel}
-            useTerrainBorderColor={isPdfColorBorders}
+            useTerrainBorderColor={usePieceKeyBorderColor}
           />
           <PdfSvgHexDecor hex={hex} isSubLevel={isSubLevel} />
         </G>
@@ -842,7 +906,7 @@ export const PdfMapHex = ({
           <PdfMultiHexWallWalk7
             hex={hex}
             isSubLevel={isSubLevel}
-            useTerrainBorderColor={isPdfColorBorders}
+            useTerrainBorderColor={usePieceKeyBorderColor}
           />
           <PdfSvgHexDecor hex={hex} isSubLevel={isSubLevel} />
         </G>
@@ -867,7 +931,7 @@ export const PdfMapHex = ({
           <PdfMultiHexWallWalk9
             hex={hex}
             isSubLevel={isSubLevel}
-            useTerrainBorderColor={isPdfColorBorders}
+            useTerrainBorderColor={usePieceKeyBorderColor}
           />
           <PdfSvgHexDecor hex={hex} isSubLevel={isSubLevel} />
         </G>
@@ -892,7 +956,7 @@ export const PdfMapHex = ({
           <PdfMultiHex6
             hex={hex}
             isSubLevel={isSubLevel}
-            useTerrainBorderColor={isPdfColorBorders}
+            useTerrainBorderColor={usePieceKeyBorderColor}
           />
           <PdfSvgHexDecor hex={hex} isSubLevel={isSubLevel} />
         </G>
@@ -914,7 +978,11 @@ export const PdfMapHex = ({
     return (
       <G transform={`translate(${pixel.x}, ${pixel.y})`}>
         <G transform={`rotate(${pieceRotation})`}>
-          <PdfMultiHexMarvel6 hex={hex} isSubLevel={isSubLevel} />
+          <PdfMultiHexMarvel6
+            hex={hex}
+            isSubLevel={isSubLevel}
+            useTerrainBorderColor={useLegendBorderColor}
+          />
           <PdfSvgHexDecor hex={hex} isSubLevel={isSubLevel} />
         </G>
         <TerrainTileLetterText
@@ -938,7 +1006,7 @@ export const PdfMapHex = ({
           <PdfMultiHex24
             hex={hex}
             isSubLevel={isSubLevel}
-            useTerrainBorderColor={isPdfColorBorders}
+            useTerrainBorderColor={usePieceKeyBorderColor}
           />
           <PdfSvgHexDecor hex={hex} isSubLevel={isSubLevel} />
         </G>

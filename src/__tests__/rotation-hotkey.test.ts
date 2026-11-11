@@ -7,7 +7,7 @@ import {
   isRotationHotkeyReady,
 } from '../data/rotationHotkey'
 import useBoundStore from '../store/store'
-import type { CubeCoordinate } from '../types'
+import { Pieces, type CubeCoordinate } from '../types'
 import { makeTable, place } from './helpers/board'
 
 vi.mock('notistack', () => ({ enqueueSnackbar: vi.fn() }))
@@ -83,6 +83,41 @@ describe('selected-piece rotation hotkeys', () => {
     expect(useBoundStore.temporal.getState().pastStates).toHaveLength(1)
     useBoundStore.temporal.getState().undo()
     expect(useBoundStore.getState().boardPieces[0].rotation).toBe(0)
+  })
+
+  it('rotates a placed cannon from 0 to a 30-degree turn', () => {
+    const pieceCoords = { q: 2, r: 2, s: -4 }
+    const land = place({
+      board: makeTable(8),
+      pieceID: Pieces.grass1,
+      at: pieceCoords,
+      altitude: 0,
+    })
+    if (land.error) throw new Error(String(land.error))
+    const cannon = place({
+      board: land.board,
+      pieceID: Pieces.cannon,
+      at: pieceCoords,
+      altitude: 1,
+      uid: 'CANNON',
+      permissive: true,
+    })
+    if (cannon.error) throw new Error(String(cannon.error))
+    useBoundStore.setState({
+      boardHexes: cannon.board.boardHexes,
+      boardPieces: cannon.board.boardPieces,
+      selectedPieceIDs: ['CANNON'],
+      rotationPivot: null,
+    })
+    useBoundStore.temporal.getState().clear()
+
+    rotateSelectedPieces(1)
+
+    expect(
+      useBoundStore
+        .getState()
+        .boardPieces.find((piece) => piece.uid === 'CANNON')?.rotation,
+    ).toBe(0.5)
   })
 
   it('leaves a next-rotation preview only when a button asks for one', () => {

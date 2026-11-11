@@ -1,10 +1,11 @@
 import { describe, expect, it } from 'vitest'
+import { piecesSoFar } from '../data/pieces'
 import {
   getPieceKeyDescriptionGaps,
   getPieceKeyModel,
+  getPieceKeyRowsForColumns,
   getPieceKeyTerrainDescription,
 } from '../pdf-svg-shared/pieceKey'
-import { piecesSoFar } from '../data/pieces'
 import type { BoardPiece } from '../types'
 import { HexTerrain, Pieces } from '../types'
 import { isSolidTerrainHex } from '../utils/board-utils'
@@ -76,11 +77,16 @@ describe('piece key model', () => {
         makePiece(Pieces.grass3, 2),
         makePiece(Pieces.grass7, 3),
         makePiece(Pieces.grass24, 4),
-        makePiece(Pieces.concrete6, 5),
-        makePiece(Pieces.ice4, 6),
-        makePiece(Pieces.road5, 7),
-        makePiece(Pieces.wallWalk7, 8),
-        makePiece(Pieces.swampWater6, 9),
+        makePiece(Pieces.concrete1, 5),
+        makePiece(Pieces.concrete2, 6),
+        makePiece(Pieces.concrete3, 7),
+        makePiece(Pieces.concrete6, 8),
+        makePiece(Pieces.concrete7, 9),
+        makePiece(Pieces.concrete24, 10),
+        makePiece(Pieces.ice4, 11),
+        makePiece(Pieces.road5, 12),
+        makePiece(Pieces.wallWalk7, 13),
+        makePiece(Pieces.swampWater6, 14),
       ],
       {},
       true,
@@ -89,16 +95,77 @@ describe('piece key model', () => {
     expect(model.landRows.map(({ size }) => size)).toEqual([24, 7, 3, 2, 1])
     expect(model.specialGroups.map(({ id }) => id)).toEqual([
       'roads-and-wall-walks',
-      'special-land-concrete',
-      'special-land-ice',
-      'special-land-swampWater',
+      'other',
     ])
     expect(
       model.specialGroups[0].entries.map(({ inventoryID }) => inventoryID),
     ).toEqual([Pieces.road5, Pieces.wallWalk7])
     expect(
       model.specialGroups.slice(1).map(({ entries }) => entries[0].inventoryID),
-    ).toEqual([Pieces.concrete6, Pieces.ice4, Pieces.swampWater6])
+    ).toEqual([Pieces.concrete6])
+    expect(model.specialGroups[1].entries.map(({ title }) => title)).toEqual([
+      'Concrete (6)',
+    ])
+    expect(
+      model.landColumns.some(({ terrain }) => terrain === HexTerrain.concrete),
+    ).toBe(true)
+    const concreteColumn = model.landColumns.find(
+      ({ terrain }) => terrain === HexTerrain.concrete,
+    )
+    expect(
+      concreteColumn?.cells.map(({ size, entry }) => [size, entry.inventoryID]),
+    ).toEqual([
+      [24, Pieces.concrete24],
+      [7, Pieces.concrete7],
+      [3, Pieces.concrete3],
+      [2, Pieces.concrete2],
+      [1, Pieces.concrete1],
+    ])
+    const concreteEntries = [
+      ...model.landColumns.flatMap((column) =>
+        column.cells.map(({ entry }) => entry),
+      ),
+      ...model.specialGroups.flatMap(({ entries }) => entries),
+    ].filter(({ terrain }) => terrain === HexTerrain.concrete)
+    expect(
+      concreteEntries.map(({ inventoryID }) => inventoryID).sort(),
+    ).toEqual(
+      [
+        Pieces.concrete1,
+        Pieces.concrete2,
+        Pieces.concrete3,
+        Pieces.concrete6,
+        Pieces.concrete7,
+        Pieces.concrete24,
+      ].sort(),
+    )
+    expect(
+      concreteEntries.filter(
+        ({ inventoryID }) => inventoryID === Pieces.concrete6,
+      ),
+    ).toHaveLength(1)
+    expect(
+      model.fluidColumns
+        .flatMap((column) => column.cells)
+        .map(({ entry }) => entry.inventoryID),
+    ).toEqual([Pieces.swampWater6, Pieces.ice4])
+  })
+
+  it('keeps the Concrete column absent when only the 6-hex piece is used', () => {
+    const model = getPieceKeyModel([makePiece(Pieces.concrete6, 0)], {}, true)
+
+    expect(
+      model.landColumns.some(({ terrain }) => terrain === HexTerrain.concrete),
+    ).toBe(false)
+    expect(
+      model.specialGroups
+        .find(({ id }) => id === 'other')
+        ?.entries.map(({ inventoryID, title, count }) => [
+          inventoryID,
+          title,
+          count,
+        ]),
+    ).toEqual([[Pieces.concrete6, 'Concrete (6)', 1]])
   })
 
   it('updates Special Tiles descriptions when border colors are disabled', () => {
@@ -119,6 +186,58 @@ describe('piece key model', () => {
     expect(darkBorders.specialGroups[0].description).toBe(
       'dark borders, brown wood-grain centers',
     )
+  })
+
+  it('describes key borders in both border modes', () => {
+    const boardPieces = [
+      makePiece(Pieces.water1, 0),
+      makePiece(Pieces.wellspringWater1, 1),
+      makePiece(Pieces.tree10, 2),
+      makePiece(Pieces.palm14, 3),
+      makePiece(Pieces.laurWallSquarePillar, 4),
+    ]
+
+    for (const useTerrainBorderColor of [true, false]) {
+      const model = getPieceKeyModel(boardPieces, {}, useTerrainBorderColor)
+      const descriptions = new Map(
+        model.specialGroups.map(({ id, description }) => [id, description]),
+      )
+      expect(model.specialGroups.some(({ id }) => id === 'water')).toBe(false)
+      expect(model.specialGroups.some(({ id }) => id === 'wellspring')).toBe(
+        false,
+      )
+      expect(model.fluidRows[0]?.description).toBe('blue borders')
+      expect(descriptions.get('evergreen')).toBe(
+        'green borders and centers; number indicates tree height',
+      )
+      expect(descriptions.get('jungle')).toBe('brown borders, yellow centers')
+      expect(descriptions.get('laur')).toBe(
+        'pillars have pink borders and purple centers; wall add-ons are pink',
+      )
+    }
+  })
+
+  it('describes ladder borders as black in both border modes', () => {
+    for (const useTerrainBorderColor of [true, false]) {
+      const model = getPieceKeyModel(
+        [makePiece(Pieces.ladder, 0)],
+        {},
+        useTerrainBorderColor,
+      )
+
+      expect(model.specialGroups[0]).toMatchObject({
+        id: 'ladder',
+        description: 'black borders',
+      })
+    }
+  })
+
+  it('labels Toxic terrain as Toxic Land', () => {
+    const model = getPieceKeyModel([makePiece(Pieces.toxic1, 0)], {}, true)
+
+    expect(model.landColumns).toMatchObject([
+      { terrain: HexTerrain.toxic, title: 'Toxic Land' },
+    ])
   })
 
   it('groups special pieces by family with counts and tree heights', () => {
@@ -147,9 +266,6 @@ describe('piece key model', () => {
     )
 
     expect(model.specialGroups.map(({ id }) => id)).toEqual([
-      'water',
-      'wellspring',
-      'other-fluids',
       'evergreen',
       'jungle',
       'wood',
@@ -161,7 +277,10 @@ describe('piece key model', () => {
       'glyph',
       'start-zone',
     ])
-    expect(model.specialGroups[0].entries[0]).toMatchObject({
+    expect(
+      model.fluidColumns.find(({ terrain }) => terrain === HexTerrain.water)
+        ?.cells[0].entry,
+    ).toMatchObject({
       inventoryID: Pieces.water3,
       count: 2,
     })
@@ -178,13 +297,119 @@ describe('piece key model', () => {
     ])
     expect(laur).toMatchObject({
       title: 'Pillars and Walls (Laur)',
-      description: 'pink borders, purple centers',
+      description:
+        'pillars have pink borders and purple centers; wall add-ons are pink',
     })
     expect(laur?.entries.map(({ title }) => title)).toEqual([
       'long wall',
       'short wall',
       'square pillar',
     ])
+  })
+
+  it('builds fluid columns and size rows from only the fluids used', () => {
+    const model = getPieceKeyModel(
+      [
+        makePiece(Pieces.water3, 0),
+        makePiece(Pieces.water3, 1),
+        makePiece(Pieces.wellspringWater1, 2),
+        makePiece(Pieces.swampWater6, 3),
+        makePiece(Pieces.ice4, 4),
+        makePiece(Pieces.ice6, 5),
+        makePiece(Pieces.lava1, 6),
+        makePiece(Pieces.shadow3, 7),
+        makePiece(Pieces.toxicWater1, 8),
+        makePiece(Pieces.genericFluid2, 9),
+        makePiece(Pieces.genericFluid2, 10),
+      ],
+      {},
+      true,
+    )
+
+    expect(model.fluidColumns.map(({ terrain }) => terrain)).toEqual([
+      HexTerrain.water,
+      HexTerrain.wellspringWater,
+      HexTerrain.swampWater,
+      HexTerrain.lava,
+      HexTerrain.ice,
+      HexTerrain.shadow,
+      HexTerrain.toxicWater,
+      HexTerrain.genericFluid,
+    ])
+    expect(model.fluidRows.map(({ size }) => size)).toEqual([6, 4, 3, 2, 1])
+    expect(
+      model.fluidColumns.map((column) =>
+        column.cells.map(({ size, entry }) => [size, entry.inventoryID]),
+      ),
+    ).toEqual([
+      [[3, Pieces.water3]],
+      [[1, Pieces.wellspringWater1]],
+      [[6, Pieces.swampWater6]],
+      [[1, Pieces.lava1]],
+      [
+        [6, Pieces.ice6],
+        [4, Pieces.ice4],
+      ],
+      [[3, Pieces.shadow3]],
+      [[1, Pieces.toxicWater1]],
+      [[2, Pieces.genericFluid2]],
+    ])
+    expect(model.fluidColumns[0].cells[0].entry.count).toBe(2)
+    expect(model.fluidColumns[7]).toMatchObject({
+      title: 'Generic Fluid',
+      description: 'user-selected centers',
+    })
+    expect(model.fluidRows.map(({ description }) => description)).toEqual([
+      'blue borders',
+      'blue borders',
+      'blue borders',
+      'blue borders',
+      'blue borders',
+    ])
+    expect(
+      model.specialGroups.flatMap(({ entries }) =>
+        entries.map(({ inventoryID }) => inventoryID),
+      ),
+    ).not.toContain(Pieces.genericFluid2)
+  })
+
+  it('uses only fluid sizes present in each wrapped column chunk', () => {
+    const model = getPieceKeyModel(
+      [
+        makePiece(Pieces.water3, 0),
+        makePiece(Pieces.wellspringWater1, 1),
+        makePiece(Pieces.swampWater6, 2),
+        makePiece(Pieces.ice4, 3),
+        makePiece(Pieces.ice6, 4),
+        makePiece(Pieces.lava1, 5),
+        makePiece(Pieces.shadow3, 6),
+        makePiece(Pieces.toxicWater1, 7),
+        makePiece(Pieces.genericFluid2, 8),
+      ],
+      {},
+      true,
+    )
+    const firstChunk = model.fluidColumns.slice(0, 6)
+    const secondChunk = model.fluidColumns.slice(6)
+
+    expect(
+      getPieceKeyRowsForColumns(firstChunk, model.fluidRows).map(
+        ({ size }) => size,
+      ),
+    ).toEqual([6, 4, 3, 1])
+    expect(
+      getPieceKeyRowsForColumns(secondChunk, model.fluidRows).map(
+        ({ size }) => size,
+      ),
+    ).toEqual([2, 1])
+    expect(
+      getPieceKeyRowsForColumns(
+        model.fluidColumns.filter(
+          ({ terrain }) => terrain === HexTerrain.toxicWater,
+        ),
+        model.fluidRows,
+      ).map(({ size }) => size),
+    ).toEqual([1])
   })
 
   it('uses the title as a safe fallback for missing terrain descriptions', () => {

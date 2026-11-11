@@ -1,8 +1,16 @@
 import { readFile } from 'node:fs/promises'
 import { unzipSync } from 'fflate'
-import { Pieces } from '../src/types'
+import { piecesSoFar } from '../src/data/pieces'
+import { HexTerrain, Pieces } from '../src/types'
 import { FIXTURE_HEX_MAP, FIXTURE_PIECE_IDS } from './fixture-map'
-import { expect, mapUrl, saveEvidence, test, waitForAppReady } from './fixtures'
+import {
+  expect,
+  mapUrl,
+  saveEvidence,
+  saveSvgEvidence,
+  test,
+  waitForAppReady,
+} from './fixtures'
 
 const pieceKeyURL = mapUrl({ ...FIXTURE_HEX_MAP, width: 12, length: 12 }, [
   ...FIXTURE_PIECE_IDS,
@@ -25,6 +33,65 @@ const pieceKeyURL = mapUrl({ ...FIXTURE_HEX_MAP, width: 12, length: 12 }, [
   `0~6~9~0~${Pieces.ropeLadder}`,
   `0~10~10~0~${Pieces.glyphPower}`,
 ])
+
+const issue350InventoryIDs = [
+  ...new Set(
+    Object.values(piecesSoFar)
+      .filter(({ terrain }) =>
+        [
+          HexTerrain.tree,
+          HexTerrain.snowTree,
+          HexTerrain.palm,
+          HexTerrain.brush,
+        ].includes(terrain as HexTerrain),
+      )
+      .map(({ id }) => id),
+  ),
+  Pieces.laurWallSquarePillar,
+  Pieces.laurWallPillarStackable,
+  Pieces.laurWallTrianglePillar,
+  Pieces.laurWallShort,
+  Pieces.laurWallShortStackable,
+  Pieces.laurWallLong,
+  Pieces.laurWallLongStackable,
+  Pieces.laurWallArch,
+  Pieces.laurWallRuin1,
+  Pieces.laurWallRuin2,
+  Pieces.laurWallRuin3,
+  Pieces.ladder,
+  Pieces.ropeLadder,
+  Pieces.toxic1,
+]
+const issue350PieceKeyURL = mapUrl(
+  { ...FIXTURE_HEX_MAP, width: 24, length: 24 },
+  issue350InventoryIDs.map(
+    (inventoryID, index) =>
+      `0~${(index % 8) * 3}~${Math.floor(index / 8) * 3}~0~${inventoryID}`,
+  ),
+)
+const issue353InventoryIDs = [
+  ...issue350InventoryIDs,
+  Pieces.hive,
+  Pieces.water1,
+  Pieces.water3,
+  Pieces.wellspringWater1,
+  Pieces.swampWater6,
+  Pieces.ice4,
+  Pieces.ice6,
+  Pieces.lava3,
+  Pieces.shadow3,
+  Pieces.toxicWater1,
+  Pieces.genericFluid3,
+  'y56',
+  'y36',
+]
+const issue353PieceKeyURL = mapUrl(
+  { ...FIXTURE_HEX_MAP, width: 64, length: 64 },
+  issue353InventoryIDs.map(
+    (inventoryID, index) =>
+      `0~${(index % 8) * 7}~${Math.floor(index / 8) * 7}~0~${inventoryID}`,
+  ),
+)
 
 test('SVG levels and the standalone Legend export as Illustrator-safe paths', async ({
   page,
@@ -72,10 +139,30 @@ test('SVG levels and the standalone Legend export as Illustrator-safe paths', as
   await expect(key.getByText('Ladders', { exact: true })).toBeVisible()
   await expect(key.getByText('Rope Ladders', { exact: true })).toBeVisible()
   await expect(key.getByText('Glyphs', { exact: true })).toBeVisible()
-  await expect(key.getByText('24 space', { exact: true })).toBeVisible()
-  await expect(key.getByText('3 space', { exact: true })).toBeVisible()
-  await expect(key.getByText('2 space', { exact: true })).toBeVisible()
-  await expect(key.getByText('1 space', { exact: true })).toBeVisible()
+  const landGrid = key.getByTestId('svg-piece-key-land-grid')
+  await expect(landGrid.getByText('24 space', { exact: true })).toBeVisible()
+  await expect(landGrid.getByText('3 space', { exact: true })).toBeVisible()
+  await expect(landGrid.getByText('2 space', { exact: true })).toBeVisible()
+  await expect(landGrid.getByText('1 space', { exact: true })).toBeVisible()
+  const oneHexBorder = key
+    .locator(
+      '[data-testid="svg-piece-key-land-cell"][data-terrain="grass"][data-size="1"]',
+    )
+    .locator('[data-testid="svg-piece-key-shape"] polygon')
+    .nth(1)
+  const sevenHexBorder = key
+    .locator(
+      '[data-testid="svg-piece-key-land-cell"][data-terrain="grass"][data-size="7"]',
+    )
+    .locator('[data-testid="svg-piece-key-shape"] polygon')
+    .nth(1)
+  const legendBorders = async () =>
+    Promise.all([
+      oneHexBorder.getAttribute('fill'),
+      sevenHexBorder.getAttribute('fill'),
+    ])
+  const colorLegendBorders = await legendBorders()
+  expect(colorLegendBorders).not.toEqual(['#000000', '#000000'])
   const missingLandShapes = await key
     .locator('[data-testid="svg-piece-key-land-cell"][data-has-entry="true"]')
     .evaluateAll((cells) =>
@@ -124,12 +211,15 @@ test('SVG levels and the standalone Legend export as Illustrator-safe paths', as
       })
     })
     const lastCard = cards[cards.length - 1]?.getBBox()
+    const firstCard = cards[0]?.getBBox()
     return {
       titleX: title?.getBBox().x,
       gridX: grid?.x,
       gridWidth: grid?.width,
       firstCardX: cards[0]?.getBBox().x,
       lastCardRight: lastCard ? lastCard.x + lastCard.width : undefined,
+      firstCardWidth: firstCard?.width,
+      cardCount: cards.length,
       textOverflows,
     }
   })
@@ -142,7 +232,9 @@ test('SVG levels and the standalone Legend export as Illustrator-safe paths', as
   expect(
     Math.abs(
       (keyLayout.lastCardRight ?? 0) -
-        ((keyLayout.gridX ?? 0) + (keyLayout.gridWidth ?? 0)),
+        ((keyLayout.firstCardX ?? 0) +
+          (((keyLayout.cardCount - 1) % 3) + 1) *
+            (keyLayout.firstCardWidth ?? 0)),
     ),
   ).toBeLessThan(3)
   expect(keyLayout.textOverflows).toEqual([])
@@ -154,7 +246,7 @@ test('SVG levels and the standalone Legend export as Illustrator-safe paths', as
   await colorBorders.uncheck()
   await page.getByRole('button', { name: 'View 2D Map' }).click()
   await page.locator('#simple-tab-0').click()
-  await expect(key.getByText('dark borders').first()).toBeVisible()
+  await expect(key.getByText('red borders').first()).toBeVisible()
 
   const downloadSvg = async (buttonName: string) => {
     await page.locator('#simple-tab-1').click()
@@ -326,4 +418,231 @@ test('PDF downloads include the piece key with both border modes', async ({
   await downloadPdf('piece-key-color-borders.pdf')
   await colorBorders.uncheck()
   await downloadPdf('piece-key-dark-borders.pdf')
+})
+
+test('renders issue 350 key evidence with all tree and Laur variants', async ({
+  page,
+}, testInfo) => {
+  await page.setViewportSize({ width: 1400, height: 1100 })
+  await page.goto(issue350PieceKeyURL)
+  await waitForAppReady(page)
+  await page.locator('#simple-tab-3').click()
+  await page
+    .getByRole('button', { name: 'View pdf build instructions' })
+    .click()
+  await page
+    .getByRole('checkbox', { name: 'Include piece key in SVG and PDF' })
+    .check()
+  await page.getByRole('button', { name: 'View 2D Map' }).click()
+  await page.locator('#simple-tab-0').click()
+
+  const levelInput = page.locator('input[type="text"]')
+  await expect(levelInput).toBeVisible()
+  await levelInput.fill('Legend')
+  const key = page.locator('[data-testid="svg-piece-key"]')
+  await expect(key).toBeVisible()
+  await saveSvgEvidence(key, 'issue-350-svg-piece-key')
+  const specialRowAlignment = await key.evaluate((element) => {
+    const errors: string[] = []
+    for (const group of element.querySelectorAll(
+      '[data-testid="svg-piece-key-special-group"]',
+    )) {
+      const rows = new Map<
+        string,
+        {
+          inventoryID: string
+          shapeTop: number
+          shapeBottom: number
+          captionTop: number
+        }[]
+      >()
+      for (const entry of group.querySelectorAll(
+        '[data-testid="svg-piece-key-special-entry"]',
+      )) {
+        const row = entry.getAttribute('data-row-index') ?? ''
+        const shape = entry.querySelector(
+          '[data-testid="svg-piece-key-shape"]',
+        ) as SVGGElement | null
+        const caption = entry.querySelector(
+          ':scope > text',
+        ) as SVGTextElement | null
+        if (!shape || !caption) {
+          errors.push(`missing shape or caption in row ${row}`)
+          continue
+        }
+        const shapeBounds = shape.getBBox()
+        const captionBounds = caption.getBBox()
+        rows.set(row, [
+          ...(rows.get(row) ?? []),
+          {
+            inventoryID: shape.getAttribute('data-inventory-id') ?? '',
+            shapeTop: shapeBounds.y,
+            shapeBottom: shapeBounds.y + shapeBounds.height,
+            captionTop: captionBounds.y,
+          },
+        ])
+      }
+
+      // Shapes are centered in their row; ship pieces share a bottom line.
+      const isShipGroup = group.getAttribute('data-group-id') === 'ship'
+      for (const [row, entries] of rows) {
+        const shapeLines = entries.map(({ shapeTop, shapeBottom }) =>
+          isShipGroup ? shapeBottom : (shapeTop + shapeBottom) / 2,
+        )
+        const captionTops = entries.map(({ captionTop }) => captionTop)
+        if (Math.max(...shapeLines) - Math.min(...shapeLines) > 3) {
+          errors.push(
+            `shapes do not share a ${isShipGroup ? 'bottom' : 'center'} line in row ${row}: ${JSON.stringify(entries)}`,
+          )
+        }
+        if (Math.max(...captionTops) - Math.min(...captionTops) > 2) {
+          errors.push(`captions do not share a top line in row ${row}`)
+        }
+        if (
+          Math.max(...entries.map(({ shapeBottom }) => shapeBottom)) >
+          Math.min(...captionTops) + 1
+        ) {
+          errors.push(`captions overlap shapes in row ${row}`)
+        }
+      }
+    }
+    return errors
+  })
+  expect(specialRowAlignment).toEqual([])
+
+  await page.setViewportSize({ width: 700, height: 900 })
+  await page.locator('#simple-tab-3').click()
+  await page
+    .getByRole('button', { name: 'View pdf build instructions' })
+    .click()
+  const pdfLink = page.getByRole('link', {
+    name: /Download build instructions \.pdf/,
+  })
+  await expect(pdfLink).toBeVisible()
+  const downloadPromise = page.waitForEvent('download')
+  await pdfLink.click()
+  const download = await downloadPromise
+  const pdfPath = await download.path()
+  if (!pdfPath) throw new Error('PDF download did not produce a file')
+  await download.saveAs(testInfo.outputPath('issue-350-piece-key.pdf'))
+})
+
+test('renders issue 353 key evidence for fluids, glyphs, and the hive', async ({
+  page,
+}, testInfo) => {
+  await page.setViewportSize({ width: 1400, height: 1100 })
+  await page.goto(issue353PieceKeyURL)
+  await waitForAppReady(page)
+  await page.locator('#simple-tab-3').click()
+  await page
+    .getByRole('button', { name: 'View pdf build instructions' })
+    .click()
+  await page
+    .getByRole('checkbox', { name: 'Include piece key in SVG and PDF' })
+    .check()
+  const pdfColorBorders = page.getByRole('checkbox', {
+    name: 'PDF Color Borders',
+  })
+  await page.getByRole('button', { name: 'View 2D Map' }).click()
+  await page.locator('#simple-tab-0').click()
+
+  const levelInput = page.locator('input[type="text"]')
+  await expect(levelInput).toBeVisible()
+  await levelInput.fill('Legend')
+  const key = page.locator('[data-testid="svg-piece-key"]')
+  await expect(key).toBeVisible()
+  await expect(key.getByText('Liquid and Base Terrain')).toBeVisible()
+  await expect(key.getByText('Jungle Trees')).toBeVisible()
+  await expect(key.getByText('Glyphs', { exact: true })).toBeVisible()
+  const emptyFluidRows = await key
+    .locator(
+      '[data-testid="svg-piece-key-fluid-grid"] [data-testid="svg-piece-key-land-table"]',
+    )
+    .evaluateAll((tables) =>
+      tables.flatMap((table, tableIndex) =>
+        [...table.querySelectorAll('[data-testid="svg-piece-key-table-row"]')]
+          .filter(
+            (row) =>
+              !row.querySelector(
+                '[data-testid="svg-piece-key-land-cell"][data-has-entry="true"]',
+              ),
+          )
+          .map(
+            (row) =>
+              `table ${tableIndex}, size ${row.getAttribute('data-size')}`,
+          ),
+      ),
+    )
+  expect(emptyFluidRows).toEqual([])
+  await saveSvgEvidence(key, 'issue-353-svg-live-piece-key', 1)
+
+  await page.setViewportSize({ width: 700, height: 900 })
+  await page.locator('#simple-tab-3').click()
+  await page
+    .getByRole('button', { name: 'View pdf build instructions' })
+    .click()
+  const downloadPdf = async (name: string) => {
+    const pdfLink = page.getByRole('link', {
+      name: /Download build instructions \.pdf/,
+    })
+    await expect(pdfLink).toBeVisible()
+    const downloadPromise = page.waitForEvent('download')
+    await pdfLink.click()
+    const download = await downloadPromise
+    const pdfPath = await download.path()
+    if (!pdfPath) throw new Error('PDF download did not produce a file')
+    await download.saveAs(testInfo.outputPath(name))
+  }
+  await pdfColorBorders.check()
+  await downloadPdf('issue-353-pdf-piece-key-color-borders.pdf')
+  await pdfColorBorders.uncheck()
+  await downloadPdf('issue-353-pdf-piece-key-dark-borders.pdf')
+
+  await page.setViewportSize({ width: 1400, height: 1100 })
+  await page.locator('#simple-tab-3').click()
+  await page.locator('#simple-tab-1').click()
+  const svgDownloadPromise = page.waitForEvent('download')
+  await page.getByRole('button', { name: 'Download Legend (SVG)' }).click()
+  const svgDownload = await svgDownloadPromise
+  const svgPath = await svgDownload.path()
+  if (!svgPath) throw new Error('SVG download did not produce a file')
+  const exportedSvg = await readFile(svgPath, 'utf8')
+  await page.setContent(exportedSvg)
+  const exportedHivePathCount = await page
+    .locator(
+      `[data-testid="svg-piece-key-shape"][data-inventory-id="${Pieces.hive}"]`,
+    )
+    .locator('path')
+    .count()
+  expect(exportedHivePathCount).toBeGreaterThanOrEqual(6)
+  const captionPathOffsets = await page
+    .locator('[data-testid="svg-piece-key-special-entry"]')
+    .evaluateAll((entries) =>
+      entries.flatMap((entry) => {
+        const shape = entry.querySelector(
+          ':scope > [data-testid="svg-piece-key-shape"]',
+        )
+        const slotCenter =
+          Number(entry.getAttribute('data-slot-x')) +
+          Number(entry.getAttribute('data-slot-width')) / 2
+        return [...entry.children]
+          .filter((child) => child !== shape)
+          .flatMap((child) =>
+            child.tagName.toLowerCase() === 'path'
+              ? [child]
+              : [...child.querySelectorAll('path')],
+          )
+          .map((path) => {
+            const bounds = (path as SVGGraphicsElement).getBBox()
+            return Math.abs(bounds.x + bounds.width / 2 - slotCenter)
+          })
+      }),
+    )
+  expect(captionPathOffsets.length).toBeGreaterThan(0)
+  expect(captionPathOffsets.every((offset) => offset < 1)).toBe(true)
+  await saveSvgEvidence(
+    page.locator('svg'),
+    'issue-353-svg-exported-piece-key',
+    1,
+  )
 })

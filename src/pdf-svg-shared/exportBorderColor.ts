@@ -3,6 +3,8 @@ import { HexTerrain } from '../types'
 export const ASPHALT_BORDER_COLOR = '#767676'
 export const ASPHALT_SUBLEVEL_BORDER_COLOR = '#252525'
 
+// Asphalt and Toxic Land share the same near-black fill (#121212, sub-level
+// #7a7a7a), so both get this gray border when color borders are off.
 // #767676 contrasts with Asphalt black at 4.62:1 and a white page at 4.54:1.
 // #252525 contrasts with the #7a7a7a sub-level fill at 3.57:1;
 // contrast with white is 15.33:1.
@@ -22,7 +24,7 @@ export function getExportBorderColor({
   defaultBorderColor: string
 }) {
   if (useTerrainBorderColor || isFluid) return colorBorder
-  if (terrain === HexTerrain.asphalt) {
+  if (terrain === HexTerrain.asphalt || terrain === HexTerrain.toxic) {
     return isSubLevel ? ASPHALT_SUBLEVEL_BORDER_COLOR : ASPHALT_BORDER_COLOR
   }
   return defaultBorderColor

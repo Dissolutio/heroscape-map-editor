@@ -1,4 +1,5 @@
 import { G } from '@react-pdf/renderer'
+import { cloneElement } from 'react'
 import { getPieceExportSymbol } from '../pdf-svg-shared/pieceLegend'
 import {
   type BoardHex,
@@ -26,6 +27,8 @@ export const PdfMapBoardPiece = ({
   useLegacyStartZones,
   is2DOverlayLevelEnabled,
   isPieceKeyPreview = false,
+  useTerrainBorderColor = true,
+  archTextOffsetX,
 }: {
   piece: DecodedPieceID
   viewingLevel: number
@@ -33,10 +36,13 @@ export const PdfMapBoardPiece = ({
   useLegacyStartZones?: boolean
   is2DOverlayLevelEnabled?: boolean
   isPieceKeyPreview?: boolean
+  useTerrainBorderColor?: boolean
+  archTextOffsetX?: number
 }) => {
   const altitudeAdjusted = piece.altitude + 1
   const pixel = hexUtilsHexToPixel(piece.pieceCoords)
   const isSubLevel = !isPieceKeyPreview && altitudeAdjusted < viewingLevel
+  const useLegendBorderColor = useTerrainBorderColor ? true : 'force-dark'
   const { inventoryID } = piece
   const exportSymbol = getPieceExportSymbol(inventoryID)
   const isVisible = isPieceKeyPreview || altitudeAdjusted <= viewingLevel
@@ -116,11 +122,30 @@ export const PdfMapBoardPiece = ({
           piece={piece}
           isSubLevel={isSubLevel}
           isPieceKeyPreview={isPieceKeyPreview}
+          useTerrainBorderColor={useLegendBorderColor}
         />
       </G>
     )
   }
   if (exportSymbol === 'laur-arch') {
+    const archText =
+      archTextOffsetX === undefined ? (
+        <PdfLaurWallArchText
+          isSubLevel={isSubLevel}
+          pieceRotation={pieceRotation}
+        />
+      ) : (
+        cloneElement(
+          PdfLaurWallArchText({
+            isSubLevel,
+            pieceRotation,
+          }),
+          {
+            x: archTextOffsetX,
+            textAnchor: 'middle',
+          },
+        )
+      )
     return (
       <G
         transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
@@ -129,6 +154,7 @@ export const PdfMapBoardPiece = ({
           piece={piece}
           isSubLevel={isSubLevel}
           isPieceKeyPreview={isPieceKeyPreview}
+          useTerrainBorderColor={useLegendBorderColor}
         />
         <G
           // flip upside down text, all other rotations are legible
@@ -138,10 +164,7 @@ export const PdfMapBoardPiece = ({
               : 'rotate(0)'
           }
         >
-          <PdfLaurWallArchText
-            isSubLevel={isSubLevel}
-            pieceRotation={pieceRotation}
-          />
+          {archText}
         </G>
       </G>
     )
@@ -156,6 +179,7 @@ export const PdfMapBoardPiece = ({
           piece={piece}
           isSubLevel={isSubLevel}
           isPieceKeyPreview={isPieceKeyPreview}
+          useTerrainBorderColor={useLegendBorderColor}
         />
       </G>
     )
@@ -166,7 +190,11 @@ export const PdfMapBoardPiece = ({
       <G
         transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
       >
-        <PdfBoardPieceLaurWallRuin piece={piece} isSubLevel={isSubLevel} />
+        <PdfBoardPieceLaurWallRuin
+          piece={piece}
+          isSubLevel={isSubLevel}
+          useTerrainBorderColor={useLegendBorderColor}
+        />
       </G>
     )
   }

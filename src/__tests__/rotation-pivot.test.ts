@@ -505,6 +505,10 @@ describe('group rotation pivot resolution', () => {
     )
     expect(getRotationByListStep(Pieces.grass3, 0, 1)).toBe(1)
     expect(getRotationByListStep(Pieces.laurWallLong, 0.5, 1)).toBe(1.5)
+    expect(getPossibleRotationsForPenMode(Pieces.cannon)).toEqual([
+      0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5,
+    ])
+    expect(getRotationByListStep(Pieces.cannon, 0, 1)).toBe(0.5)
     expect(hasIntegerRotationSteps(Pieces.grass3)).toBe(true)
     expect(
       [
@@ -515,6 +519,7 @@ describe('group rotation pivot resolution', () => {
         Pieces.laurWallRuin1,
         Pieces.laurWallRuin2,
         Pieces.laurWallRuin3,
+        Pieces.cannon,
       ].every((pieceID) => !hasIntegerRotationSteps(pieceID)),
     ).toBe(true)
   })

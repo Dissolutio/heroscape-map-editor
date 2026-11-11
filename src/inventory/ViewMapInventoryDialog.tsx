@@ -1,29 +1,30 @@
 import {
-  ButtonBase,
   Button,
+  ButtonBase,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
   Tooltip,
+  Typography,
   useMediaQuery,
 } from '@mui/material'
+import { yellow } from '@mui/material/colors'
+import { Box } from '@mui/system'
 import React from 'react'
+import { piecesSoFar } from '../data/pieces'
 import { DIALOGS } from '../layout/dialogNames'
 import useBoundStore from '../store/store'
-import { Box } from '@mui/system'
-import { piecesSoFar } from '../data/pieces'
-import { yellow } from '@mui/material/colors'
-import {
-  countPiecesUsedWithLaurStacking,
-  type LaurReconcileDetail,
-  reconcileLaurLegacyToStackableUsage,
-} from './laurInventoryReconcile'
 import {
   getEffectiveTerrainConstraintInventory,
   hasActiveTerrainConstraints,
   isPenModePieceAvailable,
 } from '../utils/terrain-constraints'
+import {
+  type LaurReconcileDetail,
+  countPiecesUsedWithLaurStacking,
+  reconcileLaurLegacyToStackableUsage,
+} from './laurInventoryReconcile'
 
 const ViewMapInventoryDialog = () => {
   const fullScreen = useMediaQuery('(max-width:900px)')

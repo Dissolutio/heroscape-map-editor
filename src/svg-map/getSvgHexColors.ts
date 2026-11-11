@@ -25,6 +25,13 @@ function isBoardHex(hex: BoardHex | DecodedPieceID): hex is BoardHex {
   return (<BoardHex>hex).pieceRotation !== undefined
 }
 
+export const getOutcropTextColor = (terrain: string, isSubLevel?: boolean) => {
+  const colors = isSubLevel ? svgSubLevelColors : svgColors
+  return terrain === HexTerrain.glacier || terrain === HexTerrain.toxicOutcrop
+    ? colors.glacierText
+    : colors.outcropText
+}
+
 const getSvgHexColorOutline = (hex: BoardHex | DecodedPieceID) => {
   // TODO: color: refactor this to be more direct
   const isSolidTerrain = isSolidTerrainHex(hex.terrain)
@@ -105,7 +112,7 @@ const getSvgHexColorOutline = (hex: BoardHex | DecodedPieceID) => {
     return svgColors.outlineLavaOutcrop
   }
   if (hex.terrain === HexTerrain.toxicOutcrop) {
-    return svgColors[HexTerrain.toxicOutcrop]
+    return svgColors.toxicOutcropBorder
   }
   if (hex.terrain === HexTerrain.castleWall) {
     return svgColors.castleWall
@@ -131,13 +138,12 @@ export const getSvgHexBorderColor = (
   const colorBorder = getSvgHexColorOutline(hex)
   return getExportBorderColor({
     terrain: hex.terrain,
-    isFluid: isFluidTerrainHex(hex.terrain),
+    isFluid: useTerrainBorderColor && isFluidTerrainHex(hex.terrain),
     isSubLevel: false,
-    useTerrainBorderColor,
+    useTerrainBorderColor:
+      useTerrainBorderColor || hex.terrain === HexTerrain.toxicOutcrop,
     colorBorder,
-    defaultBorderColor: isSolidTerrainHex(hex.terrain)
-      ? svgColors.glacierText
-      : colorBorder,
+    defaultBorderColor: svgColors.glacierText,
   })
 }
 
@@ -220,7 +226,7 @@ const getSvgHexSubLevelColorOutline = (hex: BoardHex | DecodedPieceID) => {
     return svgSubLevelColors.outlineLavaOutcrop
   }
   if (hex.terrain === HexTerrain.toxicOutcrop) {
-    return svgSubLevelColors[HexTerrain.toxicOutcrop]
+    return svgSubLevelColors.toxicOutcropBorder
   }
   if (hex.terrain === HexTerrain.castleWall) {
     return svgSubLevelColors.castleWall
@@ -243,13 +249,12 @@ export const getSvgHexSubLevelBorderColor = (
   const colorBorder = getSvgHexSubLevelColorOutline(hex)
   return getExportBorderColor({
     terrain: hex.terrain,
-    isFluid: isFluidTerrainHex(hex.terrain),
+    isFluid: useTerrainBorderColor && isFluidTerrainHex(hex.terrain),
     isSubLevel: true,
-    useTerrainBorderColor,
+    useTerrainBorderColor:
+      useTerrainBorderColor || hex.terrain === HexTerrain.toxicOutcrop,
     colorBorder,
-    defaultBorderColor: isSolidTerrainHex(hex.terrain)
-      ? svgSubLevelColors.glacierText
-      : colorBorder,
+    defaultBorderColor: svgSubLevelColors.glacierText,
   })
 }
 

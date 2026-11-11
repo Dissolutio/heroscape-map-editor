@@ -48,6 +48,7 @@ import {
   getShipWallSvgPolygonPoints,
 } from '../pdf-svg-shared/hexPolygonPoints'
 import {
+  getOutcropTextColor,
   getSvgHexBorderColor,
   getSvgHexFillColor,
   getSvgHexSubLevelBorderColor,
@@ -292,12 +293,23 @@ const getPdfHexFillForView = (
     : subLevelFill
 }
 
+export type PdfBorderMode = boolean | 'force-dark'
+
 const getPdfHexBorderForView = (
   hex: BoardHex | DecodedPieceID,
   isSubLevel?: boolean,
-  useTerrainBorderColor = true,
+  borderMode: PdfBorderMode = true,
 ) => {
   if (PDF_BORDER_WIDTH <= 0) return ''
+  if (hex.terrain === HexTerrain.toxicOutcrop) {
+    return isSubLevel
+      ? svgSubLevelColors.toxicOutcropBorder
+      : svgColors.toxicOutcropBorder
+  }
+  if (borderMode === 'force-dark') {
+    return isSubLevel ? svgSubLevelColors.glacierText : svgColors.glacierText
+  }
+  const useTerrainBorderColor = borderMode
   if (isSubLevel && hex.terrain === HexTerrain.hive) {
     return blendColorWithWhite(getSvgHexBorderColor(hex), OPACITY_SUBLEVEL)
   }
@@ -325,7 +337,7 @@ export const PdfMultiHex1 = ({
 }: {
   hex: BoardHex
   isSubLevel?: boolean
-  useTerrainBorderColor?: boolean
+  useTerrainBorderColor?: PdfBorderMode
   // replaces the terrain colors, e.g. the white hex under a ladder overlay stack
   fillOverride?: string
   borderOverride?: string
@@ -402,7 +414,7 @@ export const PdfMultiHex2 = ({
 }: {
   hex: BoardHex
   isSubLevel?: boolean
-  useTerrainBorderColor?: boolean
+  useTerrainBorderColor?: PdfBorderMode
 }) => {
   const fillColor = getPdfHexFillForView(hex, isSubLevel)
   const borderColor = getPdfHexBorderForView(
@@ -430,7 +442,7 @@ export const PdfMultiHex3 = ({
 }: {
   hex: BoardHex
   isSubLevel?: boolean
-  useTerrainBorderColor?: boolean
+  useTerrainBorderColor?: PdfBorderMode
 }) => {
   const fillColor = getPdfHexFillForView(hex, isSubLevel)
   const borderColor = getPdfHexBorderForView(
@@ -454,12 +466,18 @@ export const PdfMultiHex3 = ({
 export const PdfCastleArchStraight3 = ({
   hex,
   isSubLevel,
+  useTerrainBorderColor = true,
 }: {
   hex: BoardHex
   isSubLevel?: boolean
+  useTerrainBorderColor?: PdfBorderMode
 }) => {
   const fillColor = getPdfHexFillForView(hex, isSubLevel)
-  const borderColor = getPdfHexBorderForView(hex, isSubLevel)
+  const borderColor = getPdfHexBorderForView(
+    hex,
+    isSubLevel,
+    useTerrainBorderColor,
+  )
   const { points } = get3HexStraightPdfPolygonPointsAt00(
     SVG_HEX_RADIUS,
     PDF_BORDER_WIDTH,
@@ -480,7 +498,7 @@ export const PdfMultiHex4 = ({
 }: {
   hex: BoardHex
   isSubLevel?: boolean
-  useTerrainBorderColor?: boolean
+  useTerrainBorderColor?: PdfBorderMode
 }) => {
   const fillColor = getPdfHexFillForView(hex, isSubLevel)
   const borderColor = getPdfHexBorderForView(
@@ -508,7 +526,7 @@ export const PdfMultiHex5 = ({
 }: {
   hex: BoardHex
   isSubLevel?: boolean
-  useTerrainBorderColor?: boolean
+  useTerrainBorderColor?: PdfBorderMode
 }) => {
   const fillColor = getPdfHexFillForView(hex, isSubLevel)
   const borderColor = getPdfHexBorderForView(
@@ -536,7 +554,7 @@ export const PdfMultiHex6 = ({
 }: {
   hex: BoardHex
   isSubLevel?: boolean
-  useTerrainBorderColor?: boolean
+  useTerrainBorderColor?: PdfBorderMode
 }) => {
   const fillColor = getPdfHexFillForView(hex, isSubLevel)
   const borderColor = getPdfHexBorderForView(
@@ -560,9 +578,11 @@ export const PdfMultiHex6 = ({
 export const PdfMultiHexMarvel6 = ({
   hex,
   isSubLevel,
+  useTerrainBorderColor = true,
 }: {
   hex: BoardHex
   isSubLevel?: boolean
+  useTerrainBorderColor?: PdfBorderMode
 }) => {
   const { points } = getMarvel6HexPdfPolygonPointsAt00(
     SVG_HEX_RADIUS,
@@ -572,7 +592,7 @@ export const PdfMultiHexMarvel6 = ({
     <Polygon
       points={points}
       fill={getPdfHexFillForView(hex, isSubLevel)}
-      stroke={getPdfHexBorderForView(hex, isSubLevel)}
+      stroke={getPdfHexBorderForView(hex, isSubLevel, useTerrainBorderColor)}
       strokeWidth={PDF_BORDER_WIDTH}
     />
   )
@@ -584,7 +604,7 @@ export const PdfMultiHex7 = ({
 }: {
   hex: BoardHex
   isSubLevel?: boolean
-  useTerrainBorderColor?: boolean
+  useTerrainBorderColor?: PdfBorderMode
 }) => {
   const fillColor = getPdfHexFillForView(hex, isSubLevel)
   const borderColor = getPdfHexBorderForView(
@@ -612,7 +632,7 @@ export const PdfMultiHexWallWalk7 = ({
 }: {
   hex: BoardHex
   isSubLevel?: boolean
-  useTerrainBorderColor?: boolean
+  useTerrainBorderColor?: PdfBorderMode
 }) => {
   const fillColor = getPdfHexFillForView(hex, isSubLevel)
   const borderColor = getPdfHexBorderForView(
@@ -640,7 +660,7 @@ export const PdfMultiHexWallWalk9 = ({
 }: {
   hex: BoardHex
   isSubLevel?: boolean
-  useTerrainBorderColor?: boolean
+  useTerrainBorderColor?: PdfBorderMode
 }) => {
   const fillColor = getPdfHexFillForView(hex, isSubLevel)
   const borderColor = getPdfHexBorderForView(
@@ -668,7 +688,7 @@ export const PdfMultiHex24 = ({
 }: {
   hex: BoardHex
   isSubLevel?: boolean
-  useTerrainBorderColor?: boolean
+  useTerrainBorderColor?: PdfBorderMode
 }) => {
   const fillColor = getPdfHexFillForView(hex, isSubLevel)
   const borderColor = getPdfHexBorderForView(
@@ -693,9 +713,11 @@ export const PdfMultiHex24 = ({
 export const PdfJungle = ({
   hex,
   isSubLevel,
+  useTerrainBorderColor = true,
 }: {
   hex: BoardHex
   isSubLevel?: boolean
+  useTerrainBorderColor?: PdfBorderMode
 }) => {
   const pieceHeightText = getPieceGameHeight(hex.inventoryID)
   const pieceRotation = ((hex?.pieceRotation ?? 0) % 6) * 60
@@ -706,13 +728,21 @@ export const PdfJungle = ({
   return (
     <>
       <G transform={`rotate(${pieceRotation})`}>
-        <PdfMultiHex1 hex={hex} isSubLevel={isSubLevel} />
+        <PdfMultiHex1
+          hex={hex}
+          isSubLevel={isSubLevel}
+          useTerrainBorderColor={useTerrainBorderColor}
+        />
         <Polygon
           points={points}
           fill={
-            isSubLevel
-              ? svgSubLevelColors.outlineJungle
-              : svgColors.outlineJungle
+            useTerrainBorderColor === true
+              ? isSubLevel
+                ? svgSubLevelColors.outlineJungle
+                : svgColors.outlineJungle
+              : isSubLevel
+                ? svgSubLevelColors.glacierText
+                : svgColors.glacierText
           }
         />
       </G>
@@ -725,13 +755,17 @@ export const PdfJungle = ({
 export const PdfLaurPillar = ({
   hex,
   isSubLevel,
+  useTerrainBorderColor = true,
 }: {
   hex: BoardHex
   isSubLevel?: boolean
+  useTerrainBorderColor?: PdfBorderMode
 }) => {
-  const fillColor = isSubLevel
-    ? getSvgHexSubLevelBorderColor(hex)
-    : getSvgHexBorderColor(hex)
+  const fillColor = getPdfHexBorderForView(
+    hex,
+    isSubLevel,
+    useTerrainBorderColor,
+  )
   const laurSquarePoints = getLaurPillarPdfShape(
     SVG_HEX_RADIUS,
     PDF_BORDER_WIDTH,
@@ -747,7 +781,11 @@ export const PdfLaurPillar = ({
   const pieceRotation = ((hex?.pieceRotation ?? 0) % 6) * 60
   return (
     <>
-      <PdfMultiHex1 hex={hex} isSubLevel={isSubLevel} />
+      <PdfMultiHex1
+        hex={hex}
+        isSubLevel={isSubLevel}
+        useTerrainBorderColor={useTerrainBorderColor}
+      />
       <G transform={`rotate(${pieceRotation})`}>
         <Polygon points={innerShapePoints} fill={fillColor} />
       </G>
@@ -758,12 +796,18 @@ export const PdfLaurPillar = ({
 export const PdfHive6 = ({
   hex,
   isSubLevel,
+  useTerrainBorderColor = true,
 }: {
   hex: BoardHex
   isSubLevel?: boolean
+  useTerrainBorderColor?: PdfBorderMode
 }) => {
   const fillColor = getPdfHexFillForView(hex, isSubLevel)
-  const borderColor = getPdfHexBorderForView(hex, isSubLevel)
+  const borderColor = getPdfHexBorderForView(
+    hex,
+    isSubLevel,
+    useTerrainBorderColor,
+  )
   const { points } = get6HexPdfPolygonPointsAt00(
     SVG_HEX_RADIUS,
     PDF_BORDER_WIDTH,
@@ -881,13 +925,19 @@ export const PdfBoardPieceLaurWallShort = ({
   piece,
   isSubLevel,
   isPieceKeyPreview,
+  useTerrainBorderColor = true,
 }: {
   piece: DecodedPieceID
   isSubLevel?: boolean
   isPieceKeyPreview?: boolean
+  useTerrainBorderColor?: PdfBorderMode
 }) => {
   const fillColor = getPdfHexFillForView(piece, isSubLevel)
-  const borderColor = getPdfHexBorderForView(piece, isSubLevel)
+  const borderColor = getPdfHexBorderForView(
+    piece,
+    isSubLevel,
+    useTerrainBorderColor,
+  )
   const { points } = getLaurShortWallPolygonPoints(
     SVG_HEX_RADIUS,
     isPieceKeyPreview ? 0.5 : 0.2,
@@ -905,14 +955,21 @@ export const PdfBoardPieceLaurWallLong = ({
   piece,
   isSubLevel,
   isPieceKeyPreview,
+  useTerrainBorderColor = true,
 }: {
   piece: DecodedPieceID
   isSubLevel?: boolean
   isPieceKeyPreview?: boolean
+  useTerrainBorderColor?: PdfBorderMode
 }) => {
   const fillColor = isSubLevel
     ? getSvgHexSubLevelFillColor(piece)
     : getSvgHexFillColor(piece)
+  const borderColor = getPdfHexBorderForView(
+    piece,
+    isSubLevel,
+    useTerrainBorderColor,
+  )
   const { points } = isPieceKeyPreview
     ? getLaurLongWallSvgPolygonPoints(SVG_HEX_RADIUS)
     : getLaurLongWallPdfPolygonPoints(SVG_HEX_RADIUS, PDF_BORDER_WIDTH)
@@ -920,9 +977,7 @@ export const PdfBoardPieceLaurWallLong = ({
     <Polygon
       points={points}
       fill={fillColor}
-      stroke={
-        isPieceKeyPreview ? getPdfHexBorderForView(piece, isSubLevel) : ''
-      }
+      stroke={isPieceKeyPreview ? borderColor : ''}
       strokeWidth={isPieceKeyPreview ? PDF_BORDER_WIDTH : 0}
     />
   )
@@ -931,14 +986,21 @@ export const PdfBoardPieceLaurWallLongArch = ({
   piece,
   isSubLevel,
   isPieceKeyPreview,
+  useTerrainBorderColor = true,
 }: {
   piece: DecodedPieceID
   isSubLevel?: boolean
   isPieceKeyPreview?: boolean
+  useTerrainBorderColor?: PdfBorderMode
 }) => {
   const fillColor = isSubLevel
     ? getSvgHexSubLevelFillColor(piece)
     : getSvgHexFillColor(piece)
+  const borderColor = getPdfHexBorderForView(
+    piece,
+    isSubLevel,
+    useTerrainBorderColor,
+  )
   const { points } = isPieceKeyPreview
     ? getLaurLongWallSvgPolygonPoints(SVG_HEX_RADIUS)
     : getLaurLongWallPdfPolygonPoints(SVG_HEX_RADIUS, PDF_BORDER_WIDTH)
@@ -946,9 +1008,7 @@ export const PdfBoardPieceLaurWallLongArch = ({
     <Polygon
       points={points}
       fill={fillColor}
-      stroke={
-        isPieceKeyPreview ? getPdfHexBorderForView(piece, isSubLevel) : ''
-      }
+      stroke={isPieceKeyPreview ? borderColor : ''}
       strokeWidth={isPieceKeyPreview ? PDF_BORDER_WIDTH : 0}
     />
   )
@@ -993,12 +1053,18 @@ export const PdfLaurWallArchText = ({
 export const PdfBoardPieceLaurWallRuin = ({
   piece,
   isSubLevel,
+  useTerrainBorderColor = true,
 }: {
   piece: DecodedPieceID
   isSubLevel?: boolean
+  useTerrainBorderColor?: PdfBorderMode
 }) => {
   const fillColor = getPdfHexFillForView(piece, isSubLevel)
-  const borderColor = getPdfHexBorderForView(piece, isSubLevel)
+  const borderColor = getPdfHexBorderForView(
+    piece,
+    isSubLevel,
+    useTerrainBorderColor,
+  )
   const { points } = getLaurWallRuinPdfPolygonPoints(
     SVG_HEX_RADIUS,
     // PDF_BORDER_WIDTH,
@@ -1061,6 +1127,7 @@ export const PdfLadder = ({
   const { points } = getLadderSvgPolygonPoints(
     SVG_HEX_RADIUS * (isPieceKeyPreview ? 2 : 1),
     0,
+    isPieceKeyPreview ? -SVG_HEX_RADIUS : 0,
   )
   return (
     <Polygon
@@ -1348,13 +1415,19 @@ const treeXYForRotation = [
 export const PdfSvgTree415 = ({
   hex,
   isSubLevel,
+  useTerrainBorderColor = true,
 }: {
   hex: BoardHex
   isSubLevel?: boolean
+  useTerrainBorderColor?: PdfBorderMode
 }) => {
   const pieceHeightText = getPieceGameHeight(hex.inventoryID)
   const fillColor = getPdfHexFillForView(hex, isSubLevel)
-  const borderColor = getPdfHexBorderForView(hex, isSubLevel)
+  const borderColor = getPdfHexBorderForView(
+    hex,
+    isSubLevel,
+    useTerrainBorderColor,
+  )
   const { points } = get4HexPdfPolygonPointsAt00(
     SVG_HEX_RADIUS,
     PDF_BORDER_WIDTH,
@@ -1433,24 +1506,23 @@ const outcrop6TextXYForRotation = [
 export const PdfSvgOutcrop6 = ({
   hex,
   isSubLevel,
+  useTerrainBorderColor = true,
 }: {
   hex: BoardHex
   isSubLevel?: boolean
+  useTerrainBorderColor?: PdfBorderMode
 }) => {
   const fillColor = getPdfHexFillForView(hex, isSubLevel)
-  const borderColor = getPdfHexBorderForView(hex, isSubLevel)
+  const borderColor = getPdfHexBorderForView(
+    hex,
+    isSubLevel,
+    useTerrainBorderColor,
+  )
   const { points } = get6HexPdfPolygonPointsAt00(
     SVG_HEX_RADIUS,
     PDF_BORDER_WIDTH,
   )
-  const glacierTextColor = isSubLevel
-    ? svgSubLevelColors.glacierText
-    : svgColors.glacierText
-  const outcropTextColor = isSubLevel
-    ? svgSubLevelColors.outcropText
-    : svgColors.outcropText
-  const textColor =
-    hex.terrain === HexTerrain.glacier ? glacierTextColor : outcropTextColor
+  const textColor = getOutcropTextColor(hex.terrain, isSubLevel)
   const pieceRotation = ((hex?.pieceRotation ?? 0) % 6) * 60
   return (
     <>
@@ -1528,24 +1600,23 @@ export const PdfSvgOutcrop6 = ({
 export const PdfSvgOutcrop3 = ({
   hex,
   isSubLevel,
+  useTerrainBorderColor = true,
 }: {
   hex: BoardHex
   isSubLevel?: boolean
+  useTerrainBorderColor?: PdfBorderMode
 }) => {
   const fillColor = getPdfHexFillForView(hex, isSubLevel)
-  const borderColor = getPdfHexBorderForView(hex, isSubLevel)
+  const borderColor = getPdfHexBorderForView(
+    hex,
+    isSubLevel,
+    useTerrainBorderColor,
+  )
   const { points } = get3HexPdfPolygonPointsAt00(
     SVG_HEX_RADIUS,
     PDF_BORDER_WIDTH,
   )
-  const glacierTextColor = isSubLevel
-    ? svgSubLevelColors.glacierText
-    : svgColors.glacierText
-  const outcropTextColor = isSubLevel
-    ? svgSubLevelColors.outcropText
-    : svgColors.outcropText
-  const textColor =
-    hex.terrain === HexTerrain.glacier ? glacierTextColor : outcropTextColor
+  const textColor = getOutcropTextColor(hex.terrain, isSubLevel)
   const pieceRotation = ((hex?.pieceRotation ?? 0) % 6) * 60
   return (
     <>
@@ -1587,24 +1658,23 @@ export const PdfSvgOutcrop3 = ({
 export const PdfSvgOutcrop4 = ({
   hex,
   isSubLevel,
+  useTerrainBorderColor = true,
 }: {
   hex: BoardHex
   isSubLevel?: boolean
+  useTerrainBorderColor?: PdfBorderMode
 }) => {
   const fillColor = getPdfHexFillForView(hex, isSubLevel)
-  const borderColor = getPdfHexBorderForView(hex, isSubLevel)
+  const borderColor = getPdfHexBorderForView(
+    hex,
+    isSubLevel,
+    useTerrainBorderColor,
+  )
   const { points } = get4HexPdfPolygonPointsAt00(
     SVG_HEX_RADIUS,
     PDF_BORDER_WIDTH,
   )
-  const glacierTextColor = isSubLevel
-    ? svgSubLevelColors.glacierText
-    : svgColors.glacierText
-  const outcropTextColor = isSubLevel
-    ? svgSubLevelColors.outcropText
-    : svgColors.outcropText
-  const textColor =
-    hex.terrain === HexTerrain.glacier ? glacierTextColor : outcropTextColor
+  const textColor = getOutcropTextColor(hex.terrain, isSubLevel)
   const pieceRotation = ((hex?.pieceRotation ?? 0) % 6) * 60
   return (
     <>

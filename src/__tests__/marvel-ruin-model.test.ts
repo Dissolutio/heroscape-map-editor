@@ -3,8 +3,8 @@ import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { Pieces } from '../types'
 import {
-  getMarvelRuinParts,
   type MarvelRuinMeshName,
+  getMarvelRuinParts,
 } from '../world/models/marvelRuinParts'
 
 type GlbJson = {
@@ -66,8 +66,8 @@ function getCombinedBounds(glb: GlbJson) {
 }
 
 function expectBoundsClose(
-  oldBounds: ReturnType<typeof getMeshBounds>,
-  newBounds: ReturnType<typeof getMeshBounds>,
+  oldBounds: { min: number[]; max: number[] },
+  newBounds: { min: number[]; max: number[] },
   axes: number[],
   tolerance: number,
 ) {
@@ -79,6 +79,18 @@ function expectBoundsClose(
       Math.abs(oldBounds.max[axis] - newBounds.max[axis]),
     ).toBeLessThanOrEqual(tolerance)
   }
+}
+
+// Bounds recorded from the original Marvel Ruin model before its removal.
+const originalMarvelBounds = {
+  combined: {
+    min: [-1.064774751663208, 2.9802322387695312e-8, -1.0891509056091309],
+    max: [4.909017562866211, 4.199999809265137, 1.7004338502883911],
+  },
+  upperFloor: {
+    min: [-0.8647747039794922, 2.5842881202697754, -1.0891509056091309],
+    max: [4.909017562866211, 2.8299996852874756, 1.5004329681396484],
+  },
 }
 
 const expectedMeshes: Array<[string, MarvelRuinMeshName[]]> = [
@@ -141,16 +153,15 @@ describe('textured Marvel Ruin model', () => {
   })
 
   it('keeps the original footprint and upper-floor height', () => {
-    const oldModel = readGlbJson('public/marvel-ruins_v2.glb')
     const newModel = readGlbJson('public/marvel-ruin-6-textured.glb')
     expectBoundsClose(
-      getCombinedBounds(oldModel),
+      originalMarvelBounds.combined,
       getCombinedBounds(newModel),
       [0, 2],
       0.35,
     )
     expectBoundsClose(
-      getMeshBounds(oldModel, 'Plane.003'),
+      originalMarvelBounds.upperFloor,
       getMeshBounds(newModel, 'MarvelRuinUpperFloor'),
       [1],
       0.2,

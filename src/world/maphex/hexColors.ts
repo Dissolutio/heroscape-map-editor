@@ -208,6 +208,8 @@ export const terrainCapColors: { [terrain: string]: string } = {
   [HexTerrain.generic]: '#e63cc8',
   [HexTerrain.genericFluid]: '#ff96e6',
 }
+const outline3Color = '#020202'
+
 export const svgColors = {
   [Pieces.startZone1]: 'rgb(177, 0, 143)',
   [Pieces.startZone2]: 'rgb(8, 87, 37)',
@@ -241,7 +243,9 @@ export const svgColors = {
   // OUTLINES
   outline1: '#E50101', // renegade-hexoscape
   outline2: '#E67421', // renegade-hexoscape
-  outline3: '#020202', // renegade-hexoscape
+  outline3: outline3Color, // renegade-hexoscape
+  // same as the 3-space land border (John, 2026-11-09)
+  toxicOutcropBorder: outline3Color,
   outline7: '#B02E94', // renegade-hexoscape
   outline24: '#BDBDBD', // renegade-hexoscape
   outlineMarvel: '#000000',
@@ -320,6 +324,8 @@ export const svgColors = {
   [HexTerrain.glyphPower]: 'rgb(255, 124, 3)',
   [HexTerrain.glyphTreasure]: 'rgb(225, 191, 20)',
 }
+const subLevelOutline3Color = '#DAD0D0'
+
 export const svgSubLevelColors = {
   jungleText: '#C5BCBC',
   glacierText: '#808080', // glacier text & jungle text both black, but sub level they need different colors to be legible
@@ -329,7 +335,9 @@ export const svgSubLevelColors = {
   // OUTLINES
   outline1: '#F4C5C5',
   outline2: '#F3DCCB',
-  outline3: '#DAD0D0',
+  outline3: subLevelOutline3Color,
+  // same as the 3-space land border (John, 2026-11-09)
+  toxicOutcropBorder: subLevelOutline3Color,
   outline7: '#F0C7E7',
   outline24: '#DEDEDE',
   outlineMarvel: '#808080',

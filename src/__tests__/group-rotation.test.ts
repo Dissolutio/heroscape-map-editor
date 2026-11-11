@@ -18,7 +18,7 @@ import type {
   Piece,
 } from '../types'
 import { HexTerrain, Pieces } from '../types'
-import { hexUtilsGetNeighborForRotation } from '../utils/hex-utils'
+import { cubeToPixel, hexUtilsGetNeighborForRotation } from '../utils/hex-utils'
 import { makeTable, place } from './helpers/board'
 import type { Board } from './helpers/board'
 import { legacyLaurAddonCanonicalKey } from './helpers/laurLegacyIdentity'
@@ -145,6 +145,14 @@ describe('rotateGroupAroundPivot', () => {
       ).toEqual(pivot)
     },
   )
+
+  it('preserves a cannon half-step during a multi-select rotation', () => {
+    const cannon = uidPiece('cannon', Pieces.cannon, at(5, 5), 0, 0.5)
+    const pivotPiece = uidPiece('pivot', Pieces.grass1, at(6, 5))
+    const moves = rotateGroupAroundPivot([cannon, pivotPiece], 'pivot', 1)
+
+    expect(moves.find((move) => move.uid === 'cannon')?.newRotation).toBe(1.5)
+  })
 
   it('returns every selected piece to its exact start after six steps', () => {
     for (const direction of [1, -1] as const) {
@@ -579,6 +587,109 @@ describe('existing single-piece rotation steps', () => {
 })
 
 describe('group rotation placement checks', () => {
+  it('blocks Grass 24 when a non-origin pivot rotation leaves the map', () => {
+    const table = makeTable(20)
+    const tableCoords = Object.values(table.boardHexes)
+      .filter((hex) => hex.altitude === 0)
+      .map(({ q, r, s }) => ({ q, r, s }))
+    const onMap = new Set(tableCoords.map(coordKey))
+    const leftmostX = Math.min(
+      ...tableCoords.map((coords) => cubeToPixel(coords).x),
+    )
+    let found:
+      | {
+          board: Board
+          selected: BoardPiece
+          moves: ReturnType<typeof rotateGroupAroundPivot>
+        }
+      | undefined
+
+    search: for (const anchor of tableCoords) {
+      const placed = place({
+        board: table,
+        pieceID: Pieces.grass24,
+        at: anchor,
+        altitude: 0,
+        uid: 'tile',
+      })
+      if (placed.error) continue
+      const tile = placed.board.boardPieces.find(
+        (piece) => piece.uid === 'tile',
+      )
+      if (!tile) continue
+      const piece = piecesSoFar[tile.inventoryID]
+      if (!piece) throw new Error('Missing Grass 24 definition')
+      const pivotHexes = Object.values(placed.board.boardHexes).filter(
+        (hex) =>
+          hex.boardPieceUID === tile.uid &&
+          !hex.isVerticalClearanceHex &&
+          (hex.q !== tile.pieceCoords.q || hex.r !== tile.pieceCoords.r),
+      )
+
+      for (const pivotHex of pivotHexes) {
+        const pivot = { q: pivotHex.q, r: pivotHex.r, s: pivotHex.s }
+        for (const direction of [1, -1] as const) {
+          const moves = rotateGroupAroundPivot([tile], pivot, direction)
+          const move = moves[0]
+          if (!move || !onMap.has(coordKey(move.newPieceCoords))) continue
+          const rotatedFootprint = getPieceTemplateCoords({
+            clickedHex: move.newPieceCoords,
+            rotation: move.newRotation ?? tile.rotation,
+            template: piece.template,
+            isVsTile: false,
+          })
+          const leavesLeftEdge = rotatedFootprint.some(
+            (hex) =>
+              !onMap.has(coordKey(hex)) && cubeToPixel(hex).x < leftmostX,
+          )
+          if (!leavesLeftEdge) continue
+          if (
+            getGroupRotationBlockedReason(placed.board, [tile], moves) !==
+            'offMap'
+          ) {
+            continue
+          }
+          found = { board: placed.board, selected: tile, moves }
+          break search
+        }
+      }
+    }
+
+    if (!found) throw new Error('Could not find an off-map Grass 24 rotation')
+    const before = structuredClone(found.board)
+    expect(
+      getGroupRotationBlockedReason(found.board, [found.selected], found.moves),
+    ).toBe('offMap')
+    expect(found.board).toEqual(before)
+  })
+
+  it('allows a Grass 24 rotation whose full footprint stays on the map', () => {
+    const table = makeTable(20)
+    const placed = place({
+      board: table,
+      pieceID: Pieces.grass24,
+      at: table.center,
+      altitude: 0,
+      uid: 'tile',
+    })
+    if (placed.error) throw new Error('Could not place Grass 24 at the center')
+    const tile = placed.board.boardPieces.find((piece) => piece.uid === 'tile')
+    if (!tile) throw new Error('Missing Grass 24')
+    const pivotHex = Object.values(placed.board.boardHexes).find(
+      (hex) =>
+        hex.boardPieceUID === tile.uid &&
+        !hex.isVerticalClearanceHex &&
+        (hex.q !== tile.pieceCoords.q || hex.r !== tile.pieceCoords.r),
+    )
+    if (!pivotHex) throw new Error('Missing Grass 24 non-origin pivot hex')
+    const pivot = { q: pivotHex.q, r: pivotHex.r, s: pivotHex.s }
+    const moves = rotateGroupAroundPivot([tile], pivot, 1)
+
+    expect(
+      getGroupRotationBlockedReason(placed.board, [tile], moves),
+    ).toBeUndefined()
+  })
+
   it('blocks a single multi-hex rotation that would move off the map', () => {
     const table = makeTable(5)
     const coordinates = Object.values(table.boardHexes)

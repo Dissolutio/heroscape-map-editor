@@ -16,6 +16,9 @@ npx playwright install chromium
 Run the tests with `npm run test:e2e`. The config starts the dev server
 itself (or reuses one already on port 5173).
 
+`sets-to-build-map.spec.ts` loads the standard fixture map and verifies the
+catalog dialog, its set recommendations, and the Map Inventory separation.
+
 ## Running
 
 Evidence screenshots are temporary review aids and are off by default. The
@@ -229,10 +232,12 @@ loads cleanly, so format drift fails in `npm test` rather than in the browser.
 | Window typings | `src/e2e/e2e-globals.d.ts` |
 | Tests, fixtures | `e2e/` |
 | Viewing-level regression | `e2e/viewing-level.spec.ts` |
+| Pen hotkeys, hotkey search/recording, and rebind/export/reset/import | `e2e/hotkeys.spec.ts` |
 | Load-time map fitting | `e2e/load-fits-map.spec.ts` |
 | Group rotation around a clicked footprint hex | `e2e/group-rotate-pivot.spec.ts` |
 | Single-piece rotation around a clicked footprint hex | `e2e/single-rotate-pivot.spec.ts` |
 | Deleting unrelated water beside a permissively overlapped Ship Wall and reloading its share link | `e2e/conflicted-delete.spec.ts` |
+| Copying an oversized map as a reduced share link without changing the editor map | `e2e/share-url-fallback.spec.ts` |
 | Ship Wall symbols remain in the 2D view after a water tile takes their origin hex | `e2e/origin-symbol-overlap.spec.ts` |
 | Empty-hex deselection, pen placement, and camera-drag selection safety | `e2e/empty-hex-selection.spec.ts` |
 | Right-click selection actions, keyboard dismissal, camera drag safety, and graphics-tier coverage | `e2e/selection-context-menu.spec.ts` |
@@ -241,13 +246,13 @@ loads cleanly, so format drift fails in `npm test` rather than in the browser.
 | Objective-marker 3D rendering, flat/optional camera-facing text, preview text, visibility, selection, and shadow invalidation | `e2e/objective-markers.spec.ts` |
 | Objective-marker placement, editing, rotation, drag, deletion, undo, unit-name suggestions, and saved-file name round trips | `e2e/objective-marker-editing.spec.ts` |
 | Selection clearing on placement-pen hotkeys, preview rotation, and action-log recall | `e2e/action-log.spec.ts` |
-| Collection inventory gating, missing-terrain rows, conditional ranked substitutes, naming/cancel, metadata persistence, buried fill, leftovers, and one-step undo | `e2e/adapt-to-collection.spec.ts` |
+| Collection inventory gating, missing-terrain and obstacle rows, ranked substitutes, same-footprint evergreen-to-snow-tree adaptation and undo, naming/cancel, metadata persistence, buried fill, and leftovers | `e2e/adapt-to-collection.spec.ts` |
 | Opaque glyph SVG fills and hide-heights export option | `e2e/glyph-export-options.spec.ts` |
-| Legend viewing step, Illustrator-safe level/legend SVGs, ZIP and layered whole-map downloads, and PDF downloads with both border modes | `e2e/svg-piece-key.spec.ts` |
+| Legend viewing step, color-bordered SVG key shapes, Illustrator-safe level/legend SVGs, ZIP and layered whole-map downloads, and PDF downloads with both border modes | `e2e/svg-piece-key.spec.ts` |
 | View tooltips, 3D/2D/PDF navbar switching, camera visibility, map inventory pen selection, Pieces Grid filter persistence, map shrink safety, and new-map author details | `e2e/ui-polish.spec.ts` |
 | Per-hex land pixels, diffuse textures, tier changes, and lights toggles | `e2e/per-hex-land.spec.ts` |
 | Multi-hex fluid cap join vertices and dark-pixel checks at Medium/High | `e2e/fluid-cap-vertices.spec.ts` |
-| Hive, evergreen, Snow Evergreen, and Marvel Ruin, Stone Wall, Ruins 2/3 texture maps and selection across Low/Medium/High, transparent placement previews, lazy tier loading, and picture-only High setting restoration | `e2e/graphics-tier.spec.ts` |
+| Hive, jungle palm, evergreen, Snow Evergreen, and Marvel Ruin, Stone Wall, Ruins 2/3 texture maps and selection across Low/Medium/High, transparent placement previews, lazy tier loading, and picture-only High setting restoration | `e2e/graphics-tier.spec.ts` |
 | Opt-in performance overlay | `e2e/performance.spec.ts` |
 
 The map-settle tracker also feeds the app's startup UI in normal runs. The

@@ -5,9 +5,10 @@ import { enqueueSnackbar } from 'notistack'
 import type { StateCreator } from 'zustand'
 import { addPiece } from '../data/addPiece'
 import { getNewPieceSizeForPenMode } from '../data/flatPieceSizes'
-import { getUnsupportedLaurAddonUIDs } from '../data/laurAddonSupport'
 import { getPieceEdgeId } from '../data/hexGrid/pieceFeatures'
+import { getUnsupportedLaurAddonUIDs } from '../data/laurAddonSupport'
 import { type MovePieceArgs, applyPieceMoves } from '../data/movePieces'
+import { filterVisibleObjectiveMarkerUIDs } from '../data/objectiveMarkerVisibility'
 import {
   type NewObjectiveMarker,
   type ObjectiveMarker,
@@ -24,21 +25,20 @@ import {
 import { removePiece } from '../data/removePiece'
 import { reanchorRotationPivotAfterRotation } from '../data/rotationPivot'
 import {
+  type SavedSelection,
+  type SelectionUnit,
   normalizeSavedSelections,
   pruneDeletedPiece,
   pruneSavedSelections,
   renameSavedSelection,
   resolveSelectionUnit,
   saveNamedSelection,
-  type SavedSelection,
-  type SelectionUnit,
 } from '../data/selectionUnits'
 import {
   filterVisiblePieceIDs,
   isGlyphBoardPiece,
   isStartZoneBoardPiece,
 } from '../data/startZoneVisibility'
-import { filterVisibleObjectiveMarkerUIDs } from '../data/objectiveMarkerVisibility'
 import { HexTerrain, Pieces } from '../types'
 import type {
   AddRemovePieceError,
@@ -55,6 +55,7 @@ import {
   getAvailableLandPrefixesForSets,
   getEffectiveTerrainConstraintInventory,
 } from '../utils/terrain-constraints'
+import { clearPalmCanopyCache } from '../world/models/PalmFrondCanopy'
 import { clearGlobalMaterialCache } from '../world/models/materials'
 import type { AppState } from './store'
 
@@ -869,6 +870,7 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
     }),
   loadMap: (mapState, options = {}) => {
     clearGlobalMaterialCache()
+    clearPalmCanopyCache()
     get().pushPendingUndoSelectionRestore([])
     const current = get()
     const boardPieces = isEqual(current.boardPieces, mapState.boardPieces)

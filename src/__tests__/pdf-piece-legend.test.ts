@@ -10,7 +10,7 @@ import {
   getPieceKeyRowShapeHeight,
   getPieceKeyShapeScale,
 } from '../pdf-svg-shared/pieceKeyShapeLayout'
-import type { BoardPiece } from '../types'
+import { type BoardPiece, Pieces } from '../types'
 
 Font.register({
   family: 'Inter',
@@ -41,6 +41,23 @@ describe('PDF piece key', () => {
         Document,
         null,
         createElement(PdfPieceLegend, { boardPieces: allRegisteredPieces }),
+      ),
+    )
+
+    expect(pdf.byteLength).toBeGreaterThan(0)
+  })
+
+  it('renders a fluid-only key table', async () => {
+    const fluids = [
+      makePiece(Pieces.water3, 0),
+      makePiece(Pieces.swampWater6, 1),
+      makePiece(Pieces.ice4, 2),
+    ]
+    const pdf = await renderToBuffer(
+      createElement(
+        Document,
+        null,
+        createElement(PdfPieceLegend, { boardPieces: fluids }),
       ),
     )
 

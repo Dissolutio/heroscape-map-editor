@@ -1,16 +1,20 @@
-import { Fragment } from 'react'
 import { getLaurAddonExportSymbol } from '../pdf-svg-shared/laurAddonExportSymbol'
 import {
   type PieceKeyEntry,
   type PieceKeyModel,
   getPieceKeyModel,
+  getPieceKeyRowsForColumns,
+  shouldUseTerrainBorderColorForPieceKeyEntry,
 } from '../pdf-svg-shared/pieceKey'
 import {
+  PIECE_KEY_LINE_WIDTH,
   getPieceKeyRowShapeHeight,
   getPieceKeyShapeLayout,
-  getPieceKeySpecialEntriesPerRow,
+  getPieceKeySpecialEntryRowLayout,
+  getPieceKeySpecialEntryRowShapeHeight,
+  getPieceKeySpecialEntryRows,
 } from '../pdf-svg-shared/pieceKeyShapeLayout'
-import { type BoardHex, type BoardPiece, HexTerrain } from '../types'
+import type { BoardHex, BoardPiece } from '../types'
 import { SVG_HEX_RADIUS } from '../utils/constants'
 import { boardPieceToDecodedPieceID } from '../utils/map-utils'
 import { SvgMapBoardPiece } from './SvgMapBoardPiece'
@@ -20,31 +24,65 @@ const LAND_COLUMNS_PER_TABLE = 6
 const LAND_HEADER_HEIGHT = SVG_HEX_RADIUS * 1.3
 const LAND_ROW_PADDING = SVG_HEX_RADIUS * 0.25
 const SPECIAL_ENTRY_PADDING = SVG_HEX_RADIUS * 0.2
+const SPECIAL_CARD_PADDING = SVG_HEX_RADIUS * 0.12
 const KEY_FONT_SIZE = SVG_HEX_RADIUS * 0.24
 const KEY_HEADING_SIZE = SVG_HEX_RADIUS * 0.4
+const HEADER_TEXT_LINE_GAP = KEY_FONT_SIZE * 0.25
 
 const KeyBorderRect = ({
   x,
   y,
   width,
   height,
+  hasTopBorder = true,
+  hasLeftBorder = true,
 }: {
   x: number
   y: number
   width: number
   height: number
-}) => (
-  <>
-    <rect x={x} y={y} width={width} height={height} fill="black" />
-    <rect
-      x={x + 1}
-      y={y + 1}
-      width={Math.max(0, width - 2)}
-      height={Math.max(0, height - 2)}
-      fill="white"
-    />
-  </>
-)
+  hasTopBorder?: boolean
+  hasLeftBorder?: boolean
+}) => {
+  const lineWidth = PIECE_KEY_LINE_WIDTH
+  const leftInset = hasLeftBorder ? lineWidth : 0
+  const topInset = hasTopBorder ? lineWidth : 0
+  // Draw each border side as its own bar. A black box under a white box
+  // leaves an anti-aliased gray hairline on sides that should have no border.
+  return (
+    <>
+      {/* Invisible full-size rect first: it carries the cell's bounds. */}
+      <rect x={x} y={y} width={width} height={height} fill="none" />
+      <rect
+        x={x + leftInset}
+        y={y + topInset}
+        width={Math.max(0, width - leftInset - lineWidth)}
+        height={Math.max(0, height - topInset - lineWidth)}
+        fill="white"
+      />
+      {hasTopBorder && (
+        <rect x={x} y={y} width={width} height={lineWidth} fill="black" />
+      )}
+      {hasLeftBorder && (
+        <rect x={x} y={y} width={lineWidth} height={height} fill="black" />
+      )}
+      <rect
+        x={x + width - lineWidth}
+        y={y}
+        width={lineWidth}
+        height={height}
+        fill="black"
+      />
+      <rect
+        x={x}
+        y={y + height - lineWidth}
+        width={width}
+        height={lineWidth}
+        fill="black"
+      />
+    </>
+  )
+}
 
 export const SvgPieceKeyShape = (
   entry: PieceKeyEntry,
@@ -68,10 +106,10 @@ export const SvgPieceKeyShape = (
 ) => {
   const layout = getPieceKeyShapeLayout(entry)
   const decoded = boardPieceToDecodedPieceID(entry.piece)
-  const keyPiece =
-    decoded && getLaurAddonExportSymbol(entry.inventoryID)
-      ? { ...decoded, terrain: HexTerrain.laurWall }
-      : decoded
+  const isLaurAddon = Boolean(getLaurAddonExportSymbol(entry.inventoryID))
+  const entryUsesTerrainBorderColor =
+    shouldUseTerrainBorderColorForPieceKeyEntry(entry, useTerrainBorderColor)
+  const keyPiece = decoded
   return (
     <g
       key={key}
@@ -114,17 +152,23 @@ export const SvgPieceKeyShape = (
                       }
                       glyphCoordinates={renderOptions?.glyphCoordinates}
                       glyphExportSettings={renderOptions?.glyphExportSettings}
-                      isPieceKeyPreview
-                      useTerrainBorderColor={useTerrainBorderColor}
+                      isPieceKeyPreview={!isLaurAddon}
+                      useTerrainBorderColor={entryUsesTerrainBorderColor}
                     />
                   )
                 })
               ) : keyPiece ? (
                 <SvgMapBoardPiece
                   piece={{ ...keyPiece, altitude: 0, rotation: 0 }}
-                  viewingLevel={100}
-                  overlayLevel={100}
-                  isPieceKeyPreview
+                  viewingLevel={isLaurAddon ? 1 : 100}
+                  overlayLevel={isLaurAddon ? 1 : 100}
+                  isPieceKeyPreview={!isLaurAddon}
+                  useTerrainBorderColor={entryUsesTerrainBorderColor}
+                  archTextOffsetX={
+                    getLaurAddonExportSymbol(entry.inventoryID) === 'arch'
+                      ? layout.center.x
+                      : undefined
+                  }
                 />
               ) : null}
             </g>
@@ -135,20 +179,21 @@ export const SvgPieceKeyShape = (
   )
 }
 
-const landGridDimensions = (model: PieceKeyModel, width: number) => {
+const landGridDimensions = (
+  model: PieceKeyModel,
+  width: number,
+  columns: PieceKeyModel['landColumns'] = model.landColumns,
+) => {
   const rowHeaderWidth = Math.max(190, SVG_HEX_RADIUS * 2.6)
   const maxShapeWidth = Math.max(
     0,
-    ...model.landColumns.flatMap((column) =>
+    ...columns.flatMap((column) =>
       column.cells.map(({ entry }) => getPieceKeyShapeLayout(entry).width),
     ),
   )
   const cellWidth = Math.max(maxShapeWidth + SVG_HEX_RADIUS * 0.3, 185)
-  const columnsInWidestTable = Math.min(
-    LAND_COLUMNS_PER_TABLE,
-    model.landColumns.length,
-  )
-  const gridWidth = model.landColumns.length
+  const columnsInWidestTable = Math.min(LAND_COLUMNS_PER_TABLE, columns.length)
+  const gridWidth = columns.length
     ? rowHeaderWidth + cellWidth * columnsInWidestTable
     : width
   const scale = 1
@@ -162,17 +207,31 @@ const landGridDimensions = (model: PieceKeyModel, width: number) => {
 }
 
 export const getSvgPieceKeyWidth = (model: PieceKeyModel, width: number) => {
-  const { gridWidth } = landGridDimensions(model, width)
+  const landGridWidth = landGridDimensions(model, width).gridWidth
+  const fluidGridWidth = landGridDimensions(
+    model,
+    width,
+    model.fluidColumns,
+  ).gridWidth
   const largestSpecialShape = Math.max(
     0,
     ...model.specialGroups.flatMap((group) =>
       group.entries.map((entry) => getPieceKeyShapeLayout(entry).width),
     ),
   )
-  return Math.max(gridWidth, largestSpecialShape * 3 + SVG_HEX_RADIUS)
+  return Math.max(
+    landGridWidth,
+    fluidGridWidth,
+    largestSpecialShape * 3 + SVG_HEX_RADIUS,
+  )
 }
 
-const landRowHeight = (model: PieceKeyModel, size: number, scale: number) => {
+const landRowHeight = (
+  model: PieceKeyModel,
+  size: number,
+  scale: number,
+  columns: PieceKeyModel['landColumns'] = model.landColumns,
+) => {
   const minimum =
     size >= 24
       ? SVG_HEX_RADIUS * 2.4
@@ -181,46 +240,63 @@ const landRowHeight = (model: PieceKeyModel, size: number, scale: number) => {
         : SVG_HEX_RADIUS * 1.3
   return Math.max(
     minimum,
-    getPieceKeyRowShapeHeight(model, size, scale, LAND_ROW_PADDING),
+    getPieceKeyRowShapeHeight(model, size, scale, LAND_ROW_PADDING, columns),
   )
 }
 
-const getLandTablesHeight = (model: PieceKeyModel, width: number) => {
-  const { scale } = landGridDimensions(model, width)
-  const tableCount = Math.ceil(
-    model.landColumns.length / LAND_COLUMNS_PER_TABLE,
-  )
-  return model.landColumns.length
-    ? tableCount *
-        (LAND_HEADER_HEIGHT +
-          model.landRows.reduce(
-            (height, row) => height + landRowHeight(model, row.size, scale),
-            0,
-          ) +
-          12)
-    : 0
+const getTerrainTablesHeight = (
+  model: PieceKeyModel,
+  width: number,
+  columns: PieceKeyModel['landColumns'],
+  rows: PieceKeyModel['landRows'],
+) => {
+  const { scale } = landGridDimensions(model, width, columns)
+  const tableCount = Math.ceil(columns.length / LAND_COLUMNS_PER_TABLE)
+  return Array.from({ length: tableCount }, (_, tableIndex) => {
+    const tableColumns = columns.slice(
+      tableIndex * LAND_COLUMNS_PER_TABLE,
+      (tableIndex + 1) * LAND_COLUMNS_PER_TABLE,
+    )
+    const tableRows = getPieceKeyRowsForColumns(tableColumns, rows)
+    return (
+      LAND_HEADER_HEIGHT +
+      tableRows.reduce(
+        (height, row) =>
+          height + landRowHeight(model, row.size, scale, tableColumns),
+        0,
+      ) +
+      12
+    )
+  }).reduce((height, tableHeight) => height + tableHeight, 0)
+}
+
+const getHeaderTextBaselines = (
+  top: number,
+  height: number,
+  fontSizes: number[],
+) => {
+  const blockHeight =
+    fontSizes.reduce((sum, size) => sum + size, 0) +
+    HEADER_TEXT_LINE_GAP * Math.max(0, fontSizes.length - 1)
+  const baselines: number[] = []
+  let baseline = top + (height - blockHeight) / 2 + (fontSizes[0] ?? 0)
+  for (const [index, fontSize] of fontSizes.entries()) {
+    if (index > 0) baseline += HEADER_TEXT_LINE_GAP + fontSize
+    baselines.push(baseline)
+  }
+  return baselines
 }
 
 const specialGroupRowHeight = (
   group: PieceKeyModel['specialGroups'][number],
-  innerWidth: number,
+  cardWidth: number,
   scale: number,
 ) => {
-  const entriesPerRow = getPieceKeySpecialEntriesPerRow(
-    group,
-    innerWidth,
-    scale,
-  )
+  const innerWidth = cardWidth - 2 * SPECIAL_CARD_PADDING
+  const { rows, slotWidth } = getSpecialEntryRows(group, cardWidth, scale)
   let height = specialGroupHeader(group, innerWidth).height
-  for (let offset = 0; offset < group.entries.length; offset += entriesPerRow) {
-    const rowEntries = group.entries.slice(offset, offset + entriesPerRow)
-    const shapeHeight = Math.max(
-      0,
-      ...rowEntries.map(
-        (entry) => getPieceKeyShapeLayout(entry).height * scale,
-      ),
-    )
-    height += Math.max(56, shapeHeight + SPECIAL_ENTRY_PADDING + 24)
+  for (const row of rows) {
+    height += getSpecialEntryRowHeight(row, slotWidth, scale)
   }
   return height
 }
@@ -236,7 +312,7 @@ const groupRowHeights = (
     heights.push(
       Math.max(
         ...model.specialGroups.slice(i, i + 3).map((group) => {
-          return specialGroupRowHeight(group, cardWidth - 24, scale)
+          return specialGroupRowHeight(group, cardWidth, scale)
         }),
       ),
     )
@@ -244,8 +320,12 @@ const groupRowHeights = (
   return heights
 }
 
-const wrapSvgText = (text: string, width: number, fontSize: number) => {
-  const maxCharacters = Math.max(1, Math.floor(width / (fontSize * 0.56)))
+export const wrapSvgPieceKeyText = (
+  text: string,
+  width: number,
+  fontSize: number,
+) => {
+  const maxCharacters = Math.max(1, Math.floor(width / (fontSize * 0.6)))
   const lines: string[] = []
   for (const word of text.split(/\s+/)) {
     const currentLine = lines[lines.length - 1]
@@ -258,12 +338,51 @@ const wrapSvgText = (text: string, width: number, fontSize: number) => {
   return lines
 }
 
+const getSpecialEntryRows = (
+  group: PieceKeyModel['specialGroups'][number],
+  cardWidth: number,
+  scale: number,
+) => {
+  const innerWidth = cardWidth - 2 * SPECIAL_CARD_PADDING
+  return getPieceKeySpecialEntryRows(group, innerWidth, scale)
+}
+
+const getSpecialEntryRowHeight = (
+  entries: PieceKeyEntry[],
+  slotWidth: number,
+  scale: number,
+) => {
+  const shapeHeight = getPieceKeySpecialEntryRowShapeHeight(entries, scale)
+  const captionLineCount = Math.max(
+    1,
+    ...entries.map(
+      (entry) =>
+        wrapSvgPieceKeyText(
+          entry.title,
+          slotWidth - SPECIAL_CARD_PADDING / 2,
+          KEY_FONT_SIZE,
+        ).length,
+    ),
+  )
+  return Math.max(
+    SVG_HEX_RADIUS * 0.56,
+    shapeHeight +
+      SPECIAL_ENTRY_PADDING +
+      captionLineCount * KEY_FONT_SIZE * 1.2 +
+      SPECIAL_CARD_PADDING,
+  )
+}
+
 const specialGroupHeader = (
   group: PieceKeyModel['specialGroups'][number],
   width: number,
 ) => {
-  const titleLines = wrapSvgText(group.title, width, KEY_HEADING_SIZE)
-  const descriptionLines = wrapSvgText(group.description, width, KEY_FONT_SIZE)
+  const titleLines = wrapSvgPieceKeyText(group.title, width, KEY_HEADING_SIZE)
+  const descriptionLines = wrapSvgPieceKeyText(
+    group.description,
+    width,
+    KEY_FONT_SIZE,
+  )
   return {
     titleLines,
     descriptionLines,
@@ -277,12 +396,34 @@ const specialGroupHeader = (
 }
 
 export const getSvgPieceKeyHeight = (model: PieceKeyModel, width: number) => {
-  if (!model.landColumns.length && !model.specialGroups.length) return 0
+  if (
+    !model.landColumns.length &&
+    !model.fluidColumns.length &&
+    !model.specialGroups.length
+  ) {
+    return 0
+  }
   const keyWidth = getSvgPieceKeyWidth(model, width)
   const { scale } = landGridDimensions(model, keyWidth)
+  const landHeight = getTerrainTablesHeight(
+    model,
+    keyWidth,
+    model.landColumns,
+    model.landRows,
+  )
+  const fluidHeight = model.fluidColumns.length
+    ? KEY_HEADING_SIZE * 1.6 +
+      getTerrainTablesHeight(
+        model,
+        keyWidth,
+        model.fluidColumns,
+        model.fluidRows,
+      )
+    : 0
   return (
     KEY_HEADING_SIZE * 2.3 +
-    getLandTablesHeight(model, keyWidth) +
+    landHeight +
+    fluidHeight +
     (model.specialGroups.length
       ? KEY_HEADING_SIZE * 1.6 +
         groupRowHeights(model, keyWidth, scale).reduce((a, b) => a + b + 8, 0)
@@ -290,41 +431,51 @@ export const getSvgPieceKeyHeight = (model: PieceKeyModel, width: number) => {
   )
 }
 
-const renderLandTables = (
+const renderTerrainTables = (
   model: PieceKeyModel,
+  columns: PieceKeyModel['landColumns'],
+  rows: PieceKeyModel['landRows'],
   x: number,
   y: number,
   width: number,
   useTerrainBorderColor: boolean,
   renderOptions: NonNullable<Parameters<typeof SvgPieceKeyShape>[6]>,
+  gridTestID = 'svg-piece-key-land-grid',
 ) => {
-  const tableCount = Math.ceil(
-    model.landColumns.length / LAND_COLUMNS_PER_TABLE,
+  const tableCount = Math.ceil(columns.length / LAND_COLUMNS_PER_TABLE)
+  const { rowHeaderWidth, cellWidth, scale } = landGridDimensions(
+    model,
+    width,
+    columns,
   )
-  const { rowHeaderWidth, cellWidth, scale } = landGridDimensions(model, width)
   let tableY = y
   return (
-    <g data-testid="svg-piece-key-land-grid">
+    <g data-testid={gridTestID}>
       {Array.from({ length: tableCount }, (_, tableIndex) => {
-        const columns = model.landColumns.slice(
+        const tableColumns = columns.slice(
           tableIndex * LAND_COLUMNS_PER_TABLE,
           (tableIndex + 1) * LAND_COLUMNS_PER_TABLE,
         )
-        const activeWidth = rowHeaderWidth + cellWidth * columns.length
+        const activeWidth = rowHeaderWidth + cellWidth * tableColumns.length
         const startX = x + (width - activeWidth) / 2
         const headerHeight = LAND_HEADER_HEIGHT
         const thisY = tableY
-        const rows = model.landRows
+        const [noticeFirstBaseline, noticeSecondBaseline] =
+          getHeaderTextBaselines(thisY, headerHeight, [
+            KEY_FONT_SIZE,
+            KEY_FONT_SIZE,
+          ])
         const tableHeight =
           headerHeight +
           rows.reduce(
-            (height, row) => height + landRowHeight(model, row.size, scale),
+            (height, row) =>
+              height + landRowHeight(model, row.size, scale, columns),
             0,
           )
         tableY += tableHeight + 12
         return (
           <g
-            key={columns.map((column) => column.terrain).join('|')}
+            key={tableColumns.map((column) => column.terrain).join('|')}
             data-testid="svg-piece-key-land-table"
           >
             <KeyBorderRect
@@ -332,10 +483,13 @@ const renderLandTables = (
               y={thisY}
               width={rowHeaderWidth}
               height={headerHeight}
+              hasTopBorder={false}
+              hasLeftBorder={false}
             />
             <text
-              x={startX + 5}
-              y={thisY + 21}
+              x={startX + rowHeaderWidth / 2}
+              y={noticeFirstBaseline}
+              textAnchor="middle"
               fontFamily="Inter, Arial, sans-serif"
               fontSize={KEY_FONT_SIZE}
               fontWeight="bold"
@@ -344,8 +498,9 @@ const renderLandTables = (
               Notice centers
             </text>
             <text
-              x={startX + 5}
-              y={thisY + 43}
+              x={startX + rowHeaderWidth / 2}
+              y={noticeSecondBaseline}
+              textAnchor="middle"
               fontFamily="Inter, Arial, sans-serif"
               fontSize={KEY_FONT_SIZE}
               fontWeight="bold"
@@ -353,8 +508,19 @@ const renderLandTables = (
             >
               and border colors
             </text>
-            {columns.map((column, columnIndex) => {
+            {tableColumns.map((column, columnIndex) => {
               const cellX = startX + rowHeaderWidth + columnIndex * cellWidth
+              const centerX = cellX + cellWidth / 2
+              const titleLines = wrapSvgPieceKeyText(
+                column.title,
+                cellWidth - 8,
+                KEY_HEADING_SIZE,
+              )
+              const columnBaselines = getHeaderTextBaselines(
+                thisY,
+                headerHeight,
+                [...titleLines.map(() => KEY_HEADING_SIZE), KEY_FONT_SIZE],
+              )
               return (
                 <g key={column.terrain} data-testid="svg-piece-key-land-column">
                   <KeyBorderRect
@@ -364,19 +530,34 @@ const renderLandTables = (
                     height={headerHeight}
                   />
                   <text
-                    x={cellX + cellWidth / 2}
-                    y={thisY + 24}
+                    x={centerX}
+                    y={columnBaselines[0]}
                     textAnchor="middle"
                     fontFamily="Inter, Arial, sans-serif"
                     fontSize={KEY_HEADING_SIZE}
                     fontWeight="bold"
                     fill="black"
                   >
-                    {column.title}
+                    {titleLines.length === 1
+                      ? titleLines[0]
+                      : titleLines.map((line, index) => (
+                          <tspan
+                            key={`${column.terrain}-title-${index}`}
+                            x={centerX}
+                            dy={
+                              index === 0
+                                ? 0
+                                : columnBaselines[index] -
+                                  columnBaselines[index - 1]
+                            }
+                          >
+                            {line}
+                          </tspan>
+                        ))}
                   </text>
                   <text
-                    x={cellX + cellWidth / 2}
-                    y={thisY + 46}
+                    x={centerX}
+                    y={columnBaselines[titleLines.length]}
                     textAnchor="middle"
                     fontFamily="Inter, Arial, sans-serif"
                     fontSize={KEY_FONT_SIZE}
@@ -387,83 +568,100 @@ const renderLandTables = (
                 </g>
               )
             })}
-            {rows.map((row, rowIndex) => {
-              const rowY =
-                thisY +
-                headerHeight +
-                rows
-                  .slice(0, rowIndex)
-                  .reduce(
-                    (height, previous) =>
-                      height + landRowHeight(model, previous.size, scale),
-                    0,
-                  )
-              const height = landRowHeight(model, row.size, scale)
-              return (
-                <Fragment key={row.size}>
-                  <KeyBorderRect
-                    x={startX}
-                    y={rowY}
-                    width={rowHeaderWidth}
-                    height={height}
-                  />
-                  <text
-                    x={startX + rowHeaderWidth / 2}
-                    y={rowY + height / 2 - 4}
-                    textAnchor="middle"
-                    fontFamily="Inter, Arial, sans-serif"
-                    fontSize={KEY_HEADING_SIZE}
-                    fontWeight="bold"
-                    fill="black"
-                  >
-                    {row.title}
-                  </text>
-                  <text
-                    x={startX + rowHeaderWidth / 2}
-                    y={rowY + height / 2 + 20}
-                    textAnchor="middle"
-                    fontFamily="Inter, Arial, sans-serif"
-                    fontSize={KEY_FONT_SIZE}
-                    fill="black"
-                  >
-                    {row.description}
-                  </text>
-                  {columns.map((column, columnIndex) => {
-                    const cellX =
-                      startX + rowHeaderWidth + columnIndex * cellWidth
-                    const entry = column.cells.find(
-                      (cell) => cell.size === row.size,
-                    )?.entry
-                    return (
-                      <g
-                        key={`${column.terrain}-${row.size}`}
-                        data-testid="svg-piece-key-land-cell"
-                        data-terrain={column.terrain}
-                        data-size={row.size}
-                        data-has-entry={Boolean(entry)}
-                      >
-                        <KeyBorderRect
-                          x={cellX}
-                          y={rowY}
-                          width={cellWidth}
-                          height={height}
-                        />
-                        {entry &&
-                          SvgPieceKeyShape(
-                            entry,
-                            cellX + cellWidth / 2,
-                            rowY + height / 2,
-                            scale,
-                            `${column.terrain}-${row.size}`,
-                            useTerrainBorderColor,
-                            renderOptions,
-                          )}
-                      </g>
+            {getPieceKeyRowsForColumns(tableColumns, rows).map(
+              (row, rowIndex, tableRows) => {
+                const rowY =
+                  thisY +
+                  headerHeight +
+                  tableRows
+                    .slice(0, rowIndex)
+                    .reduce(
+                      (height, previous) =>
+                        height +
+                        landRowHeight(
+                          model,
+                          previous.size,
+                          scale,
+                          tableColumns,
+                        ),
+                      0,
                     )
-                  })}
-                </Fragment>
-              )
-            })}
+                const height = landRowHeight(
+                  model,
+                  row.size,
+                  scale,
+                  tableColumns,
+                )
+                return (
+                  <g
+                    key={row.size}
+                    data-testid="svg-piece-key-table-row"
+                    data-size={row.size}
+                  >
+                    <KeyBorderRect
+                      x={startX}
+                      y={rowY}
+                      width={rowHeaderWidth}
+                      height={height}
+                    />
+                    <text
+                      x={startX + rowHeaderWidth / 2}
+                      y={rowY + height / 2 - 4}
+                      textAnchor="middle"
+                      fontFamily="Inter, Arial, sans-serif"
+                      fontSize={KEY_HEADING_SIZE}
+                      fontWeight="bold"
+                      fill="black"
+                    >
+                      {row.title}
+                    </text>
+                    <text
+                      x={startX + rowHeaderWidth / 2}
+                      y={rowY + height / 2 + 20}
+                      textAnchor="middle"
+                      fontFamily="Inter, Arial, sans-serif"
+                      fontSize={KEY_FONT_SIZE}
+                      fill="black"
+                    >
+                      {row.description}
+                    </text>
+                    {tableColumns.map((column, columnIndex) => {
+                      const cellX =
+                        startX + rowHeaderWidth + columnIndex * cellWidth
+                      const entry = column.cells.find(
+                        (cell) => cell.size === row.size,
+                      )?.entry
+                      return (
+                        <g
+                          key={`${column.terrain}-${row.size}`}
+                          data-testid="svg-piece-key-land-cell"
+                          data-terrain={column.terrain}
+                          data-size={row.size}
+                          data-has-entry={Boolean(entry)}
+                        >
+                          <KeyBorderRect
+                            x={cellX}
+                            y={rowY}
+                            width={cellWidth}
+                            height={height}
+                          />
+                          {entry &&
+                            SvgPieceKeyShape(
+                              entry,
+                              cellX + cellWidth / 2,
+                              rowY + height / 2,
+                              scale,
+                              `${column.terrain}-${row.size}`,
+                              useTerrainBorderColor,
+                              renderOptions,
+                            )}
+                        </g>
+                      )
+                    })}
+                  </g>
+                )
+              },
+            )}
           </g>
         )
       })}
@@ -500,30 +698,24 @@ const renderSpecialGroups = (
           const groups = model.specialGroups.slice(row * 3, row * 3 + 3)
           const rowHeight = Math.max(
             ...groups.map((group) =>
-              specialGroupRowHeight(group, cardWidth - 24, scale),
+              specialGroupRowHeight(group, cardWidth, scale),
             ),
           )
           const currentY = rowY
           rowY += rowHeight + 8
           return groups.map((group, column) => {
             const cardX = gridX + column * cardWidth
-            const entriesPerRow = getPieceKeySpecialEntriesPerRow(
+            const { rows: entryRows, slotWidth } = getSpecialEntryRows(
               group,
-              cardWidth - 24,
+              cardWidth,
               scale,
             )
-            const entryRows: PieceKeyEntry[][] = []
-            for (
-              let offset = 0;
-              offset < group.entries.length;
-              offset += entriesPerRow
-            ) {
-              entryRows.push(
-                group.entries.slice(offset, offset + entriesPerRow),
-              )
-            }
             return (
-              <g key={group.id} data-testid="svg-piece-key-special-group">
+              <g
+                key={group.id}
+                data-testid="svg-piece-key-special-group"
+                data-group-id={group.id}
+              >
                 <KeyBorderRect
                   x={cardX}
                   y={currentY}
@@ -578,44 +770,54 @@ const renderSpecialGroups = (
                   )
                 })()}
                 {entryRows.map((entries, rowIndex) => {
-                  const shapeHeight = Math.max(
-                    0,
-                    ...entries.map(
-                      (entry) => getPieceKeyShapeLayout(entry).height * scale,
-                    ),
+                  const rowLayout = getPieceKeySpecialEntryRowLayout(
+                    entries,
+                    scale,
+                    'svg',
+                    group.id,
                   )
-                  const entryRowHeight = Math.max(
-                    56,
-                    shapeHeight + SPECIAL_ENTRY_PADDING + 24,
-                  )
-                  const slotWidth =
-                    (cardWidth - SVG_HEX_RADIUS * 0.48) / entriesPerRow
                   const entryY =
                     currentY +
                     specialGroupHeader(group, cardWidth - 24).height +
                     entryRows
                       .slice(0, rowIndex)
-                      .reduce((height, previousEntries) => {
-                        const previousShapeHeight = Math.max(
-                          0,
-                          ...previousEntries.map(
-                            (entry) =>
-                              getPieceKeyShapeLayout(entry).height * scale,
-                          ),
-                        )
-                        return (
+                      .reduce(
+                        (height, previousEntries) =>
                           height +
-                          Math.max(
-                            56,
-                            previousShapeHeight + SPECIAL_ENTRY_PADDING + 24,
-                          )
-                        )
-                      }, 0)
+                          getSpecialEntryRowHeight(
+                            previousEntries,
+                            slotWidth,
+                            scale,
+                          ),
+                        0,
+                      )
                   return entries.map((entry, columnIndex) => {
-                    const shapeX = cardX + 12 + slotWidth * (columnIndex + 0.5)
-                    const shapeY = entryY + entryRowHeight / 2
+                    const entryLayout = rowLayout.entries[columnIndex]
+                    const shapeHeight = entryLayout.shapeHeight
+                    const shapeX =
+                      cardX +
+                      SPECIAL_CARD_PADDING +
+                      slotWidth * (columnIndex + 0.5)
+                    const shapeY =
+                      entryY +
+                      SPECIAL_ENTRY_PADDING / 2 +
+                      entryLayout.shapeTopOffset +
+                      shapeHeight / 2
+                    const captionLines = wrapSvgPieceKeyText(
+                      entry.title,
+                      slotWidth - SPECIAL_CARD_PADDING / 2,
+                      KEY_FONT_SIZE,
+                    )
                     return (
-                      <g key={entry.inventoryID}>
+                      <g
+                        key={entry.inventoryID}
+                        data-testid="svg-piece-key-special-entry"
+                        data-row-index={rowIndex}
+                        data-slot-x={
+                          cardX + SPECIAL_CARD_PADDING + columnIndex * slotWidth
+                        }
+                        data-slot-width={slotWidth}
+                      >
                         {SvgPieceKeyShape(
                           entry,
                           shapeX,
@@ -627,13 +829,26 @@ const renderSpecialGroups = (
                         )}
                         <text
                           x={shapeX}
-                          y={entryY + entryRowHeight - KEY_FONT_SIZE * 0.3}
+                          y={
+                            entryY +
+                            rowLayout.shapeHeight +
+                            SPECIAL_ENTRY_PADDING +
+                            KEY_FONT_SIZE
+                          }
                           textAnchor="middle"
                           fontFamily="Inter, Arial, sans-serif"
                           fontSize={KEY_FONT_SIZE}
                           fill="black"
                         >
-                          {entry.title}
+                          {captionLines.map((line, index) => (
+                            <tspan
+                              key={`${entry.inventoryID}-caption-${index}`}
+                              x={shapeX}
+                              dy={index === 0 ? 0 : KEY_FONT_SIZE * 1.2}
+                            >
+                              {line}
+                            </tspan>
+                          ))}
                         </text>
                       </g>
                     )
@@ -643,6 +858,42 @@ const renderSpecialGroups = (
             )
           })
         },
+      )}
+    </g>
+  )
+}
+
+const renderFluidTable = (
+  model: PieceKeyModel,
+  x: number,
+  y: number,
+  width: number,
+  useTerrainBorderColor: boolean,
+  renderOptions: NonNullable<Parameters<typeof SvgPieceKeyShape>[6]>,
+) => {
+  const { gridX } = landGridDimensions(model, width, model.fluidColumns)
+  return (
+    <g data-testid="svg-piece-key-fluid-table">
+      <text
+        x={x + gridX}
+        y={y + KEY_HEADING_SIZE}
+        fontFamily="Inter, Arial, sans-serif"
+        fontSize={KEY_HEADING_SIZE}
+        fontWeight="bold"
+        fill="black"
+      >
+        Liquid and Base Terrain
+      </text>
+      {renderTerrainTables(
+        model,
+        model.fluidColumns,
+        model.fluidRows,
+        x,
+        y + KEY_HEADING_SIZE * 1.6,
+        width,
+        useTerrainBorderColor,
+        renderOptions,
+        'svg-piece-key-fluid-grid',
       )}
     </g>
   )
@@ -663,13 +914,32 @@ export const SvgPieceKey = ({
   y: number
   width: number
 }) => {
-  if (!model || (!model.landColumns.length && !model.specialGroups.length)) {
+  if (
+    !model ||
+    (!model.landColumns.length &&
+      !model.fluidColumns.length &&
+      !model.specialGroups.length)
+  ) {
     return null
   }
 
   const keyWidth = getSvgPieceKeyWidth(model, width)
   const { gridX, scale } = landGridDimensions(model, keyWidth)
-  const landHeight = getLandTablesHeight(model, keyWidth)
+  const landHeight = getTerrainTablesHeight(
+    model,
+    keyWidth,
+    model.landColumns,
+    model.landRows,
+  )
+  const fluidHeight = model.fluidColumns.length
+    ? KEY_HEADING_SIZE * 1.6 +
+      getTerrainTablesHeight(
+        model,
+        keyWidth,
+        model.fluidColumns,
+        model.fluidRows,
+      )
+    : 0
   const contentX = x + (width - keyWidth) / 2
   const landX = contentX + gridX
   const contentWidth = keyWidth
@@ -685,18 +955,29 @@ export const SvgPieceKey = ({
       >
         Piece Key
       </text>
-      {renderLandTables(
+      {renderTerrainTables(
         model,
+        model.landColumns,
+        model.landRows,
         contentX,
         y + KEY_HEADING_SIZE * 2.3,
         contentWidth,
         useTerrainBorderColor,
         renderOptions,
       )}
+      {model.fluidColumns.length > 0 &&
+        renderFluidTable(
+          model,
+          contentX,
+          y + KEY_HEADING_SIZE * 2.3 + landHeight,
+          contentWidth,
+          useTerrainBorderColor,
+          renderOptions,
+        )}
       {model.specialGroups.length > 0 &&
         renderSpecialGroups(
           model,
-          y + KEY_HEADING_SIZE * 2.3 + landHeight,
+          y + KEY_HEADING_SIZE * 2.3 + landHeight + fluidHeight,
           contentX,
           contentWidth,
           scale,

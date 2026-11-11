@@ -128,6 +128,8 @@ and PDF hex paths; test them with `tile-marks.test.ts` and
 `export-border-color.test.ts` covers shared border decisions, representative
 SVG markup, and rendered PDF output. It does not visually verify every shape
 or the full renderer dispatch; inspect both exports when adding custom geometry.
+Adding a piece adds lines to `src/__tests__/export-colors-lock.test.ts.snap`;
+existing lines must never change.
 
 ## 5. Add terrain textures
 

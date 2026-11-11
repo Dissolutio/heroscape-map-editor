@@ -107,6 +107,10 @@ export default function PenModeControls() {
   const handleChange = (event: SelectChangeEvent) => {
     togglePenMode(event.target.value)
   }
+  const penModeHotkey = (action: string) => {
+    const hotkey = hotkeyLookup[action]
+    return hotkey ? <HotkeyText text={hotkey} /> : null
+  }
   const getGlyphColor = (g: HexoscapeGlyph) => {
     return g.type === 'power'
       ? hexTerrainColor.glyphPower
@@ -429,6 +433,7 @@ export default function PenModeControls() {
             <TbHexagons color={genericSolidCapColor} />
           </ListItemIcon>
           <span>Generic</span>
+          {penModeHotkey('togglePenModeGeneric')}
         </MenuItem>
         <Divider />
 
@@ -487,6 +492,7 @@ export default function PenModeControls() {
             <BsHexagonHalf color={genericFluidCapColor} />
           </ListItemIcon>
           <span>Generic (fluid)</span>
+          {penModeHotkey('togglePenModeGenericFluid')}
         </MenuItem>
 
         <Divider />
@@ -497,6 +503,7 @@ export default function PenModeControls() {
             <GiWhiteTower color={hexTerrainColor.water} />
           </ListItemIcon>
           <span>{piecesSoFar[Pieces.laurWallSquarePillar].title}</span>
+          {penModeHotkey('togglePenModeLaurWall')}
         </MenuItem>
         <MenuItem value={Pieces.laurWallPillarStackable}>
           <ListItemIcon>
@@ -566,6 +573,7 @@ export default function PenModeControls() {
             <GiAncientRuins color={hexTerrainColor.ruin} />
           </ListItemIcon>
           <span>Ruins 2</span>
+          {penModeHotkey('togglePenModeRuins')}
         </MenuItem>
         <MenuItem value={Pieces.ruins3}>
           <ListItemIcon>
@@ -578,6 +586,7 @@ export default function PenModeControls() {
             <GiAncientRuins color={hexTerrainColor.ruin} />
           </ListItemIcon>
           <span>Fortified Wall</span>
+          {penModeHotkey('togglePenModeFortifiedWall')}
         </MenuItem>
         <Divider />
 
@@ -587,6 +596,7 @@ export default function PenModeControls() {
             <GiPineTree color={hexTerrainColor.snow} />
           </ListItemIcon>
           <span>Snow Tree 10</span>
+          {penModeHotkey('togglePenModeSnowTree')}
         </MenuItem>
         <MenuItem value={Pieces.snowTree12}>
           <ListItemIcon>
@@ -599,6 +609,7 @@ export default function PenModeControls() {
             <GiPineTree color={hexTerrainColor.grass} />
           </ListItemIcon>
           <span>Tree 10</span>
+          {penModeHotkey('togglePenModeEvergreenTree')}
         </MenuItem>
         <MenuItem value={Pieces.tree11}>
           <ListItemIcon>
@@ -627,12 +638,14 @@ export default function PenModeControls() {
             <GiJungle color={hexTerrainColor.ticallaBrush1} />
           </ListItemIcon>
           <span>Ticalla Brush 9</span>
+          {penModeHotkey('togglePenModeTicallaUnderbrush')}
         </MenuItem>
         <MenuItem value={Pieces.palm14}>
           <ListItemIcon>
             <GiPalmTree color={hexTerrainColor.ticallaPalmModel2} />
           </ListItemIcon>
           <span>Ticalla Palm 14</span>
+          {penModeHotkey('togglePenModeTicallaPalm')}
         </MenuItem>
         <MenuItem value={Pieces.palm15}>
           <ListItemIcon>
@@ -657,18 +670,21 @@ export default function PenModeControls() {
             <GiJungle color={hexTerrainColor.swampUnderbrush1} />
           </ListItemIcon>
           <span>Swamp Underbrush 10</span>
+          {penModeHotkey('togglePenModeSwampUnderbrush')}
         </MenuItem>
         <MenuItem value={Pieces.laurBrush10}>
           <ListItemIcon>
             <GiJungle color={hexTerrainColor.laurBrush1} />
           </ListItemIcon>
           <span>Laur Brush 10</span>
+          {penModeHotkey('togglePenModeLaurUnderbrush')}
         </MenuItem>
         <MenuItem value={Pieces.laurPalm13}>
           <ListItemIcon>
             <GiPalmTree scale={'120%'} color={hexTerrainColor.laurPalm2} />
           </ListItemIcon>
           <span>Laur Palm 13</span>
+          {penModeHotkey('togglePenModeLaurJungleTree')}
         </MenuItem>
         <MenuItem value={Pieces.laurPalm14}>
           <ListItemIcon>
@@ -693,6 +709,7 @@ export default function PenModeControls() {
             />
           </ListItemIcon>
           <span>Shroudshroom 7</span>
+          {penModeHotkey('togglePenModeShroudshroom')}
         </MenuItem>
         <MenuItem value={Pieces.shroudshroom10}>
           <ListItemIcon>
@@ -755,6 +772,7 @@ export default function PenModeControls() {
             />
           </ListItemIcon>
           <span>Ship Wall</span>
+          {penModeHotkey('togglePenModeShip')}
         </MenuItem>
         <MenuItem value={Pieces.shipBow}>
           <ListItemIcon>
@@ -771,6 +789,7 @@ export default function PenModeControls() {
             <TbHexagonalPyramid color={hexTerrainColor.dungeon} />
           </ListItemIcon>
           <span>Outcrop 1</span>
+          {penModeHotkey('togglePenModeRockOutcrop')}
         </MenuItem>
         <MenuItem value={Pieces.outcrop3}>
           <ListItemIcon>
@@ -798,6 +817,7 @@ export default function PenModeControls() {
             <TbHexagonalPyramid color={hexTerrainColor.lava} />
           </ListItemIcon>
           <span>Lava Rock Outcrop 1</span>
+          {penModeHotkey('togglePenModeLavaRockOutcrop')}
         </MenuItem>
         <MenuItem value={Pieces.lavaRockOutcrop3}>
           <ListItemIcon>
@@ -825,6 +845,7 @@ export default function PenModeControls() {
             <TbHexagonalPyramid color={hexTerrainColor[HexTerrain.toxic]} />
           </ListItemIcon>
           <span>Toxic Rock Outcrop 1</span>
+          {penModeHotkey('togglePenModeToxicOutcrop')}
         </MenuItem>
         <MenuItem value={Pieces.toxicOutcrop3}>
           <ListItemIcon>
@@ -852,6 +873,7 @@ export default function PenModeControls() {
             <TbHexagonalPyramid color={hexTerrainColor.ice} />
           </ListItemIcon>
           <span>Glacier 1</span>
+          {penModeHotkey('togglePenModeGlacier')}
         </MenuItem>
         <MenuItem value={Pieces.glacier3}>
           <ListItemIcon>
@@ -917,6 +939,7 @@ export default function PenModeControls() {
             <FaMountainCity color={hexTerrainColor.swampCap} />
           </ListItemIcon>
           <span>Marro Hive 6</span>
+          {penModeHotkey('togglePenModeMarroHive')}
         </MenuItem>
 
         {/* Castle Bases, Walls */}
@@ -926,18 +949,21 @@ export default function PenModeControls() {
             <TbHexagonLetterE />
           </ListItemIcon>
           <span>Base End</span>
+          {penModeHotkey('togglePenModeCastleBaseEnd')}
         </MenuItem>
         <MenuItem value={Pieces.castleBaseStraight}>
           <ListItemIcon>
             <TbHexagonLetterS />
           </ListItemIcon>
           <span>Base Straight</span>
+          {penModeHotkey('togglePenModeCastleBaseStraight')}
         </MenuItem>
         <MenuItem value={Pieces.castleBaseCorner}>
           <ListItemIcon>
             <TbHexagonLetterC />
           </ListItemIcon>
           <span>Base Corner</span>
+          {penModeHotkey('togglePenModeCastleBaseCorner')}
         </MenuItem>
         <MenuItem
           title="Add castle wall end (base is added automatically if needed)"
@@ -958,6 +984,8 @@ export default function PenModeControls() {
             <TbHexagonLetterS />
           </ListItemIcon>
           <span>Wall Straight</span>
+          {penModeHotkey('togglePenModeCastleWall')}
+          {penModeHotkey('togglePenModeCastleWallStraight')}
         </MenuItem>
         <MenuItem
           title="Add castle wall corner (base is added automatically if needed)"
@@ -968,18 +996,21 @@ export default function PenModeControls() {
             <TbHexagonLetterC />
           </ListItemIcon>
           <span>Wall Corner</span>
+          {penModeHotkey('togglePenModeCastleWallCorner')}
         </MenuItem>
         <MenuItem value={Pieces.castleArch}>
           <ListItemIcon>
             <GiCastle />
           </ListItemIcon>
           <span>Arch</span>
+          {penModeHotkey('togglePenModeCastleArch')}
         </MenuItem>
         <MenuItem value={Pieces.castleArchNoDoor}>
           <ListItemIcon>
             <GiCastle />
           </ListItemIcon>
           <span>Arch (No Door)</span>
+          {penModeHotkey('togglePenModeCastleArchNoDoor')}
         </MenuItem>
 
         {/* RoadWall, Battlements, Ladders */}
@@ -989,18 +1020,21 @@ export default function PenModeControls() {
             <GiStoneWall color={hexTerrainColor.concrete} />
           </ListItemIcon>
           <span>Road Wall</span>
+          {penModeHotkey('togglePenModeStoneWall')}
         </MenuItem>
         <MenuItem value={Pieces.battlement}>
           <ListItemIcon>
             <GiCrenulatedShield color={hexTerrainColor.concrete} />
           </ListItemIcon>
           <span>Battlement</span>
+          {penModeHotkey('togglePenModeBattlement')}
         </MenuItem>
         <MenuItem value={Pieces.ladder}>
           <ListItemIcon>
             <GiLadder color={hexTerrainColor.ladder} />
           </ListItemIcon>
           <span>Ladder</span>
+          {penModeHotkey('togglePenModeLadder')}
         </MenuItem>
 
         {/* Marvel RUINS */}
@@ -1010,6 +1044,7 @@ export default function PenModeControls() {
             <GiAncientRuins color={hexTerrainColor.marvelRuin} />
           </ListItemIcon>
           <span>Marvel Ruins</span>
+          {penModeHotkey('togglePenModeMarvelRuin')}
         </MenuItem>
         <MenuItem value={Pieces.marvelBroken}>
           <ListItemIcon>

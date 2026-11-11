@@ -11,6 +11,8 @@ const hexMap = {
 }
 
 const fixturePieces = ['0~1~1~0~sn1', '0~3~1~0~sn1', '1~3~1~0~g1']
+const evergreenFixturePieces = ['0~1~1~0~tr10']
+const ropeLadderFixturePieces = ['0~1~1~0~rl']
 
 const listPieces = async (page: import('@playwright/test').Page) =>
   page.evaluate(() => window.__TEST__?.listPieces())
@@ -41,6 +43,70 @@ test('requires a nonempty personal inventory', async ({ page }) => {
   )
 })
 
+test('adapts a missing evergreen to an owned same-footprint snow tree and undoes it', async ({
+  page,
+}) => {
+  await page.addInitScript(() => {
+    localStorage.setItem('pieceInventory', JSON.stringify({ str10: 1 }))
+  })
+  await page.goto(mapUrl(hexMap, evergreenFixturePieces))
+  await waitForAppReady(page)
+  await page
+    .getByRole('tab', { name: /editing details of the current map/ })
+    .click()
+  await page.getByRole('button', { name: 'Adapt to my Collection' }).click()
+
+  const dialog = page.getByRole('dialog', { name: 'Adapt to my Collection' })
+  await expect(dialog).toContainText('Evergreen Tree (10)')
+  await expect(dialog).toContainText('1 of 1 missing pieces covered')
+  await dialog
+    .getByRole('button', { name: 'Continue to name adapted map' })
+    .click()
+  await page
+    .getByRole('dialog', { name: 'Name adapted map' })
+    .getByRole('button', { name: 'Create adapted map' })
+    .click()
+
+  const summary = page.getByRole('dialog', {
+    name: 'Adapted map to collection',
+  })
+  await expect(summary.getByRole('status')).toContainText('Adapted 1 piece')
+  await expect
+    .poll(async () => (await listPieces(page))?.[0]?.inventoryID)
+    .toBe('str10')
+
+  await summary.getByRole('button', { name: 'Close' }).click()
+  await page.mouse.move(0, 0)
+  await page.getByRole('tab', { name: /controls for building the map/ }).click()
+  await page.mouse.move(0, 0)
+  await page.getByRole('button', { name: /^Undo \(/ }).click()
+  await expect
+    .poll(async () => (await listPieces(page))?.[0]?.inventoryID)
+    .toBe('tr10')
+})
+
+test('warns when a gameplay-affecting obstacle is selected as a substitute', async ({
+  page,
+}) => {
+  await page.addInitScript(() => {
+    localStorage.setItem('pieceInventory', JSON.stringify({ cn: 1 }))
+  })
+  await page.goto(mapUrl(hexMap, ropeLadderFixturePieces))
+  await waitForAppReady(page)
+  await page
+    .getByRole('tab', { name: /editing details of the current map/ })
+    .click()
+  await page.getByRole('button', { name: 'Adapt to my Collection' }).click()
+
+  const dialog = page.getByRole('dialog', { name: 'Adapt to my Collection' })
+  const substitute = dialog.getByRole('combobox', {
+    name: 'Rope Ladder 1st substitute',
+  })
+  await substitute.click()
+  await page.getByRole('option', { name: /Cannon.*changes gameplay/ }).click()
+  await expect(dialog.getByRole('alert')).toContainText('Changes gameplay')
+})
+
 test('names a new adaptation, preserves metadata on cancel, and undoes it', async ({
   page,
 }) => {
@@ -63,7 +129,9 @@ test('names a new adaptation, preserves metadata on cancel, and undoes it', asyn
     return page.getByRole('dialog', { name: 'Adapt to my Collection' })
   }
   let dialog = await openDialog()
-  await expect(dialog.getByRole('row')).toHaveCount(2)
+  await expect(dialog.getByRole('table').first().getByRole('row')).toHaveCount(
+    2,
+  )
   await expect(dialog).toContainText('Snow')
   await expect(dialog).not.toContainText('Generic')
   await dialog.getByRole('combobox', { name: 'Snow 1st substitute' }).click()
@@ -97,8 +165,8 @@ test('names a new adaptation, preserves metadata on cancel, and undoes it', asyn
   await dialog.getByRole('combobox', { name: 'Snow 1st substitute' }).click()
   await page.getByRole('option', { name: 'Rock' }).click()
   await dialog
-    .getByRole('radiogroup', { name: 'Snow scope' })
-    .getByLabel('Surface only')
+    .getByRole('radiogroup', { name: 'Snow covered pieces' })
+    .getByLabel('Any spare land')
     .check()
   await dialog
     .getByRole('button', { name: 'Continue to name adapted map' })

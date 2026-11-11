@@ -10,6 +10,7 @@ import {
   type PlacementBoard,
   type ResolvedPlacement,
   evaluatePlacement,
+  hangsOffMap,
   isPlacementBlocked,
   resolvePlacement,
 } from './placement'
@@ -114,6 +115,7 @@ export function getGroupRotationBlockedReason(
       altitude,
       rotation,
     }
+    if (hangsOffMap(board.boardHexes, resolution)) return 'offMap'
 
     const evaluation = evaluatePlacement(board, resolution, {
       ignoreUID: ignoredUIDs,

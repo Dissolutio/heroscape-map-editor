@@ -31,16 +31,29 @@ export type PieceKeyLandRow = {
   description: string
 }
 
+export const getPieceKeyRowsForColumns = (
+  columns: PieceKeyLandColumn[],
+  rows: PieceKeyLandRow[],
+) =>
+  rows.filter((row) =>
+    columns.some((column) =>
+      column.cells.some((cell) => cell.size === row.size),
+    ),
+  )
+
 export type PieceKeySpecialGroup = {
   id: string
   title: string
   description: string
+  descriptionWithoutColorBorders?: string
   entries: PieceKeyEntry[]
 }
 
 export type PieceKeyModel = {
   landColumns: PieceKeyLandColumn[]
   landRows: PieceKeyLandRow[]
+  fluidColumns: PieceKeyLandColumn[]
+  fluidRows: PieceKeyLandRow[]
   specialGroups: PieceKeySpecialGroup[]
 }
 
@@ -52,13 +65,13 @@ type PieceKeyGroupMetadata = {
   captions?: Record<string, string>
   terrains?: string[]
   inventoryIDs?: string[]
-  fluids?: boolean
   fallback?: boolean
 }
 
 /** Captions and family membership for the exported piece key. */
 const PIECE_KEY_METADATA: {
   terrainOrder: string[]
+  fluidTerrainOrder: string[]
   terrains: Record<string, { title: string; description: string }>
   sizes: Record<number, string>
   groups: PieceKeyGroupMetadata[]
@@ -79,6 +92,16 @@ const PIECE_KEY_METADATA: {
     HexTerrain.ancientTerrain,
     HexTerrain.generic,
   ],
+  fluidTerrainOrder: [
+    HexTerrain.water,
+    HexTerrain.wellspringWater,
+    HexTerrain.swampWater,
+    HexTerrain.lava,
+    HexTerrain.ice,
+    HexTerrain.shadow,
+    HexTerrain.toxicWater,
+    HexTerrain.genericFluid,
+  ],
   terrains: {
     [HexTerrain.grass]: { title: 'Grass', description: 'green centers' },
     [HexTerrain.sand]: { title: 'Sand', description: 'tan centers' },
@@ -88,9 +111,24 @@ const PIECE_KEY_METADATA: {
       title: 'Swamp Water',
       description: 'blue-green centers',
     },
+    [HexTerrain.water]: { title: 'Water', description: 'blue centers' },
+    [HexTerrain.wellspringWater]: {
+      title: 'Wellspring Water',
+      description: 'white centers',
+    },
+    [HexTerrain.lava]: { title: 'Molten Lava', description: 'red centers' },
+    [HexTerrain.ice]: { title: 'Ice', description: 'white centers' },
+    [HexTerrain.shadow]: { title: 'Shadow', description: 'black centers' },
+    [HexTerrain.toxicWater]: {
+      title: 'Toxic Water',
+      description: 'bright green centers',
+    },
+    [HexTerrain.genericFluid]: {
+      title: 'Generic Fluid',
+      description: 'user-selected centers',
+    },
     [HexTerrain.dungeon]: { title: 'Dungeon', description: 'gray centers' },
     [HexTerrain.concrete]: { title: 'Concrete', description: 'gray centers' },
-    [HexTerrain.ice]: { title: 'Ice', description: 'white centers' },
     [HexTerrain.asphalt]: { title: 'Asphalt', description: 'black centers' },
     [HexTerrain.lavaField]: {
       title: 'Lava Field',
@@ -99,7 +137,7 @@ const PIECE_KEY_METADATA: {
     [HexTerrain.snow]: { title: 'Snow', description: 'white centers' },
     [HexTerrain.road]: { title: 'Road', description: 'gray centers' },
     [HexTerrain.wallWalk]: { title: 'Wall Walk', description: 'gray centers' },
-    [HexTerrain.toxic]: { title: 'Toxic Waste', description: 'black centers' },
+    [HexTerrain.toxic]: { title: 'Toxic Land', description: 'black centers' },
     [HexTerrain.ancientTerrain]: {
       title: 'Ancient Terrain',
       description: 'brown centers',
@@ -124,24 +162,6 @@ const PIECE_KEY_METADATA: {
       terrains: [HexTerrain.road, HexTerrain.wallWalk],
     },
     {
-      id: 'water',
-      title: 'Water',
-      description: 'blue borders and centers',
-      terrains: [HexTerrain.water],
-    },
-    {
-      id: 'wellspring',
-      title: 'Wellspring Water',
-      description: 'blue borders, white centers',
-      terrains: [HexTerrain.wellspringWater],
-    },
-    {
-      id: 'other-fluids',
-      title: 'Other Fluids',
-      description: 'fluid colors follow the selected export options',
-      fluids: true,
-    },
-    {
       id: 'evergreen',
       title: 'Evergreen Trees',
       description: 'green borders and centers; number indicates tree height',
@@ -163,7 +183,8 @@ const PIECE_KEY_METADATA: {
     {
       id: 'laur',
       title: 'Pillars and Walls (Laur)',
-      description: 'pink borders, purple centers',
+      description:
+        'pillars have pink borders and purple centers; wall add-ons are pink',
       terrains: [HexTerrain.laurWall, HexTerrain.laurWallAddon],
       inventoryIDs: [
         Pieces.laurWallSquarePillar,
@@ -187,7 +208,7 @@ const PIECE_KEY_METADATA: {
     {
       id: 'ladder',
       title: 'Ladders',
-      description: 'orange borders',
+      description: 'black borders',
       terrains: [HexTerrain.ladder],
     },
     {
@@ -228,6 +249,9 @@ const PIECE_KEY_METADATA: {
       title: 'Other Special Tiles',
       description: 'special pieces used on this map',
       fallback: true,
+      captions: {
+        [Pieces.concrete6]: 'Concrete (6)',
+      },
     },
   ],
 }
@@ -237,8 +261,7 @@ const specialGroupID = (inventoryID: string, piece: Piece): string =>
     (group) =>
       !group.fallback &&
       (group.terrains?.includes(piece.terrain) ||
-        group.inventoryIDs?.includes(inventoryID) ||
-        (group.fluids && isFluidTerrainHex(piece.terrain))),
+        group.inventoryIDs?.includes(inventoryID)),
   )?.id ?? 'other'
 
 export const getPieceKeyTerrainDescription = (
@@ -248,6 +271,15 @@ export const getPieceKeyTerrainDescription = (
 
 export const getPieceKeyDescriptionGaps = (terrains: string[]) =>
   terrains.filter((terrain) => !PIECE_KEY_METADATA.terrains[terrain])
+
+export const shouldUseTerrainBorderColorForPieceKeyEntry = (
+  entry: PieceKeyEntry,
+  useTerrainBorderColor: boolean,
+) =>
+  !(
+    piecesSoFar[entry.inventoryID]?.landPrefix &&
+    isSolidTerrainHex(entry.terrain)
+  ) || useTerrainBorderColor
 
 const getCanonicalPieceKeyShape = (piece: Piece) => {
   const uid = `piece-key-${piece.id}`
@@ -307,7 +339,8 @@ export const getPieceKeyModel = (
   const allEntries = [...entries.values()]
   const isLandEntry = (entry: PieceKeyEntry) =>
     piecesSoFar[entry.inventoryID]?.landPrefix &&
-    entry.terrain !== HexTerrain.wood
+    entry.terrain !== HexTerrain.wood &&
+    entry.inventoryID !== Pieces.concrete6
   const roadsAndWallWalks = allEntries.filter(
     (entry) =>
       isLandEntry(entry) &&
@@ -325,8 +358,12 @@ export const getPieceKeyModel = (
   const nonstandardLandEntries = allEntries.filter(
     (entry) =>
       isLandEntry(entry) &&
+      isSolidTerrainHex(entry.terrain) &&
       !roadsAndWallWalks.includes(entry) &&
       ![24, 7, 3, 2, 1].includes(piecesSoFar[entry.inventoryID].size),
+  )
+  const fluidEntries = allEntries.filter((entry) =>
+    isFluidTerrainHex(entry.terrain),
   )
   const availableTerrains = new Set(landEntries.map((entry) => entry.terrain))
   const terrains = [
@@ -370,7 +407,47 @@ export const getPieceKeyModel = (
     }
   })
 
+  const fluidTerrains = new Set(fluidEntries.map((entry) => entry.terrain))
+  const orderedFluidTerrains = [
+    ...PIECE_KEY_METADATA.fluidTerrainOrder.filter((terrain) =>
+      fluidTerrains.has(terrain),
+    ),
+    ...[...fluidTerrains]
+      .filter(
+        (terrain) => !PIECE_KEY_METADATA.fluidTerrainOrder.includes(terrain),
+      )
+      .sort(),
+  ]
+  const fluidSizes = [
+    ...new Set(
+      fluidEntries.map((entry) => piecesSoFar[entry.inventoryID].size),
+    ),
+  ].sort((a, b) => b - a)
+  const fluidRows = fluidSizes.map((size) => ({
+    size,
+    title: `${size} space`,
+    description: 'blue borders',
+  }))
+  const fluidColumns = orderedFluidTerrains.map((terrain) => {
+    const terrainEntries = fluidEntries.filter(
+      (entry) => entry.terrain === terrain,
+    )
+    const firstTitle = terrainEntries[0]?.title ?? terrain
+    return {
+      terrain,
+      title: PIECE_KEY_METADATA.terrains[terrain]?.title ?? firstTitle,
+      description: getPieceKeyTerrainDescription(terrain, firstTitle),
+      cells: fluidRows.flatMap((row) => {
+        const entry = terrainEntries.find(
+          (candidate) => piecesSoFar[candidate.inventoryID].size === row.size,
+        )
+        return entry ? [{ size: row.size, entry }] : []
+      }),
+    }
+  })
+
   const landIDs = new Set(landEntries.map((entry) => entry.inventoryID))
+  const fluidIDs = new Set(fluidEntries.map((entry) => entry.inventoryID))
   const specialLandGroups = new Map<string, PieceKeyGroupMetadata>()
   for (const entry of nonstandardLandEntries) {
     const terrain = entry.terrain
@@ -394,6 +471,7 @@ export const getPieceKeyModel = (
   for (const entry of allEntries) {
     if (
       landIDs.has(entry.inventoryID) ||
+      fluidIDs.has(entry.inventoryID) ||
       nonstandardLandEntries.includes(entry)
     ) {
       continue
@@ -429,5 +507,5 @@ export const getPieceKeyModel = (
       : []
   })
 
-  return { landColumns, landRows, specialGroups }
+  return { landColumns, landRows, fluidColumns, fluidRows, specialGroups }
 }

@@ -20,7 +20,8 @@ const INTER_FONT_FILE_PATH = '/fonts/Inter_18pt-Bold.ttf'
 const LEVEL_LOGO_WIDTH_RATIO = 0.2
 
 export type OpenTypePath = {
-  toPathData: (decimalPlaces?: number) => string
+  toPathData: (decimalPlaces: number) => string
+  getBoundingBox?: () => { x1: number; x2: number }
 }
 
 export type OpenTypeFont = {
@@ -36,6 +37,43 @@ export type OpenTypeFont = {
     fontSize: number,
     options?: { kerning?: boolean },
   ) => OpenTypePath
+}
+
+type TextPathRun = {
+  text: string
+  fontSizePx: number
+  y: number
+  x?: number
+  textAnchor?: string
+}
+
+export const getTextPathOriginX = (
+  font: OpenTypeFont,
+  text: string,
+  fontSize: number,
+  textAnchor: string,
+  anchorX: number,
+) => {
+  const bounds = font
+    .getPath(text, 0, 0, fontSize, { kerning: true })
+    .getBoundingBox?.()
+  if (!bounds) {
+    const advanceWidth = font.getAdvanceWidth(text, fontSize, {
+      kerning: true,
+    })
+    return textAnchor === 'middle'
+      ? anchorX - advanceWidth / 2
+      : textAnchor === 'end'
+        ? anchorX - advanceWidth
+        : anchorX
+  }
+  if (textAnchor === 'middle') {
+    return anchorX - (bounds.x1 + bounds.x2) / 2
+  }
+  if (textAnchor === 'end') {
+    return anchorX - bounds.x2
+  }
+  return anchorX - bounds.x1
 }
 
 let interFontPromise: Promise<OpenTypeFont | null> | null = null
@@ -74,39 +112,108 @@ async function getClipperLib(): Promise<ClipperLibModule | null> {
   return clipperLibPromise
 }
 
-/** Flattens an SVG path's `M`/`L`/`C`/`Q`/`Z` commands into closed point rings (curves sampled into line segments). */
-function pathDataToRings(d: string): Array<Array<[number, number]>> {
-  const tokens = d.match(/[MLCQZ]|-?\d*\.?\d+(?:e[-+]?\d+)?/gi) ?? []
+/** Flattens SVG path commands into point rings, sampling curves into line segments. */
+export function pathDataToRings(d: string): Array<Array<[number, number]>> {
+  const tokens =
+    d.match(/[a-zA-Z]|[-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:e[-+]?\d+)?/gi) ?? []
   const rings: Array<Array<[number, number]>> = []
   let current: Array<[number, number]> = []
   let cx = 0
   let cy = 0
+  let startX = 0
+  let startY = 0
   let i = 0
+  let command: string | null = null
+  let previousCommand = ''
+  let lastCubicControl: [number, number] | null = null
+  let lastQuadraticControl: [number, number] | null = null
   const CURVE_STEPS = 8
   const readNums = (count: number) => {
-    const nums: number[] = []
-    for (let k = 0; k < count; k += 1) {
-      nums.push(Number(tokens[i]))
-      i += 1
+    const values = tokens.slice(i, i + count)
+    if (
+      values.length !== count ||
+      values.some((value) => /^[a-zA-Z]$/.test(value))
+    ) {
+      return null
     }
-    return nums
+    i += count
+    return values.map(Number)
   }
   while (i < tokens.length) {
-    const cmd = String(tokens[i]).toUpperCase()
-    i += 1
-    if (cmd === 'M') {
+    if (/^[a-zA-Z]$/.test(tokens[i])) {
+      command = tokens[i]
+      i += 1
+      const upperCommand = command.toUpperCase()
+      if (upperCommand === 'Z') {
+        if (current.length) rings.push(current)
+        current = []
+        cx = startX
+        cy = startY
+        previousCommand = upperCommand
+        lastCubicControl = null
+        lastQuadraticControl = null
+        command = null
+        continue
+      }
+      if (upperCommand === 'A') {
+        // Arc commands are not used by the paths currently exported.
+        break
+      }
+    }
+    if (!command) break
+
+    const relative: boolean = command === command.toLowerCase()
+    const upperCommand = command.toUpperCase()
+    const values = readNums(
+      upperCommand === 'H' || upperCommand === 'V'
+        ? 1
+        : upperCommand === 'M' || upperCommand === 'L' || upperCommand === 'T'
+          ? 2
+          : upperCommand === 'S' || upperCommand === 'Q'
+            ? 4
+            : upperCommand === 'C'
+              ? 6
+              : 0,
+    )
+    if (!values?.length) break
+
+    if (upperCommand !== 'M' && !current.length) current.push([cx, cy])
+    const baseX = cx
+    const baseY = cy
+    const coordinate = (x: number, y: number): [number, number] =>
+      relative ? [baseX + x, baseY + y] : [x, y]
+    if (upperCommand === 'M') {
       if (current.length) rings.push(current)
-      const [x, y] = readNums(2)
-      cx = x
-      cy = y
-      current = [[x, y]]
-    } else if (cmd === 'L') {
-      const [x, y] = readNums(2)
-      cx = x
-      cy = y
-      current.push([x, y])
-    } else if (cmd === 'C') {
-      const [x1, y1, x2, y2, x, y] = readNums(6)
+      ;[cx, cy] = coordinate(values[0], values[1])
+      startX = cx
+      startY = cy
+      current = [[cx, cy]]
+      command = relative ? 'l' : 'L'
+      previousCommand = 'M'
+      lastCubicControl = null
+      lastQuadraticControl = null
+    } else if (upperCommand === 'L') {
+      ;[cx, cy] = coordinate(values[0], values[1])
+      current.push([cx, cy])
+      previousCommand = upperCommand
+      lastCubicControl = null
+      lastQuadraticControl = null
+    } else if (upperCommand === 'H') {
+      cx = relative ? baseX + values[0] : values[0]
+      current.push([cx, cy])
+      previousCommand = upperCommand
+      lastCubicControl = null
+      lastQuadraticControl = null
+    } else if (upperCommand === 'V') {
+      cy = relative ? baseY + values[0] : values[0]
+      current.push([cx, cy])
+      previousCommand = upperCommand
+      lastCubicControl = null
+      lastQuadraticControl = null
+    } else if (upperCommand === 'C') {
+      const [x1, y1] = coordinate(values[0], values[1])
+      const [x2, y2] = coordinate(values[2], values[3])
+      const [x, y] = coordinate(values[4], values[5])
       for (let s = 1; s <= CURVE_STEPS; s += 1) {
         const t = s / CURVE_STEPS
         const mt = 1 - t
@@ -122,10 +229,45 @@ function pathDataToRings(d: string): Array<Array<[number, number]>> {
           t * t * t * y
         current.push([px, py])
       }
+      lastCubicControl = [x2, y2]
       cx = x
       cy = y
-    } else if (cmd === 'Q') {
-      const [x1, y1, x, y] = readNums(4)
+      previousCommand = upperCommand
+      lastQuadraticControl = null
+    } else if (upperCommand === 'S') {
+      const reflectedControl: [number, number] =
+        previousCommand === 'C' || previousCommand === 'S'
+          ? [
+              2 * cx - (lastCubicControl?.[0] ?? cx),
+              2 * cy - (lastCubicControl?.[1] ?? cy),
+            ]
+          : [cx, cy]
+      const [x1, y1] = reflectedControl
+      const [x2, y2] = coordinate(values[0], values[1])
+      const [x, y] = coordinate(values[2], values[3])
+      for (let s = 1; s <= CURVE_STEPS; s += 1) {
+        const t = s / CURVE_STEPS
+        const mt = 1 - t
+        const px =
+          mt * mt * mt * cx +
+          3 * mt * mt * t * x1 +
+          3 * mt * t * t * x2 +
+          t * t * t * x
+        const py =
+          mt * mt * mt * cy +
+          3 * mt * mt * t * y1 +
+          3 * mt * t * t * y2 +
+          t * t * t * y
+        current.push([px, py])
+      }
+      lastCubicControl = [x2, y2]
+      cx = x
+      cy = y
+      previousCommand = upperCommand
+      lastQuadraticControl = null
+    } else if (upperCommand === 'Q') {
+      const [x1, y1] = coordinate(values[0], values[1])
+      const [x, y] = coordinate(values[2], values[3])
       for (let s = 1; s <= CURVE_STEPS; s += 1) {
         const t = s / CURVE_STEPS
         const mt = 1 - t
@@ -133,11 +275,33 @@ function pathDataToRings(d: string): Array<Array<[number, number]>> {
         const py = mt * mt * cy + 2 * mt * t * y1 + t * t * y
         current.push([px, py])
       }
+      lastQuadraticControl = [x1, y1]
       cx = x
       cy = y
-    } else if (cmd === 'Z') {
-      if (current.length) rings.push(current)
-      current = []
+      previousCommand = upperCommand
+      lastCubicControl = null
+    } else if (upperCommand === 'T') {
+      const reflectedControl: [number, number] =
+        previousCommand === 'Q' || previousCommand === 'T'
+          ? [
+              2 * cx - (lastQuadraticControl?.[0] ?? cx),
+              2 * cy - (lastQuadraticControl?.[1] ?? cy),
+            ]
+          : [cx, cy]
+      const [x1, y1] = reflectedControl
+      const [x, y] = coordinate(values[0], values[1])
+      for (let s = 1; s <= CURVE_STEPS; s += 1) {
+        const t = s / CURVE_STEPS
+        const mt = 1 - t
+        const px = mt * mt * cx + 2 * mt * t * x1 + t * t * x
+        const py = mt * mt * cy + 2 * mt * t * y1 + t * t * y
+        current.push([px, py])
+      }
+      lastQuadraticControl = [x1, y1]
+      cx = x
+      cy = y
+      previousCommand = upperCommand
+      lastCubicControl = null
     }
   }
   if (current.length) rings.push(current)
@@ -412,8 +576,10 @@ async function replaceTextNodesWithPaths(
     const parentY =
       parseFirstNumericValue(sourceText.getAttribute('y'), 0) +
       parseDyToPx(sourceText.getAttribute('dy'), fontSizePx)
+    const isPieceKeyText =
+      sourceText.closest('[data-testid="svg-piece-key"]') !== null
     const tspan = sourceText.querySelector('tspan')
-    const runs = tspan
+    const runs: TextPathRun[] = tspan
       ? Array.from(sourceText.childNodes).flatMap((node) => {
           if (node.nodeType === Node.TEXT_NODE) {
             const text = node.textContent ?? ''
@@ -436,7 +602,21 @@ async function replaceTextNodesWithPaths(
           const spanY = span.hasAttribute('y')
             ? parseFirstNumericValue(span.getAttribute('y'), parentY)
             : parentY + parseDyToPx(span.getAttribute('dy'), spanFontSize)
-          return [{ text, fontSizePx: spanFontSize, y: spanY }]
+          return [
+            {
+              text,
+              fontSizePx: spanFontSize,
+              y: spanY,
+              x: span.hasAttribute('x')
+                ? parseFirstNumericValue(span.getAttribute('x'), x)
+                : x,
+              textAnchor: (
+                span.getAttribute('text-anchor') ||
+                window.getComputedStyle(span).textAnchor ||
+                ''
+              ).trim(),
+            },
+          ]
         })
       : [{ text: textContent, fontSizePx, y: parentY }]
 
@@ -446,14 +626,16 @@ async function replaceTextNodesWithPaths(
       'start'
     ).trim()
 
-    const advanceWidth = runs.reduce(
-      (width, run) =>
-        width +
-        interFont.getAdvanceWidth(run.text, run.fontSizePx, {
-          kerning: true,
-        }),
-      0,
-    )
+    const advanceWidth = isPieceKeyText
+      ? 0
+      : runs.reduce(
+          (width, run) =>
+            width +
+            interFont.getAdvanceWidth(run.text, run.fontSizePx, {
+              kerning: true,
+            }),
+          0,
+        )
     let xWithAnchor = x
 
     if (textAnchor === 'middle') {
@@ -468,8 +650,17 @@ async function replaceTextNodesWithPaths(
     const pathNodes: SVGPathElement[] = []
 
     for (const run of runs) {
+      const pathX = isPieceKeyText
+        ? getTextPathOriginX(
+            interFont,
+            run.text,
+            run.fontSizePx,
+            run.textAnchor || textAnchor,
+            run.x ?? x,
+          )
+        : runX
       const pathData = interFont
-        .getPath(run.text, runX, run.y, run.fontSizePx, {
+        .getPath(run.text, pathX, run.y, run.fontSizePx, {
           kerning: true,
         })
         .toPathData(3)
@@ -480,9 +671,11 @@ async function replaceTextNodesWithPaths(
         pathNode.setAttribute('opacity', opacity)
       }
       pathNodes.push(pathNode)
-      runX += interFont.getAdvanceWidth(run.text, run.fontSizePx, {
-        kerning: true,
-      })
+      if (!isPieceKeyText) {
+        runX += interFont.getAdvanceWidth(run.text, run.fontSizePx, {
+          kerning: true,
+        })
+      }
     }
 
     const transform = clonedText.getAttribute('transform')

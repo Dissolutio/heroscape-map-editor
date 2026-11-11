@@ -4,6 +4,7 @@ import {
   sanitizeLookSettings,
   type LookSettings,
 } from '../data/lookSettings'
+import { sanitizeHotkeyOverrides, type HotkeyOverrides } from '../data/hotkeys'
 import { blankPieceInventory } from '../inventory/blankInventory'
 import type { PieceInventory, TerrainConstraintSource } from '../types'
 import { normalizePieceInventory } from '../utils/piece-inventory'
@@ -62,6 +63,7 @@ export type SettingsValues = {
   genericFluidSideColor: string
   rememberedMapAuthor: string
   lookSettings: LookSettings
+  hotkeyOverrides: HotkeyOverrides
 }
 
 export const SETTINGS_DEFAULTS: SettingsValues = {
@@ -104,6 +106,7 @@ export const SETTINGS_DEFAULTS: SettingsValues = {
   genericFluidSideColor: '#c864b4',
   rememberedMapAuthor: '',
   lookSettings: DEFAULT_LOOK_SETTINGS,
+  hotkeyOverrides: {},
 }
 
 export const SETTINGS_KEYS = Object.keys(
@@ -231,6 +234,8 @@ const validSettingValue = (
       return isLightPositions(value) ? value : undefined
     case 'lookSettings':
       return sanitizeLookSettings(value)
+    case 'hotkeyOverrides':
+      return sanitizeHotkeyOverrides(value).overrides
     default:
       return undefined
   }

@@ -1,16 +1,23 @@
 import { describe, expect, it } from 'vitest'
 import { buildupJsonFileMap } from '../data/buildupMap'
+import { piecesSoFar } from '../data/pieces'
+import getPieceTemplateCoords from '../data/rotationTransforms'
+import { computeConflictedPieceUIDs } from '../data/rebuildBoardState'
 import type { BoardPiece, HexMap } from '../types'
 import { HexTerrain, Pieces } from '../types'
 import {
   analyzeMapTerrain,
   buildCollectionAdaptationPlan,
   getAdaptedMapName,
+  getMissingObstacles,
   getCollectionLandSupply,
+  getObstacleSubstituteCandidates,
   getMissingLandTerrains,
   getRemainingLandShortfalls,
   suggestBuriedFillTerrain,
   suggestTerrainTarget,
+  isGameplayAffectingObstacle,
+  OBSTACLE_SUBSTITUTION_FAMILIES,
   type AdaptScope,
 } from '../utils/adaptToCollection'
 
@@ -105,6 +112,154 @@ describe('collection land supply and suggestions', () => {
 })
 
 describe('collection adaptation planning', () => {
+  it('limits obstacle substitutes to compatible families and matching footprints', () => {
+    expect(OBSTACLE_SUBSTITUTION_FAMILIES.forestTree).toEqual([
+      'forestTree',
+      'snowTree',
+    ])
+    expect(OBSTACLE_SUBSTITUTION_FAMILIES.rockOutcrop).toEqual([
+      'rockOutcrop',
+      'lavaRockOutcrop',
+      'toxicOutcrop',
+    ])
+    expect(OBSTACLE_SUBSTITUTION_FAMILIES.laurJungleTree).toEqual([
+      'laurJungleTree',
+      'ticallaPalm',
+    ])
+
+    const candidates = getObstacleSubstituteCandidates(Pieces.tree10, {
+      [Pieces.snowTree10]: 1,
+      [Pieces.glacier1]: 1,
+    })
+    expect(candidates).toEqual([Pieces.snowTree10])
+
+    const shape = (inventoryID: string) => {
+      const pieceTemplate = piecesSoFar[inventoryID]?.template
+      if (!pieceTemplate) throw new Error('test setup: template is unavailable')
+      return [
+        ...new Set(
+          getPieceTemplateCoords({
+            clickedHex: at(0, 0),
+            rotation: 0,
+            template: pieceTemplate,
+            isVsTile: false,
+          }).map(({ q, r, s }) => `${q},${r},${s}`),
+        ),
+      ].sort()
+    }
+    expect(shape(Pieces.tree10)).toEqual(shape(candidates[0] ?? ''))
+  })
+
+  it('prefers the closest obstacle height and filters gameplay pieces last', () => {
+    expect(
+      getObstacleSubstituteCandidates(Pieces.tree10, {
+        [Pieces.snowTree12]: 1,
+        [Pieces.snowTree10]: 1,
+        [Pieces.tree11]: 1,
+      }),
+    ).toEqual([Pieces.snowTree10, Pieces.tree11, Pieces.snowTree12])
+    expect(isGameplayAffectingObstacle(Pieces.laurPalm13)).toBe(true)
+    expect(isGameplayAffectingObstacle(Pieces.shroudshroom7)).toBe(true)
+    expect(isGameplayAffectingObstacle(Pieces.cannon)).toBe(true)
+    expect(isGameplayAffectingObstacle(Pieces.tree10)).toBe(false)
+  })
+
+  it('keeps obstacle conflicts unchanged for an identical-footprint substitute', () => {
+    const boardPieces = [
+      piece('tree', Pieces.tree10, 2, 2),
+      piece('outcrop', Pieces.outcrop1, 2, 2),
+    ]
+    const conflictsBefore = computeConflictedPieceUIDs(boardPieces).sort()
+    const substituted = boardPieces.map((boardPiece) =>
+      boardPiece.uid === 'tree'
+        ? { ...boardPiece, inventoryID: Pieces.snowTree10 }
+        : boardPiece,
+    )
+
+    expect(conflictsBefore).toEqual(['outcrop', 'tree'])
+    expect(computeConflictedPieceUIDs(substituted).sort()).toEqual(
+      conflictsBefore,
+    )
+    expect(
+      getObstacleSubstituteCandidates(
+        Pieces.tree10,
+        { [Pieces.snowTree10]: 1 },
+        boardPieces,
+      ),
+    ).toEqual([Pieces.snowTree10])
+  })
+
+  it('allocates shared obstacle stock in stable order and reports leftovers', () => {
+    const { boardHexes, boardPieces } = map([
+      piece('tree-11', Pieces.tree11, 3, 1),
+      piece('tree-10', Pieces.tree10, 1, 1),
+    ])
+    const supply = getCollectionLandSupply({ [Pieces.snowTree10]: 1 })
+    const plan = buildCollectionAdaptationPlan({
+      boardHexes,
+      boardPieces,
+      supply,
+      choices: {},
+      obstacleChoices: {
+        [Pieces.tree10]: { targetInventoryIDs: [Pieces.snowTree10] },
+        [Pieces.tree11]: { targetInventoryIDs: [Pieces.snowTree10] },
+      },
+      buriedFillByKind: noBuriedFill,
+    })
+
+    expect(plan.mapping).toEqual({ 'tree-10': Pieces.snowTree10 })
+    expect(plan.obstacleCoverageByInventoryID).toEqual({
+      [Pieces.tree10]: [1, 0, 0],
+      [Pieces.tree11]: [0, 0, 0],
+    })
+    expect(plan.unconvertedObstacles).toEqual([
+      { inventoryID: Pieces.tree11, count: 1 },
+    ])
+  })
+
+  it('allocates gameplay-affecting obstacle rows after ordinary obstacles', () => {
+    const boardPieces = [
+      piece('cannon', Pieces.cannon, 3, 1),
+      piece('tree', Pieces.tree10, 1, 1),
+    ]
+    expect(getMissingObstacles(boardPieces, {})).toEqual([
+      { inventoryID: Pieces.tree10, count: 1 },
+      { inventoryID: Pieces.cannon, count: 1 },
+    ])
+    const { boardHexes } = map(boardPieces)
+    const plan = buildCollectionAdaptationPlan({
+      boardHexes,
+      boardPieces,
+      supply: getCollectionLandSupply({
+        [Pieces.snowTree10]: 1,
+        [Pieces.ropeLadder]: 1,
+      }),
+      choices: {},
+      obstacleChoices: {
+        [Pieces.tree10]: { targetInventoryIDs: [Pieces.snowTree10] },
+        [Pieces.cannon]: { targetInventoryIDs: [Pieces.ropeLadder] },
+      },
+      buriedFillByKind: noBuriedFill,
+    })
+    expect(Object.keys(plan.mapping)).toEqual(['tree', 'cannon'])
+  })
+
+  it('leaves obstacles with no possible substitute unchanged and reports them', () => {
+    const { boardHexes, boardPieces } = map([piece('hive', Pieces.hive, 2, 2)])
+    const plan = buildCollectionAdaptationPlan({
+      boardHexes,
+      boardPieces,
+      supply: getCollectionLandSupply({}),
+      choices: {},
+      buriedFillByKind: noBuriedFill,
+    })
+
+    expect(plan.mapping).toEqual({})
+    expect(plan.unconvertedObstacles).toEqual([
+      { inventoryID: Pieces.hive, count: 1 },
+    ])
+  })
+
   it('lists only missing land terrains and leaves owned and Generic pieces alone', () => {
     const { boardHexes, boardPieces } = map([
       piece('snow', Pieces.snow1, 1, 1),
@@ -284,6 +439,7 @@ describe('collection adaptation planning', () => {
 
     expect(suggestBuriedFillTerrain(supply, false)).toBe(HexTerrain.grass)
     expect(plan.mapping).toEqual({ 'buried-snow-a': Pieces.grass1 })
+    expect(plan.buriedCoverageByTerrain[HexTerrain.snow]).toEqual([1, 0, 0])
     expect(plan.unconvertedPieces).toEqual([
       { terrain: HexTerrain.snow, size: 1, count: 1 },
     ])

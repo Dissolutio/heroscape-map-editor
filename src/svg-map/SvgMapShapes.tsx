@@ -1,5 +1,6 @@
 import { createContext, useContext } from 'react'
 import { getPieceGameHeight, piecesSoFar } from '../data/pieces'
+import { SETTINGS_DEFAULTS } from '../local-storage/settings'
 import {
   genWoodPlankPath1,
   genWoodPlankPath2,
@@ -47,8 +48,8 @@ import {
   getShipBowSvgPolygonPoints,
   getShipWallSvgPolygonPoints,
 } from '../pdf-svg-shared/hexPolygonPoints'
-import { SETTINGS_DEFAULTS } from '../local-storage/settings'
 import {
+  getOutcropTextColor,
   getSvgHexBorderColor,
   getSvgHexFillColor,
   getSvgHexSubLevelBorderColor,
@@ -64,6 +65,7 @@ import {
 import {
   HEXGRID_HEX_APOTHEM,
   OPACITY_SUBLEVEL,
+  PDF_BORDER_WIDTH,
   SVG_BORDER_WIDTH,
   SVG_EMPTYHEX_BORDER_WIDTH,
   SVG_HEX_APOTHEM,
@@ -642,13 +644,15 @@ export const SvgMultiHex24 = ({
 export const SvgLaurPillar = ({
   hex,
   isSubLevel,
+  useTerrainBorderColor = true,
 }: {
   hex: BoardHex
   isSubLevel?: boolean
+  useTerrainBorderColor?: boolean
 }) => {
   const fillColor = isSubLevel
-    ? getSvgHexSubLevelBorderColor(hex)
-    : getSvgHexBorderColor(hex)
+    ? getSvgHexSubLevelBorderColor(hex, useTerrainBorderColor)
+    : getSvgHexBorderColor(hex, useTerrainBorderColor)
   const laurSquarePoints = getLaurPillarShape(
     SVG_HEX_RADIUS,
     SVG_BORDER_WIDTH,
@@ -669,6 +673,7 @@ export const SvgLaurPillar = ({
         hex={hex}
         isSubLevel={isSubLevel}
         borderWidth={SVG_TREE_JUNGLE_OUTCROP_BORDER_WIDTH}
+        useTerrainBorderColor={useTerrainBorderColor}
       />
       <g transform={`rotate(${pieceRotation})`}>
         {/*  LAUR SQUARE/TRIANGLE BELOW */}
@@ -680,16 +685,18 @@ export const SvgLaurPillar = ({
 export const SvgJungle = ({
   hex,
   isSubLevel,
+  useTerrainBorderColor = true,
 }: {
   hex: BoardHex
   isSubLevel?: boolean
+  useTerrainBorderColor?: boolean
 }) => {
   const pieceHeightText = getPieceGameHeight(hex.inventoryID)
   const pieceRotation = ((hex?.pieceRotation ?? 0) % 6) * 60
   const points = getJungleTriangleShape(SVG_HEX_RADIUS, SVG_BORDER_WIDTH).points
   const borderColor = isSubLevel
-    ? getSvgHexSubLevelBorderColor(hex)
-    : getSvgHexBorderColor(hex)
+    ? getSvgHexSubLevelBorderColor(hex, useTerrainBorderColor)
+    : getSvgHexBorderColor(hex, useTerrainBorderColor)
   const textColor = isSubLevel
     ? svgSubLevelColors.jungleText
     : svgColors.jungleText
@@ -700,6 +707,7 @@ export const SvgJungle = ({
           hex={hex}
           isSubLevel={isSubLevel}
           borderWidth={SVG_TREE_JUNGLE_OUTCROP_BORDER_WIDTH}
+          useTerrainBorderColor={useTerrainBorderColor}
         />
         {/* JUNGLE ORIENTATION MARKER */}
         <polygon points={points} fill={borderColor} />
@@ -713,12 +721,17 @@ export const SvgJungle = ({
 export const SvgHive6 = ({
   hex,
   isSubLevel,
+  useTerrainBorderColor = true,
 }: {
   hex: BoardHex
   isSubLevel?: boolean
+  useTerrainBorderColor?: boolean
 }) => {
   const fillColor = getSvgHexFillColor(hex)
-  const borderColor = getSvgHexBorderColor(hex)
+  const borderColor =
+    useTerrainBorderColor || !isSubLevel
+      ? getSvgHexBorderColor(hex, useTerrainBorderColor)
+      : getSvgHexSubLevelBorderColor(hex, useTerrainBorderColor)
   const { points } = get6HexSvgPolygonPointsAt00(SVG_HEX_RADIUS)
   const { points: outlinePoints } = get6HexOutlineSvgPolygonPoints(
     SVG_HEX_RADIUS,
@@ -961,10 +974,12 @@ export const SvgBoardPieceLaurWallShort = ({
   piece,
   isSubLevel,
   isPieceKeyPreview,
+  useTerrainBorderColor = true,
 }: {
   piece: DecodedPieceID
   isSubLevel?: boolean
   isPieceKeyPreview?: boolean
+  useTerrainBorderColor?: boolean
 }) => {
   const fillColor = isSubLevel
     ? getSvgHexSubLevelFillColor(piece)
@@ -974,7 +989,11 @@ export const SvgBoardPieceLaurWallShort = ({
     <polygon
       points={points}
       fill={fillColor}
-      stroke={isPieceKeyPreview ? getSvgHexBorderColor(piece) : undefined}
+      stroke={
+        isPieceKeyPreview
+          ? getSvgHexBorderColor(piece, useTerrainBorderColor)
+          : undefined
+      }
       strokeWidth={isPieceKeyPreview ? SVG_BORDER_WIDTH : undefined}
     />
   )
@@ -983,10 +1002,12 @@ export const SvgBoardPieceLaurWallLong = ({
   piece,
   isSubLevel,
   isPieceKeyPreview,
+  useTerrainBorderColor = true,
 }: {
   piece: DecodedPieceID
   isSubLevel?: boolean
   isPieceKeyPreview?: boolean
+  useTerrainBorderColor?: boolean
 }) => {
   const fillColor = isSubLevel
     ? getSvgHexSubLevelFillColor(piece)
@@ -996,7 +1017,11 @@ export const SvgBoardPieceLaurWallLong = ({
     <polygon
       points={points}
       fill={fillColor}
-      stroke={isPieceKeyPreview ? getSvgHexBorderColor(piece) : undefined}
+      stroke={
+        isPieceKeyPreview
+          ? getSvgHexBorderColor(piece, useTerrainBorderColor)
+          : undefined
+      }
       strokeWidth={isPieceKeyPreview ? SVG_BORDER_WIDTH : undefined}
     />
   )
@@ -1005,10 +1030,12 @@ export const SvgBoardPieceLaurWallLongArch = ({
   piece,
   isSubLevel,
   isPieceKeyPreview,
+  useTerrainBorderColor = true,
 }: {
   piece: DecodedPieceID
   isSubLevel?: boolean
   isPieceKeyPreview?: boolean
+  useTerrainBorderColor?: boolean
 }) => {
   const fillColor = isSubLevel
     ? getSvgHexSubLevelFillColor(piece)
@@ -1018,7 +1045,11 @@ export const SvgBoardPieceLaurWallLongArch = ({
     <polygon
       points={points}
       fill={fillColor}
-      stroke={isPieceKeyPreview ? getSvgHexBorderColor(piece) : undefined}
+      stroke={
+        isPieceKeyPreview
+          ? getSvgHexBorderColor(piece, useTerrainBorderColor)
+          : undefined
+      }
       strokeWidth={isPieceKeyPreview ? SVG_BORDER_WIDTH : undefined}
     />
   )
@@ -1063,10 +1094,12 @@ export const SvgBoardPieceLaurWallRuin = ({
   piece,
   isSubLevel,
   isPieceKeyPreview,
+  useTerrainBorderColor = true,
 }: {
   piece: DecodedPieceID
   isSubLevel?: boolean
   isPieceKeyPreview?: boolean
+  useTerrainBorderColor?: boolean
 }) => {
   const fillColor = isSubLevel
     ? getSvgHexSubLevelFillColor(piece)
@@ -1076,7 +1109,11 @@ export const SvgBoardPieceLaurWallRuin = ({
     <polygon
       points={points}
       fill={fillColor}
-      stroke={isPieceKeyPreview ? getSvgHexBorderColor(piece) : undefined}
+      stroke={
+        isPieceKeyPreview
+          ? getSvgHexBorderColor(piece, useTerrainBorderColor)
+          : undefined
+      }
       strokeWidth={isPieceKeyPreview ? SVG_BORDER_WIDTH : undefined}
     />
   )
@@ -1134,6 +1171,7 @@ export const SvgLadder = ({
   const { points } = getLadderSvgPolygonPoints(
     SVG_HEX_RADIUS * (isPieceKeyPreview ? 2 : 1),
     0,
+    isPieceKeyPreview ? -SVG_HEX_RADIUS : 0,
   )
   return (
     <>
@@ -1438,17 +1476,19 @@ const treeXYForRotation = [
 export const SvgTree415 = ({
   hex,
   isSubLevel,
+  useTerrainBorderColor = true,
 }: {
   hex: BoardHex
   isSubLevel?: boolean
+  useTerrainBorderColor?: boolean
 }) => {
   const pieceHeightText = getPieceGameHeight(hex.inventoryID)
   const fillColor = isSubLevel
     ? getSvgHexSubLevelFillColor(hex)
     : getSvgHexFillColor(hex)
   const borderColor = isSubLevel
-    ? getSvgHexSubLevelBorderColor(hex)
-    : getSvgHexBorderColor(hex)
+    ? getSvgHexSubLevelBorderColor(hex, useTerrainBorderColor)
+    : getSvgHexBorderColor(hex, useTerrainBorderColor)
   const textColor = isSubLevel
     ? svgSubLevelColors.evergreenText
     : svgColors.evergreenText
@@ -1528,42 +1568,22 @@ const outcrop6TextXYForRotation = [
   [posO3_1, posO3_6, posO3_7, posO4_5, posO6_1_5, posO3_2],
   [posO3_1, posO3_7, posO3_2, posO4_6, posO6_1_6, posO3_3],
 ]
-export const getOutcropTextColor = ({
-  hex,
-  isSubLevel,
-}: {
-  hex: BoardHex
-  isSubLevel?: boolean
-}) => {
-  const subLevelTextColor =
-    hex.terrain === HexTerrain.glacier
-      ? svgSubLevelColors.glacierText
-      : hex.terrain === HexTerrain.outcrop
-        ? svgSubLevelColors.outcropText
-        : svgSubLevelColors.lavaRockOutcropText
-  const currentLevelTextColor =
-    hex.terrain === HexTerrain.glacier
-      ? svgColors.glacierText
-      : hex.terrain === HexTerrain.outcrop
-        ? svgColors.outcropText
-        : svgColors.lavaRockOutcropText
-  const textColor = isSubLevel ? subLevelTextColor : currentLevelTextColor
-  return textColor
-}
 export const SvgOutcrop6 = ({
   hex,
   isSubLevel,
+  useTerrainBorderColor = true,
 }: {
   hex: BoardHex
   isSubLevel?: boolean
+  useTerrainBorderColor?: boolean
 }) => {
   const fillColor = isSubLevel
     ? getSvgHexSubLevelFillColor(hex)
     : getSvgHexFillColor(hex)
   const borderColor = isSubLevel
-    ? getSvgHexSubLevelBorderColor(hex)
-    : getSvgHexBorderColor(hex)
-  const textColor = getOutcropTextColor({ hex, isSubLevel })
+    ? getSvgHexSubLevelBorderColor(hex, useTerrainBorderColor)
+    : getSvgHexBorderColor(hex, useTerrainBorderColor)
+  const textColor = getOutcropTextColor(hex.terrain, isSubLevel)
   const { points } = get6HexSvgPolygonPointsAt00(SVG_HEX_RADIUS)
   const { points: outlinePoints } = get6HexOutlineSvgPolygonPoints(
     SVG_HEX_RADIUS,
@@ -1631,17 +1651,19 @@ export const SvgOutcrop6 = ({
 export const SvgOutcrop3 = ({
   hex,
   isSubLevel,
+  useTerrainBorderColor = true,
 }: {
   hex: BoardHex
   isSubLevel?: boolean
+  useTerrainBorderColor?: boolean
 }) => {
   const fillColor = isSubLevel
     ? getSvgHexSubLevelFillColor(hex)
     : getSvgHexFillColor(hex)
   const borderColor = isSubLevel
-    ? getSvgHexSubLevelBorderColor(hex)
-    : getSvgHexBorderColor(hex)
-  const textColor = getOutcropTextColor({ hex, isSubLevel })
+    ? getSvgHexSubLevelBorderColor(hex, useTerrainBorderColor)
+    : getSvgHexBorderColor(hex, useTerrainBorderColor)
+  const textColor = getOutcropTextColor(hex.terrain, isSubLevel)
   const { points } = get3HexSvgPolygonPointsAt00(SVG_HEX_RADIUS)
   const { points: outlinePoints } = get3HexOutlineSvgPolygonPoints(
     SVG_HEX_RADIUS,
@@ -1679,17 +1701,19 @@ export const SvgOutcrop3 = ({
 export const SvgOutcrop4 = ({
   hex,
   isSubLevel,
+  useTerrainBorderColor = true,
 }: {
   hex: BoardHex
   isSubLevel?: boolean
+  useTerrainBorderColor?: boolean
 }) => {
   const fillColor = isSubLevel
     ? getSvgHexSubLevelFillColor(hex)
     : getSvgHexFillColor(hex)
   const borderColor = isSubLevel
-    ? getSvgHexSubLevelBorderColor(hex)
-    : getSvgHexBorderColor(hex)
-  const textColor = getOutcropTextColor({ hex, isSubLevel })
+    ? getSvgHexSubLevelBorderColor(hex, useTerrainBorderColor)
+    : getSvgHexBorderColor(hex, useTerrainBorderColor)
+  const textColor = getOutcropTextColor(hex.terrain, isSubLevel)
   const { points } = get4HexSvgPolygonPointsAt00(SVG_HEX_RADIUS)
   const { points: outlinePoints } = get4HexOutlineSvgPolygonPoints(
     SVG_HEX_RADIUS,

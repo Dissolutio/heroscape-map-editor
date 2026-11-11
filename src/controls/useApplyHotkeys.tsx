@@ -7,6 +7,7 @@ import {
   getPieceIDForPenMode,
   isObstacleVariantFamily,
 } from '../data/flatPieceSizes'
+import { PEN_MODE_ACTION_TARGETS } from '../data/hotkeys'
 import { getLaurAddonAllowedRotations } from '../data/laurAddonPlacement'
 import {
   OBJECTIVE_MARKER_PEN_MODE,
@@ -18,7 +19,7 @@ import {
 } from '../data/rotationHotkey'
 import { DIALOGS } from '../layout/dialogNames'
 import useBoundStore from '../store/store'
-import { PICK_PEN_MODE, PiecePrefixes, Pieces, SELECT_PEN_MODE } from '../types'
+import { PICK_PEN_MODE, Pieces, SELECT_PEN_MODE } from '../types'
 import { zoomToMap } from '../utils/camera-utils'
 import {
   getBoardHexesRectangularMapDimensions,
@@ -359,29 +360,6 @@ export const useApplyHotkeys = ({
   const togglePenModeLast = () => {
     toggleLastPenMode()
   }
-  const togglePenModeGrass = () => togglePenMode(PiecePrefixes.grass)
-  const togglePenModeRock = () => togglePenMode(PiecePrefixes.rock)
-  const togglePenModeSand = () => togglePenMode(PiecePrefixes.sand)
-  const togglePenModeRoad = () => togglePenMode(PiecePrefixes.road)
-  const togglePenModeWallWalk = () => togglePenMode(PiecePrefixes.wallWalk)
-  const togglePenModeSnow = () => togglePenMode(PiecePrefixes.snow)
-  const togglePenModeLavaField = () => togglePenMode(PiecePrefixes.lavaField)
-  const togglePenModeSwamp = () => togglePenMode(PiecePrefixes.swamp)
-  const togglePenModeAsphalt = () => togglePenMode(PiecePrefixes.asphalt)
-  const togglePenModeConcrete = () => togglePenMode(PiecePrefixes.concrete)
-  const togglePenModeDungeon = () => togglePenMode(PiecePrefixes.dungeon)
-  const togglePenModeToxic = () => togglePenMode(PiecePrefixes.toxic)
-  const togglePenModeAncientTerrain = () =>
-    togglePenMode(PiecePrefixes.ancientTerrain)
-  const togglePenModeWood = () => togglePenMode(PiecePrefixes.wood)
-  const togglePenModeWellspringWater = () =>
-    togglePenMode(PiecePrefixes.wellspringWater)
-  const togglePenModeToxicWater = () => togglePenMode(PiecePrefixes.toxicWater)
-  const togglePenModeWater = () => togglePenMode(PiecePrefixes.water)
-  const togglePenModeLava = () => togglePenMode(PiecePrefixes.lava)
-  const togglePenModeIce = () => togglePenMode(PiecePrefixes.ice)
-  const togglePenModeSwampWater = () => togglePenMode(PiecePrefixes.swampWater)
-  const togglePenModeShadow = () => togglePenMode(PiecePrefixes.shadow)
   const togglePenModePowerGlyph = () => togglePenMode(Pieces.glyphPower)
   const togglePenModeTreasureGlyph = () => togglePenMode(Pieces.glyphTreasure)
   const togglePenModeObjectiveMarker = () => applyObjectiveMarkerHotkey('m')
@@ -394,7 +372,14 @@ export const useApplyHotkeys = ({
     if (action.selectPen) togglePenMode(OBJECTIVE_MARKER_PEN_MODE)
   }
 
+  const penModeActionMap = Object.fromEntries(
+    Object.entries(PEN_MODE_ACTION_TARGETS).map(([action, mode]) => [
+      action,
+      () => togglePenMode(mode),
+    ]),
+  )
   const actionMap: { [key: string]: () => void } = {
+    ...penModeActionMap,
     deleteSelectedPiece: deleteSelectedPiece,
 
     incrementViewingLevel: incrementViewingLevel,
@@ -427,41 +412,25 @@ export const useApplyHotkeys = ({
     togglePenModeTreasureGlyph: togglePenModeTreasureGlyph,
     togglePenModeObjectiveMarker: togglePenModeObjectiveMarker,
     togglePenModeObjectiveMarkerWhite: togglePenModeObjectiveMarkerWhite,
-    togglePenModeGrass: togglePenModeGrass,
-    togglePenModeRock: togglePenModeRock,
-    togglePenModeSand: togglePenModeSand,
-    togglePenModeRoad: togglePenModeRoad,
-    togglePenModeWallWalk: togglePenModeWallWalk,
-    togglePenModeSnow: togglePenModeSnow,
-    togglePenModeLavaField: togglePenModeLavaField,
-    togglePenModeSwamp: togglePenModeSwamp,
-    togglePenModeAsphalt: togglePenModeAsphalt,
-    togglePenModeConcrete: togglePenModeConcrete,
-    togglePenModeDungeon: togglePenModeDungeon,
-    togglePenModeToxic: togglePenModeToxic,
-    togglePenModeAncientTerrain: togglePenModeAncientTerrain,
-    togglePenModeWood: togglePenModeWood,
-    togglePenModeWellspringWater: togglePenModeWellspringWater,
-    togglePenModeToxicWater: togglePenModeToxicWater,
-    togglePenModeWater: togglePenModeWater,
-    togglePenModeLava: togglePenModeLava,
-    togglePenModeIce: togglePenModeIce,
-    togglePenModeSwampWater: togglePenModeSwampWater,
-    togglePenModeShadow: togglePenModeShadow,
   }
 
-  // ALL ACTION-ASSIGNED HOTKEYS ARE APPLIED HERE
-  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-  // biome-ignore lint/complexity/noForEach: <explanation>
-  Object.entries(hotkeyConfig).forEach((value: any) => {
-    if (value[0] && value[1] && actionMap[value[1]]) {
-      useHotkeys(value[0], () => actionMap[value[1]]?.(), {
-        enabled: currentDialog !== DIALOGS.cropMapPortrait,
-        enableOnFormTags: false,
-        enableOnContentEditable: false,
-      })
-    }
+  const activeHotkeys = Object.keys(hotkeyConfig).filter((key) => {
+    const action = hotkeyConfig[key]
+    return action !== undefined && actionMap[action] !== undefined
   })
+  useHotkeys(
+    activeHotkeys,
+    (_, hotkeysEvent) => {
+      const action = hotkeyConfig[hotkeysEvent.hotkey]
+      if (action) actionMap[action]?.()
+    },
+    {
+      enabled: currentDialog !== DIALOGS.cropMapPortrait,
+      enableOnFormTags: false,
+      enableOnContentEditable: false,
+    },
+    [hotkeyConfig, actionMap],
+  )
 
   return null
 }
