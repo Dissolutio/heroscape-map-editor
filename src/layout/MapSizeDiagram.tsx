@@ -2,8 +2,10 @@ import { useTheme } from '@mui/material'
 import type { MapPhysicalSize } from '../utils/mapPhysicalSize'
 import { formatMapPhysicalDimension } from '../utils/mapPhysicalSize'
 
-const VIEWBOX_WIDTH = 220
-const VIEWBOX_HEIGHT = 160
+const VIEWBOX_X = -22
+const VIEWBOX_Y = -16
+const VIEWBOX_WIDTH = 264
+const VIEWBOX_HEIGHT = 192
 const DIAGRAM_WIDTH = 270
 const DIAGRAM_HEIGHT = 195
 const TABLE_AREA = {
@@ -65,7 +67,7 @@ export function MapSizeDiagram({
       data-testid="map-size-diagram"
       height={DIAGRAM_HEIGHT}
       role="img"
-      viewBox={`0 0 ${VIEWBOX_WIDTH} ${VIEWBOX_HEIGHT}`}
+      viewBox={`${VIEWBOX_X} ${VIEWBOX_Y} ${VIEWBOX_WIDTH} ${VIEWBOX_HEIGHT}`}
       width={DIAGRAM_WIDTH}
       xmlns="http://www.w3.org/2000/svg"
       style={{ maxWidth: '100%', overflow: 'visible' }}

@@ -12,6 +12,28 @@ const rectangleMap = {
   version: 1,
 }
 
+async function expectLengthLabelWithinDiagram(
+  diagram: import('@playwright/test').Locator,
+) {
+  const diagramBounds = await diagram.boundingBox()
+  const lengthLabelBounds = await diagram
+    .locator('text')
+    .filter({ hasText: 'Length' })
+    .boundingBox()
+  if (!diagramBounds || !lengthLabelBounds) {
+    throw new Error('Could not measure the map size diagram')
+  }
+
+  expect(lengthLabelBounds.x).toBeGreaterThanOrEqual(diagramBounds.x)
+  expect(lengthLabelBounds.x + lengthLabelBounds.width).toBeLessThanOrEqual(
+    diagramBounds.x + diagramBounds.width,
+  )
+  expect(lengthLabelBounds.y).toBeGreaterThanOrEqual(diagramBounds.y)
+  expect(lengthLabelBounds.y + lengthLabelBounds.height).toBeLessThanOrEqual(
+    diagramBounds.y + diagramBounds.height,
+  )
+}
+
 test('shows live map size controls and conversion across map dialogs', async ({
   page,
 }) => {
@@ -49,6 +71,8 @@ test('shows live map size controls and conversion across map dialogs', async ({
     'Length 4 · Width 5 hexes',
   )
   await expect(detailsDialog.getByText('Shape: Rectangle')).toBeVisible()
+  const detailsDiagram = detailsDialog.getByTestId('map-size-diagram')
+  await expectLengthLabelWithinDiagram(detailsDiagram)
   await saveEvidence(page, 'map-size-display-details')
   await detailsDialog
     .getByRole('button', { name: 'Convert to hexagon map' })
@@ -58,7 +82,7 @@ test('shows live map size controls and conversion across map dialogs', async ({
   ).toBeVisible()
   await expect(detailsDialog.getByText('Shape: Hexagon')).toBeVisible()
   await expect(
-    page.getByText(/Converted to a hexagon map \(radius \d+\)/),
+    page.getByText(/Converted to a hexagon map \(size \d+\)/),
   ).toBeVisible()
   await detailsDialog.getByRole('button', { name: 'Cancel' }).click()
   await expect(page.getByTestId('map-size-length-value')).toHaveText(/^\d+$/)
@@ -84,6 +108,7 @@ test('shows live map size controls and conversion across map dialogs', async ({
   const newMapDialog = page.getByRole('dialog', { name: 'New Map' })
   const createSummary = newMapDialog.getByTestId('map-size-summary')
   const diagram = newMapDialog.getByTestId('map-size-diagram')
+  await expectLengthLabelWithinDiagram(diagram)
   await expect(createSummary).toContainText('Length 20 · Width 20 hexes')
   await expect(diagram).toHaveAttribute(
     'aria-label',

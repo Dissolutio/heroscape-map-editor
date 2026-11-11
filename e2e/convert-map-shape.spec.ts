@@ -69,7 +69,7 @@ test('converts a hexagon map to a rectangle and back without moving pieces', asy
     .getByRole('button', { name: 'Convert to hexagon map' })
     .click()
   await expect(
-    page.getByText(/Converted to a hexagon map \(radius \d+\)/),
+    page.getByText(/Converted to a hexagon map \(size \d+\)/),
   ).toBeVisible()
   await waitForAppReady(page)
   await saveEvidence(page, 'convert-map-shape-hexagon')

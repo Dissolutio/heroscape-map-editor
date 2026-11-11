@@ -37,7 +37,7 @@ export function useConvertMapShape() {
       message:
         targetShape === 'rectangle'
           ? `Converted to a rectangle map (${result.hexMap.length} × ${result.hexMap.width})`
-          : `Converted to a hexagon map (radius ${result.hexMap.length - 1})`,
+          : `Converted to a hexagon map (size ${result.hexMap.length})`,
       variant: 'success',
     })
   }, [boardPieces, enqueueSnackbar, hexMap, loadMap, savedSelections])
