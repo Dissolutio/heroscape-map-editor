@@ -230,8 +230,12 @@ test('map shrink controls are disabled when a piece occupies the removed edge', 
   await waitForAppReady(page)
   await page.locator('#simple-tab-2').click()
 
-  const removeLength = page.getByRole('button', { name: '- length' })
-  const removeWidth = page.getByRole('button', { name: '- width' })
+  const removeLength = page.getByRole('button', {
+    name: 'Remove the bottom row',
+  })
+  const removeWidth = page.getByRole('button', {
+    name: 'Remove the right column',
+  })
   await expect(removeLength).toBeDisabled()
   await expect(removeWidth).toBeDisabled()
 

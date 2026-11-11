@@ -116,6 +116,7 @@ Three.js through a CommonJS entry point, not from an application `require`.
 | `storage-known-gaps.test.ts` | Legacy constraint restoration and protection against hotkey mount overwrites. |
 | `virtualscape-import.test.ts` | Version 0.0007 Virtualscape binary import through `readVirtualscapeMapFile()` and `buildupVSFileMap()`: registered codes, positions, rotations, odd-r coordinates, unknown-code drop reporting and warning, and empty drops for known-only files. |
 | `map-roundtrip.test.ts` | JSON file, local autosave, and compressed share-link save/load round trips for multiple piece families, including stable map/piece data, rebuilt occupancy, no drops, and conflict recomputation. |
+| `map-physical-size.test.ts` | Rectangle and hexagon outer bounds, physical units, diagonal, labels, and display rounding. |
 | `objective-markers.test.ts` | Objective-marker content and placement validation, six-step footprints/rotation, overlap rules, map growth/shrink safety, JSON/autosave/share-link persistence, legacy compatibility, 40-marker URL size, and store history/reference/selection isolation. |
 | `world/models/objectiveMarker3D.test.ts` | Objective-marker surface positions, footprints, rotation, text fitting, and viewing-level visibility. |
 | `objective-marker-exports.test.ts` | Shared objective-marker export geometry and level/overlay visibility, SVG symbols and named legend markup, PDF polygon/path primitives, and the empty case. |

@@ -9,7 +9,9 @@ export type ReleaseNoteEntry = {
   items: ReleaseNoteItem[]
 }
 
-const headingPattern = /^[A-Z][a-z]{2}-\d{2}-\d{4}$/
+// A date heading, optionally followed by one capitalized word for a second
+// release on the same day, for example "Nov-11-2026 Hotfix".
+export const headingPattern = /^[A-Z][a-z]{2}-\d{2}-\d{4}( [A-Z][A-Za-z0-9]*)?$/
 const bulletPattern = /^- \*\*(.+?)\*\*:\s*(.*)$/
 
 export function parseReleaseNotes(text: string): ReleaseNoteEntry[] {

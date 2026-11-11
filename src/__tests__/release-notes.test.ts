@@ -29,6 +29,13 @@ describe('parseReleaseNotes', () => {
     ])
   })
 
+  it('parses a same-day heading with a one-word suffix', () => {
+    const hotfix = parseReleaseNotes('Nov-11-2026 Hotfix\n- **Fix**: Fixed.')
+    expect(hotfix[0].id).toBe('Nov-11-2026 Hotfix')
+    const lowercase = parseReleaseNotes('Nov-11-2026 hotfix\n- **Fix**: Fixed.')
+    expect(lowercase[0].id).toBe('')
+  })
+
   it('parses entries without a TLDR', () => {
     expect(parseReleaseNotes('Oct-17-2026\n- **Tools**: New tools.')).toEqual([
       { id: 'Oct-17-2026', items: [{ title: 'Tools', body: 'New tools.' }] },
