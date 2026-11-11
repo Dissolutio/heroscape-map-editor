@@ -23,7 +23,7 @@
     "@react-pdf/renderer": "^4.3.0",
     "@react-three/drei": "^9.116.0",
     "@react-three/fiber": "^8.17.10",
-    "@sentry/react": "^8.47.0",
+    "@sentry/react": "^11.11.0",
     "@sentry/vite-plugin": "^11.11.0",
     "@tauri-apps/api": "^2.12.4",
     "@tauri-apps/plugin-process": "~2.4.0",

@@ -7,11 +7,7 @@ import {
 import { afterEach, describe, expect, it } from 'vitest'
 import { piecesSoFar } from '../data/pieces'
 import { PdfMapHex } from '../pdf-map/PdfMapHex'
-import {
-  PdfGlyphPower,
-  PdfGlyphTreasure,
-  PdfMultiHex1,
-} from '../pdf-map/PdfMapShapes'
+import { PdfGlyphPower, PdfGlyphTreasure } from '../pdf-map/PdfMapShapes'
 import { getHexagonPdfPolygonPointsAt00 } from '../pdf-svg-shared/hexPolygonPoints'
 import useBoundStore from '../store/store'
 import { type BoardHex, HexTerrain, Pieces } from '../types'
@@ -38,12 +34,7 @@ const makeHex = (
 
 const initialState = useBoundStore.getState()
 
-const setExportState = (
-  hexes: BoardHex[],
-  options: {
-    isHideHeightsOnGlyphs?: boolean
-  } = {},
-) => {
+const setExportState = (hexes: BoardHex[]) => {
   useBoundStore.setState({
     boardHexes: Object.fromEntries(hexes.map((hex) => [hex.id, hex])),
     boardPieces: [],
@@ -51,8 +42,6 @@ const setExportState = (
     is2DOverlayLevelEnabled: false,
     isShow2DExportTileLetters: false,
     isShow2DExportBuriedMarks: false,
-    isHideHeightsOnGlyphs: false,
-    ...options,
   })
 }
 
@@ -104,7 +93,6 @@ afterEach(() => {
     is2DOverlayLevelEnabled: initialState.is2DOverlayLevelEnabled,
     isShow2DExportTileLetters: initialState.isShow2DExportTileLetters,
     isShow2DExportBuriedMarks: initialState.isShow2DExportBuriedMarks,
-    isHideHeightsOnGlyphs: initialState.isHideHeightsOnGlyphs,
   })
 })
 
@@ -180,22 +168,5 @@ describe('PDF glyph rendering', () => {
     expect(polygon.props.stroke).toBe(svgColors.glyphBorder)
     expect(children[1].props.children).toBe(piece.glyphLetter)
     expect(children[1].props.fill).toBe(svgColors.glyphText)
-  })
-
-  it('still hides height text under glyph coordinates when enabled', () => {
-    const outcrop = makeHex(Pieces.outcrop1, HexTerrain.outcrop, 0)
-    const glyph = makeHex(Pieces.glyphPower, HexTerrain.glyphPower, 1)
-    setExportState([outcrop, glyph])
-
-    expect(
-      childElements(renderPdfHex(outcrop, { viewingLevel: 1 })),
-    ).toHaveLength(2)
-
-    setExportState([outcrop, glyph], { isHideHeightsOnGlyphs: true })
-    const hiddenHeight = childElements(
-      renderPdfHex(outcrop, { viewingLevel: 1 }),
-    )
-    expect(hiddenHeight).toHaveLength(1)
-    expect(hiddenHeight[0].type).toBe(PdfMultiHex1)
   })
 })

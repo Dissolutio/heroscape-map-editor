@@ -2,7 +2,6 @@ import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import SvgMapDisplay from '../svg-map/SvgMapDisplay'
-import * as glyphExportOptions from '../pdf-svg-shared/glyphExportOptions'
 import * as mapUtils from '../utils/map-utils'
 import useBoundStore from '../store/store'
 import { type BoardHex, type BoardHexes, HexTerrain, Pieces } from '../types'
@@ -19,7 +18,6 @@ const originalServerState = {
   isShow2DExportTileLetters:
     useBoundStore.getInitialState().isShow2DExportTileLetters,
   isShowPdfPieceLegend: useBoundStore.getInitialState().isShowPdfPieceLegend,
-  isHideHeightsOnGlyphs: useBoundStore.getInitialState().isHideHeightsOnGlyphs,
 }
 
 afterEach(() => {
@@ -31,7 +29,6 @@ afterEach(() => {
     isShow2DExportBuriedMarks: originalState.isShow2DExportBuriedMarks,
     isShow2DExportTileLetters: originalState.isShow2DExportTileLetters,
     isShowPdfPieceLegend: originalState.isShowPdfPieceLegend,
-    isHideHeightsOnGlyphs: originalState.isHideHeightsOnGlyphs,
   }
   useBoundStore.setState(restored)
   Object.assign(useBoundStore.getInitialState(), originalServerState)
@@ -91,7 +88,6 @@ describe('SVG map render performance', () => {
       isShow2DExportBuriedMarks: false,
       isShow2DExportTileLetters: false,
       isShowPdfPieceLegend: false,
-      isHideHeightsOnGlyphs: true,
     }
     useBoundStore.setState(state)
     Object.assign(useBoundStore.getInitialState(), state)
@@ -100,14 +96,9 @@ describe('SVG map render performance', () => {
       mapUtils,
       'getSurfaceAltitudeByPieceUID',
     )
-    const glyphCoordinateLookup = vi.spyOn(
-      glyphExportOptions,
-      'makeGlyphCoordinateLookup',
-    )
     const markup = renderToStaticMarkup(createElement(SvgMapDisplay))
 
     expect(markup.match(/<polygon/g)).toHaveLength(1800)
     expect(surfaceAltitudeLookup).toHaveBeenCalledTimes(1)
-    expect(glyphCoordinateLookup).toHaveBeenCalledTimes(1)
   })
 })

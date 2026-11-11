@@ -244,6 +244,9 @@ function resolveByRule(
         })
       ]
     : hex
+  // The hex above a wall or arch cap can be missing (for example at the top
+  // of the map); treat that as no hex instead of crashing the preview.
+  if (!clickedHex) return { blocked: 'notAHex' }
   const coords = { q: clickedHex.q, r: clickedHex.r, s: clickedHex.s }
   const clickedAltitude = clickedHex.altitude
   const at = (

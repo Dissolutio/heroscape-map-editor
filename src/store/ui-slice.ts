@@ -245,8 +245,6 @@ export interface UISlice {
   toggleIsShowPDFInventory: (b: boolean) => void
   isPdfColorBorders: boolean
   toggleIsPdfColorBorders: (b: boolean) => void
-  isHideHeightsOnGlyphs: boolean
-  toggleIsHideHeightsOnGlyphs: (b: boolean) => void
   isShowPdfOverlayLayer: boolean
   toggleIsShowPdfOverlayLayer: (b: boolean) => void
   isShowPdfOverlayOnPlacedLevel: boolean
@@ -946,12 +944,6 @@ const createUISlice: StateCreator<
     set(
       produce((s) => {
         s.isPdfColorBorders = b
-      }),
-    ),
-  toggleIsHideHeightsOnGlyphs: (b: boolean) =>
-    set(
-      produce((s) => {
-        s.isHideHeightsOnGlyphs = b
       }),
     ),
   toggleIsShowPdfOverlayLayer: (b: boolean) =>

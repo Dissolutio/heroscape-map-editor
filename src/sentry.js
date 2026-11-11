@@ -13,6 +13,20 @@ Sentry.init({
     /localhost/, // Keep this temporarily so you can test it on your local production previews!
   ],
 
+  // Sentry v11 collects user info, cookies, headers and bodies by default.
+  // Keep the v10 privacy baseline: no user info or cookies, no bodies, and
+  // drop IP-like headers and query params.
+  dataCollection: {
+    userInfo: false,
+    cookies: false,
+    httpHeaders: {
+      request: { deny: ['forwarded', '-ip', 'remote-', 'via', '-user'] },
+      response: { deny: ['forwarded', '-ip', 'remote-', 'via', '-user'] },
+    },
+    urlQueryParams: { deny: ['forwarded', '-ip', 'remote-', 'via', '-user'] },
+    httpBodies: [],
+  },
+
   // Link errors to your GitHub Git Tag release version
   release: `hexoscape@${import.meta.env.VITE_RELEASE_VERSION || 'local-development'}`,
 })

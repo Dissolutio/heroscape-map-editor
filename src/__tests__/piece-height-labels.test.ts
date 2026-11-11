@@ -84,7 +84,6 @@ const setExportState = (hex: BoardHex) => {
     is2DOverlayLevelEnabled: false,
     isShow2DExportTileLetters: false,
     isShow2DExportBuriedMarks: false,
-    isHideHeightsOnGlyphs: false,
   })
 }
 
@@ -186,7 +185,6 @@ afterEach(() => {
     is2DOverlayLevelEnabled: initialState.is2DOverlayLevelEnabled,
     isShow2DExportTileLetters: initialState.isShow2DExportTileLetters,
     isShow2DExportBuriedMarks: initialState.isShow2DExportBuriedMarks,
-    isHideHeightsOnGlyphs: initialState.isHideHeightsOnGlyphs,
   })
 })
 

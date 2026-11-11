@@ -1,10 +1,5 @@
 import { memo, useContext } from 'react'
 import { getPieceGameHeight, piecesSoFar } from '../data/pieces'
-import {
-  type GlyphCoordinateLookup,
-  type GlyphExportSettings,
-  getGlyphExportOptions,
-} from '../pdf-svg-shared/glyphExportOptions'
 import { getPieceExportSymbol } from '../pdf-svg-shared/pieceLegend'
 import {
   SHROUDSHROOM13_ORIGIN_LINE_COLOR,
@@ -79,10 +74,6 @@ import { SvgMapShapeSettingsContext } from './SvgMapShapes'
 import { hexTextStyle, singleHexObstacleHeightTextProps } from './svgText'
 
 const OPACITY_SUBLEVEL = 0.3
-const EMPTY_GLYPH_COORDINATES: GlyphCoordinateLookup = new Set()
-const DEFAULT_GLYPH_EXPORT_SETTINGS: GlyphExportSettings = {
-  isHideHeightsOnGlyphs: false,
-}
 
 const glyphTextProps = (glyphText: string) => {
   const fontSize =
@@ -180,8 +171,6 @@ type SvgMapHexProps = {
   is2DOverlayLevelEnabled?: boolean
   isShow2DExportTileLetters?: boolean
   isShow2DExportBuriedMarks?: boolean
-  glyphCoordinates?: GlyphCoordinateLookup
-  glyphExportSettings?: GlyphExportSettings
   isPieceKeyPreview?: boolean
   useTerrainBorderColor?: boolean
 }
@@ -197,8 +186,6 @@ const SvgMapHexComponent = ({
   is2DOverlayLevelEnabled = false,
   isShow2DExportTileLetters = false,
   isShow2DExportBuriedMarks = false,
-  glyphCoordinates = EMPTY_GLYPH_COORDINATES,
-  glyphExportSettings = DEFAULT_GLYPH_EXPORT_SETTINGS,
   isPieceKeyPreview = false,
   useTerrainBorderColor = true,
 }: SvgMapHexProps) => {
@@ -423,11 +410,6 @@ const SvgMapHexComponent = ({
     inventoryID === Pieces.glacier1
   ) {
     const textColor = getOutcropTextColor(hex.terrain, isSubLevel)
-    const { hideHeight } = getGlyphExportOptions(
-      hex,
-      glyphCoordinates,
-      glyphExportSettings,
-    )
     return (
       <g transform={`translate(${pixel.x}, ${pixel.y})`}>
         <SvgMultiHex1
@@ -436,11 +418,9 @@ const SvgMapHexComponent = ({
           borderWidth={SVG_TREE_JUNGLE_OUTCROP_BORDER_WIDTH}
           useTerrainBorderColor={useTerrainBorderColor}
         />
-        {!hideHeight && (
-          <text fill={textColor} {...singleHexObstacleHeightTextProps()}>
-            {pieceHeightText}
-          </text>
-        )}
+        <text fill={textColor} {...singleHexObstacleHeightTextProps()}>
+          {pieceHeightText}
+        </text>
       </g>
     )
   }
@@ -533,11 +513,6 @@ const SvgMapHexComponent = ({
     const textColor = isSubLevel
       ? svgSubLevelColors.evergreenText
       : svgColors.evergreenText
-    const { hideHeight } = getGlyphExportOptions(
-      hex,
-      glyphCoordinates,
-      glyphExportSettings,
-    )
     return (
       <g transform={`translate(${pixel.x}, ${pixel.y})`}>
         <SvgMultiHex1
@@ -546,29 +521,20 @@ const SvgMapHexComponent = ({
           borderWidth={SVG_TREE_JUNGLE_OUTCROP_BORDER_WIDTH}
           useTerrainBorderColor={useTerrainBorderColor}
         />
-        {!hideHeight && (
-          <text
-            fill={textColor}
-            // white text needs a little opacity boost
-            {...singleHexObstacleHeightTextProps()}
-          >
-            {pieceHeightText}
-          </text>
-        )}
+        <text
+          fill={textColor}
+          // white text needs a little opacity boost
+          {...singleHexObstacleHeightTextProps()}
+        >
+          {pieceHeightText}
+        </text>
       </g>
     )
   }
   // CASTLE WALLS
   if (isCastleTerrain(hex.terrain) && hex.isObstacleOrigin) {
-    const { hideHeight } = getGlyphExportOptions(
-      hex,
-      glyphCoordinates,
-      glyphExportSettings,
-    )
     const heightText =
-      !hideHeight && pieceHeightText != null && pieceHeightText > 0
-        ? pieceHeightText
-        : ''
+      pieceHeightText != null && pieceHeightText > 0 ? pieceHeightText : ''
     //  Return Castle Corner
     if (
       hex.inventoryID === Pieces.castleBaseCorner ||
