@@ -52,6 +52,7 @@ export type UnconvertedObstaclePieceCount = {
 export type CollectionAdaptationPlan = {
   mapping: Record<string, string>
   surfaceCoverageByTerrain: Record<string, number[]>
+  buriedCoverageByTerrain: Record<string, number[]>
   unconvertedPieces: UnconvertedLandPieceCount[]
   obstacleCoverageByInventoryID: Record<string, number[]>
   unconvertedObstacles: UnconvertedObstaclePieceCount[]
@@ -456,6 +457,7 @@ export function buildCollectionAdaptationPlan({
   }
   const mapping: Record<string, string> = {}
   const surfaceCoverageByTerrain: Record<string, number[]> = {}
+  const buriedCoverageByTerrain: Record<string, number[]> = {}
   const unconvertedByTerrainAndSize = new Map<
     string,
     UnconvertedLandPieceCount
@@ -518,6 +520,7 @@ export function buildCollectionAdaptationPlan({
 
   for (const terrain of missingTerrains) {
     surfaceCoverageByTerrain[terrain] = [0, 0, 0]
+    buriedCoverageByTerrain[terrain] = [0, 0, 0]
     const choice = choices[terrain]
     for (const boardPiece of piecesByTerrain.get(terrain) ?? []) {
       if (checkBuried(boardPiece)?.isBuried) continue
@@ -547,8 +550,14 @@ export function buildCollectionAdaptationPlan({
         choice?.scope === 'surfaceOnly'
           ? [fillTerrain]
           : (choice?.targetTerrains ?? [])
-      if (allocate(boardPiece, terrain, targets) === undefined) {
+      const rank = allocate(boardPiece, terrain, targets)
+      if (rank === undefined) {
         recordUnconverted(terrain, sourcePiece.size)
+      } else {
+        const coverage = buriedCoverageByTerrain[terrain]
+        if (coverage) {
+          coverage[rank] = (coverage[rank] ?? 0) + sourcePiece.size
+        }
       }
     }
   }
@@ -599,6 +608,7 @@ export function buildCollectionAdaptationPlan({
   return {
     mapping,
     surfaceCoverageByTerrain,
+    buriedCoverageByTerrain,
     unconvertedPieces: [...unconvertedByTerrainAndSize.values()].sort(
       (a, b) => a.terrain.localeCompare(b.terrain) || a.size - b.size,
     ),

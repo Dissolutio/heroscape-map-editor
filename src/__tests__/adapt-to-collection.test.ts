@@ -439,6 +439,7 @@ describe('collection adaptation planning', () => {
 
     expect(suggestBuriedFillTerrain(supply, false)).toBe(HexTerrain.grass)
     expect(plan.mapping).toEqual({ 'buried-snow-a': Pieces.grass1 })
+    expect(plan.buriedCoverageByTerrain[HexTerrain.snow]).toEqual([1, 0, 0])
     expect(plan.unconvertedPieces).toEqual([
       { terrain: HexTerrain.snow, size: 1, count: 1 },
     ])

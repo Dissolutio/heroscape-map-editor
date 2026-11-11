@@ -165,8 +165,8 @@ test('names a new adaptation, preserves metadata on cancel, and undoes it', asyn
   await dialog.getByRole('combobox', { name: 'Snow 1st substitute' }).click()
   await page.getByRole('option', { name: 'Rock' }).click()
   await dialog
-    .getByRole('radiogroup', { name: 'Snow scope' })
-    .getByLabel('Surface only')
+    .getByRole('radiogroup', { name: 'Snow covered pieces' })
+    .getByLabel('Any spare land')
     .check()
   await dialog
     .getByRole('button', { name: 'Continue to name adapted map' })
