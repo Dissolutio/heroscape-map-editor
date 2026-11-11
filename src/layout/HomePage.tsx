@@ -21,6 +21,7 @@ import { useLocalPieceInventory } from '../local-storage/useLocalPieceInventory'
 import useBoundStore from '../store/store'
 import { lazyWithRetry } from '../utils/lazyWithRetry'
 import { getBoardPiecesMaxLevel } from '../utils/map-utils'
+import ThreeDLoadingFallback from '../world/ThreeDLoadingFallback'
 import { ControlTabs } from './ControlTabs'
 import CreateMapFormDialog from './CreateMapFormDialog'
 import CropMapPortraitDialog from './CropMapPortraitDialog'
@@ -198,7 +199,7 @@ export default function HomePage() {
               </Suspense>
             )}
             {!is2DOpen && !isPdfOpen && (
-              <Suspense fallback={<div>Loading page...</div>}>
+              <Suspense fallback={<ThreeDLoadingFallback />}>
                 <World
                   isHidden={is2DOpen || isPdfOpen}
                   cameraControlsRef={cameraControlsRef}

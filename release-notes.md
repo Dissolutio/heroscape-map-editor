@@ -1,5 +1,5 @@
 Nov-11-2026
-TLDR: "Sets to build this map" dialog. Edit your hotkeys. Better 3D palms. Adapt handles obstacles. Cleaner PDF/SVG legend. Cannons can aim at hex corners.
+TLDR: "Sets to build this map" dialog. Edit your hotkeys. Better 3D palms. Adapt handles obstacles. Cleaner PDF/SVG legend. Cannons can aim at hex corners. Windows desktop 3D fixed. Convert hexagon and rectangle maps.
 
 - **Sets to build this map**: View tab: a new dialog lists the set combinations that build your map, as Contemporary, Classic, or Mixed. It also lists what's missing from your inventory. Jungle sets count as interchangeable.
 - **Hotkey editor**: Change any hotkey, search by name or key, and import/export your setup. Reset all asks first and offers a download.
@@ -9,6 +9,10 @@ TLDR: "Sets to build this map" dialog. Edit your hotkeys. Better 3D palms. Adapt
 - **Share links**: If a map is too big for a link, it drops start zones, then objective markers, then glyphs to fit.
 - **Legend (PDF/SVG)**: Improved styles.
 - **Cannons**: Can now face hex corners.
+- **Windows desktop app**: 3D and PDF now load. A security setting was blocking them on every Windows install. If 3D ever can't start, you get a message and a "Switch to 2D" button instead of "Loading page...".
+- **Edit tab**: No more multi-second freeze when opening it on big maps.
+- **Convert map shape**: Edit tab: turn a hexagon map into a rectangle map or back. Only the empty table changes; your pieces stay exactly where they are. Hexagon maps can now be bigger (size 32).
+- **Fixes**: Rotating can't push a piece off the map. Marro Hive no longer scribbled in SVG downloads. Toxic outcrops get black numbers and a border. Toxic Land gets a gray border when color borders are off.
 - **Toxic Rock Outcrops**: Gave them a proper border color.
 
 Nov-07-2026
