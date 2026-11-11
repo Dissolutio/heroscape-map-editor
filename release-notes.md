@@ -1,9 +1,9 @@
 Nov-11-2026 Hotfix
-TLDR: Windows desktop textures and map picture fixed. Map size in inches and cm.
+Windows desktop textures and map picture fixed. Map size in inches and cm. Convert map shape.
 
-- **Windows desktop app**: Trees, ruins, the Marro Hive, the warehouse and the stone wall show their textures again, and the map picture shows in the crop dialog.
-- **Map size**: The Edit tab shows Length and Width with their own +/- buttons and real size in inches and cm. Create New Map and Edit Map Details show a small size diagram, diagonal included.
-- **Convert map shape**: Moved to Edit Map Details.
+- **Windows desktop app**: Fixed textures.
+- **Map size**: Map size in inches and cm. Create New Map and Edit Map Details show a small diagram.
+- **Convert map shape**: turn a hexagon map into a rectangle map or back.
 
 Nov-11-2026
 TLDR: "Sets to build this map" dialog. Edit your hotkeys. Better 3D palms. Adapt handles obstacles. Cleaner PDF/SVG legend. Cannons can aim at hex corners. Windows desktop 3D fixed. Convert hexagon and rectangle maps.
@@ -18,7 +18,6 @@ TLDR: "Sets to build this map" dialog. Edit your hotkeys. Better 3D palms. Adapt
 - **Cannons**: Can now face hex corners.
 - **Windows desktop app**: 3D and PDF now load. A security setting was blocking them on every Windows install. If 3D ever can't start, you get a message and a "Switch to 2D" button instead of "Loading page...".
 - **Edit tab**: No more multi-second freeze when opening it on big maps.
-- **Convert map shape**: Edit tab: turn a hexagon map into a rectangle map or back. Only the empty table changes; your pieces stay exactly where they are. Hexagon maps can now be bigger (size 32).
 - **Fixes**: Rotating can't push a piece off the map. Marro Hive no longer scribbled in SVG downloads. Toxic outcrops get black numbers and a border. Toxic Land gets a gray border when color borders are off.
 - **Toxic Rock Outcrops**: Gave them a proper border color.
 
