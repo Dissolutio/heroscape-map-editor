@@ -1,10 +1,5 @@
 import { G, Page, Svg, Text, View } from '@react-pdf/renderer'
 import type { ComponentProps } from 'react'
-import {
-  type GlyphCoordinateLookup,
-  type GlyphExportSettings,
-  makeGlyphCoordinateLookup,
-} from '../pdf-svg-shared/glyphExportOptions'
 import { getLaurAddonExportSymbol } from '../pdf-svg-shared/laurAddonExportSymbol'
 import {
   type PieceKeyEntry,
@@ -86,19 +81,12 @@ export function PieceKeyShape({
   entry,
   useTerrainBorderColor,
   scale,
-  glyphCoordinates: glyphCoordinatesProp,
-  glyphExportSettings: glyphExportSettingsProp,
 }: {
   entry: PieceKeyEntry
   useTerrainBorderColor: boolean
   scale: number
-  glyphCoordinates?: GlyphCoordinateLookup
-  glyphExportSettings?: GlyphExportSettings
 }) {
   const settings = useBoundStore.getState()
-  const glyphCoordinates =
-    glyphCoordinatesProp ?? makeGlyphCoordinateLookup(settings.boardHexes)
-  const glyphExportSettings = glyphExportSettingsProp ?? settings
   const layout = getPieceKeyShapeLayout(entry, 'pdf')
   const entryUsesTerrainBorderColor =
     shouldUseTerrainBorderColorForPieceKeyEntry(entry, useTerrainBorderColor)
@@ -135,8 +123,6 @@ export function PieceKeyShape({
                 buriedMarksByUID={new Map()}
                 useLegacyStartZones={settings.useLegacyStartZones}
                 isPieceKeyPreview={!isLaurAddon}
-                glyphCoordinates={glyphCoordinates}
-                glyphExportSettings={glyphExportSettings}
               />
             )
           })
@@ -168,8 +154,6 @@ function LandGrid({
   sectionTitle,
   showPieceKeyTitle = false,
   useTerrainBorderColor,
-  glyphCoordinates,
-  glyphExportSettings,
 }: {
   model: ReturnType<typeof getPieceKeyModel>
   columns?: PieceKeyLandColumn[]
@@ -177,8 +161,6 @@ function LandGrid({
   sectionTitle?: string
   showPieceKeyTitle?: boolean
   useTerrainBorderColor: boolean
-  glyphCoordinates: GlyphCoordinateLookup
-  glyphExportSettings: GlyphExportSettings
 }) {
   const tables: PieceKeyLandColumn[][] = []
   const scale = getTerrainShapeScale(model, columns)
@@ -315,8 +297,6 @@ function LandGrid({
                     entry={entry}
                     useTerrainBorderColor={useTerrainBorderColor}
                     scale={scale}
-                    glyphCoordinates={glyphCoordinates}
-                    glyphExportSettings={glyphExportSettings}
                   />
                   <LegendText style={{ fontSize: 6 }}>
                     x{entry.count}
@@ -403,14 +383,10 @@ function SpecialTiles({
   model,
   useTerrainBorderColor,
   scale,
-  glyphCoordinates,
-  glyphExportSettings,
 }: {
   model: ReturnType<typeof getPieceKeyModel>
   useTerrainBorderColor: boolean
   scale: number
-  glyphCoordinates: GlyphCoordinateLookup
-  glyphExportSettings: GlyphExportSettings
 }) {
   const groupRows = chunkSpecialGroups(model.specialGroups)
 
@@ -513,8 +489,6 @@ function SpecialTiles({
                                         useTerrainBorderColor
                                       }
                                       scale={scale}
-                                      glyphCoordinates={glyphCoordinates}
-                                      glyphExportSettings={glyphExportSettings}
                                     />
                                   </View>
                                 </View>
@@ -554,10 +528,6 @@ function SpecialTiles({
 
 export function PdfPieceLegend({ boardPieces }: { boardPieces: BoardPiece[] }) {
   const settings = useBoundStore.getState()
-  const glyphCoordinates = makeGlyphCoordinateLookup(settings.boardHexes)
-  const glyphExportSettings: GlyphExportSettings = {
-    isHideHeightsOnGlyphs: settings.isHideHeightsOnGlyphs,
-  }
   const model = getPieceKeyModel(
     boardPieces,
     settings.boardHexes,
@@ -581,8 +551,6 @@ export function PdfPieceLegend({ boardPieces }: { boardPieces: BoardPiece[] }) {
         <LandGrid
           model={model}
           useTerrainBorderColor={settings.isPdfColorBorders}
-          glyphCoordinates={glyphCoordinates}
-          glyphExportSettings={glyphExportSettings}
         />
       )}
       {model.fluidColumns.length > 0 && (
@@ -593,8 +561,6 @@ export function PdfPieceLegend({ boardPieces }: { boardPieces: BoardPiece[] }) {
           sectionTitle="Liquid and Base Terrain"
           showPieceKeyTitle={!model.landColumns.length}
           useTerrainBorderColor={settings.isPdfColorBorders}
-          glyphCoordinates={glyphCoordinates}
-          glyphExportSettings={glyphExportSettings}
         />
       )}
       {model.specialGroups.length > 0 && (
@@ -602,8 +568,6 @@ export function PdfPieceLegend({ boardPieces }: { boardPieces: BoardPiece[] }) {
           model={model}
           useTerrainBorderColor={settings.isPdfColorBorders}
           scale={scale}
-          glyphCoordinates={glyphCoordinates}
-          glyphExportSettings={glyphExportSettings}
         />
       )}
     </Page>

@@ -11,10 +11,6 @@ import {
   type PieceKeyModel,
   getPieceKeyModel,
 } from '../pdf-svg-shared/pieceKey'
-import {
-  type GlyphExportSettings,
-  makeGlyphCoordinateLookup,
-} from '../pdf-svg-shared/glyphExportOptions'
 import useBoundStore from '../store/store'
 import { SVG_HEX_APOTHEM, SVG_HEX_RADIUS } from '../utils/constants'
 import {
@@ -77,18 +73,9 @@ const SvgMapDisplay = ({
   const is2DOverlayLevelEnabled = overlayEnabledOverride ?? storeOverlayEnabled
   const isShowPieceKey = useBoundStore((s) => s.isShowPdfPieceLegend)
   const useTerrainBorderColor = true
-  const isHideHeightsOnGlyphs = useBoundStore((s) => s.isHideHeightsOnGlyphs)
   const genericSolidCapColor = useBoundStore((s) => s.genericSolidCapColor)
   const genericFluidCapColor = useBoundStore((s) => s.genericFluidCapColor)
   const useLegacyStartZones = useBoundStore((s) => s.useLegacyStartZones)
-  const glyphCoordinates = useMemo(
-    () => makeGlyphCoordinateLookup(boardHexes),
-    [boardHexes],
-  )
-  const glyphExportSettings = useMemo<GlyphExportSettings>(
-    () => ({ isHideHeightsOnGlyphs }),
-    [isHideHeightsOnGlyphs],
-  )
   const shapeSettings = useMemo<SvgMapShapeSettings>(
     () => ({
       genericSolidCapColor,
@@ -251,8 +238,6 @@ const SvgMapDisplay = ({
                 is2DOverlayLevelEnabled,
                 isShow2DExportTileLetters,
                 isShow2DExportBuriedMarks,
-                glyphCoordinates,
-                glyphExportSettings,
               }}
               useTerrainBorderColor={useTerrainBorderColor}
               x={0}
@@ -283,8 +268,6 @@ const SvgMapDisplay = ({
                   is2DOverlayLevelEnabled={is2DOverlayLevelEnabled}
                   isShow2DExportTileLetters={isShow2DExportTileLetters}
                   isShow2DExportBuriedMarks={isShow2DExportBuriedMarks}
-                  glyphCoordinates={glyphCoordinates}
-                  glyphExportSettings={glyphExportSettings}
                 />
               )
             })}
@@ -310,8 +293,6 @@ const SvgMapDisplay = ({
                     is2DOverlayLevelEnabled={is2DOverlayLevelEnabled}
                     isShow2DExportTileLetters={isShow2DExportTileLetters}
                     isShow2DExportBuriedMarks={isShow2DExportBuriedMarks}
-                    glyphCoordinates={glyphCoordinates}
-                    glyphExportSettings={glyphExportSettings}
                   />
                 ) : null,
               )}

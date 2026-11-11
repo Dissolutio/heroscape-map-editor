@@ -98,10 +98,6 @@ export const SvgPieceKeyShape = (
     is2DOverlayLevelEnabled: boolean
     isShow2DExportTileLetters: boolean
     isShow2DExportBuriedMarks: boolean
-    glyphCoordinates: ReadonlySet<string>
-    glyphExportSettings: {
-      isHideHeightsOnGlyphs: boolean
-    }
   },
 ) => {
   const layout = getPieceKeyShapeLayout(entry)
@@ -150,8 +146,6 @@ export const SvgPieceKeyShape = (
                       isShow2DExportBuriedMarks={
                         renderOptions?.isShow2DExportBuriedMarks
                       }
-                      glyphCoordinates={renderOptions?.glyphCoordinates}
-                      glyphExportSettings={renderOptions?.glyphExportSettings}
                       isPieceKeyPreview={!isLaurAddon}
                       useTerrainBorderColor={entryUsesTerrainBorderColor}
                     />
