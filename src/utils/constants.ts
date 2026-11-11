@@ -48,7 +48,8 @@ export const HEXGRID_MAX_ALTITUDE = 100 // Arbitrary
 // A press that moves less than this is a click, not a drag (pick pen, drag-to-move)
 export const CLICK_DRAG_TOLERANCE_PX = 5
 export const MAX_RECTANGLE_MAP_DIMENSION = 40 // Arbitrary : BUT a 3ft/6ft table with 27mm based minis would be 34x68 hex rectangle
-export const MAX_HEXAGON_MAP_DIMENSION = 20 // Arbitrary
+// 32 fits a fully covered 40x40 rectangle plus one empty hex ring.
+export const MAX_HEXAGON_MAP_DIMENSION = 32
 export const DEFAULT_NEW_RECTANGLE_MAP_LENGTH = 20
 export const DEFAULT_NEW_RECTANGLE_MAP_WIDTH = 20
 export const DEFAULT_NEW_HEXAGON_MAP_SIZE = 10

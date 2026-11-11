@@ -13,6 +13,7 @@ import { computeConflictedPieceUIDs } from '../data/rebuildBoardState'
 import { getUnsupportedLaurAddonUIDs } from '../data/laurAddonSupport'
 import type { BoardPiece, CubeCoordinate, HexMap, MapState } from '../types'
 import { Pieces } from '../types'
+import { MAX_HEXAGON_MAP_DIMENSION } from '../utils/constants'
 import { genBoardHexID } from '../utils/map-utils'
 import { hexUtilsGenHexagonGrid } from '../utils/hex-utils'
 
@@ -301,6 +302,55 @@ describe('convertMapShape', () => {
       ),
     ).toBe(true)
   })
+
+  it('converts a fully covered 40 by 40 rectangle to hexagon and back', () => {
+    const requiredSizes: number[] = []
+    for (const originR of [0, 1]) {
+      const fullRectangle: HexMap = {
+        ...rectangleFixture,
+        shape: 'rectangle',
+        width: 40,
+        length: 40,
+        originQ: 0,
+        originR,
+      }
+      const coveredPieces = Array.from({ length: 40 * 40 }, (_, index) => {
+        const row = originR + Math.floor(index / 40)
+        const col = index % 40
+        const q = col - Math.floor(row / 2)
+        return piece(Pieces.grass1, q, row, {
+          uid: `full-rectangle-${originR}-${index}`,
+        })
+      })
+      const toHexagon = convertMapShape(fullRectangle, coveredPieces, 'hexagon')
+
+      expect(toHexagon.ok).toBe(true)
+      if (!toHexagon.ok) throw new Error(toHexagon.error)
+      requiredSizes.push(toHexagon.hexMap.width)
+      if (originR !== 0) continue
+
+      const backToRectangle = convertMapShape(
+        toHexagon.hexMap,
+        coveredPieces,
+        'rectangle',
+        { margin: 0 },
+      )
+
+      expect(backToRectangle.ok).toBe(true)
+      if (!backToRectangle.ok) throw new Error(backToRectangle.error)
+      expect(backToRectangle.hexMap).toMatchObject({
+        width: 40,
+        length: 40,
+      })
+      expect(
+        buildupJsonFileMap(coveredPieces, backToRectangle.hexMap).boardPieces,
+      ).toEqual(coveredPieces)
+      expect(backToRectangle.hexMap.shape).toBe('rectangle')
+    }
+
+    expect(requiredSizes).toEqual([32, 32])
+    expect(MAX_HEXAGON_MAP_DIMENSION).toBe(Math.max(...requiredSizes))
+  }, 30_000)
 
   it('covers an existing hexagon fixture when converting to rectangle', () => {
     const original = buildupJsonFileMap(

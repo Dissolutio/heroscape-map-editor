@@ -18,7 +18,7 @@ import getPieceTemplateCoords from './rotationTransforms'
 
 const rimPieces = new Set([Pieces.battlement, Pieces.roadWall])
 
-// The UI allows 20 hexagon cells per side; four extra rings preserve overhangs.
+// Four extra rings beyond the UI limit preserve overhangs during loading.
 export const MAX_HEXAGON_FIT_RADIUS = MAX_HEXAGON_MAP_DIMENSION - 1 + 4
 // The UI allows 40 rectangle cells per side; eight extra cells allow growth.
 export const MAX_RECTANGLE_FIT_DIMENSION = MAX_RECTANGLE_MAP_DIMENSION + 8
