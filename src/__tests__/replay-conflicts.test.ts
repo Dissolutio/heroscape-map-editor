@@ -118,44 +118,41 @@ describe('rebuildBoardStateFromPieces', () => {
     })
   })
 
-  it.fails(
-    'KNOWN GAP: a piece left floating after its support is deleted is reported as a problem',
-    () => {
-      // app-requirements.md lists, as a must-have inherited from Virtualscape,
-      // "verify basic physics: every piece has something underneath it". Strict
-      // placement does check this (see "land needs support" in
-      // place-and-remove.test.ts), but the app places and loads with
-      // `permissive: true` and the only thing permissive mode reports is a
-      // displaced hex. So deleting the bottom of a stack silently leaves the
-      // top piece hovering in the air: no error from removePiece, and no
-      // conflict here.
-      //
-      // The contract asserted below (flag it in conflictedPieceUIDs) is a
-      // proposal. A separate "unsupported" list would be equally reasonable;
-      // change this test to match the design you choose.
-      let board: Board = table
-      board = place({
-        board,
-        pieceID: 'g1',
-        at: C,
-        altitude: 0,
-        uid: 'bottom',
-      }).board
-      board = place({
-        board,
-        pieceID: 'g1',
-        at: C,
-        altitude: 1,
-        uid: 'top',
-      }).board
+  it.fails('KNOWN GAP: a piece left floating after its support is deleted is reported as a problem', () => {
+    // app-requirements.md lists, as a must-have inherited from Virtualscape,
+    // "verify basic physics: every piece has something underneath it". Strict
+    // placement does check this (see "land needs support" in
+    // place-and-remove.test.ts), but the app places and loads with
+    // `permissive: true` and the only thing permissive mode reports is a
+    // displaced hex. So deleting the bottom of a stack silently leaves the
+    // top piece hovering in the air: no error from removePiece, and no
+    // conflict here.
+    //
+    // The contract asserted below (flag it in conflictedPieceUIDs) is a
+    // proposal. A separate "unsupported" list would be equally reasonable;
+    // change this test to match the design you choose.
+    let board: Board = table
+    board = place({
+      board,
+      pieceID: 'g1',
+      at: C,
+      altitude: 0,
+      uid: 'bottom',
+    }).board
+    board = place({
+      board,
+      pieceID: 'g1',
+      at: C,
+      altitude: 1,
+      uid: 'top',
+    }).board
 
-      const afterDelete = remove(board, 'bottom')
-      expect(afterDelete.error).toBeUndefined() // nothing objected to the delete
+    const afterDelete = remove(board, 'bottom')
+    expect(afterDelete.error).toBeUndefined() // nothing objected to the delete
 
-      const { conflictedPieceUIDs } = rebuildBoardStateFromPieces(
-        afterDelete.board.boardPieces,
-      )
-      expect(conflictedPieceUIDs).toContain('top')
-    },
-  )
+    const { conflictedPieceUIDs } = rebuildBoardStateFromPieces(
+      afterDelete.board.boardPieces,
+    )
+    expect(conflictedPieceUIDs).toContain('top')
+  })
 })

@@ -234,7 +234,7 @@ export const useApplyHotkeys = ({
   const handleToggleIsCameraDisabled = () => {
     toggleIsCameraDisabled(!isCameraDisabled)
   }
-  const useZoomToMap = () => {
+  const zoomToCurrentMap = () => {
     if (mapGroupRef.current) {
       zoomToMap(mapGroupRef, cameraControlsRef, width, length)
     }
@@ -387,7 +387,7 @@ export const useApplyHotkeys = ({
 
     handleToggleIsOrthoCam: handleToggleIsOrthoCam,
     handleToggleIsCameraDisabled: handleToggleIsCameraDisabled,
-    zoomToMap: useZoomToMap,
+    zoomToMap: zoomToCurrentMap,
 
     togglePieceSize1: togglePieceSize1,
     togglePieceSize2: togglePieceSize2,

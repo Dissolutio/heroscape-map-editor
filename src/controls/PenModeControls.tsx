@@ -4,7 +4,7 @@ import FormControl from '@mui/material/FormControl'
 import InputLabel from '@mui/material/InputLabel'
 import MuiMenuItem, { type MenuItemProps } from '@mui/material/MenuItem'
 import Select, { type SelectChangeEvent } from '@mui/material/Select'
-import { useMemo } from 'react'
+import { createContext, useContext, useMemo } from 'react'
 import { BsHexagonHalf } from 'react-icons/bs'
 import { FaMountainCity } from 'react-icons/fa6'
 import {
@@ -83,6 +83,69 @@ import { hexTerrainColor, svgColors } from '../world/maphex/hexColors'
 import { HotkeyText } from './HotKeyText'
 import { useHotkeyConfig } from './useHotkeyConfig'
 
+type FilteredMenuItemProps = MenuItemProps & { 'data-value'?: unknown }
+
+const MenuItemFilterContext = createContext<(value: unknown) => boolean>(
+  () => true,
+)
+
+const MenuItem = ({ value, ...props }: FilteredMenuItemProps) => {
+  const shouldShowMenuValue = useContext(MenuItemFilterContext)
+  const menuValue = (value ?? props['data-value']) as
+    | string
+    | number
+    | readonly string[]
+    | undefined
+  if (!shouldShowMenuValue(menuValue)) {
+    return null
+  }
+  return <MuiMenuItem {...props} value={menuValue} />
+}
+
+const StartZoneIcon = ({
+  zone,
+  pieceId,
+}: {
+  zone: number
+  pieceId: string
+}) => {
+  const useLegacyStartZones = useBoundStore((s) => s.useLegacyStartZones)
+  const circleMap = {
+    1: TbCircleNumber1Filled,
+    2: TbCircleNumber2Filled,
+    3: TbCircleNumber3Filled,
+    4: TbCircleNumber4Filled,
+    5: TbCircleNumber5Filled,
+    6: TbCircleNumber6Filled,
+    7: TbCircleNumber7Filled,
+    8: TbCircleNumber8Filled,
+  } as const
+  const hexagonMap = {
+    1: TbHexagonNumber1Filled,
+    2: TbHexagonNumber2Filled,
+    3: TbHexagonNumber3Filled,
+    4: TbHexagonNumber4Filled,
+    5: TbHexagonNumber5Filled,
+    6: TbHexagonNumber6Filled,
+    7: TbHexagonNumber7Filled,
+    8: TbHexagonNumber8Filled,
+  } as const
+  const zoneKey = zone as keyof typeof circleMap
+  const CircleIcon = circleMap[zoneKey]
+  const HexagonIcon = hexagonMap[zoneKey]
+  return useLegacyStartZones ? (
+    <CircleIcon
+      title="This is the color of the startzone circle in 3D & PDF view"
+      color={hexTerrainColor[pieceId]}
+    />
+  ) : (
+    <HexagonIcon
+      title="This is the color of the startzone hexagon in 2D/SVG view"
+      color={svgColors[pieceId]}
+    />
+  )
+}
+
 export default function PenModeControls() {
   const penMode = useBoundStore((state) => state.penMode)
   const lastPenMode = useBoundStore((state) => state.lastPenMode)
@@ -101,7 +164,6 @@ export default function PenModeControls() {
   const toggleIsEditMapDialogOpen = useBoundStore(
     (state) => state.toggleIsEditMapDialogOpen,
   )
-  const useLegacyStartZones = useBoundStore((s) => s.useLegacyStartZones)
   const genericSolidCapColor = useBoundStore((s) => s.genericSolidCapColor)
   const genericFluidCapColor = useBoundStore((s) => s.genericFluidCapColor)
   const handleChange = (event: SelectChangeEvent) => {
@@ -219,1148 +281,1099 @@ export default function PenModeControls() {
     }
     return isPieceAvailable(value)
   }
-  type FilteredMenuItemProps = MenuItemProps & { 'data-value'?: unknown }
-  const MenuItem = ({ value, ...props }: FilteredMenuItemProps) => {
-    const menuValue = (value ?? props['data-value']) as
-      | string
-      | number
-      | readonly string[]
-      | undefined
-    if (!shouldShowMenuValue(menuValue)) {
-      return null
-    }
-    return <MuiMenuItem {...props} value={menuValue} />
-  }
   const { hotkeyLookup } = useHotkeyConfig()
-  const StartZoneIcon = ({
-    zone,
-    pieceId,
-  }: { zone: number; pieceId: string }) => {
-    const circleMap = {
-      1: TbCircleNumber1Filled,
-      2: TbCircleNumber2Filled,
-      3: TbCircleNumber3Filled,
-      4: TbCircleNumber4Filled,
-      5: TbCircleNumber5Filled,
-      6: TbCircleNumber6Filled,
-      7: TbCircleNumber7Filled,
-      8: TbCircleNumber8Filled,
-    } as const
-    const hexagonMap = {
-      1: TbHexagonNumber1Filled,
-      2: TbHexagonNumber2Filled,
-      3: TbHexagonNumber3Filled,
-      4: TbHexagonNumber4Filled,
-      5: TbHexagonNumber5Filled,
-      6: TbHexagonNumber6Filled,
-      7: TbHexagonNumber7Filled,
-      8: TbHexagonNumber8Filled,
-    } as const
-    const zoneKey = zone as keyof typeof circleMap
-    const CircleIcon = circleMap[zoneKey]
-    const HexagonIcon = hexagonMap[zoneKey]
-    return useLegacyStartZones ? (
-      <CircleIcon
-        title="This is the color of the startzone circle in 3D & PDF view"
-        color={hexTerrainColor[pieceId]}
-      />
-    ) : (
-      <HexagonIcon
-        title="This is the color of the startzone hexagon in 2D/SVG view"
-        color={svgColors[pieceId]}
-      />
-    )
-  }
   return (
-    <FormControl fullWidth variant="filled">
-      <InputLabel id="pen-terrain-select-label">Pen Mode</InputLabel>
-      <Select
-        // autoWidth
-        fullWidth
-        MenuProps={{
-          anchorOrigin: { horizontal: 'right', vertical: 'bottom' },
-          // When multiple tabs open, Select malfunctions and won't scroll past focus, add 4 props below to fix:
-          // autoFocus: false,
-          // disableAutoFocusItem: true,
-          // disableEnforceFocus: true,
-          // disableScrollLock: true
-        }}
-        labelId="pen-terrain-select-label"
-        id="pen-terrain-select"
-        value={penMode}
-        onChange={handleChange}
-      >
-        <MenuItem value={SELECT_PEN_MODE}>
-          <ListItemIcon>
-            <GiArrowCursor />
-          </ListItemIcon>
-          <span>Select</span>
-          <HotkeyText text={hotkeyLookup.togglePenModeSelect} />
-        </MenuItem>
-
-        <MenuItem
-          value={PICK_PEN_MODE}
-          title="Click a piece to make it the pen mode (middle-click does this in any pen mode)"
+    <MenuItemFilterContext.Provider value={shouldShowMenuValue}>
+      <FormControl fullWidth variant="filled">
+        <InputLabel id="pen-terrain-select-label">Pen Mode</InputLabel>
+        <Select
+          // autoWidth
+          fullWidth
+          MenuProps={{
+            anchorOrigin: { horizontal: 'right', vertical: 'bottom' },
+            // When multiple tabs open, Select malfunctions and won't scroll past focus, add 4 props below to fix:
+            // autoFocus: false,
+            // disableAutoFocusItem: true,
+            // disableEnforceFocus: true,
+            // disableScrollLock: true
+          }}
+          labelId="pen-terrain-select-label"
+          id="pen-terrain-select"
+          value={penMode}
+          onChange={handleChange}
         >
-          <ListItemIcon>
-            <TbColorPicker />
-          </ListItemIcon>
-          <span>Select Piece as Pen Mode</span>
-          <HotkeyText text={hotkeyLookup.togglePenModePick} />
-        </MenuItem>
+          <MenuItem value={SELECT_PEN_MODE}>
+            <ListItemIcon>
+              <GiArrowCursor />
+            </ListItemIcon>
+            <span>Select</span>
+            <HotkeyText text={hotkeyLookup.togglePenModeSelect} />
+          </MenuItem>
 
-        <MenuItem value={lastPenMode}>
-          <ListItemIcon>
-            <GiArrowCursor />
-          </ListItemIcon>
-          <span>{`Last used: ${penModeText?.[lastPenMode] ?? piecesSoFar?.[lastPenMode]?.title ?? ''}`}</span>
-          <HotkeyText text={hotkeyLookup.togglePenModeLast} />
-        </MenuItem>
+          <MenuItem
+            value={PICK_PEN_MODE}
+            title="Click a piece to make it the pen mode (middle-click does this in any pen mode)"
+          >
+            <ListItemIcon>
+              <TbColorPicker />
+            </ListItemIcon>
+            <span>Select Piece as Pen Mode</span>
+            <HotkeyText text={hotkeyLookup.togglePenModePick} />
+          </MenuItem>
 
-        <Divider />
-        <MenuItem value={OBJECTIVE_MARKER_PEN_MODE}>
-          <ListItemIcon>
-            <TbHexagonNumber1Filled />
-          </ListItemIcon>
-          <span title="M selects black markers; Shift+M selects white markers.">
-            Objective Marker
-          </span>
-          <HotkeyText text="m / shift+m" />
-        </MenuItem>
-        <Divider />
-        {/* TERRAIN TYPES BEGIN */}
+          <MenuItem value={lastPenMode}>
+            <ListItemIcon>
+              <GiArrowCursor />
+            </ListItemIcon>
+            <span>{`Last used: ${penModeText?.[lastPenMode] ?? piecesSoFar?.[lastPenMode]?.title ?? ''}`}</span>
+            <HotkeyText text={hotkeyLookup.togglePenModeLast} />
+          </MenuItem>
 
-        <MenuItem value={PiecePrefixes.grass}>
-          <ListItemIcon>
-            <TbHexagons color={hexTerrainColor.grass} />
-          </ListItemIcon>
-          <span>Grass</span>
-          <HotkeyText text={hotkeyLookup.togglePenModeGrass} />
-        </MenuItem>
-        <MenuItem value={PiecePrefixes.rock}>
-          <ListItemIcon>
-            <TbHexagons color={hexTerrainColor.rock} />
-          </ListItemIcon>
-          <span>Rock</span>
-          <HotkeyText text={hotkeyLookup.togglePenModeRock} />
-        </MenuItem>
-        <MenuItem value={PiecePrefixes.sand}>
-          <ListItemIcon>
-            <TbHexagons color={hexTerrainColor.sand} />
-          </ListItemIcon>
-          <span>Sand</span>
-          <HotkeyText text={hotkeyLookup.togglePenModeSand} />
-        </MenuItem>
-        <MenuItem value={PiecePrefixes.road}>
-          <ListItemIcon>
-            <TbHexagons color={hexTerrainColor.road} />
-          </ListItemIcon>
-          <span>Road</span>
-          <HotkeyText text={hotkeyLookup.togglePenModeRoad} />
-        </MenuItem>
-        <MenuItem value={PiecePrefixes.wallWalk}>
-          <ListItemIcon>
-            <TbHexagons color={hexTerrainColor.road} />
-          </ListItemIcon>
-          <span>Wall Walk</span>
-          <HotkeyText text={hotkeyLookup.togglePenModeWallWalk} />
-        </MenuItem>
-        <MenuItem value={PiecePrefixes.lavaField}>
-          <ListItemIcon>
-            <TbHexagons color={hexTerrainColor.lavaField} />
-          </ListItemIcon>
-          <span>Lava Field</span>
-          <HotkeyText text={hotkeyLookup.togglePenModeLavaField} />
-        </MenuItem>
-        <MenuItem value={PiecePrefixes.snow}>
-          <ListItemIcon>
-            <TbHexagons color={hexTerrainColor.snow} />
-          </ListItemIcon>
-          <span>Snow</span>
-          <HotkeyText text={hotkeyLookup.togglePenModeSnow} />
-        </MenuItem>
-        <MenuItem value={PiecePrefixes.concrete}>
-          <ListItemIcon>
-            <TbHexagons color={hexTerrainColor.concrete} />
-          </ListItemIcon>
-          <span>Concrete</span>
-          <HotkeyText text={hotkeyLookup.togglePenModeConcrete} />
-        </MenuItem>
-        <MenuItem value={PiecePrefixes.asphalt}>
-          <ListItemIcon>
-            <TbHexagons color={hexTerrainColor.rock} />
-          </ListItemIcon>
-          <span>Asphalt</span>
-          <HotkeyText text={hotkeyLookup.togglePenModeAsphalt} />
-        </MenuItem>
-        <MenuItem value={PiecePrefixes.swamp}>
-          <ListItemIcon>
-            <TbHexagons color={hexTerrainColor.swampCap} />
-          </ListItemIcon>
-          <span>Swamp</span>
-          <HotkeyText text={hotkeyLookup.togglePenModeSwamp} />
-        </MenuItem>
-        <MenuItem value={PiecePrefixes.dungeon}>
-          <ListItemIcon>
-            <TbHexagons color={hexTerrainColor.dungeon} />
-          </ListItemIcon>
-          <span>Dungeon</span>
-          <HotkeyText text={hotkeyLookup.togglePenModeDungeon} />
-        </MenuItem>
-        <MenuItem value={PiecePrefixes.toxic}>
-          <ListItemIcon>
-            <TbHexagons color={hexTerrainColor.toxicWater} />
-          </ListItemIcon>
-          <span>Toxic</span>
-          <HotkeyText text={hotkeyLookup.togglePenModeToxic} />
-        </MenuItem>
-        <MenuItem value={PiecePrefixes.ancientTerrain}>
-          <ListItemIcon>
-            <TbHexagons color={hexTerrainColor.ancientTerrain} />
-          </ListItemIcon>
-          <span>Ancient Terrain</span>
-          <HotkeyText text={hotkeyLookup.togglePenModeAncientTerrain} />
-        </MenuItem>
-        <MenuItem value={PiecePrefixes.wood}>
-          <ListItemIcon>
-            <TbHexagons color={hexTerrainColor.wood} />
-          </ListItemIcon>
-          <span>Wood</span>
-          <HotkeyText text={hotkeyLookup.togglePenModeWood} />
-        </MenuItem>
-        <MenuItem value={PiecePrefixes.generic}>
-          <ListItemIcon>
-            <TbHexagons color={genericSolidCapColor} />
-          </ListItemIcon>
-          <span>Generic</span>
-          {penModeHotkey('togglePenModeGeneric')}
-        </MenuItem>
-        <Divider />
+          <Divider />
+          <MenuItem value={OBJECTIVE_MARKER_PEN_MODE}>
+            <ListItemIcon>
+              <TbHexagonNumber1Filled />
+            </ListItemIcon>
+            <span title="M selects black markers; Shift+M selects white markers.">
+              Objective Marker
+            </span>
+            <HotkeyText text="m / shift+m" />
+          </MenuItem>
+          <Divider />
+          {/* TERRAIN TYPES BEGIN */}
 
-        {/* FLUID LAND BEGIN */}
-        <MenuItem value={PiecePrefixes.water}>
-          <ListItemIcon>
-            <BsHexagonHalf color={hexTerrainColor.water} />
-          </ListItemIcon>
-          <span>Water</span>
-          <HotkeyText text={hotkeyLookup.togglePenModeWater} />
-        </MenuItem>
-        <MenuItem value={PiecePrefixes.wellspringWater}>
-          <ListItemIcon>
-            <BsHexagonHalf color={hexTerrainColor.wellspringWater} />
-          </ListItemIcon>
-          <span>Wellspring Water</span>
-          <HotkeyText text={hotkeyLookup.togglePenModeWellspringWater} />
-        </MenuItem>
-        <MenuItem value={PiecePrefixes.toxicWater}>
-          <ListItemIcon>
-            <BsHexagonHalf color={hexTerrainColor.toxicWater} />
-          </ListItemIcon>
-          <span>Toxic Water</span>
-          <HotkeyText text={hotkeyLookup.togglePenModeToxicWater} />
-        </MenuItem>
-        <MenuItem value={PiecePrefixes.ice}>
-          <ListItemIcon>
-            <BsHexagonHalf color={hexTerrainColor.ice} />
-          </ListItemIcon>
-          <span>Ice</span>
-          <HotkeyText text={hotkeyLookup.togglePenModeIce} />
-        </MenuItem>
-        <MenuItem value={PiecePrefixes.lava}>
-          <ListItemIcon>
-            <BsHexagonHalf color={hexTerrainColor.lava} />
-          </ListItemIcon>
-          <span>Molten Lava</span>
-          <HotkeyText text={hotkeyLookup.togglePenModeLava} />
-        </MenuItem>
-        <MenuItem value={PiecePrefixes.swampWater}>
-          <ListItemIcon>
-            <BsHexagonHalf color={hexTerrainColor.swampWater} />
-          </ListItemIcon>
-          <span>Swamp Water</span>
-          <HotkeyText text={hotkeyLookup.togglePenModeSwampWater} />
-        </MenuItem>
-        <MenuItem value={PiecePrefixes.shadow}>
-          <ListItemIcon>
-            <BsHexagonHalf color={hexTerrainColor.castle} />
-          </ListItemIcon>
-          <span>Shadow</span>
-          <HotkeyText text={hotkeyLookup.togglePenModeShadow} />
-        </MenuItem>
-        <MenuItem value={PiecePrefixes.genericFluid}>
-          <ListItemIcon>
-            <BsHexagonHalf color={genericFluidCapColor} />
-          </ListItemIcon>
-          <span>Generic (fluid)</span>
-          {penModeHotkey('togglePenModeGenericFluid')}
-        </MenuItem>
+          <MenuItem value={PiecePrefixes.grass}>
+            <ListItemIcon>
+              <TbHexagons color={hexTerrainColor.grass} />
+            </ListItemIcon>
+            <span>Grass</span>
+            <HotkeyText text={hotkeyLookup.togglePenModeGrass} />
+          </MenuItem>
+          <MenuItem value={PiecePrefixes.rock}>
+            <ListItemIcon>
+              <TbHexagons color={hexTerrainColor.rock} />
+            </ListItemIcon>
+            <span>Rock</span>
+            <HotkeyText text={hotkeyLookup.togglePenModeRock} />
+          </MenuItem>
+          <MenuItem value={PiecePrefixes.sand}>
+            <ListItemIcon>
+              <TbHexagons color={hexTerrainColor.sand} />
+            </ListItemIcon>
+            <span>Sand</span>
+            <HotkeyText text={hotkeyLookup.togglePenModeSand} />
+          </MenuItem>
+          <MenuItem value={PiecePrefixes.road}>
+            <ListItemIcon>
+              <TbHexagons color={hexTerrainColor.road} />
+            </ListItemIcon>
+            <span>Road</span>
+            <HotkeyText text={hotkeyLookup.togglePenModeRoad} />
+          </MenuItem>
+          <MenuItem value={PiecePrefixes.wallWalk}>
+            <ListItemIcon>
+              <TbHexagons color={hexTerrainColor.road} />
+            </ListItemIcon>
+            <span>Wall Walk</span>
+            <HotkeyText text={hotkeyLookup.togglePenModeWallWalk} />
+          </MenuItem>
+          <MenuItem value={PiecePrefixes.lavaField}>
+            <ListItemIcon>
+              <TbHexagons color={hexTerrainColor.lavaField} />
+            </ListItemIcon>
+            <span>Lava Field</span>
+            <HotkeyText text={hotkeyLookup.togglePenModeLavaField} />
+          </MenuItem>
+          <MenuItem value={PiecePrefixes.snow}>
+            <ListItemIcon>
+              <TbHexagons color={hexTerrainColor.snow} />
+            </ListItemIcon>
+            <span>Snow</span>
+            <HotkeyText text={hotkeyLookup.togglePenModeSnow} />
+          </MenuItem>
+          <MenuItem value={PiecePrefixes.concrete}>
+            <ListItemIcon>
+              <TbHexagons color={hexTerrainColor.concrete} />
+            </ListItemIcon>
+            <span>Concrete</span>
+            <HotkeyText text={hotkeyLookup.togglePenModeConcrete} />
+          </MenuItem>
+          <MenuItem value={PiecePrefixes.asphalt}>
+            <ListItemIcon>
+              <TbHexagons color={hexTerrainColor.rock} />
+            </ListItemIcon>
+            <span>Asphalt</span>
+            <HotkeyText text={hotkeyLookup.togglePenModeAsphalt} />
+          </MenuItem>
+          <MenuItem value={PiecePrefixes.swamp}>
+            <ListItemIcon>
+              <TbHexagons color={hexTerrainColor.swampCap} />
+            </ListItemIcon>
+            <span>Swamp</span>
+            <HotkeyText text={hotkeyLookup.togglePenModeSwamp} />
+          </MenuItem>
+          <MenuItem value={PiecePrefixes.dungeon}>
+            <ListItemIcon>
+              <TbHexagons color={hexTerrainColor.dungeon} />
+            </ListItemIcon>
+            <span>Dungeon</span>
+            <HotkeyText text={hotkeyLookup.togglePenModeDungeon} />
+          </MenuItem>
+          <MenuItem value={PiecePrefixes.toxic}>
+            <ListItemIcon>
+              <TbHexagons color={hexTerrainColor.toxicWater} />
+            </ListItemIcon>
+            <span>Toxic</span>
+            <HotkeyText text={hotkeyLookup.togglePenModeToxic} />
+          </MenuItem>
+          <MenuItem value={PiecePrefixes.ancientTerrain}>
+            <ListItemIcon>
+              <TbHexagons color={hexTerrainColor.ancientTerrain} />
+            </ListItemIcon>
+            <span>Ancient Terrain</span>
+            <HotkeyText text={hotkeyLookup.togglePenModeAncientTerrain} />
+          </MenuItem>
+          <MenuItem value={PiecePrefixes.wood}>
+            <ListItemIcon>
+              <TbHexagons color={hexTerrainColor.wood} />
+            </ListItemIcon>
+            <span>Wood</span>
+            <HotkeyText text={hotkeyLookup.togglePenModeWood} />
+          </MenuItem>
+          <MenuItem value={PiecePrefixes.generic}>
+            <ListItemIcon>
+              <TbHexagons color={genericSolidCapColor} />
+            </ListItemIcon>
+            <span>Generic</span>
+            {penModeHotkey('togglePenModeGeneric')}
+          </MenuItem>
+          <Divider />
 
-        <Divider />
+          {/* FLUID LAND BEGIN */}
+          <MenuItem value={PiecePrefixes.water}>
+            <ListItemIcon>
+              <BsHexagonHalf color={hexTerrainColor.water} />
+            </ListItemIcon>
+            <span>Water</span>
+            <HotkeyText text={hotkeyLookup.togglePenModeWater} />
+          </MenuItem>
+          <MenuItem value={PiecePrefixes.wellspringWater}>
+            <ListItemIcon>
+              <BsHexagonHalf color={hexTerrainColor.wellspringWater} />
+            </ListItemIcon>
+            <span>Wellspring Water</span>
+            <HotkeyText text={hotkeyLookup.togglePenModeWellspringWater} />
+          </MenuItem>
+          <MenuItem value={PiecePrefixes.toxicWater}>
+            <ListItemIcon>
+              <BsHexagonHalf color={hexTerrainColor.toxicWater} />
+            </ListItemIcon>
+            <span>Toxic Water</span>
+            <HotkeyText text={hotkeyLookup.togglePenModeToxicWater} />
+          </MenuItem>
+          <MenuItem value={PiecePrefixes.ice}>
+            <ListItemIcon>
+              <BsHexagonHalf color={hexTerrainColor.ice} />
+            </ListItemIcon>
+            <span>Ice</span>
+            <HotkeyText text={hotkeyLookup.togglePenModeIce} />
+          </MenuItem>
+          <MenuItem value={PiecePrefixes.lava}>
+            <ListItemIcon>
+              <BsHexagonHalf color={hexTerrainColor.lava} />
+            </ListItemIcon>
+            <span>Molten Lava</span>
+            <HotkeyText text={hotkeyLookup.togglePenModeLava} />
+          </MenuItem>
+          <MenuItem value={PiecePrefixes.swampWater}>
+            <ListItemIcon>
+              <BsHexagonHalf color={hexTerrainColor.swampWater} />
+            </ListItemIcon>
+            <span>Swamp Water</span>
+            <HotkeyText text={hotkeyLookup.togglePenModeSwampWater} />
+          </MenuItem>
+          <MenuItem value={PiecePrefixes.shadow}>
+            <ListItemIcon>
+              <BsHexagonHalf color={hexTerrainColor.castle} />
+            </ListItemIcon>
+            <span>Shadow</span>
+            <HotkeyText text={hotkeyLookup.togglePenModeShadow} />
+          </MenuItem>
+          <MenuItem value={PiecePrefixes.genericFluid}>
+            <ListItemIcon>
+              <BsHexagonHalf color={genericFluidCapColor} />
+            </ListItemIcon>
+            <span>Generic (fluid)</span>
+            {penModeHotkey('togglePenModeGenericFluid')}
+          </MenuItem>
 
-        {/* LAUR WALL */}
-        <MenuItem value={Pieces.laurWallSquarePillar}>
-          <ListItemIcon>
-            <GiWhiteTower color={hexTerrainColor.water} />
-          </ListItemIcon>
-          <span>{piecesSoFar[Pieces.laurWallSquarePillar].title}</span>
-          {penModeHotkey('togglePenModeLaurWall')}
-        </MenuItem>
-        <MenuItem value={Pieces.laurWallPillarStackable}>
-          <ListItemIcon>
-            <GiWhiteTower color={hexTerrainColor.water} />
-          </ListItemIcon>
-          <span>{piecesSoFar[Pieces.laurWallPillarStackable].title}</span>
-        </MenuItem>
-        <MenuItem value={Pieces.laurWallTrianglePillar}>
-          <ListItemIcon>
-            <GiWhiteTower color={hexTerrainColor.water} />
-          </ListItemIcon>
-          <span>{piecesSoFar[Pieces.laurWallTrianglePillar].title}</span>
-        </MenuItem>
-        <MenuItem value={Pieces.laurWallRuin1}>
-          <ListItemIcon>
-            <FcAddColumn color={hexTerrainColor.water} />
-          </ListItemIcon>
-          <span>Laur Wall Ruins</span>
-        </MenuItem>
-        {/* <MenuItem value={Pieces.laurWallRuin2}>
-          <ListItemIcon>
-            <FcAddColumn color={hexTerrainColor.water} />
-          </ListItemIcon>
-          <span>Laur Wall Ruins</span>
-        </MenuItem> */}
-        {/* <MenuItem value={Pieces.laurWallRuin3}>
+          <Divider />
+
+          {/* LAUR WALL */}
+          <MenuItem value={Pieces.laurWallSquarePillar}>
+            <ListItemIcon>
+              <GiWhiteTower color={hexTerrainColor.water} />
+            </ListItemIcon>
+            <span>{piecesSoFar[Pieces.laurWallSquarePillar].title}</span>
+            {penModeHotkey('togglePenModeLaurWall')}
+          </MenuItem>
+          <MenuItem value={Pieces.laurWallPillarStackable}>
+            <ListItemIcon>
+              <GiWhiteTower color={hexTerrainColor.water} />
+            </ListItemIcon>
+            <span>{piecesSoFar[Pieces.laurWallPillarStackable].title}</span>
+          </MenuItem>
+          <MenuItem value={Pieces.laurWallTrianglePillar}>
+            <ListItemIcon>
+              <GiWhiteTower color={hexTerrainColor.water} />
+            </ListItemIcon>
+            <span>{piecesSoFar[Pieces.laurWallTrianglePillar].title}</span>
+          </MenuItem>
+          <MenuItem value={Pieces.laurWallRuin1}>
+            <ListItemIcon>
+              <FcAddColumn color={hexTerrainColor.water} />
+            </ListItemIcon>
+            <span>Laur Wall Ruins</span>
+          </MenuItem>
+          {/* <MenuItem value={Pieces.laurWallRuin2}>
           <ListItemIcon>
             <FcAddColumn color={hexTerrainColor.water} />
           </ListItemIcon>
           <span>Laur Wall Ruins</span>
         </MenuItem> */}
-        <MenuItem value={Pieces.laurWallShort}>
+          {/* <MenuItem value={Pieces.laurWallRuin3}>
           <ListItemIcon>
-            <FcAddDatabase color={hexTerrainColor.water} />
+            <FcAddColumn color={hexTerrainColor.water} />
           </ListItemIcon>
-          <span>{piecesSoFar[Pieces.laurWallShort].title}</span>
-        </MenuItem>
-        <MenuItem value={Pieces.laurWallShortStackable}>
-          <ListItemIcon>
-            <FcAddDatabase color={hexTerrainColor.water} />
-          </ListItemIcon>
-          <span>{piecesSoFar[Pieces.laurWallShortStackable].title}</span>
-        </MenuItem>
-        <MenuItem value={Pieces.laurWallLong}>
-          <ListItemIcon>
-            <FcAddDatabase color={hexTerrainColor.water} />
-          </ListItemIcon>
-          <span>{piecesSoFar[Pieces.laurWallLong].title}</span>
-        </MenuItem>
-        <MenuItem value={Pieces.laurWallLongStackable}>
-          <ListItemIcon>
-            <FcAddDatabase color={hexTerrainColor.water} />
-          </ListItemIcon>
-          <span>{piecesSoFar[Pieces.laurWallLongStackable].title}</span>
-        </MenuItem>
-        <MenuItem value={Pieces.laurWallArch}>
-          <ListItemIcon>
-            <FcEnteringHeavenAlive color={hexTerrainColor.water} />
-          </ListItemIcon>
-          <span>{piecesSoFar[Pieces.laurWallArch].title}</span>
-        </MenuItem>
-        <Divider />
+          <span>Laur Wall Ruins</span>
+        </MenuItem> */}
+          <MenuItem value={Pieces.laurWallShort}>
+            <ListItemIcon>
+              <FcAddDatabase color={hexTerrainColor.water} />
+            </ListItemIcon>
+            <span>{piecesSoFar[Pieces.laurWallShort].title}</span>
+          </MenuItem>
+          <MenuItem value={Pieces.laurWallShortStackable}>
+            <ListItemIcon>
+              <FcAddDatabase color={hexTerrainColor.water} />
+            </ListItemIcon>
+            <span>{piecesSoFar[Pieces.laurWallShortStackable].title}</span>
+          </MenuItem>
+          <MenuItem value={Pieces.laurWallLong}>
+            <ListItemIcon>
+              <FcAddDatabase color={hexTerrainColor.water} />
+            </ListItemIcon>
+            <span>{piecesSoFar[Pieces.laurWallLong].title}</span>
+          </MenuItem>
+          <MenuItem value={Pieces.laurWallLongStackable}>
+            <ListItemIcon>
+              <FcAddDatabase color={hexTerrainColor.water} />
+            </ListItemIcon>
+            <span>{piecesSoFar[Pieces.laurWallLongStackable].title}</span>
+          </MenuItem>
+          <MenuItem value={Pieces.laurWallArch}>
+            <ListItemIcon>
+              <FcEnteringHeavenAlive color={hexTerrainColor.water} />
+            </ListItemIcon>
+            <span>{piecesSoFar[Pieces.laurWallArch].title}</span>
+          </MenuItem>
+          <Divider />
 
-        {/* RUINS */}
-        <MenuItem value={Pieces.ruins2}>
-          <ListItemIcon>
-            <GiAncientRuins color={hexTerrainColor.ruin} />
-          </ListItemIcon>
-          <span>Ruins 2</span>
-          {penModeHotkey('togglePenModeRuins')}
-        </MenuItem>
-        <MenuItem value={Pieces.ruins3}>
-          <ListItemIcon>
-            <GiAncientRuins color={hexTerrainColor.ruin} />
-          </ListItemIcon>
-          <span>Ruins 3</span>
-        </MenuItem>
-        <MenuItem value={Pieces.fortifiedWall}>
-          <ListItemIcon>
-            <GiAncientRuins color={hexTerrainColor.ruin} />
-          </ListItemIcon>
-          <span>Fortified Wall</span>
-          {penModeHotkey('togglePenModeFortifiedWall')}
-        </MenuItem>
-        <Divider />
+          {/* RUINS */}
+          <MenuItem value={Pieces.ruins2}>
+            <ListItemIcon>
+              <GiAncientRuins color={hexTerrainColor.ruin} />
+            </ListItemIcon>
+            <span>Ruins 2</span>
+            {penModeHotkey('togglePenModeRuins')}
+          </MenuItem>
+          <MenuItem value={Pieces.ruins3}>
+            <ListItemIcon>
+              <GiAncientRuins color={hexTerrainColor.ruin} />
+            </ListItemIcon>
+            <span>Ruins 3</span>
+          </MenuItem>
+          <MenuItem value={Pieces.fortifiedWall}>
+            <ListItemIcon>
+              <GiAncientRuins color={hexTerrainColor.ruin} />
+            </ListItemIcon>
+            <span>Fortified Wall</span>
+            {penModeHotkey('togglePenModeFortifiedWall')}
+          </MenuItem>
+          <Divider />
 
-        {/* Trees */}
-        <MenuItem value={Pieces.snowTree10}>
-          <ListItemIcon>
-            <GiPineTree color={hexTerrainColor.snow} />
-          </ListItemIcon>
-          <span>Snow Tree 10</span>
-          {penModeHotkey('togglePenModeSnowTree')}
-        </MenuItem>
-        <MenuItem value={Pieces.snowTree12}>
-          <ListItemIcon>
-            <GiPineTree color={hexTerrainColor.snow} />
-          </ListItemIcon>
-          <span>Snow Tree 12</span>
-        </MenuItem>
-        <MenuItem value={Pieces.tree10}>
-          <ListItemIcon>
-            <GiPineTree color={hexTerrainColor.grass} />
-          </ListItemIcon>
-          <span>Tree 10</span>
-          {penModeHotkey('togglePenModeEvergreenTree')}
-        </MenuItem>
-        <MenuItem value={Pieces.tree11}>
-          <ListItemIcon>
-            <GiPineTree color={hexTerrainColor.grass} />
-          </ListItemIcon>
-          <span>Tree 11</span>
-        </MenuItem>
-        <MenuItem value={Pieces.tree12}>
-          <ListItemIcon>
-            <GiPineTree color={hexTerrainColor.grass} />
-          </ListItemIcon>
-          <span>Tree 12</span>
-        </MenuItem>
-        <MenuItem value={Pieces.tree415}>
-          <ListItemIcon>
-            <GiPineTree color={hexTerrainColor.grass} />
-          </ListItemIcon>
-          <span>Big Tree 15</span>
-        </MenuItem>
+          {/* Trees */}
+          <MenuItem value={Pieces.snowTree10}>
+            <ListItemIcon>
+              <GiPineTree color={hexTerrainColor.snow} />
+            </ListItemIcon>
+            <span>Snow Tree 10</span>
+            {penModeHotkey('togglePenModeSnowTree')}
+          </MenuItem>
+          <MenuItem value={Pieces.snowTree12}>
+            <ListItemIcon>
+              <GiPineTree color={hexTerrainColor.snow} />
+            </ListItemIcon>
+            <span>Snow Tree 12</span>
+          </MenuItem>
+          <MenuItem value={Pieces.tree10}>
+            <ListItemIcon>
+              <GiPineTree color={hexTerrainColor.grass} />
+            </ListItemIcon>
+            <span>Tree 10</span>
+            {penModeHotkey('togglePenModeEvergreenTree')}
+          </MenuItem>
+          <MenuItem value={Pieces.tree11}>
+            <ListItemIcon>
+              <GiPineTree color={hexTerrainColor.grass} />
+            </ListItemIcon>
+            <span>Tree 11</span>
+          </MenuItem>
+          <MenuItem value={Pieces.tree12}>
+            <ListItemIcon>
+              <GiPineTree color={hexTerrainColor.grass} />
+            </ListItemIcon>
+            <span>Tree 12</span>
+          </MenuItem>
+          <MenuItem value={Pieces.tree415}>
+            <ListItemIcon>
+              <GiPineTree color={hexTerrainColor.grass} />
+            </ListItemIcon>
+            <span>Big Tree 15</span>
+          </MenuItem>
 
-        {/* Jungle Palm / Brush begin */}
-        <Divider />
+          {/* Jungle Palm / Brush begin */}
+          <Divider />
 
-        <MenuItem value={Pieces.brush9}>
-          <ListItemIcon>
-            <GiJungle color={hexTerrainColor.ticallaBrush1} />
-          </ListItemIcon>
-          <span>Ticalla Brush 9</span>
-          {penModeHotkey('togglePenModeTicallaUnderbrush')}
-        </MenuItem>
-        <MenuItem value={Pieces.palm14}>
-          <ListItemIcon>
-            <GiPalmTree color={hexTerrainColor.ticallaPalmModel2} />
-          </ListItemIcon>
-          <span>Ticalla Palm 14</span>
-          {penModeHotkey('togglePenModeTicallaPalm')}
-        </MenuItem>
-        <MenuItem value={Pieces.palm15}>
-          <ListItemIcon>
-            <GiPalmTree
-              scale={'110%'}
-              color={hexTerrainColor.ticallaPalmModel2}
-            />
-          </ListItemIcon>
-          <span>Ticalla Palm 15</span>
-        </MenuItem>
-        <MenuItem value={Pieces.palm16}>
-          <ListItemIcon>
-            <GiPalmTree
-              scale={'120%'}
-              color={hexTerrainColor.ticallaPalmModel2}
-            />
-          </ListItemIcon>
-          <span>Ticalla Palm 16</span>
-        </MenuItem>
-        <MenuItem value={Pieces.swampBrush10}>
-          <ListItemIcon>
-            <GiJungle color={hexTerrainColor.swampUnderbrush1} />
-          </ListItemIcon>
-          <span>Swamp Underbrush 10</span>
-          {penModeHotkey('togglePenModeSwampUnderbrush')}
-        </MenuItem>
-        <MenuItem value={Pieces.laurBrush10}>
-          <ListItemIcon>
-            <GiJungle color={hexTerrainColor.laurBrush1} />
-          </ListItemIcon>
-          <span>Laur Brush 10</span>
-          {penModeHotkey('togglePenModeLaurUnderbrush')}
-        </MenuItem>
-        <MenuItem value={Pieces.laurPalm13}>
-          <ListItemIcon>
-            <GiPalmTree scale={'120%'} color={hexTerrainColor.laurPalm2} />
-          </ListItemIcon>
-          <span>Laur Palm 13</span>
-          {penModeHotkey('togglePenModeLaurJungleTree')}
-        </MenuItem>
-        <MenuItem value={Pieces.laurPalm14}>
-          <ListItemIcon>
-            <GiPalmTree scale={'120%'} color={hexTerrainColor.laurPalm2} />
-          </ListItemIcon>
-          <span>Laur Palm 14</span>
-        </MenuItem>
-        <MenuItem value={Pieces.laurPalm15}>
-          <ListItemIcon>
-            <GiPalmTree scale={'120%'} color={hexTerrainColor.laurPalm2} />
-          </ListItemIcon>
-          <span>Laur Palm 15</span>
-        </MenuItem>
+          <MenuItem value={Pieces.brush9}>
+            <ListItemIcon>
+              <GiJungle color={hexTerrainColor.ticallaBrush1} />
+            </ListItemIcon>
+            <span>Ticalla Brush 9</span>
+            {penModeHotkey('togglePenModeTicallaUnderbrush')}
+          </MenuItem>
+          <MenuItem value={Pieces.palm14}>
+            <ListItemIcon>
+              <GiPalmTree color={hexTerrainColor.ticallaPalmModel2} />
+            </ListItemIcon>
+            <span>Ticalla Palm 14</span>
+            {penModeHotkey('togglePenModeTicallaPalm')}
+          </MenuItem>
+          <MenuItem value={Pieces.palm15}>
+            <ListItemIcon>
+              <GiPalmTree
+                scale={'110%'}
+                color={hexTerrainColor.ticallaPalmModel2}
+              />
+            </ListItemIcon>
+            <span>Ticalla Palm 15</span>
+          </MenuItem>
+          <MenuItem value={Pieces.palm16}>
+            <ListItemIcon>
+              <GiPalmTree
+                scale={'120%'}
+                color={hexTerrainColor.ticallaPalmModel2}
+              />
+            </ListItemIcon>
+            <span>Ticalla Palm 16</span>
+          </MenuItem>
+          <MenuItem value={Pieces.swampBrush10}>
+            <ListItemIcon>
+              <GiJungle color={hexTerrainColor.swampUnderbrush1} />
+            </ListItemIcon>
+            <span>Swamp Underbrush 10</span>
+            {penModeHotkey('togglePenModeSwampUnderbrush')}
+          </MenuItem>
+          <MenuItem value={Pieces.laurBrush10}>
+            <ListItemIcon>
+              <GiJungle color={hexTerrainColor.laurBrush1} />
+            </ListItemIcon>
+            <span>Laur Brush 10</span>
+            {penModeHotkey('togglePenModeLaurUnderbrush')}
+          </MenuItem>
+          <MenuItem value={Pieces.laurPalm13}>
+            <ListItemIcon>
+              <GiPalmTree scale={'120%'} color={hexTerrainColor.laurPalm2} />
+            </ListItemIcon>
+            <span>Laur Palm 13</span>
+            {penModeHotkey('togglePenModeLaurJungleTree')}
+          </MenuItem>
+          <MenuItem value={Pieces.laurPalm14}>
+            <ListItemIcon>
+              <GiPalmTree scale={'120%'} color={hexTerrainColor.laurPalm2} />
+            </ListItemIcon>
+            <span>Laur Palm 14</span>
+          </MenuItem>
+          <MenuItem value={Pieces.laurPalm15}>
+            <ListItemIcon>
+              <GiPalmTree scale={'120%'} color={hexTerrainColor.laurPalm2} />
+            </ListItemIcon>
+            <span>Laur Palm 15</span>
+          </MenuItem>
 
-        {/* Shroudshrooms */}
-        <Divider />
-        <MenuItem value={Pieces.shroudshroom7}>
-          <ListItemIcon>
-            <GiMushroom
-              scale={'120%'}
-              color={hexTerrainColor.shroudshroomLightPurple}
-            />
-          </ListItemIcon>
-          <span>Shroudshroom 7</span>
-          {penModeHotkey('togglePenModeShroudshroom')}
-        </MenuItem>
-        <MenuItem value={Pieces.shroudshroom10}>
-          <ListItemIcon>
-            <GiMushroom
-              scale={'120%'}
-              color={hexTerrainColor.shroudshroomLightPurple}
-            />
-          </ListItemIcon>
-          <span>Shroudshroom 10</span>
-        </MenuItem>
-        <MenuItem value={Pieces.shroudshroom13}>
-          <ListItemIcon>
-            <GiMushroom
-              color={hexTerrainColor.shroudshroomLightPurple}
-              style={{ fontSize: '0.8rem' }}
-            />
-            <GiMushroom
-              color={hexTerrainColor.shroudshroomLightPurple}
-              style={{
-                fontSize: '0.8rem',
-                marginLeft: '-0.3rem',
-                marginTop: '0.2rem',
-              }}
-            />
-            <GiMushroom
-              color={hexTerrainColor.shroudshroomLightPurple}
-              style={{ fontSize: '0.8rem', marginLeft: '-0.3rem' }}
-            />
-          </ListItemIcon>
-          <span>Shroudshroom 13</span>
-        </MenuItem>
-
-        {/* Shores of Valhalla */}
-        <Divider />
-        <MenuItem value={Pieces.cannon}>
-          <ListItemIcon>
-            <TbHexagonLetterC color={hexTerrainColor.cannonCarriage} />
-          </ListItemIcon>
-          <span>Cannon</span>
-        </MenuItem>
-        <MenuItem value={Pieces.ropeLadder}>
-          <ListItemIcon>
-            <GiLadder color={hexTerrainColor.ladder} />
-          </ListItemIcon>
-          <span>Rope Ladder</span>
-        </MenuItem>
-        <MenuItem value={Pieces.shipWall}>
-          <ListItemIcon>
-            <TbHexagonLetterS
-              color={hexTerrainColor[HexTerrain.wood]}
-              style={{ fontSize: '0.8rem' }}
-            />
-            <TbHexagonLetterS
-              color={hexTerrainColor[HexTerrain.wood]}
-              style={{ fontSize: '0.8rem', marginLeft: '-0.4rem' }}
-            />
-            <TbHexagonLetterS
-              color={hexTerrainColor[HexTerrain.wood]}
-              style={{ fontSize: '0.8rem', marginLeft: '-0.4rem' }}
-            />
-          </ListItemIcon>
-          <span>Ship Wall</span>
-          {penModeHotkey('togglePenModeShip')}
-        </MenuItem>
-        <MenuItem value={Pieces.shipBow}>
-          <ListItemIcon>
-            <TbHexagons color={hexTerrainColor[HexTerrain.wood]} />
-          </ListItemIcon>
-          <span>Ship Bow</span>
-        </MenuItem>
-
-        {/* Outcrops / Hive Begin */}
-        <Divider />
-
-        <MenuItem value={Pieces.outcrop1}>
-          <ListItemIcon>
-            <TbHexagonalPyramid color={hexTerrainColor.dungeon} />
-          </ListItemIcon>
-          <span>Outcrop 1</span>
-          {penModeHotkey('togglePenModeRockOutcrop')}
-        </MenuItem>
-        <MenuItem value={Pieces.outcrop3}>
-          <ListItemIcon>
-            <TbHexagonalPyramid
-              color={hexTerrainColor.dungeon}
-              style={{ fontSize: '0.8rem' }}
-            />
-            <TbHexagonalPyramid
-              color={hexTerrainColor.dungeon}
-              style={{
-                fontSize: '0.8rem',
-                marginLeft: '-0.5rem',
-                marginTop: '0.2rem',
-              }}
-            />
-            <TbHexagonalPyramid
-              color={hexTerrainColor.dungeon}
-              style={{ fontSize: '0.8rem', marginLeft: '-0.5rem' }}
-            />
-          </ListItemIcon>
-          <span>Outcrop 3</span>
-        </MenuItem>
-        <MenuItem value={Pieces.lavaRockOutcrop1}>
-          <ListItemIcon>
-            <TbHexagonalPyramid color={hexTerrainColor.lava} />
-          </ListItemIcon>
-          <span>Lava Rock Outcrop 1</span>
-          {penModeHotkey('togglePenModeLavaRockOutcrop')}
-        </MenuItem>
-        <MenuItem value={Pieces.lavaRockOutcrop3}>
-          <ListItemIcon>
-            <TbHexagonalPyramid
-              color={hexTerrainColor.lava}
-              style={{ fontSize: '0.8rem' }}
-            />
-            <TbHexagonalPyramid
-              color={hexTerrainColor.lava}
-              style={{
-                fontSize: '0.8rem',
-                marginLeft: '-0.5rem',
-                marginTop: '0.2rem',
-              }}
-            />
-            <TbHexagonalPyramid
-              color={hexTerrainColor.lava}
-              style={{ fontSize: '0.8rem', marginLeft: '-0.5rem' }}
-            />
-          </ListItemIcon>
-          <span>Lava Rock Outcrop 3</span>
-        </MenuItem>
-        <MenuItem value={Pieces.toxicOutcrop1}>
-          <ListItemIcon>
-            <TbHexagonalPyramid color={hexTerrainColor[HexTerrain.toxic]} />
-          </ListItemIcon>
-          <span>Toxic Rock Outcrop 1</span>
-          {penModeHotkey('togglePenModeToxicOutcrop')}
-        </MenuItem>
-        <MenuItem value={Pieces.toxicOutcrop3}>
-          <ListItemIcon>
-            <TbHexagonalPyramid
-              color={hexTerrainColor[HexTerrain.toxic]}
-              style={{ fontSize: '0.8rem' }}
-            />
-            <TbHexagonalPyramid
-              color={hexTerrainColor[HexTerrain.toxic]}
-              style={{
-                fontSize: '0.8rem',
-                marginLeft: '-0.5rem',
-                marginTop: '0.2rem',
-              }}
-            />
-            <TbHexagonalPyramid
-              color={hexTerrainColor[HexTerrain.toxic]}
-              style={{ fontSize: '0.8rem', marginLeft: '-0.5rem' }}
-            />
-          </ListItemIcon>
-          <span>Toxic Rock Outcrop 3</span>
-        </MenuItem>
-        <MenuItem value={Pieces.glacier1}>
-          <ListItemIcon>
-            <TbHexagonalPyramid color={hexTerrainColor.ice} />
-          </ListItemIcon>
-          <span>Glacier 1</span>
-          {penModeHotkey('togglePenModeGlacier')}
-        </MenuItem>
-        <MenuItem value={Pieces.glacier3}>
-          <ListItemIcon>
-            <TbHexagonalPyramid
-              color={hexTerrainColor.ice}
-              style={{ fontSize: '0.8rem' }}
-            />
-            <TbHexagonalPyramid
-              color={hexTerrainColor.ice}
-              style={{
-                fontSize: '0.8rem',
-                marginLeft: '-0.5rem',
-                marginTop: '0.2rem',
-              }}
-            />
-            <TbHexagonalPyramid
-              color={hexTerrainColor.ice}
-              style={{ fontSize: '0.8rem', marginLeft: '-0.5rem' }}
-            />
-          </ListItemIcon>
-          <span>Glacier 3</span>
-        </MenuItem>
-        <MenuItem value={Pieces.glacier4}>
-          <ListItemIcon>
-            <TbHexagonalPyramid
-              color={hexTerrainColor.ice}
-              style={{
-                fontSize: '0.7rem',
-                marginRight: '-1rem',
-                marginTop: '-0.2rem',
-              }}
-            />
-            <TbHexagonalPyramid
-              color={hexTerrainColor.ice}
-              style={{ fontSize: '0.8rem' }}
-            />
-            <TbHexagonalPyramid
-              color={hexTerrainColor.ice}
-              style={{
-                fontSize: '0.8rem',
-                marginLeft: '-0.5rem',
-                marginTop: '0.2rem',
-              }}
-            />
-            <TbHexagonalPyramid
-              color={hexTerrainColor.ice}
-              style={{
-                fontSize: '0.8rem',
-                marginLeft: '-0.5rem',
-              }}
-            />
-          </ListItemIcon>
-          <span>Glacier 4</span>
-        </MenuItem>
-        <MenuItem value={Pieces.glacier6}>
-          <ListItemIcon>
-            <LiaMountainSolid color={hexTerrainColor.ice} />
-          </ListItemIcon>
-          <span>Glacier 6</span>
-        </MenuItem>
-        <MenuItem value={Pieces.hive}>
-          <ListItemIcon>
-            <FaMountainCity color={hexTerrainColor.swampCap} />
-          </ListItemIcon>
-          <span>Marro Hive 6</span>
-          {penModeHotkey('togglePenModeMarroHive')}
-        </MenuItem>
-
-        {/* Castle Bases, Walls */}
-        <Divider />
-        <MenuItem value={Pieces.castleBaseEnd}>
-          <ListItemIcon>
-            <TbHexagonLetterE />
-          </ListItemIcon>
-          <span>Base End</span>
-          {penModeHotkey('togglePenModeCastleBaseEnd')}
-        </MenuItem>
-        <MenuItem value={Pieces.castleBaseStraight}>
-          <ListItemIcon>
-            <TbHexagonLetterS />
-          </ListItemIcon>
-          <span>Base Straight</span>
-          {penModeHotkey('togglePenModeCastleBaseStraight')}
-        </MenuItem>
-        <MenuItem value={Pieces.castleBaseCorner}>
-          <ListItemIcon>
-            <TbHexagonLetterC />
-          </ListItemIcon>
-          <span>Base Corner</span>
-          {penModeHotkey('togglePenModeCastleBaseCorner')}
-        </MenuItem>
-        <MenuItem
-          title="Add castle wall end (base is added automatically if needed)"
-          value={Pieces.castleWallEnd}
-        >
-          <ListItemIcon>
-            <PiCastleTurretLight />
-            <TbHexagonLetterE />
-          </ListItemIcon>
-          <span>Wall End</span>
-        </MenuItem>
-        <MenuItem
-          title="Add castle straight wall (base is added automatically if needed)"
-          value={Pieces.castleWallStraight}
-        >
-          <ListItemIcon>
-            <PiCastleTurretLight />
-            <TbHexagonLetterS />
-          </ListItemIcon>
-          <span>Wall Straight</span>
-          {penModeHotkey('togglePenModeCastleWall')}
-          {penModeHotkey('togglePenModeCastleWallStraight')}
-        </MenuItem>
-        <MenuItem
-          title="Add castle wall corner (base is added automatically if needed)"
-          value={Pieces.castleWallCorner}
-        >
-          <ListItemIcon>
-            <PiCastleTurretLight />
-            <TbHexagonLetterC />
-          </ListItemIcon>
-          <span>Wall Corner</span>
-          {penModeHotkey('togglePenModeCastleWallCorner')}
-        </MenuItem>
-        <MenuItem value={Pieces.castleArch}>
-          <ListItemIcon>
-            <GiCastle />
-          </ListItemIcon>
-          <span>Arch</span>
-          {penModeHotkey('togglePenModeCastleArch')}
-        </MenuItem>
-        <MenuItem value={Pieces.castleArchNoDoor}>
-          <ListItemIcon>
-            <GiCastle />
-          </ListItemIcon>
-          <span>Arch (No Door)</span>
-          {penModeHotkey('togglePenModeCastleArchNoDoor')}
-        </MenuItem>
-
-        {/* RoadWall, Battlements, Ladders */}
-        <Divider />
-        <MenuItem value={Pieces.roadWall}>
-          <ListItemIcon>
-            <GiStoneWall color={hexTerrainColor.concrete} />
-          </ListItemIcon>
-          <span>Road Wall</span>
-          {penModeHotkey('togglePenModeStoneWall')}
-        </MenuItem>
-        <MenuItem value={Pieces.battlement}>
-          <ListItemIcon>
-            <GiCrenulatedShield color={hexTerrainColor.concrete} />
-          </ListItemIcon>
-          <span>Battlement</span>
-          {penModeHotkey('togglePenModeBattlement')}
-        </MenuItem>
-        <MenuItem value={Pieces.ladder}>
-          <ListItemIcon>
-            <GiLadder color={hexTerrainColor.ladder} />
-          </ListItemIcon>
-          <span>Ladder</span>
-          {penModeHotkey('togglePenModeLadder')}
-        </MenuItem>
-
-        {/* Marvel RUINS */}
-        <Divider />
-        <MenuItem value={Pieces.marvel}>
-          <ListItemIcon>
-            <GiAncientRuins color={hexTerrainColor.marvelRuin} />
-          </ListItemIcon>
-          <span>Marvel Ruins</span>
-          {penModeHotkey('togglePenModeMarvelRuin')}
-        </MenuItem>
-        <MenuItem value={Pieces.marvelBroken}>
-          <ListItemIcon>
-            <GiAncientRuins color={hexTerrainColor.marvelRuin} />
-          </ListItemIcon>
-          <span>Marvel Ruins - Wall Destroyed</span>
-        </MenuItem>
-        <MenuItem value={Pieces.marvelNoUpper}>
-          <ListItemIcon>
-            <GiAncientRuins color={hexTerrainColor.marvelRuin} />
-          </ListItemIcon>
-          <span>Marvel Ruins - No Upper Floor</span>
-        </MenuItem>
-        <MenuItem value={Pieces.marvelNoUpperBroken}>
-          <ListItemIcon>
-            <GiAncientRuins color={hexTerrainColor.marvelRuin} />
-          </ListItemIcon>
-          <span>Marvel Ruins - No Upper Floor, Wall Destroyed</span>
-        </MenuItem>
-
-        {hasSetConstraints && (
-          <>
-            <Divider />
-            <MuiMenuItem
-              disableRipple
-              disableTouchRipple
-              onClick={(event) => event.preventDefault()}
-              sx={{
-                alignItems: 'flex-start',
-                cursor: 'default',
-                display: 'block',
-                py: 1,
-              }}
-            >
-              <span
+          {/* Shroudshrooms */}
+          <Divider />
+          <MenuItem value={Pieces.shroudshroom7}>
+            <ListItemIcon>
+              <GiMushroom
+                scale={'120%'}
+                color={hexTerrainColor.shroudshroomLightPurple}
+              />
+            </ListItemIcon>
+            <span>Shroudshroom 7</span>
+            {penModeHotkey('togglePenModeShroudshroom')}
+          </MenuItem>
+          <MenuItem value={Pieces.shroudshroom10}>
+            <ListItemIcon>
+              <GiMushroom
+                scale={'120%'}
+                color={hexTerrainColor.shroudshroomLightPurple}
+              />
+            </ListItemIcon>
+            <span>Shroudshroom 10</span>
+          </MenuItem>
+          <MenuItem value={Pieces.shroudshroom13}>
+            <ListItemIcon>
+              <GiMushroom
+                color={hexTerrainColor.shroudshroomLightPurple}
+                style={{ fontSize: '0.8rem' }}
+              />
+              <GiMushroom
+                color={hexTerrainColor.shroudshroomLightPurple}
                 style={{
+                  fontSize: '0.8rem',
+                  marginLeft: '-0.3rem',
+                  marginTop: '0.2rem',
+                }}
+              />
+              <GiMushroom
+                color={hexTerrainColor.shroudshroomLightPurple}
+                style={{ fontSize: '0.8rem', marginLeft: '-0.3rem' }}
+              />
+            </ListItemIcon>
+            <span>Shroudshroom 13</span>
+          </MenuItem>
+
+          {/* Shores of Valhalla */}
+          <Divider />
+          <MenuItem value={Pieces.cannon}>
+            <ListItemIcon>
+              <TbHexagonLetterC color={hexTerrainColor.cannonCarriage} />
+            </ListItemIcon>
+            <span>Cannon</span>
+          </MenuItem>
+          <MenuItem value={Pieces.ropeLadder}>
+            <ListItemIcon>
+              <GiLadder color={hexTerrainColor.ladder} />
+            </ListItemIcon>
+            <span>Rope Ladder</span>
+          </MenuItem>
+          <MenuItem value={Pieces.shipWall}>
+            <ListItemIcon>
+              <TbHexagonLetterS
+                color={hexTerrainColor[HexTerrain.wood]}
+                style={{ fontSize: '0.8rem' }}
+              />
+              <TbHexagonLetterS
+                color={hexTerrainColor[HexTerrain.wood]}
+                style={{ fontSize: '0.8rem', marginLeft: '-0.4rem' }}
+              />
+              <TbHexagonLetterS
+                color={hexTerrainColor[HexTerrain.wood]}
+                style={{ fontSize: '0.8rem', marginLeft: '-0.4rem' }}
+              />
+            </ListItemIcon>
+            <span>Ship Wall</span>
+            {penModeHotkey('togglePenModeShip')}
+          </MenuItem>
+          <MenuItem value={Pieces.shipBow}>
+            <ListItemIcon>
+              <TbHexagons color={hexTerrainColor[HexTerrain.wood]} />
+            </ListItemIcon>
+            <span>Ship Bow</span>
+          </MenuItem>
+
+          {/* Outcrops / Hive Begin */}
+          <Divider />
+
+          <MenuItem value={Pieces.outcrop1}>
+            <ListItemIcon>
+              <TbHexagonalPyramid color={hexTerrainColor.dungeon} />
+            </ListItemIcon>
+            <span>Outcrop 1</span>
+            {penModeHotkey('togglePenModeRockOutcrop')}
+          </MenuItem>
+          <MenuItem value={Pieces.outcrop3}>
+            <ListItemIcon>
+              <TbHexagonalPyramid
+                color={hexTerrainColor.dungeon}
+                style={{ fontSize: '0.8rem' }}
+              />
+              <TbHexagonalPyramid
+                color={hexTerrainColor.dungeon}
+                style={{
+                  fontSize: '0.8rem',
+                  marginLeft: '-0.5rem',
+                  marginTop: '0.2rem',
+                }}
+              />
+              <TbHexagonalPyramid
+                color={hexTerrainColor.dungeon}
+                style={{ fontSize: '0.8rem', marginLeft: '-0.5rem' }}
+              />
+            </ListItemIcon>
+            <span>Outcrop 3</span>
+          </MenuItem>
+          <MenuItem value={Pieces.lavaRockOutcrop1}>
+            <ListItemIcon>
+              <TbHexagonalPyramid color={hexTerrainColor.lava} />
+            </ListItemIcon>
+            <span>Lava Rock Outcrop 1</span>
+            {penModeHotkey('togglePenModeLavaRockOutcrop')}
+          </MenuItem>
+          <MenuItem value={Pieces.lavaRockOutcrop3}>
+            <ListItemIcon>
+              <TbHexagonalPyramid
+                color={hexTerrainColor.lava}
+                style={{ fontSize: '0.8rem' }}
+              />
+              <TbHexagonalPyramid
+                color={hexTerrainColor.lava}
+                style={{
+                  fontSize: '0.8rem',
+                  marginLeft: '-0.5rem',
+                  marginTop: '0.2rem',
+                }}
+              />
+              <TbHexagonalPyramid
+                color={hexTerrainColor.lava}
+                style={{ fontSize: '0.8rem', marginLeft: '-0.5rem' }}
+              />
+            </ListItemIcon>
+            <span>Lava Rock Outcrop 3</span>
+          </MenuItem>
+          <MenuItem value={Pieces.toxicOutcrop1}>
+            <ListItemIcon>
+              <TbHexagonalPyramid color={hexTerrainColor[HexTerrain.toxic]} />
+            </ListItemIcon>
+            <span>Toxic Rock Outcrop 1</span>
+            {penModeHotkey('togglePenModeToxicOutcrop')}
+          </MenuItem>
+          <MenuItem value={Pieces.toxicOutcrop3}>
+            <ListItemIcon>
+              <TbHexagonalPyramid
+                color={hexTerrainColor[HexTerrain.toxic]}
+                style={{ fontSize: '0.8rem' }}
+              />
+              <TbHexagonalPyramid
+                color={hexTerrainColor[HexTerrain.toxic]}
+                style={{
+                  fontSize: '0.8rem',
+                  marginLeft: '-0.5rem',
+                  marginTop: '0.2rem',
+                }}
+              />
+              <TbHexagonalPyramid
+                color={hexTerrainColor[HexTerrain.toxic]}
+                style={{ fontSize: '0.8rem', marginLeft: '-0.5rem' }}
+              />
+            </ListItemIcon>
+            <span>Toxic Rock Outcrop 3</span>
+          </MenuItem>
+          <MenuItem value={Pieces.glacier1}>
+            <ListItemIcon>
+              <TbHexagonalPyramid color={hexTerrainColor.ice} />
+            </ListItemIcon>
+            <span>Glacier 1</span>
+            {penModeHotkey('togglePenModeGlacier')}
+          </MenuItem>
+          <MenuItem value={Pieces.glacier3}>
+            <ListItemIcon>
+              <TbHexagonalPyramid
+                color={hexTerrainColor.ice}
+                style={{ fontSize: '0.8rem' }}
+              />
+              <TbHexagonalPyramid
+                color={hexTerrainColor.ice}
+                style={{
+                  fontSize: '0.8rem',
+                  marginLeft: '-0.5rem',
+                  marginTop: '0.2rem',
+                }}
+              />
+              <TbHexagonalPyramid
+                color={hexTerrainColor.ice}
+                style={{ fontSize: '0.8rem', marginLeft: '-0.5rem' }}
+              />
+            </ListItemIcon>
+            <span>Glacier 3</span>
+          </MenuItem>
+          <MenuItem value={Pieces.glacier4}>
+            <ListItemIcon>
+              <TbHexagonalPyramid
+                color={hexTerrainColor.ice}
+                style={{
+                  fontSize: '0.7rem',
+                  marginRight: '-1rem',
+                  marginTop: '-0.2rem',
+                }}
+              />
+              <TbHexagonalPyramid
+                color={hexTerrainColor.ice}
+                style={{ fontSize: '0.8rem' }}
+              />
+              <TbHexagonalPyramid
+                color={hexTerrainColor.ice}
+                style={{
+                  fontSize: '0.8rem',
+                  marginLeft: '-0.5rem',
+                  marginTop: '0.2rem',
+                }}
+              />
+              <TbHexagonalPyramid
+                color={hexTerrainColor.ice}
+                style={{
+                  fontSize: '0.8rem',
+                  marginLeft: '-0.5rem',
+                }}
+              />
+            </ListItemIcon>
+            <span>Glacier 4</span>
+          </MenuItem>
+          <MenuItem value={Pieces.glacier6}>
+            <ListItemIcon>
+              <LiaMountainSolid color={hexTerrainColor.ice} />
+            </ListItemIcon>
+            <span>Glacier 6</span>
+          </MenuItem>
+          <MenuItem value={Pieces.hive}>
+            <ListItemIcon>
+              <FaMountainCity color={hexTerrainColor.swampCap} />
+            </ListItemIcon>
+            <span>Marro Hive 6</span>
+            {penModeHotkey('togglePenModeMarroHive')}
+          </MenuItem>
+
+          {/* Castle Bases, Walls */}
+          <Divider />
+          <MenuItem value={Pieces.castleBaseEnd}>
+            <ListItemIcon>
+              <TbHexagonLetterE />
+            </ListItemIcon>
+            <span>Base End</span>
+            {penModeHotkey('togglePenModeCastleBaseEnd')}
+          </MenuItem>
+          <MenuItem value={Pieces.castleBaseStraight}>
+            <ListItemIcon>
+              <TbHexagonLetterS />
+            </ListItemIcon>
+            <span>Base Straight</span>
+            {penModeHotkey('togglePenModeCastleBaseStraight')}
+          </MenuItem>
+          <MenuItem value={Pieces.castleBaseCorner}>
+            <ListItemIcon>
+              <TbHexagonLetterC />
+            </ListItemIcon>
+            <span>Base Corner</span>
+            {penModeHotkey('togglePenModeCastleBaseCorner')}
+          </MenuItem>
+          <MenuItem
+            title="Add castle wall end (base is added automatically if needed)"
+            value={Pieces.castleWallEnd}
+          >
+            <ListItemIcon>
+              <PiCastleTurretLight />
+              <TbHexagonLetterE />
+            </ListItemIcon>
+            <span>Wall End</span>
+          </MenuItem>
+          <MenuItem
+            title="Add castle straight wall (base is added automatically if needed)"
+            value={Pieces.castleWallStraight}
+          >
+            <ListItemIcon>
+              <PiCastleTurretLight />
+              <TbHexagonLetterS />
+            </ListItemIcon>
+            <span>Wall Straight</span>
+            {penModeHotkey('togglePenModeCastleWall')}
+            {penModeHotkey('togglePenModeCastleWallStraight')}
+          </MenuItem>
+          <MenuItem
+            title="Add castle wall corner (base is added automatically if needed)"
+            value={Pieces.castleWallCorner}
+          >
+            <ListItemIcon>
+              <PiCastleTurretLight />
+              <TbHexagonLetterC />
+            </ListItemIcon>
+            <span>Wall Corner</span>
+            {penModeHotkey('togglePenModeCastleWallCorner')}
+          </MenuItem>
+          <MenuItem value={Pieces.castleArch}>
+            <ListItemIcon>
+              <GiCastle />
+            </ListItemIcon>
+            <span>Arch</span>
+            {penModeHotkey('togglePenModeCastleArch')}
+          </MenuItem>
+          <MenuItem value={Pieces.castleArchNoDoor}>
+            <ListItemIcon>
+              <GiCastle />
+            </ListItemIcon>
+            <span>Arch (No Door)</span>
+            {penModeHotkey('togglePenModeCastleArchNoDoor')}
+          </MenuItem>
+
+          {/* RoadWall, Battlements, Ladders */}
+          <Divider />
+          <MenuItem value={Pieces.roadWall}>
+            <ListItemIcon>
+              <GiStoneWall color={hexTerrainColor.concrete} />
+            </ListItemIcon>
+            <span>Road Wall</span>
+            {penModeHotkey('togglePenModeStoneWall')}
+          </MenuItem>
+          <MenuItem value={Pieces.battlement}>
+            <ListItemIcon>
+              <GiCrenulatedShield color={hexTerrainColor.concrete} />
+            </ListItemIcon>
+            <span>Battlement</span>
+            {penModeHotkey('togglePenModeBattlement')}
+          </MenuItem>
+          <MenuItem value={Pieces.ladder}>
+            <ListItemIcon>
+              <GiLadder color={hexTerrainColor.ladder} />
+            </ListItemIcon>
+            <span>Ladder</span>
+            {penModeHotkey('togglePenModeLadder')}
+          </MenuItem>
+
+          {/* Marvel RUINS */}
+          <Divider />
+          <MenuItem value={Pieces.marvel}>
+            <ListItemIcon>
+              <GiAncientRuins color={hexTerrainColor.marvelRuin} />
+            </ListItemIcon>
+            <span>Marvel Ruins</span>
+            {penModeHotkey('togglePenModeMarvelRuin')}
+          </MenuItem>
+          <MenuItem value={Pieces.marvelBroken}>
+            <ListItemIcon>
+              <GiAncientRuins color={hexTerrainColor.marvelRuin} />
+            </ListItemIcon>
+            <span>Marvel Ruins - Wall Destroyed</span>
+          </MenuItem>
+          <MenuItem value={Pieces.marvelNoUpper}>
+            <ListItemIcon>
+              <GiAncientRuins color={hexTerrainColor.marvelRuin} />
+            </ListItemIcon>
+            <span>Marvel Ruins - No Upper Floor</span>
+          </MenuItem>
+          <MenuItem value={Pieces.marvelNoUpperBroken}>
+            <ListItemIcon>
+              <GiAncientRuins color={hexTerrainColor.marvelRuin} />
+            </ListItemIcon>
+            <span>Marvel Ruins - No Upper Floor, Wall Destroyed</span>
+          </MenuItem>
+
+          {hasSetConstraints && (
+            <>
+              <Divider />
+              <MuiMenuItem
+                disableRipple
+                disableTouchRipple
+                onClick={(event) => event.preventDefault()}
+                sx={{
+                  alignItems: 'flex-start',
+                  cursor: 'default',
                   display: 'block',
-                  fontSize: '0.8em',
-                  marginBottom: '0.35rem',
-                  whiteSpace: 'normal',
+                  py: 1,
                 }}
               >
-                Additional terrain and obstacle options are hidden because this
-                map has active terrain constraints.
-              </span>
-              <Button
-                size="small"
-                variant="outlined"
-                onMouseDown={(event) => event.stopPropagation()}
-                onClick={(event) => {
-                  event.stopPropagation()
-                  toggleIsEditMapDialogOpen(true)
-                }}
-              >
-                Edit Constraints
-              </Button>
-            </MuiMenuItem>
-          </>
-        )}
+                <span
+                  style={{
+                    display: 'block',
+                    fontSize: '0.8em',
+                    marginBottom: '0.35rem',
+                    whiteSpace: 'normal',
+                  }}
+                >
+                  Additional terrain and obstacle options are hidden because
+                  this map has active terrain constraints.
+                </span>
+                <Button
+                  size="small"
+                  variant="outlined"
+                  onMouseDown={(event) => event.stopPropagation()}
+                  onClick={(event) => {
+                    event.stopPropagation()
+                    toggleIsEditMapDialogOpen(true)
+                  }}
+                >
+                  Edit Constraints
+                </Button>
+              </MuiMenuItem>
+            </>
+          )}
 
-        {/* START ZONES */}
-        <Divider />
-        <MenuItem value={Pieces.startZone1}>
-          <ListItemIcon>
-            <StartZoneIcon pieceId={Pieces.startZone1} zone={1} />
-          </ListItemIcon>
-          <span>Start Zone: P1</span>
-        </MenuItem>
-        <MenuItem value={Pieces.startZone2}>
-          <ListItemIcon>
-            <StartZoneIcon pieceId={Pieces.startZone2} zone={2} />
-          </ListItemIcon>
-          <span>Start Zone: P2</span>
-        </MenuItem>
-        <MenuItem value={Pieces.startZone3}>
-          <ListItemIcon>
-            <StartZoneIcon pieceId={Pieces.startZone3} zone={3} />
-          </ListItemIcon>
-          <span>Start Zone: P3</span>
-        </MenuItem>
-        <MenuItem value={Pieces.startZone4}>
-          <ListItemIcon>
-            <StartZoneIcon pieceId={Pieces.startZone4} zone={4} />
-          </ListItemIcon>
-          <span>Start Zone: P4</span>
-        </MenuItem>
-        <MenuItem value={Pieces.startZone5}>
-          <ListItemIcon>
-            <StartZoneIcon pieceId={Pieces.startZone5} zone={5} />
-          </ListItemIcon>
-          <span>Start Zone: P5</span>
-        </MenuItem>
-        <MenuItem value={Pieces.startZone6}>
-          <ListItemIcon>
-            <StartZoneIcon pieceId={Pieces.startZone6} zone={6} />
-          </ListItemIcon>
-          <span>Start Zone: P6</span>
-        </MenuItem>
-        <MenuItem value={Pieces.startZone7}>
-          <ListItemIcon>
-            <StartZoneIcon pieceId={Pieces.startZone7} zone={7} />
-          </ListItemIcon>
-          <span>Start Zone: P7</span>
-        </MenuItem>
-        <MenuItem value={Pieces.startZone8}>
-          <ListItemIcon>
-            <StartZoneIcon pieceId={Pieces.startZone8} zone={8} />
-          </ListItemIcon>
-          <span>Start Zone: P8</span>
-        </MenuItem>
-
-        {/* GENERIC GLYPHS */}
-        <Divider />
-        <MenuItem value={Pieces.glyphPower}>
-          <ListItemIcon>
-            <TbHexagonLetterPFilled color={hexTerrainColor.glyphPower} />
-          </ListItemIcon>
-          <span>Power Glyph</span>
-          <HotkeyText text={hotkeyLookup.togglePenModePowerGlyph} />
-        </MenuItem>
-        <MenuItem value={Pieces.glyphTreasure}>
-          <ListItemIcon>
-            <TbHexagonLetterTFilled color={hexTerrainColor.glyphTreasure} />
-          </ListItemIcon>
-          <span>Treasure Glyph</span>
-          <HotkeyText text={hotkeyLookup.togglePenModeTreasureGlyph} />
-        </MenuItem>
-
-        {/* POWER GLYPHS */}
-        <Divider />
-        <MenuItem disabled>
-          <ListItemIcon>
-            <TbHexagonLetterPFilled color={hexTerrainColor.glyphPower} />
-          </ListItemIcon>
-          <span>Power Glyphs</span>
-        </MenuItem>
-        {powerGlyphs.map((g) => (
-          <MenuItem
-            key={g.id}
-            value={`${PiecePrefixes.glyph}${g.id}`}
-            title={`Glyph of ${g.name}: ${g.description}`}
-          >
+          {/* START ZONES */}
+          <Divider />
+          <MenuItem value={Pieces.startZone1}>
             <ListItemIcon>
-              <span style={{ fontWeight: 'bold', color: getGlyphColor(g) }}>
-                {g.glyphLetter}
-              </span>
+              <StartZoneIcon pieceId={Pieces.startZone1} zone={1} />
             </ListItemIcon>
-            <span>{g.name}</span>
-            <div
-              style={{
-                fontSize: '0.6em',
-                marginLeft: '0.5em',
-              }}
-            >
-              ({g.shortName})
-            </div>
+            <span>Start Zone: P1</span>
           </MenuItem>
-        ))}
-        {/* MARVEL GLYPHS */}
-        <Divider />
-        <MenuItem disabled>
-          <ListItemIcon>
-            <TbHexagonLetterPFilled color={hexTerrainColor.glyphPower} />
-          </ListItemIcon>
-          <span>Marvel / Objective Glyphs</span>
-        </MenuItem>
-        {marvelGlyphs.map((g) => (
-          <MenuItem
-            key={g.id}
-            value={`${PiecePrefixes.glyph}${g.id}`}
-            title={`Glyph of ${g.name}: ${g.description}`}
-          >
+          <MenuItem value={Pieces.startZone2}>
             <ListItemIcon>
-              <span style={{ fontWeight: 'bold', color: getGlyphColor(g) }}>
-                {g.glyphLetter}
-              </span>
+              <StartZoneIcon pieceId={Pieces.startZone2} zone={2} />
             </ListItemIcon>
-            <span>{g.name}</span>
-            <div
-              style={{
-                fontSize: '0.6em',
-                marginLeft: '0.5em',
-              }}
-            >
-              ({g.shortName})
-            </div>
+            <span>Start Zone: P2</span>
           </MenuItem>
-        ))}
-        {/* TREASURE GLYPHS */}
-        <Divider />
-        <MenuItem disabled>
-          <ListItemIcon>
-            <TbHexagonLetterTFilled color={hexTerrainColor.glyphTreasure} />
-          </ListItemIcon>
-          <span>Treasure Glyphs</span>
-        </MenuItem>
-        {treasureGlyphs.map((g) => (
-          <MenuItem
-            key={g.id}
-            value={`${PiecePrefixes.glyph}${g.id}`}
-            title={`Glyph of ${g.name}: ${g.description}`}
-          >
+          <MenuItem value={Pieces.startZone3}>
             <ListItemIcon>
-              <span
+              <StartZoneIcon pieceId={Pieces.startZone3} zone={3} />
+            </ListItemIcon>
+            <span>Start Zone: P3</span>
+          </MenuItem>
+          <MenuItem value={Pieces.startZone4}>
+            <ListItemIcon>
+              <StartZoneIcon pieceId={Pieces.startZone4} zone={4} />
+            </ListItemIcon>
+            <span>Start Zone: P4</span>
+          </MenuItem>
+          <MenuItem value={Pieces.startZone5}>
+            <ListItemIcon>
+              <StartZoneIcon pieceId={Pieces.startZone5} zone={5} />
+            </ListItemIcon>
+            <span>Start Zone: P5</span>
+          </MenuItem>
+          <MenuItem value={Pieces.startZone6}>
+            <ListItemIcon>
+              <StartZoneIcon pieceId={Pieces.startZone6} zone={6} />
+            </ListItemIcon>
+            <span>Start Zone: P6</span>
+          </MenuItem>
+          <MenuItem value={Pieces.startZone7}>
+            <ListItemIcon>
+              <StartZoneIcon pieceId={Pieces.startZone7} zone={7} />
+            </ListItemIcon>
+            <span>Start Zone: P7</span>
+          </MenuItem>
+          <MenuItem value={Pieces.startZone8}>
+            <ListItemIcon>
+              <StartZoneIcon pieceId={Pieces.startZone8} zone={8} />
+            </ListItemIcon>
+            <span>Start Zone: P8</span>
+          </MenuItem>
+
+          {/* GENERIC GLYPHS */}
+          <Divider />
+          <MenuItem value={Pieces.glyphPower}>
+            <ListItemIcon>
+              <TbHexagonLetterPFilled color={hexTerrainColor.glyphPower} />
+            </ListItemIcon>
+            <span>Power Glyph</span>
+            <HotkeyText text={hotkeyLookup.togglePenModePowerGlyph} />
+          </MenuItem>
+          <MenuItem value={Pieces.glyphTreasure}>
+            <ListItemIcon>
+              <TbHexagonLetterTFilled color={hexTerrainColor.glyphTreasure} />
+            </ListItemIcon>
+            <span>Treasure Glyph</span>
+            <HotkeyText text={hotkeyLookup.togglePenModeTreasureGlyph} />
+          </MenuItem>
+
+          {/* POWER GLYPHS */}
+          <Divider />
+          <MenuItem disabled>
+            <ListItemIcon>
+              <TbHexagonLetterPFilled color={hexTerrainColor.glyphPower} />
+            </ListItemIcon>
+            <span>Power Glyphs</span>
+          </MenuItem>
+          {powerGlyphs.map((g) => (
+            <MenuItem
+              key={g.id}
+              value={`${PiecePrefixes.glyph}${g.id}`}
+              title={`Glyph of ${g.name}: ${g.description}`}
+            >
+              <ListItemIcon>
+                <span style={{ fontWeight: 'bold', color: getGlyphColor(g) }}>
+                  {g.glyphLetter}
+                </span>
+              </ListItemIcon>
+              <span>{g.name}</span>
+              <div
                 style={{
-                  fontWeight: 'bold',
-                  color: getGlyphColor(g),
+                  fontSize: '0.6em',
+                  marginLeft: '0.5em',
                 }}
               >
-                {g.glyphLetter}
-              </span>
-            </ListItemIcon>
-            <span>{g.name}</span>
-            <div
-              style={{
-                fontSize: '0.6em',
-                marginLeft: '0.5em',
-              }}
-            >
-              ({g.shortName})
-            </div>
-          </MenuItem>
-        ))}
-        {/* C3V GLYPHS */}
-        <Divider />
-        <MenuItem disabled>
-          <ListItemIcon>
-            <TbHexagonLetterTFilled color={hexTerrainColor.glyphPower} />
-            <TbHexagonLetterTFilled color={hexTerrainColor.glyphTreasure} />
-          </ListItemIcon>
-          <span>C3V Glyphs</span>
-        </MenuItem>
-        {c3vGlyphs.map((g) => (
-          <MenuItem
-            key={g.id}
-            value={`${PiecePrefixes.glyph}${g.id}`}
-            title={`Glyph of ${g.name}: ${g.description}`}
-          >
+                ({g.shortName})
+              </div>
+            </MenuItem>
+          ))}
+          {/* MARVEL GLYPHS */}
+          <Divider />
+          <MenuItem disabled>
             <ListItemIcon>
-              <span style={{ fontWeight: 'bold', color: getGlyphColor(g) }}>
-                {g.glyphLetter}
-              </span>
+              <TbHexagonLetterPFilled color={hexTerrainColor.glyphPower} />
             </ListItemIcon>
-            <span>{g.name}</span>
-            <div
-              style={{
-                fontSize: '0.6em',
-                marginLeft: '0.5em',
-              }}
-            >
-              ({g.shortName})
-            </div>
+            <span>Marvel / Objective Glyphs</span>
           </MenuItem>
-        ))}
-        <Divider />
-        <MenuItem disabled>
-          <ListItemIcon>
-            <TbHexagonLetterTFilled color={hexTerrainColor.glyphPower} />
-            <TbHexagonLetterTFilled color={hexTerrainColor.glyphTreasure} />
-          </ListItemIcon>
-          <span>C3V Playtest Glyphs</span>
-        </MenuItem>
-        {c3vPlaytestGlyphs.map((g) => (
-          <MenuItem
-            key={g.id}
-            value={`${PiecePrefixes.glyph}${g.id}`}
-            title={`Glyph of ${g.name}: ${g.description}`}
-          >
+          {marvelGlyphs.map((g) => (
+            <MenuItem
+              key={g.id}
+              value={`${PiecePrefixes.glyph}${g.id}`}
+              title={`Glyph of ${g.name}: ${g.description}`}
+            >
+              <ListItemIcon>
+                <span style={{ fontWeight: 'bold', color: getGlyphColor(g) }}>
+                  {g.glyphLetter}
+                </span>
+              </ListItemIcon>
+              <span>{g.name}</span>
+              <div
+                style={{
+                  fontSize: '0.6em',
+                  marginLeft: '0.5em',
+                }}
+              >
+                ({g.shortName})
+              </div>
+            </MenuItem>
+          ))}
+          {/* TREASURE GLYPHS */}
+          <Divider />
+          <MenuItem disabled>
             <ListItemIcon>
-              <span style={{ fontWeight: 'bold', color: getGlyphColor(g) }}>
-                {g.glyphLetter}
-              </span>
+              <TbHexagonLetterTFilled color={hexTerrainColor.glyphTreasure} />
             </ListItemIcon>
-            <span>{g.name}</span>
-            <div
-              style={{
-                fontSize: '0.6em',
-                marginLeft: '0.5em',
-              }}
-            >
-              ({g.shortName})
-            </div>
+            <span>Treasure Glyphs</span>
           </MenuItem>
-        ))}
-        <Divider />
-        <MenuItem disabled>
-          <ListItemIcon>
-            <TbHexagonLetterTFilled color={hexTerrainColor.glyphPower} />
-            <TbHexagonLetterTFilled color={hexTerrainColor.glyphTreasure} />
-          </ListItemIcon>
-          <span>Custom Glyphs</span>
-        </MenuItem>
-        {customGlyphs.map((g) => (
-          <MenuItem
-            key={g.id}
-            value={`${PiecePrefixes.glyph}${g.id}`}
-            title={`Glyph of ${g.name}: ${g.description}`}
-          >
+          {treasureGlyphs.map((g) => (
+            <MenuItem
+              key={g.id}
+              value={`${PiecePrefixes.glyph}${g.id}`}
+              title={`Glyph of ${g.name}: ${g.description}`}
+            >
+              <ListItemIcon>
+                <span
+                  style={{
+                    fontWeight: 'bold',
+                    color: getGlyphColor(g),
+                  }}
+                >
+                  {g.glyphLetter}
+                </span>
+              </ListItemIcon>
+              <span>{g.name}</span>
+              <div
+                style={{
+                  fontSize: '0.6em',
+                  marginLeft: '0.5em',
+                }}
+              >
+                ({g.shortName})
+              </div>
+            </MenuItem>
+          ))}
+          {/* C3V GLYPHS */}
+          <Divider />
+          <MenuItem disabled>
             <ListItemIcon>
-              <span style={{ fontWeight: 'bold', color: getGlyphColor(g) }}>
-                {g.glyphLetter}
-              </span>
+              <TbHexagonLetterTFilled color={hexTerrainColor.glyphPower} />
+              <TbHexagonLetterTFilled color={hexTerrainColor.glyphTreasure} />
             </ListItemIcon>
-            <span>{g.name}</span>
-            <div
-              style={{
-                fontSize: '0.6em',
-                marginLeft: '0.5em',
-              }}
-            >
-              ({g.shortName})
-            </div>
+            <span>C3V Glyphs</span>
           </MenuItem>
-        ))}
-      </Select>
-    </FormControl>
+          {c3vGlyphs.map((g) => (
+            <MenuItem
+              key={g.id}
+              value={`${PiecePrefixes.glyph}${g.id}`}
+              title={`Glyph of ${g.name}: ${g.description}`}
+            >
+              <ListItemIcon>
+                <span style={{ fontWeight: 'bold', color: getGlyphColor(g) }}>
+                  {g.glyphLetter}
+                </span>
+              </ListItemIcon>
+              <span>{g.name}</span>
+              <div
+                style={{
+                  fontSize: '0.6em',
+                  marginLeft: '0.5em',
+                }}
+              >
+                ({g.shortName})
+              </div>
+            </MenuItem>
+          ))}
+          <Divider />
+          <MenuItem disabled>
+            <ListItemIcon>
+              <TbHexagonLetterTFilled color={hexTerrainColor.glyphPower} />
+              <TbHexagonLetterTFilled color={hexTerrainColor.glyphTreasure} />
+            </ListItemIcon>
+            <span>C3V Playtest Glyphs</span>
+          </MenuItem>
+          {c3vPlaytestGlyphs.map((g) => (
+            <MenuItem
+              key={g.id}
+              value={`${PiecePrefixes.glyph}${g.id}`}
+              title={`Glyph of ${g.name}: ${g.description}`}
+            >
+              <ListItemIcon>
+                <span style={{ fontWeight: 'bold', color: getGlyphColor(g) }}>
+                  {g.glyphLetter}
+                </span>
+              </ListItemIcon>
+              <span>{g.name}</span>
+              <div
+                style={{
+                  fontSize: '0.6em',
+                  marginLeft: '0.5em',
+                }}
+              >
+                ({g.shortName})
+              </div>
+            </MenuItem>
+          ))}
+          <Divider />
+          <MenuItem disabled>
+            <ListItemIcon>
+              <TbHexagonLetterTFilled color={hexTerrainColor.glyphPower} />
+              <TbHexagonLetterTFilled color={hexTerrainColor.glyphTreasure} />
+            </ListItemIcon>
+            <span>Custom Glyphs</span>
+          </MenuItem>
+          {customGlyphs.map((g) => (
+            <MenuItem
+              key={g.id}
+              value={`${PiecePrefixes.glyph}${g.id}`}
+              title={`Glyph of ${g.name}: ${g.description}`}
+            >
+              <ListItemIcon>
+                <span style={{ fontWeight: 'bold', color: getGlyphColor(g) }}>
+                  {g.glyphLetter}
+                </span>
+              </ListItemIcon>
+              <span>{g.name}</span>
+              <div
+                style={{
+                  fontSize: '0.6em',
+                  marginLeft: '0.5em',
+                }}
+              >
+                ({g.shortName})
+              </div>
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
+    </MenuItemFilterContext.Provider>
   )
 }
 

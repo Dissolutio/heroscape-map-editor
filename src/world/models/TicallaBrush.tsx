@@ -10,7 +10,10 @@ import { useDisposableGLTF } from './useDisposableGLTF'
 export default function JungleBrush({
   pid,
   inventoryID,
-}: { pid: string; inventoryID: string }) {
+}: {
+  pid: string
+  inventoryID: string
+}) {
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
   const { onPointerEnterPID, onPointerOut } = usePieceHoverState()
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)

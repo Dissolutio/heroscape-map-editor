@@ -4,7 +4,10 @@ import { HEXGRID_HEX_APOTHEM, HEXGRID_HEX_RADIUS } from '../utils/constants'
 export function TableSurfaceMesh({
   width,
   length,
-}: { width: number; length: number }) {
+}: {
+  width: number
+  length: number
+}) {
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,
   )

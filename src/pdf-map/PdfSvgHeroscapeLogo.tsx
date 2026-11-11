@@ -3,7 +3,10 @@ import { Path, type SVGProps, Svg } from '@react-pdf/renderer'
 export const PdfSvgHeroscapeLogo = ({
   svgProps,
   fillColor,
-}: { svgProps: SVGProps; fillColor?: string }) => {
+}: {
+  svgProps: SVGProps
+  fillColor?: string
+}) => {
   return (
     <Svg
       viewBox="0 0 133 46"

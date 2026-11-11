@@ -230,9 +230,7 @@ export function getCodeForVSPersonalTile(tile: VirtualScapeTile) {
 
   // GLYPHS
   if (
-    tile.type
-      .toString()
-      .startsWith('140') // all glyphs are 140XX in Virtualscape, see commented code in glyphs.ts
+    tile.type.toString().startsWith('140') // all glyphs are 140XX in Virtualscape, see commented code in glyphs.ts
   ) {
     return 14063 // the "?" glyph from Virtualscape (neglecting importing named/revealed glyphs)
   }

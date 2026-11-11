@@ -97,7 +97,6 @@ export const PdfMapLevels6PerPage = ({
     <>
       {chunksOf6Levels.map((chunk, i) => (
         <Page
-          // biome-ignore lint/suspicious/noArrayIndexKey: <fine in this case>
           key={i}
           size="LETTER"
           style={{
@@ -116,10 +115,7 @@ export const PdfMapLevels6PerPage = ({
             <HalfPageColumn>
               {chunk.map((group, i) =>
                 i < 3 ? (
-                  <RowWrapper
-                    // biome-ignore lint/suspicious/noArrayIndexKey: <fine in this case>
-                    key={i}
-                  >
+                  <RowWrapper key={i}>
                     <PdfLevelChunkHeading
                       group={group}
                       isShowPdfLevelLogo={isShowPdfLevelLogo}
@@ -153,10 +149,7 @@ export const PdfMapLevels6PerPage = ({
             <HalfPageColumn>
               {chunk.map((group, i) =>
                 i >= 3 ? (
-                  <RowWrapper
-                    // biome-ignore lint/suspicious/noArrayIndexKey: <fine in this case>
-                    key={i}
-                  >
+                  <RowWrapper key={i}>
                     <PdfLevelChunkHeading
                       group={group}
                       isShowPdfLevelLogo={isShowPdfLevelLogo}

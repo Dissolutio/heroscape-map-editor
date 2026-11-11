@@ -18,11 +18,7 @@ const ReactPdfDownloadLink = lazyWithRetry(() =>
   })),
 )
 
-export function HeaderNav({
-  onOpenWhatsNew,
-}: {
-  onOpenWhatsNew: () => void
-}) {
+export function HeaderNav({ onOpenWhatsNew }: { onOpenWhatsNew: () => void }) {
   // AppBar height is 64px when screen > 600px
   // AppBar height is 56px when screen < 600px
   const hexMap = useBoundStore((s) => s.hexMap)
