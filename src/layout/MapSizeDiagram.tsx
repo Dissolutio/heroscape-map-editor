@@ -4,6 +4,8 @@ import { formatMapPhysicalDimension } from '../utils/mapPhysicalSize'
 
 const VIEWBOX_WIDTH = 220
 const VIEWBOX_HEIGHT = 160
+const DIAGRAM_WIDTH = 270
+const DIAGRAM_HEIGHT = 195
 const TABLE_AREA = {
   x: 20,
   y: 14,
@@ -33,6 +35,9 @@ export function MapSizeDiagram({
   const bottom = y + height
   const widthDimensionY = bottom + 13
   const lengthDimensionX = right + 14
+  const diagonalCenterX = (x + right) / 2
+  const diagonalCenterY = (y + bottom) / 2
+  const diagonalAngle = (Math.atan2(y - bottom, right - x) * 180) / Math.PI
   const hexagonPointCoords: [number, number][] = [
     [x, y + height / 2],
     [x + width * 0.25, y],
@@ -58,10 +63,10 @@ export function MapSizeDiagram({
     <svg
       aria-label={ariaLabel}
       data-testid="map-size-diagram"
-      height="130"
+      height={DIAGRAM_HEIGHT}
       role="img"
       viewBox={`0 0 ${VIEWBOX_WIDTH} ${VIEWBOX_HEIGHT}`}
-      width="180"
+      width={DIAGRAM_WIDTH}
       xmlns="http://www.w3.org/2000/svg"
       style={{ maxWidth: '100%', overflow: 'visible' }}
     >
@@ -92,11 +97,12 @@ export function MapSizeDiagram({
         strokeDasharray="4 3"
       />
       <text
-        x={(x + right) / 2}
-        y={(y + bottom) / 2 - 3}
+        transform={`translate(${diagonalCenterX} ${diagonalCenterY}) rotate(${diagonalAngle}) translate(0 -14)`}
+        x="0"
+        y="0"
         fill={secondary}
         fontFamily={theme.typography.fontFamily}
-        fontSize="10"
+        fontSize="11"
         paintOrder="stroke"
         stroke={background}
         strokeWidth="3"
@@ -130,7 +136,7 @@ export function MapSizeDiagram({
         y={widthDimensionY + 11}
         fill={secondary}
         fontFamily={theme.typography.fontFamily}
-        fontSize="10"
+        fontSize="11"
         textAnchor="middle"
       >
         {widthLabel}
@@ -162,7 +168,7 @@ export function MapSizeDiagram({
         y={(y + bottom) / 2}
         fill={secondary}
         fontFamily={theme.typography.fontFamily}
-        fontSize="10"
+        fontSize="11"
         textAnchor="middle"
       >
         {lengthLabel}

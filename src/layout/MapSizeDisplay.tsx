@@ -29,11 +29,13 @@ export function MapSizeDisplay({
         {summary}
       </Typography>
       {showDiagram && (
-        <MapSizeDiagram
-          ariaLabel={summary}
-          isHexagon={hexMap.shape === 'hexagon'}
-          size={size}
-        />
+        <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
+          <MapSizeDiagram
+            ariaLabel={summary}
+            isHexagon={hexMap.shape === 'hexagon'}
+            size={size}
+          />
+        </Box>
       )}
       {hint && (
         <Typography color="text.secondary" variant="caption">
