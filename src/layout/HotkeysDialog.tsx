@@ -2,6 +2,11 @@ import {
   Alert,
   Box,
   Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
   Divider,
   Fade,
   Paper,
@@ -16,10 +21,12 @@ import {
   exportHotkeyFile,
   filterHotkeyActions,
   getActionHotkeys,
+  getCustomHotkeyCount,
   HOTKEY_ACTIONS,
   hotkeyFromKeyboardEvent,
   parseHotkeyFile,
   resetActionHotkeys,
+  shouldConfirmHotkeyReset,
   swapActionHotkeys,
   updateActionHotkeys,
   type HotkeyAction,
@@ -31,6 +38,10 @@ type PendingConflict = {
   conflicts: { action: HotkeyAction; key: string }[]
   reset?: boolean
 }
+
+type RecordedFeedback =
+  | { action: HotkeyAction; key: string }
+  | { message: string }
 
 const isMacPlatform = () =>
   typeof navigator !== 'undefined' &&
@@ -93,15 +104,15 @@ export default function HotkeysDialog({
     null,
   )
   const [recordingPreview, setRecordingPreview] = useState('')
-  const [recordedFeedback, setRecordedFeedback] = useState<{
-    action: HotkeyAction
-    key: string
-  } | null>(null)
+  const [recordedFeedback, setRecordedFeedback] =
+    useState<RecordedFeedback | null>(null)
   const [searchText, setSearchText] = useState('')
+  const [isResetAllConfirmOpen, setIsResetAllConfirmOpen] = useState(false)
   const [pendingConflict, setPendingConflict] =
     useState<PendingConflict | null>(null)
   const currentBindings = getActionHotkeys(overrides)
   const defaultBindings = getActionHotkeys({})
+  const customHotkeyCount = getCustomHotkeyCount(overrides)
   const filteredActions = filterHotkeyActions(
     HOTKEY_ACTIONS,
     currentBindings,
@@ -114,6 +125,7 @@ export default function HotkeysDialog({
       setRecordingPreview('')
       setRecordedFeedback(null)
       setSearchText('')
+      setIsResetAllConfirmOpen(false)
       pendingRecordingKeyRef.current = null
       setPendingConflict(null)
     }
@@ -200,9 +212,21 @@ export default function HotkeysDialog({
       link.click()
       URL.revokeObjectURL(url)
       enqueueSnackbar('Hotkeys exported', { variant: 'success' })
+      return true
     } catch {
       enqueueSnackbar('Could not export hotkeys', { variant: 'error' })
+      return false
     }
+  }
+
+  const resetAllHotkeys = () => {
+    setHotkeyOverrides({})
+    setIsResetAllConfirmOpen(false)
+    setListeningAction(null)
+    setRecordingPreview('')
+    pendingRecordingKeyRef.current = null
+    setPendingConflict(null)
+    setRecordedFeedback({ message: 'Hotkeys reset to defaults' })
   }
 
   const importOverrides = async (file?: File) => {
@@ -233,6 +257,11 @@ export default function HotkeysDialog({
 
   const actionName = (action: HotkeyAction) =>
     HOTKEY_ACTIONS.find(({ id }) => id === action)?.label ?? action
+  const feedbackMessage = recordedFeedback
+    ? 'message' in recordedFeedback
+      ? recordedFeedback.message
+      : `${actionName(recordedFeedback.action)}: ${formatHotkey(recordedFeedback.key)}`
+    : ''
 
   return (
     <Paper
@@ -277,9 +306,7 @@ export default function HotkeysDialog({
               ? recordingPreview
                 ? `Recording ${actionName(listeningAction)}: ${recordingPreview}. Release to set. Escape cancels.`
                 : `Press a key combination for ${actionName(listeningAction)}. Escape cancels.`
-              : recordedFeedback
-                ? `${actionName(recordedFeedback.action)}: ${formatHotkey(recordedFeedback.key)}`
-                : ''}
+              : feedbackMessage}
           </Alert>
         </Fade>
         {pendingConflict && (
@@ -351,7 +378,13 @@ export default function HotkeysDialog({
           <Button
             size="small"
             variant="outlined"
-            onClick={() => setHotkeyOverrides({})}
+            onClick={() => {
+              if (shouldConfirmHotkeyReset(overrides)) {
+                setIsResetAllConfirmOpen(true)
+              } else {
+                setHotkeyOverrides({})
+              }
+            }}
           >
             Reset all hotkeys
           </Button>
@@ -471,6 +504,37 @@ export default function HotkeysDialog({
           <Typography role="status">No matches</Typography>
         )}
       </Stack>
+      <Dialog
+        open={isResetAllConfirmOpen}
+        onClose={() => setIsResetAllConfirmOpen(false)}
+        aria-labelledby="reset-all-hotkeys-title"
+      >
+        <DialogTitle id="reset-all-hotkeys-title">
+          Reset all hotkeys?
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            This replaces your {customHotkeyCount} custom hotkeys with the
+            defaults. You can download your current hotkeys first to keep a
+            copy.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setIsResetAllConfirmOpen(false)}>
+            Cancel
+          </Button>
+          <Button
+            onClick={() => {
+              if (downloadOverrides()) resetAllHotkeys()
+            }}
+          >
+            Download and reset
+          </Button>
+          <Button color="error" variant="contained" onClick={resetAllHotkeys}>
+            Reset anyway
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Paper>
   )
 }

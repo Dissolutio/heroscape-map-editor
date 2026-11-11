@@ -686,6 +686,20 @@ export function getActionHotkeys(
   return bindingsFromOverrides(overrides)
 }
 
+export function getCustomHotkeyCount(overrides: HotkeyOverrides): number {
+  const bindings = bindingsFromOverrides(overrides)
+  const defaults = getDefaultActionHotkeys()
+  return HOTKEY_ACTIONS.filter(
+    ({ id }) =>
+      bindings[id].length !== defaults[id].length ||
+      bindings[id].some((key, index) => key !== defaults[id][index]),
+  ).length
+}
+
+export function shouldConfirmHotkeyReset(overrides: HotkeyOverrides): boolean {
+  return getCustomHotkeyCount(overrides) > 0
+}
+
 export function buildHotkeyConfig(
   overrides: HotkeyOverrides,
 ): Record<string, HotkeyAction | undefined> {

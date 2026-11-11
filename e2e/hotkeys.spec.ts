@@ -146,7 +146,34 @@ test('rebinds, exports, resets, and imports hotkeys', async ({ page }) => {
   if (!downloadPath) throw new Error('Hotkey download did not complete')
   const hotkeyFile = await readFile(downloadPath)
 
-  await openDialog.getByRole('button', { name: 'Reset all hotkeys' }).click()
+  const resetAllButton = openDialog.getByRole('button', {
+    name: 'Reset all hotkeys',
+  })
+  await resetAllButton.click()
+  const resetConfirm = page.getByRole('dialog', {
+    name: 'Reset all hotkeys?',
+  })
+  await expect(resetConfirm).toBeVisible()
+  await expect(resetConfirm).toContainText('3 custom hotkeys')
+  await resetConfirm.getByRole('button', { name: 'Cancel' }).click()
+  await expect(
+    openDialog.getByRole('group', { name: 'Rotate clockwise hotkey' }),
+  ).toContainText('Alt + Q')
+  await expect(
+    openDialog.getByRole('group', { name: 'Zoom to map hotkey' }),
+  ).toContainText('L')
+
+  await resetAllButton.click()
+  const resetAnywayConfirm = page.getByRole('dialog', {
+    name: 'Reset all hotkeys?',
+  })
+  await resetAnywayConfirm.getByRole('button', { name: 'Reset anyway' }).click()
+  await expect(openDialog.getByRole('alert')).toContainText(
+    'Hotkeys reset to defaults',
+  )
+  await expect(
+    openDialog.getByRole('group', { name: 'Rotate clockwise hotkey' }),
+  ).toContainText('Q')
   await expect
     .poll(() =>
       page.evaluate(() => {
@@ -155,6 +182,10 @@ test('rebinds, exports, resets, and imports hotkeys', async ({ page }) => {
       }),
     )
     .toBeUndefined()
+  await resetAllButton.click()
+  await expect(
+    page.getByRole('dialog', { name: 'Reset all hotkeys?' }),
+  ).not.toBeVisible()
   await openDialog.getByRole('button', { name: 'Close' }).click()
 
   const beforeDefaultRotation = await pieceRotation(page)
@@ -186,4 +217,29 @@ test('rebinds, exports, resets, and imports hotkeys', async ({ page }) => {
   await expect
     .poll(() => pieceRotation(page))
     .toBe(((afterImportRotation ?? 0) + 1) % 6)
+
+  await page.locator('#simple-tab-3').click()
+  await page.getByRole('button', { name: 'Hotkeys' }).click()
+  const downloadResetDialog = page.getByRole('dialog', { name: 'Hotkeys' })
+  await downloadResetDialog
+    .getByRole('button', { name: 'Reset all hotkeys' })
+    .click()
+  const downloadResetConfirm = page.getByRole('dialog', {
+    name: 'Reset all hotkeys?',
+  })
+  await expect(downloadResetConfirm).toContainText('3 custom hotkeys')
+  const resetDownloadPromise = page.waitForEvent('download')
+  await downloadResetConfirm
+    .getByRole('button', { name: 'Download and reset' })
+    .click()
+  const resetDownload = await resetDownloadPromise
+  expect(resetDownload.suggestedFilename()).toBe('hexoscape-hotkeys.json')
+  await expect(downloadResetDialog.getByRole('alert')).toContainText(
+    'Hotkeys reset to defaults',
+  )
+  await expect(
+    downloadResetDialog.getByRole('group', {
+      name: 'Rotate clockwise hotkey',
+    }),
+  ).toContainText('Q')
 })

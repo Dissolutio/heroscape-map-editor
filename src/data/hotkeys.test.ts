@@ -6,12 +6,14 @@ import {
   exportHotkeyFile,
   filterHotkeyActions,
   getActionHotkeys,
+  getCustomHotkeyCount,
   getDefaultActionHotkeys,
   HOTKEY_ACTIONS,
   PEN_MODE_ACTION_TARGETS,
   parseHotkeyFile,
   resetActionHotkeys,
   sanitizeHotkeyOverrides,
+  shouldConfirmHotkeyReset,
   swapActionHotkeys,
   updateActionHotkeys,
 } from './hotkeys'
@@ -134,6 +136,19 @@ describe('hotkey overrides', () => {
     )
     const keys = Object.values(defaults).flat()
     expect(new Set(keys).size).toBe(keys.length)
+  })
+
+  it('counts overridden commands and only confirms when there are changes', () => {
+    expect(getCustomHotkeyCount({})).toBe(0)
+    expect(shouldConfirmHotkeyReset({})).toBe(false)
+
+    const overrides = updateActionHotkeys(
+      updateActionHotkeys({}, 'zoomToMap', ['f12']),
+      'undoWorld',
+      ['alt+u', 'shift+u'],
+    )
+    expect(getCustomHotkeyCount(overrides)).toBe(2)
+    expect(shouldConfirmHotkeyReset(overrides)).toBe(true)
   })
 
   it('filters hotkeys by text and exact assigned key tokens', () => {
