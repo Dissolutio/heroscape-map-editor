@@ -10,7 +10,7 @@ import {
   edgeIdFromHex,
   nodeIdFromHexRotation,
 } from './edgesAndNodes'
-import { type EdgeNodeFootprint, wallFootprints } from './wallFootprints'
+import { type CellFootprint, pieceFootprints } from './pieceFootprints'
 
 export type PieceFeatureKind = 'edge' | 'node'
 export type PieceFeatureId = HexFeatureId
@@ -138,30 +138,50 @@ export const pieceTopologyDeclarations = {
  *   edges and nodes in its footprint, each over its own levels, and no hex
  *   cell. Its boardHexes are kept only for rendering and support, and never
  *   displace another piece (see addPiece).
+ * - `footprint`: the piece owns its hexes like an undeclared piece, but
+ *   against an edges-and-nodes piece it fills only its footprint: hex cells,
+ *   and the edges and nodes its model reaches (the ships' hulls).
  *
- * To add an edge piece, derive its footprint table (see
- * scripts/derive-wall-footprints.mjs and wallFootprints.ts) and add one entry
- * here. No other code changes.
+ * To add one, derive its footprint table (scripts/derive-cell-footprints.mjs
+ * writes pieceFootprints.ts) and add one entry here. No other code changes.
  */
 export type PieceCellDeclaration =
   | { fills: 'hex-center' }
-  | { fills: 'edges-and-nodes'; footprint: EdgeNodeFootprint }
+  | { fills: 'edges-and-nodes'; footprint: CellFootprint }
+  | { fills: 'footprint'; footprint: CellFootprint }
+
+const isGlyphTerrain = (terrain: string) =>
+  terrain === HexTerrain.glyphPower || terrain === HexTerrain.glyphTreasure
 
 export const pieceCellDeclarations: Readonly<
   Record<string, PieceCellDeclaration>
 > = {
   [Pieces.cannon]: { fills: 'hex-center' },
+  // Glyphs (Power, Treasure and the named tokens): a flat disc in the center.
+  ...Object.fromEntries(
+    Object.values(piecesSoFar)
+      .filter((piece) => isGlyphTerrain(piece.terrain))
+      .map((piece) => [piece.id, { fills: 'hex-center' } as const]),
+  ),
   [Pieces.fortifiedWall]: {
     fills: 'edges-and-nodes',
-    footprint: wallFootprints[Pieces.fortifiedWall],
+    footprint: pieceFootprints[Pieces.fortifiedWall],
   },
   [Pieces.ruins2]: {
     fills: 'edges-and-nodes',
-    footprint: wallFootprints[Pieces.ruins2],
+    footprint: pieceFootprints[Pieces.ruins2],
   },
   [Pieces.ruins3]: {
     fills: 'edges-and-nodes',
-    footprint: wallFootprints[Pieces.ruins3],
+    footprint: pieceFootprints[Pieces.ruins3],
+  },
+  [Pieces.shipWall]: {
+    fills: 'footprint',
+    footprint: pieceFootprints[Pieces.shipWall],
+  },
+  [Pieces.shipBow]: {
+    fills: 'footprint',
+    footprint: pieceFootprints[Pieces.shipBow],
   },
 }
 

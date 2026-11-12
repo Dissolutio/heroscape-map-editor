@@ -12,13 +12,16 @@
  * write, so between two of them this rule is the old "one owner per hex"
  * rule, which addPiece still applies through boardHexes. This module only
  * adds the pairs a hex-only check cannot see: those involving an
- * edges-and-nodes piece (Fortified Wall, Ruins 2/3).
+ * edges-and-nodes piece (Fortified Wall, Ruins 2/3). Against such a piece, a
+ * `footprint` piece (Ship Wall, Ship Bow) presents its derived cells instead
+ * of its whole hexes; against everything else it still owns its hexes.
  *
  * Levels are half-open intervals [bottom, top) in level units, where 0 is the
  * table surface. A boardHex at altitude `a` fills [a - 1, a): a land tile
- * placed on the table is the hex at altitude 1 and fills [0, 1). A wall
- * placed at altitude A stands on level A + 1, so a footprint entry `n`
- * (levels 1..n) fills [A, A + n).
+ * placed on the table is the hex at altitude 1 and fills [0, 1). A piece
+ * placed at altitude A stands on level A + 1 (a ship on the full level,
+ * getShipPlacementAltitude), so a footprint entry `n` (levels 1..n) fills
+ * [A, A + n).
  *
  * Weight, balance and counterweight are out of scope: this is coordinates
  * only.
@@ -30,6 +33,10 @@ import type {
   BoardPieces,
   CubeCoordinate,
 } from '../../types'
+import {
+  getShipPlacementAltitude,
+  isShipPieceID,
+} from '../../utils/board-utils'
 import { hexUtilsRotateAroundOrigin_000 } from '../../utils/hex-utils'
 import {
   getObstructedLevelOffsets,
@@ -48,12 +55,12 @@ import { type HexCellId, pieceCellDeclarations } from './pieceFeatures'
 export type PieceCellId = HexCellId | HexEdgeId | HexNodeId
 
 export type FilledCell = {
-  cell: HexEdgeId | HexNodeId
+  cell: PieceCellId
   /** First level filled (inclusive), in level units above the table. */
   bottom: number
   /** Level the cell is filled up to (exclusive). */
   top: number
-  /** The 2 (edge) or 3 (node) hexes the cell borders. */
+  /** The hex of a hex cell, or the 2 (edge) or 3 (node) hexes it borders. */
   hexes: readonly CubeCoordinate[]
 }
 
@@ -76,6 +83,22 @@ export function isEdgeNodePieceID(inventoryID: string | undefined) {
   )
 }
 
+/**
+ * Pieces that own their hexes like any other but present derived cells
+ * (hex cells, and only the edges and nodes they reach) to the walls.
+ */
+export function isFootprintPieceID(inventoryID: string | undefined) {
+  return (
+    inventoryID !== undefined &&
+    pieceCellDeclarations[inventoryID]?.fills === 'footprint'
+  )
+}
+
+/** Pieces with a derived cell footprint: walls and ships. */
+export function hasCellFootprint(inventoryID: string | undefined) {
+  return isEdgeNodePieceID(inventoryID) || isFootprintPieceID(inventoryID)
+}
+
 /** Pieces whose base fills only the hex center. */
 export function isHexCenterPieceID(inventoryID: string | undefined) {
   return (
@@ -84,8 +107,11 @@ export function isHexCenterPieceID(inventoryID: string | undefined) {
   )
 }
 
+type CellKind = 'hex' | 'edge' | 'node'
+const SCALE: Record<CellKind, number> = { hex: 1, edge: 2, node: 3 }
+
 type RelativeCell = {
-  kind: 'edge' | 'node'
+  kind: CellKind
   coords: CubeCoordinate
   entry: ObstructionEntry
 }
@@ -93,10 +119,10 @@ type RelativeCell = {
 const parsedFootprints = new Map<string, RelativeCell[][]>()
 
 function parseFootprintCell(id: string, entry: ObstructionEntry) {
-  const match = /^(edge|node):(-?\d+),(-?\d+),(-?\d+)$/.exec(id)
+  const match = /^(hex|edge|node):(-?\d+),(-?\d+),(-?\d+)$/.exec(id)
   if (!match) throw new RangeError(`Invalid footprint cell ${id}`)
   return {
-    kind: match[1] as 'edge' | 'node',
+    kind: match[1] as CellKind,
     coords: { q: Number(match[2]), r: Number(match[3]), s: Number(match[4]) },
     entry,
   }
@@ -109,12 +135,17 @@ function getRotatedFootprints(inventoryID: string) {
   const cached = parsedFootprints.get(inventoryID)
   if (cached) return cached
   const declaration = pieceCellDeclarations[inventoryID]
-  if (declaration?.fills !== 'edges-and-nodes') return undefined
+  if (
+    declaration?.fills !== 'edges-and-nodes' &&
+    declaration?.fills !== 'footprint'
+  ) {
+    return undefined
+  }
   const base = Object.entries(declaration.footprint).map(([id, entry]) =>
     parseFootprintCell(id, entry),
   )
-  // Edge and node ids are cube coordinates scaled by 2 and 3, so they rotate
-  // around the origin exactly like the tile templates do.
+  // Hex, edge and node ids are cube coordinates scaled by 1, 2 and 3, so
+  // they rotate around the origin exactly like the tile templates do.
   const rotated = Array.from({ length: 6 }, (_, rotation) =>
     base.map((cell) => ({
       ...cell,
@@ -135,11 +166,11 @@ const pieceSignature = (piece: CellPiece) =>
   `${piece.inventoryID}|${piece.pieceCoords.q},${piece.pieceCoords.r},${piece.pieceCoords.s}|${piece.rotation}|${piece.altitude}`
 
 /**
- * The edge and node cells an edges-and-nodes piece fills, absolute, with
- * their level ranges. Empty for any other piece, or a rotation that is not a
- * whole step.
+ * The cells a piece with a cell footprint (wall or ship) fills, absolute,
+ * with their level ranges. Empty for any other piece, or a rotation that is
+ * not a whole step.
  */
-export function getEdgeNodePieceCells(piece: CellPiece): FilledCell[] {
+export function getPieceFootprintCells(piece: CellPiece): FilledCell[] {
   const signature = pieceSignature(piece)
   const cached = cellsByPiece.get(piece)
   if (cached?.signature === signature) return cached.cells
@@ -147,17 +178,21 @@ export function getEdgeNodePieceCells(piece: CellPiece): FilledCell[] {
   const rotation = ((piece.rotation % 6) + 6) % 6
   if (!footprints || !Number.isInteger(rotation)) return []
   const { q, r, s } = piece.pieceCoords
+  // Ships sit on the full level even over a half-level fluid cap.
+  const base = isShipPieceID(piece.inventoryID)
+    ? getShipPlacementAltitude(piece.altitude)
+    : piece.altitude
   const cells = footprints[rotation].map(({ kind, coords, entry }) => {
-    const scale = kind === 'edge' ? 2 : 3
+    const scale = SCALE[kind]
     const offsets = getObstructedLevelOffsets(entry)
     const cell =
       `${kind}:${normalizeZero(scale * q + coords.q)},${normalizeZero(
         scale * r + coords.r,
-      )},${normalizeZero(scale * s + coords.s)}` as HexEdgeId | HexNodeId
+      )},${normalizeZero(scale * s + coords.s)}` as PieceCellId
     return {
       cell,
-      bottom: piece.altitude + Math.min(...offsets),
-      top: piece.altitude + Math.max(...offsets) + 1,
+      bottom: base + Math.min(...offsets),
+      top: base + Math.max(...offsets) + 1,
       hexes: hexesTouchingCell(cell),
     }
   })
@@ -165,8 +200,12 @@ export function getEdgeNodePieceCells(piece: CellPiece): FilledCell[] {
   return cells
 }
 
-/** The hexes whose edges or corners a cell is. */
-export function hexesTouchingCell(cell: HexEdgeId | HexNodeId) {
+/** The hex of a hex cell, or the hexes whose edge or corner a cell is. */
+export function hexesTouchingCell(cell: PieceCellId): CubeCoordinate[] {
+  if (cell.startsWith('hex:')) {
+    const [q, r, s] = cell.slice(4).split(',').map(Number)
+    return [{ q, r, s }]
+  }
   return cell.startsWith('edge:')
     ? hexesForEdge(cell as HexEdgeId)
     : hexesForNode(cell as HexNodeId)
@@ -174,8 +213,9 @@ export function hexesTouchingCell(cell: HexEdgeId | HexNodeId) {
 
 /** Every hex an edges-and-nodes piece touches: the columns it can conflict in. */
 export function getEdgeNodePieceColumns(piece: CellPiece): CubeCoordinate[] {
+  if (!isEdgeNodePieceID(piece.inventoryID)) return []
   const columns = new Map<string, CubeCoordinate>()
-  for (const { hexes } of getEdgeNodePieceCells(piece)) {
+  for (const { hexes } of getPieceFootprintCells(piece)) {
     for (const hex of hexes) {
       columns.set(`${hex.q},${hex.r},${hex.s}`, hex)
     }
@@ -185,13 +225,13 @@ export function getEdgeNodePieceColumns(piece: CellPiece): CubeCoordinate[] {
 
 /**
  * The edge and node cells a boardHex fills (its hex cell aside, which no
- * edges-and-nodes piece shares). Default pieces fill all 12; hex-center
- * pieces and the edges-and-nodes pieces' own hexes fill none.
+ * edges-and-nodes piece shares). Default pieces fill all 12. Hex-center
+ * pieces fill none, and pieces with a cell footprint present that instead.
  */
 function getBoardHexEdgeNodeCells(hex: BoardHex): (HexEdgeId | HexNodeId)[] {
   if (
     !hex.boardPieceUID ||
-    isEdgeNodePieceID(hex.inventoryID) ||
+    hasCellFootprint(hex.inventoryID) ||
     isHexCenterPieceID(hex.inventoryID)
   ) {
     return []
@@ -203,7 +243,11 @@ function getBoardHexEdgeNodeCells(hex: BoardHex): (HexEdgeId | HexNodeId)[] {
 const overlaps = (bottom: number, top: number, other: FilledCell) =>
   bottom < other.top && other.bottom < top
 
-type IndexedCell = FilledCell & { uid: string }
+type IndexedCell = FilledCell & {
+  uid: string
+  /** An edges-and-nodes piece (a wall), not a footprint piece. */
+  isWall: boolean
+}
 
 const columnKey = ({ q, r }: CubeCoordinate) => `${q},${r}`
 
@@ -218,7 +262,7 @@ function hexKey({ q, r }: CubeCoordinate, altitude: number) {
   return `${text}~${q}~${r}`
 }
 
-// A wall's cells tagged with its uid, and the columns they touch, per piece.
+// A piece's cells tagged with its uid, and the columns they touch.
 const indexedCellsByPiece = new WeakMap<
   BoardPiece,
   {
@@ -229,12 +273,13 @@ const indexedCellsByPiece = new WeakMap<
   }
 >()
 function getIndexedCells(piece: BoardPiece) {
-  const cells = getEdgeNodePieceCells(piece)
+  const cells = getPieceFootprintCells(piece)
   const cached = indexedCellsByPiece.get(piece)
   if (cached?.cells === cells && cached.uid === piece.uid) {
     return { cells: cached.indexed, columns: cached.columns }
   }
-  const indexed = cells.map((cell) => ({ ...cell, uid: piece.uid }))
+  const isWall = isEdgeNodePieceID(piece.inventoryID)
+  const indexed = cells.map((cell) => ({ ...cell, uid: piece.uid, isWall }))
   const columns = [
     ...new Set(cells.flatMap((cell) => cell.hexes.map(columnKey))),
   ]
@@ -243,7 +288,7 @@ function getIndexedCells(piece: BoardPiece) {
 }
 
 type EdgeNodeIndex = {
-  /** The walls' cells by cell id. */
+  /** The cells of the walls and footprint pieces, by cell id. */
   byCell: Map<string, IndexedCell[]>
   /** Every column a wall touches. */
   columns: Set<string>
@@ -262,29 +307,32 @@ function getEdgeNodeIndex(boardPieces: BoardPieces): EdgeNodeIndex {
   if (cached?.length === boardPieces.length) return cached.index
   const index: EdgeNodeIndex = { byCell: new Map(), columns: new Set() }
   for (const piece of boardPieces) {
-    if (!isEdgeNodePieceID(piece.inventoryID)) continue
+    if (!hasCellFootprint(piece.inventoryID)) continue
     const indexed = getIndexedCells(piece)
     for (const entry of indexed.cells) {
       const entries = index.byCell.get(entry.cell)
       if (entries) entries.push(entry)
       else index.byCell.set(entry.cell, [entry])
     }
-    for (const column of indexed.columns) index.columns.add(column)
+    if (isEdgeNodePieceID(piece.inventoryID)) {
+      for (const column of indexed.columns) index.columns.add(column)
+    }
   }
   indexByPieces.set(boardPieces, { length: boardPieces.length, index })
   return index
 }
 
 /**
- * Let `next` (a copy of `previous` plus one piece that is not a wall) reuse
- * `previous`'s index, so a replay rebuilds it only when a wall is added.
+ * Let `next` (a copy of `previous` plus one piece without a cell footprint)
+ * reuse `previous`'s index, so a replay rebuilds it only when a wall or ship
+ * is added.
  */
 export function shareEdgeNodeIndex(
   previous: BoardPieces,
   next: BoardPieces,
   addedInventoryID: string,
 ) {
-  if (isEdgeNodePieceID(addedInventoryID)) return
+  if (hasCellFootprint(addedInventoryID)) return
   const cached = indexByPieces.get(previous)
   if (cached?.length === previous.length) {
     indexByPieces.set(next, { length: next.length, index: cached.index })
@@ -297,12 +345,13 @@ export function shareEdgeNodeIndex(
  * edges-and-nodes piece are reported; addPiece reports the others through
  * boardHexes ownership.
  *
- * - For an edges-and-nodes piece: the other edges-and-nodes pieces in
- *   `boardPieces`, and the boardHexes (of default pieces) that touch its
- *   cells. `boardHexes` must include the columns of
+ * - For an edges-and-nodes piece: the other walls and footprint pieces in
+ *   `boardPieces` that share a cell, and the boardHexes (of default pieces)
+ *   that touch its cells. `boardHexes` must include the columns of
  *   getEdgeNodePieceColumns.
- * - For any other piece: the edges-and-nodes pieces in `boardPieces` whose
- *   cells are edges or nodes of the hexes it wrote (`writtenHexes`).
+ * - For a footprint piece: the walls in `boardPieces` that share a cell.
+ * - For any other piece: the walls in `boardPieces` whose cells are edges or
+ *   nodes of the hexes it wrote (`writtenHexes`).
  */
 export function findCellConflicts({
   piece,
@@ -318,8 +367,23 @@ export function findCellConflicts({
   boardPieces: BoardPieces
 }): string[] {
   const conflicts = new Set<string>()
+  if (isFootprintPieceID(piece.inventoryID)) {
+    const walls = getEdgeNodeIndex(boardPieces).byCell
+    for (const cell of getPieceFootprintCells(piece)) {
+      for (const wall of walls.get(cell.cell) ?? []) {
+        if (
+          wall.isWall &&
+          wall.uid !== uid &&
+          overlaps(cell.bottom, cell.top, wall)
+        ) {
+          conflicts.add(wall.uid)
+        }
+      }
+    }
+    return [...conflicts]
+  }
   if (isEdgeNodePieceID(piece.inventoryID)) {
-    const cells = getEdgeNodePieceCells(piece)
+    const cells = getPieceFootprintCells(piece)
     const others = getEdgeNodeIndex(boardPieces).byCell
     // Each column this piece touches, with the level span of its cells there.
     const columns = new Map<
@@ -372,6 +436,7 @@ export function findCellConflicts({
     for (const cell of getBoardHexEdgeNodeCells(hex)) {
       for (const wall of walls.byCell.get(cell) ?? []) {
         if (
+          wall.isWall &&
           wall.uid !== uid &&
           overlaps(hex.altitude - 1, hex.altitude, wall)
         ) {

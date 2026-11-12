@@ -1,29 +1,33 @@
 import { useMemo } from 'react'
-import { Euler, Quaternion, Vector3 } from 'three'
+import { BufferGeometry, Euler, Quaternion, Vector3 } from 'three'
 import {
   type HexEdgeId,
   type HexNodeId,
   edgeToWorldPoint,
   nodeToWorldPoint,
   nodesForEdge,
+  nodesForHex,
 } from '../../data/hexGrid/edgesAndNodes'
 import {
   type FilledCell,
-  getEdgeNodePieceCells,
-  isEdgeNodePieceID,
+  getPieceFootprintCells,
+  hasCellFootprint,
 } from '../../data/hexGrid/pieceCells'
 import useBoundStore from '../../store/store'
 import { HEXGRID_HEX_HEIGHT } from '../../utils/constants'
+import { cubeToPixel } from '../../utils/hex-utils'
 
 /*
- * Debug overlay for `?cells=1` (see src/e2e/isE2E.ts): the edge and node
- * cells of every wall (Fortified Wall, Ruins 2/3) at their level ranges, as
+ * Debug overlay for `?cells=1` (see src/e2e/isE2E.ts): the cells of every
+ * wall (Fortified Wall, Ruins 2/3) and ship (Ship Wall, Ship Bow) at their
+ * level ranges, as
  * pieceCells.ts sees them. A thin bar per edge and a thin post per node, each
  * with a bright marker at its top level. Drawn through the models and never
  * hit by the pointer. MapDisplay3D only loads this module with the flag on.
  */
 
 const EDGE_COLOR = '#ff9800'
+const HEX_COLOR = '#76ff03'
 const NODE_COLOR = '#00e5ff'
 const TOP_COLOR = '#ffffff'
 const BAR_THICKNESS = 0.05
@@ -115,6 +119,46 @@ function NodePost({ cell }: { cell: FilledCell }) {
   )
 }
 
+// A hex cell: a flat hexagon outline at its top level (and a fainter one at
+// its bottom), slightly inset from the hex edges.
+function HexOutline({ cell }: { cell: FilledCell }) {
+  const geometry = useMemo(() => {
+    const [hex] = cell.hexes
+    const center = cubeToPixel(hex)
+    const corners = nodesForHex(hex).map((node) => {
+      const point = nodeToWorldPoint(node)
+      return new Vector3(
+        center.x + (point.x - center.x) * 0.85,
+        0,
+        center.y + (point.z - center.y) * 0.85,
+      )
+    })
+    return new BufferGeometry().setFromPoints([...corners, corners[0]])
+  }, [cell.hexes])
+  return (
+    <>
+      {[cell.top, cell.bottom].map((level, index) => (
+        <line
+          key={level}
+          // @ts-expect-error: R3F's <line> is THREE.Line, not the SVG element
+          geometry={geometry}
+          position={[0, yOfLevel(level) + 0.01, 0]}
+          raycast={noRaycast}
+          renderOrder={RENDER_ORDER + 1}
+        >
+          <lineBasicMaterial
+            color={index === 0 ? HEX_COLOR : EDGE_COLOR}
+            transparent
+            opacity={index === 0 ? 0.95 : 0.5}
+            depthTest={false}
+            depthWrite={false}
+          />
+        </line>
+      ))}
+    </>
+  )
+}
+
 export default function WallCellsOverlay() {
   const boardPieces = useBoundStore((state) => state.boardPieces)
   const viewingLevel = useBoundStore((state) => state.viewingLevel)
@@ -122,7 +166,7 @@ export default function WallCellsOverlay() {
     () =>
       boardPieces.filter(
         (piece) =>
-          isEdgeNodePieceID(piece.inventoryID) &&
+          hasCellFootprint(piece.inventoryID) &&
           piece.altitude + 1 <= viewingLevel,
       ),
     [boardPieces, viewingLevel],
@@ -130,8 +174,10 @@ export default function WallCellsOverlay() {
   return (
     <group name="wall-cells-overlay">
       {walls.flatMap((wall) =>
-        getEdgeNodePieceCells(wall).map((cell) =>
-          cell.cell.startsWith('edge:') ? (
+        getPieceFootprintCells(wall).map((cell) =>
+          cell.cell.startsWith('hex:') ? (
+            <HexOutline key={`${wall.uid}-${cell.cell}`} cell={cell} />
+          ) : cell.cell.startsWith('edge:') ? (
             <EdgeBar key={`${wall.uid}-${cell.cell}`} cell={cell} />
           ) : (
             <NodePost key={`${wall.uid}-${cell.cell}`} cell={cell} />
