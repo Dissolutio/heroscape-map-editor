@@ -3,6 +3,7 @@ import { nanoid } from 'nanoid'
 import {
   type AddRemovePieceError,
   type AddRemovePieceReturn,
+  type BoardHex,
   type BoardHexes,
   type BoardPiece,
   type BoardPieces,
@@ -34,6 +35,11 @@ import {
   verticalSupportTemplates,
 } from './vertical-obstruction-templates'
 import { getSupportingLaurPillar, isLaurPillarID } from './laurPillarStacking'
+import {
+  findCellConflicts,
+  isEdgeNodePieceID,
+  shareEdgeNodeIndex,
+} from './hexGrid/pieceCells'
 
 export function addPiece({
   // state to mutate and return
@@ -73,11 +79,23 @@ export function addPiece({
     : undefined
   const displacedUIDs = new Set<string>()
   let isDuplicateStartZone = false
+  // Hexes this piece writes, for the cell conflict check at the end.
+  const claimedHexIDs: string[] = []
+  // An edges-and-nodes piece (Fortified Wall, Ruins 2/3) stands between
+  // hexes. Its hexes are kept for rendering and support only: they never
+  // take a hex from another piece and are never taken over as a conflict.
+  // Conflicts with it come from the cell rule (hexGrid/pieceCells.ts).
+  const isEdgeNodeHex = (hexID: string) =>
+    isEdgeNodePieceID(newBoardHexes[hexID]?.inventoryID)
+  const isHexFree = (hexID: string) =>
+    !newBoardHexes[hexID] || isEdgeNodeHex(hexID)
   const trackDisplaced = (hexID: string) => {
+    claimedHexIDs.push(hexID)
     const existing = newBoardHexes[hexID]
     if (
       existing?.boardPieceUID &&
       existing.boardPieceUID !== uid &&
+      !isEdgeNodePieceID(existing.inventoryID) &&
       !(
         existing.boardPieceUID === supportingLaurPillar?.uid &&
         existing.isVerticalClearanceHex
@@ -88,7 +106,9 @@ export function addPiece({
   }
   const clearCap = (hexID: string) => {
     const hex = newBoardHexes[hexID]
-    if (hex) newBoardHexes[hexID] = { ...hex, isCap: false }
+    if (hex && !isEdgeNodeHex(hexID)) {
+      newBoardHexes[hexID] = { ...hex, isCap: false }
+    }
   }
   const piecePlaneCoords = getPieceTemplateCoords({
     clickedHex: { q: pieceCoords.q, r: pieceCoords.r, s: pieceCoords.s },
@@ -150,7 +170,7 @@ export function addPiece({
     newHexIds.every((id) => {
       const hex = newBoardHexes[id]
       return (
-        !hex ||
+        isHexFree(id) ||
         (hex.boardPieceUID === supportingLaurPillar?.uid &&
           hex.isVerticalClearanceHex)
       )
@@ -166,7 +186,7 @@ export function addPiece({
   const isPlacingOnTable = underHexIds.every(
     (id) => (newBoardHexes?.[id]?.terrain ?? '') === HexTerrain.empty,
   )
-  const isSpaceFree = newHexIds.every((id) => !newBoardHexes[id])
+  const isSpaceFree = newHexIds.every(isHexFree)
   const isSolidUnderAtLeastOne = underHexIds.some(
     (id) =>
       isSolidTerrainHex(newBoardHexes?.[id]?.terrain ?? '') ||
@@ -381,25 +401,15 @@ export function addPiece({
         ? isSolidTerrainHex(newBoardHexes?.[underHexIds[i]]?.terrain)
         : true
     })
-    const isSpaceFreeForRuin = newHexIds.every((newID) => {
-      // Ruins, and LaurAddons, only block at certain angles per rotation, unlike obstacles that block everything
-      // Here is where we calculate our Ruin we are placing versus the ruin on the hex, can they co-exist?
-      const hex = newBoardHexes?.[newID]
-      if (!hex) return true
-      const terrain = hex?.terrain
-      const isBlocked =
-        isSolidTerrainHex(terrain) ||
-        isFluidTerrainHex(terrain) ||
-        hex.isObstacleOrigin
-      // (isForNewInterior && hex.isObstacleAuxiliary)
-      return !isBlocked
-    })
-
-    const isPlacingRuin =
-      isSpaceFreeForRuin &&
-      isSolidUnderAllSupportHexes &&
-      isVerticalClearanceForPiece
+    // Where a wall may stand (its edges and nodes against everything else)
+    // is the cell rule, checked at the end of addPiece. Here only support is
+    // a placement rule.
+    const isPlacingRuin = isSolidUnderAllSupportHexes
     if (isPlacingRuin || permissive) {
+      // Write a hex only where the key is free: another piece keeps its hex.
+      const writeWallHex = (hex: BoardHex) => {
+        if (!newBoardHexes[hex.id]) newBoardHexes[hex.id] = hex
+      }
       newHexIds.forEach((newHexID, i) => {
         const isObstacleOrigin = i === 0 // hacking off the template order, should be 0 but we shift the template for ruins, (because then the wallWalk template handily matches the vertical clearance of a ruin)
         const isObstacleAuxiliary = i > 0
@@ -416,28 +426,23 @@ export function addPiece({
             ...piecePlaneCoords[i],
             altitude: clearanceHexAltitude,
           })
-          if (!newBoardHexes[clearanceID] || permissive) {
-            // BUGFIX: only write in vertical clearance if nothing is already there? But...this seems an incomplete solution
-            trackDisplaced(clearanceID)
-            newBoardHexes[clearanceID] = {
-              id: clearanceID,
-              q: piecePlaneCoords[i].q,
-              r: piecePlaneCoords[i].r,
-              s: piecePlaneCoords[i].s,
-              altitude: clearanceHexAltitude,
-              terrain: piece.terrain,
-              pieceID,
-              boardPieceUID: uid,
-              inventoryID: piece.id,
-              pieceRotation: rotation,
-              isVerticalClearanceHex: true,
-            }
-          }
+          writeWallHex({
+            id: clearanceID,
+            q: piecePlaneCoords[i].q,
+            r: piecePlaneCoords[i].r,
+            s: piecePlaneCoords[i].s,
+            altitude: clearanceHexAltitude,
+            terrain: piece.terrain,
+            pieceID,
+            boardPieceUID: uid,
+            inventoryID: piece.id,
+            pieceRotation: rotation,
+            isVerticalClearanceHex: true,
+          })
         })
 
         // write in the new ruin hex origin and auxiliary
-        trackDisplaced(newHexID)
-        newBoardHexes[newHexID] = {
+        writeWallHex({
           id: newHexID,
           q: piecePlaneCoords[i].q,
           r: piecePlaneCoords[i].r,
@@ -450,21 +455,13 @@ export function addPiece({
           pieceRotation: rotation,
           isObstacleOrigin: isObstacleOrigin,
           isObstacleAuxiliary,
-        }
+        })
       })
       // add the new piece
       addBoardPiece(rotation)
     } else {
-      if (!isSpaceFreeForRuin) {
-        addPieceError = { message: 'Not enough space for ruin' }
-      }
-      if (!isSolidUnderAllSupportHexes) {
-        addPieceError = {
-          message: 'Ruins need solid ground under their three central hexes',
-        }
-      }
-      if (!isVerticalClearanceForPiece) {
-        addPieceError = { message: 'Not enough vertical clearance for ruins' }
+      addPieceError = {
+        message: 'Ruins need solid ground under their three central hexes',
       }
     }
   }
@@ -910,6 +907,27 @@ export function addPiece({
     }
   }
   const hasBoardPiece = newBoardPieces.some((p) => p.uid === uid)
+  if (hasBoardPiece) {
+    // The cell rule: pairs that share an edge or node with an edges-and-nodes
+    // piece at an overlapping level conflict, like two owners of one hex.
+    for (const conflictUID of findCellConflicts({
+      piece: {
+        inventoryID: piece.id,
+        pieceCoords: originOfTile,
+        rotation,
+        altitude: placementAltitude,
+      },
+      uid,
+      writtenHexes: claimedHexIDs
+        .map((id) => newBoardHexes[id])
+        .filter((hex) => hex?.boardPieceUID === uid),
+      boardHexes: newBoardHexes,
+      boardPieces,
+    })) {
+      displacedUIDs.add(conflictUID)
+    }
+    shareEdgeNodeIndex(boardPieces, newBoardPieces, piece.id)
+  }
   if (!hasBoardPiece && !addPieceError && !isDuplicateStartZone) {
     addPieceError = {
       message: `Unhandled piece placement for ${piece.id} (${piece.terrain})`,

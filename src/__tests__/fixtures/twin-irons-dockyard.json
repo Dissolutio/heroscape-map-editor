@@ -1,0 +1,1524 @@
+{
+  "hexMap": {
+    "id": "2WBrmMz6NKm28",
+    "name": "Twin Irons Dockyard",
+    "author": "dissolutio",
+    "shape": "rectangle",
+    "width": 19,
+    "length": 13,
+    "setsUsed": ["I", "K", "X", "Y"],
+    "mapNotes": "",
+    "mapPortraitBase64": "",
+    "version": 1
+  },
+  "boardPieces": [
+    {
+      "uid": "y0s9vmhppP",
+      "inventoryID": "wd2",
+      "altitude": 0,
+      "rotation": 4,
+      "pieceCoords": {
+        "q": 12,
+        "r": 3,
+        "s": -15
+      }
+    },
+    {
+      "uid": "5WQjGKeSQA",
+      "inventoryID": "wd2",
+      "altitude": 0,
+      "rotation": 3,
+      "pieceCoords": {
+        "q": 14,
+        "r": 2,
+        "s": -16
+      }
+    },
+    {
+      "uid": "9YDBwMq2Gv",
+      "inventoryID": "wd2",
+      "altitude": 0,
+      "rotation": 4,
+      "pieceCoords": {
+        "q": 15,
+        "r": 3,
+        "s": -18
+      }
+    },
+    {
+      "uid": "WWC6-0Cnw9",
+      "inventoryID": "w1",
+      "altitude": 0,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 13,
+        "r": 3,
+        "s": -16
+      }
+    },
+    {
+      "uid": "y_jlOhdPh3",
+      "inventoryID": "w1",
+      "altitude": 0,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 14,
+        "r": 3,
+        "s": -17
+      }
+    },
+    {
+      "uid": "kwCQLEFb0l",
+      "inventoryID": "w1",
+      "altitude": 0,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 14,
+        "r": 4,
+        "s": -18
+      }
+    },
+    {
+      "uid": "oET3iQegJs",
+      "inventoryID": "w1",
+      "altitude": 0,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 13,
+        "r": 4,
+        "s": -17
+      }
+    },
+    {
+      "uid": "qNzJVAoYjt",
+      "inventoryID": "w1",
+      "altitude": 0,
+      "rotation": 4,
+      "pieceCoords": {
+        "q": 14,
+        "r": 7,
+        "s": -21
+      }
+    },
+    {
+      "uid": "bdDqb2bF3o",
+      "inventoryID": "w1",
+      "altitude": 0,
+      "rotation": 4,
+      "pieceCoords": {
+        "q": 14,
+        "r": 6,
+        "s": -20
+      }
+    },
+    {
+      "uid": "FV-kKMk71D",
+      "inventoryID": "w1",
+      "altitude": 0,
+      "rotation": 4,
+      "pieceCoords": {
+        "q": 13,
+        "r": 7,
+        "s": -20
+      }
+    },
+    {
+      "uid": "f_DhmX3YyI",
+      "inventoryID": "w1",
+      "altitude": 0,
+      "rotation": 4,
+      "pieceCoords": {
+        "q": 13,
+        "r": 6,
+        "s": -19
+      }
+    },
+    {
+      "uid": "fDLh8re4E9",
+      "inventoryID": "wd2",
+      "altitude": 0,
+      "rotation": 4,
+      "pieceCoords": {
+        "q": 12,
+        "r": 7,
+        "s": -19
+      }
+    },
+    {
+      "uid": "MTLrentsR6",
+      "inventoryID": "c2",
+      "altitude": 0,
+      "rotation": 3,
+      "pieceCoords": {
+        "q": 14,
+        "r": 5,
+        "s": -19
+      }
+    },
+    {
+      "uid": "ze2HvxFgcV",
+      "inventoryID": "wd2",
+      "altitude": 0,
+      "rotation": 4,
+      "pieceCoords": {
+        "q": 15,
+        "r": 5,
+        "s": -20
+      }
+    },
+    {
+      "uid": "EhosedOuyE",
+      "inventoryID": "wd2",
+      "altitude": 0,
+      "rotation": 4,
+      "pieceCoords": {
+        "q": 15,
+        "r": 7,
+        "s": -22
+      }
+    },
+    {
+      "uid": "yxVzRGlCG1",
+      "inventoryID": "c2",
+      "altitude": 0,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 13,
+        "r": 8,
+        "s": -21
+      }
+    },
+    {
+      "uid": "W9EHw_H8J7",
+      "inventoryID": "wd2",
+      "altitude": 0,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 11,
+        "r": 8,
+        "s": -19
+      }
+    },
+    {
+      "uid": "AdCL2iIeMJ",
+      "inventoryID": "w1",
+      "altitude": 0,
+      "rotation": 3,
+      "pieceCoords": {
+        "q": 10,
+        "r": 9,
+        "s": -19
+      }
+    },
+    {
+      "uid": "Vm0IJvGs4E",
+      "inventoryID": "w1",
+      "altitude": 0,
+      "rotation": 3,
+      "pieceCoords": {
+        "q": 11,
+        "r": 1,
+        "s": -12
+      }
+    },
+    {
+      "uid": "D6vwN3Bj-e",
+      "inventoryID": "w1",
+      "altitude": 0,
+      "rotation": 3,
+      "pieceCoords": {
+        "q": 10,
+        "r": 1,
+        "s": -11
+      }
+    },
+    {
+      "uid": "qtkMHnDA-f",
+      "inventoryID": "wd2",
+      "altitude": 0,
+      "rotation": 3,
+      "pieceCoords": {
+        "q": 12,
+        "r": 4,
+        "s": -16
+      }
+    },
+    {
+      "uid": "4Vtd4Nb03-",
+      "inventoryID": "wd2",
+      "altitude": 0,
+      "rotation": 3,
+      "pieceCoords": {
+        "q": 12,
+        "r": 5,
+        "s": -17
+      }
+    },
+    {
+      "uid": "PtKN5TngQj",
+      "inventoryID": "a2",
+      "altitude": 0,
+      "rotation": 4,
+      "pieceCoords": {
+        "q": 11,
+        "r": 7,
+        "s": -18
+      }
+    },
+    {
+      "uid": "a8WmpBd9oS",
+      "inventoryID": "w1",
+      "altitude": 0,
+      "rotation": 3,
+      "pieceCoords": {
+        "q": 6,
+        "r": 1,
+        "s": -7
+      }
+    },
+    {
+      "uid": "ll-3B1mODq",
+      "inventoryID": "c3",
+      "altitude": 0,
+      "rotation": 3,
+      "pieceCoords": {
+        "q": 8,
+        "r": 1,
+        "s": -9
+      }
+    },
+    {
+      "uid": "QTMwuEAQgm",
+      "inventoryID": "c2",
+      "altitude": 0,
+      "rotation": 4,
+      "pieceCoords": {
+        "q": 9,
+        "r": 2,
+        "s": -11
+      }
+    },
+    {
+      "uid": "Zg4T_6NQAc",
+      "inventoryID": "c7",
+      "altitude": 0,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 10,
+        "r": 2,
+        "s": -12
+      }
+    },
+    {
+      "uid": "G4BzxCjuKD",
+      "inventoryID": "c2",
+      "altitude": 0,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 9,
+        "r": 5,
+        "s": -14
+      }
+    },
+    {
+      "uid": "kzqYRofMoe",
+      "inventoryID": "w1",
+      "altitude": 0,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 10,
+        "r": 6,
+        "s": -16
+      }
+    },
+    {
+      "uid": "Uq5-ijAeHy",
+      "inventoryID": "w3",
+      "altitude": 0,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 8,
+        "r": 6,
+        "s": -14
+      }
+    },
+    {
+      "uid": "Y0L3V0_u3X",
+      "inventoryID": "a7",
+      "altitude": 0,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 9,
+        "r": 7,
+        "s": -16
+      }
+    },
+    {
+      "uid": "VFX11lMrc1",
+      "inventoryID": "a3",
+      "altitude": 0,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 6,
+        "r": 11,
+        "s": -17
+      }
+    },
+    {
+      "uid": "dZtNZ9S9ov",
+      "inventoryID": "a2",
+      "altitude": 0,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 5,
+        "r": 10,
+        "s": -15
+      }
+    },
+    {
+      "uid": "1Gd-RmWrxq",
+      "inventoryID": "w1",
+      "altitude": 0,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 4,
+        "r": 11,
+        "s": -15
+      }
+    },
+    {
+      "uid": "SV4bM8bbAL",
+      "inventoryID": "a2",
+      "altitude": 0,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 2,
+        "r": 11,
+        "s": -13
+      }
+    },
+    {
+      "uid": "J-ZIzvxTVW",
+      "inventoryID": "a7",
+      "altitude": 0,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 4,
+        "r": 8,
+        "s": -12
+      }
+    },
+    {
+      "uid": "f4d1VdCnK9",
+      "inventoryID": "a2",
+      "altitude": 0,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 4,
+        "r": 7,
+        "s": -11
+      }
+    },
+    {
+      "uid": "Lfk6nZsU2P",
+      "inventoryID": "w1",
+      "altitude": 0,
+      "rotation": 2,
+      "pieceCoords": {
+        "q": 7,
+        "r": 7,
+        "s": -14
+      }
+    },
+    {
+      "uid": "lcqqK25h0S",
+      "inventoryID": "w1",
+      "altitude": 0,
+      "rotation": 2,
+      "pieceCoords": {
+        "q": 6,
+        "r": 7,
+        "s": -13
+      }
+    },
+    {
+      "uid": "4aXPZ5znsZ",
+      "inventoryID": "w3",
+      "altitude": 0,
+      "rotation": 2,
+      "pieceCoords": {
+        "q": 8,
+        "r": 5,
+        "s": -13
+      }
+    },
+    {
+      "uid": "YpM7MOnCRP",
+      "inventoryID": "w3",
+      "altitude": 0,
+      "rotation": 5,
+      "pieceCoords": {
+        "q": 5,
+        "r": 6,
+        "s": -11
+      }
+    },
+    {
+      "uid": "cCeZ2vR5It",
+      "inventoryID": "w1",
+      "altitude": 0,
+      "rotation": 1,
+      "pieceCoords": {
+        "q": 4,
+        "r": 6,
+        "s": -10
+      }
+    },
+    {
+      "uid": "jIGElqqLnn",
+      "inventoryID": "c2",
+      "altitude": 0,
+      "rotation": 1,
+      "pieceCoords": {
+        "q": 3,
+        "r": 5,
+        "s": -8
+      }
+    },
+    {
+      "uid": "InOJbu6Baa",
+      "inventoryID": "c7",
+      "altitude": 0,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 5,
+        "r": 3,
+        "s": -8
+      }
+    },
+    {
+      "uid": "3HD_xORfAY",
+      "inventoryID": "rd1",
+      "altitude": 0,
+      "rotation": 1,
+      "pieceCoords": {
+        "q": 4,
+        "r": 3,
+        "s": -7
+      }
+    },
+    {
+      "uid": "rZqS-Dnvx8",
+      "inventoryID": "rd1",
+      "altitude": 0,
+      "rotation": 1,
+      "pieceCoords": {
+        "q": 5,
+        "r": 2,
+        "s": -7
+      }
+    },
+    {
+      "uid": "iEJUVBBmT7",
+      "inventoryID": "rd1",
+      "altitude": 0,
+      "rotation": 1,
+      "pieceCoords": {
+        "q": 4,
+        "r": 2,
+        "s": -6
+      }
+    },
+    {
+      "uid": "PFOowmuwRN",
+      "inventoryID": "rd1",
+      "altitude": 0,
+      "rotation": 1,
+      "pieceCoords": {
+        "q": 3,
+        "r": 2,
+        "s": -5
+      }
+    },
+    {
+      "uid": "-vMlI5Ve6P",
+      "inventoryID": "a1",
+      "altitude": 0,
+      "rotation": 1,
+      "pieceCoords": {
+        "q": 0,
+        "r": 3,
+        "s": -3
+      }
+    },
+    {
+      "uid": "j0_eZlU_Ox",
+      "inventoryID": "a1",
+      "altitude": 0,
+      "rotation": 1,
+      "pieceCoords": {
+        "q": -1,
+        "r": 4,
+        "s": -3
+      }
+    },
+    {
+      "uid": "-uIOoa2jWr",
+      "inventoryID": "w1",
+      "altitude": 0,
+      "rotation": 2,
+      "pieceCoords": {
+        "q": 3,
+        "r": 3,
+        "s": -6
+      }
+    },
+    {
+      "uid": "YGJFFxjO4d",
+      "inventoryID": "w1",
+      "altitude": 0,
+      "rotation": 2,
+      "pieceCoords": {
+        "q": 3,
+        "r": 4,
+        "s": -7
+      }
+    },
+    {
+      "uid": "5mQmilUpC4",
+      "inventoryID": "wd2",
+      "altitude": 0,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 1,
+        "r": 10,
+        "s": -11
+      }
+    },
+    {
+      "uid": "E2PmkdX7GH",
+      "inventoryID": "w1",
+      "altitude": 0,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 2,
+        "r": 9,
+        "s": -11
+      }
+    },
+    {
+      "uid": "Vo_Y-qNBL8",
+      "inventoryID": "rd1",
+      "altitude": 0,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 3,
+        "r": 7,
+        "s": -10
+      }
+    },
+    {
+      "uid": "nRmttowilH",
+      "inventoryID": "rd1",
+      "altitude": 0,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 3,
+        "r": 8,
+        "s": -11
+      }
+    },
+    {
+      "uid": "LBSVG-gGuh",
+      "inventoryID": "rd1",
+      "altitude": 0,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 1,
+        "r": 9,
+        "s": -10
+      }
+    },
+    {
+      "uid": "tUYMi9NJoH",
+      "inventoryID": "rd1",
+      "altitude": 0,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 1,
+        "r": 11,
+        "s": -12
+      }
+    },
+    {
+      "uid": "zMPdlr8ipz",
+      "inventoryID": "w1",
+      "altitude": 0,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 1,
+        "r": 8,
+        "s": -9
+      }
+    },
+    {
+      "uid": "2xH9iJZzsq",
+      "inventoryID": "w1",
+      "altitude": 0,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 1,
+        "r": 7,
+        "s": -8
+      }
+    },
+    {
+      "uid": "sAYvuzJ_jS",
+      "inventoryID": "w1",
+      "altitude": 0,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 1,
+        "r": 6,
+        "s": -7
+      }
+    },
+    {
+      "uid": "D0wuT5Ndjt",
+      "inventoryID": "w1",
+      "altitude": 0,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 1,
+        "r": 5,
+        "s": -6
+      }
+    },
+    {
+      "uid": "jX5nlVoujN",
+      "inventoryID": "w3",
+      "altitude": 0,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 1,
+        "r": 3,
+        "s": -4
+      }
+    },
+    {
+      "uid": "-IaFCQ2mgP",
+      "inventoryID": "w3",
+      "altitude": 0,
+      "rotation": 1,
+      "pieceCoords": {
+        "q": 0,
+        "r": 4,
+        "s": -4
+      }
+    },
+    {
+      "uid": "ufRPpLcqu6",
+      "inventoryID": "rd5",
+      "altitude": 0,
+      "rotation": 4,
+      "pieceCoords": {
+        "q": 2,
+        "r": 8,
+        "s": -10
+      }
+    },
+    {
+      "uid": "-YA9jhRpai",
+      "inventoryID": "rd5",
+      "altitude": 0,
+      "rotation": 1,
+      "pieceCoords": {
+        "q": 0,
+        "r": 7,
+        "s": -7
+      }
+    },
+    {
+      "uid": "hsgpyeZ_Aw",
+      "inventoryID": "rd1",
+      "altitude": 0,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 0,
+        "r": 6,
+        "s": -6
+      }
+    },
+    {
+      "uid": "NblX3NjYM7",
+      "inventoryID": "rd1",
+      "altitude": 0,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": -1,
+        "r": 6,
+        "s": -5
+      }
+    },
+    {
+      "uid": "ogRaQ-yevk",
+      "inventoryID": "rd1",
+      "altitude": 0,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": -2,
+        "r": 6,
+        "s": -4
+      }
+    },
+    {
+      "uid": "fvynv7_xNv",
+      "inventoryID": "rd1",
+      "altitude": 0,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 2,
+        "r": 2,
+        "s": -4
+      }
+    },
+    {
+      "uid": "BqvEuVh7GE",
+      "inventoryID": "rd1",
+      "altitude": 0,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 1,
+        "r": 2,
+        "s": -3
+      }
+    },
+    {
+      "uid": "Ov7ZclVf2y",
+      "inventoryID": "rd1",
+      "altitude": 0,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": -2,
+        "r": 5,
+        "s": -3
+      }
+    },
+    {
+      "uid": "XGRCSzgdRQ",
+      "inventoryID": "y1",
+      "altitude": 1,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": -1,
+        "r": 5,
+        "s": -4
+      }
+    },
+    {
+      "uid": "AysOX8vlOH",
+      "inventoryID": "y0",
+      "altitude": 1,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 1,
+        "r": 8,
+        "s": -9
+      }
+    },
+    {
+      "uid": "zbAVtVvyxx",
+      "inventoryID": "cn",
+      "altitude": 1,
+      "rotation": 3,
+      "pieceCoords": {
+        "q": 6,
+        "r": 6,
+        "s": -12
+      }
+    },
+    {
+      "uid": "fAC3peWkGn",
+      "inventoryID": "cn",
+      "altitude": 1,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 8,
+        "r": 6,
+        "s": -14
+      }
+    },
+    {
+      "uid": "MiZ5wMk2vZ",
+      "inventoryID": "fw",
+      "altitude": 1,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 9,
+        "r": 5,
+        "s": -14
+      }
+    },
+    {
+      "uid": "TF4YS1FWPm",
+      "inventoryID": "fw",
+      "altitude": 1,
+      "rotation": 3,
+      "pieceCoords": {
+        "q": 5,
+        "r": 7,
+        "s": -12
+      }
+    },
+    {
+      "uid": "pm6NqMR15S",
+      "inventoryID": "y0",
+      "altitude": 1,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 14,
+        "r": 3,
+        "s": -17
+      }
+    },
+    {
+      "uid": "aiA0lYUp1X",
+      "inventoryID": "sl",
+      "altitude": 1,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 6,
+        "r": 5,
+        "s": -11
+      }
+    },
+    {
+      "uid": "VuqIJ_2rVe",
+      "inventoryID": "sl",
+      "altitude": 1,
+      "rotation": 3,
+      "pieceCoords": {
+        "q": 8,
+        "r": 7,
+        "s": -15
+      }
+    },
+    {
+      "uid": "H2kTcaNta9",
+      "inventoryID": "wd2",
+      "altitude": 1,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 13,
+        "r": 8,
+        "s": -21
+      }
+    },
+    {
+      "uid": "ZC_R3pX_Ga",
+      "inventoryID": "wd2",
+      "altitude": 1,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 13,
+        "r": 5,
+        "s": -18
+      }
+    },
+    {
+      "uid": "VmpOP-AOnN",
+      "inventoryID": "a24",
+      "altitude": 1,
+      "rotation": 5,
+      "pieceCoords": {
+        "q": 4,
+        "r": 9,
+        "s": -13
+      }
+    },
+    {
+      "uid": "O_j90KSSLU",
+      "inventoryID": "c24",
+      "altitude": 1,
+      "rotation": 2,
+      "pieceCoords": {
+        "q": 10,
+        "r": 3,
+        "s": -13
+      }
+    },
+    {
+      "uid": "VCS7jYgesr",
+      "inventoryID": "rd1",
+      "altitude": 1,
+      "rotation": 1,
+      "pieceCoords": {
+        "q": 0,
+        "r": 3,
+        "s": -3
+      }
+    },
+    {
+      "uid": "K1xkVBv444",
+      "inventoryID": "rd1",
+      "altitude": 1,
+      "rotation": 1,
+      "pieceCoords": {
+        "q": -1,
+        "r": 4,
+        "s": -3
+      }
+    },
+    {
+      "uid": "aMhsvoH26L",
+      "inventoryID": "sb",
+      "altitude": 1,
+      "rotation": 1,
+      "pieceCoords": {
+        "q": 1,
+        "r": 4,
+        "s": -5
+      }
+    },
+    {
+      "uid": "VNOO5FyIrP",
+      "inventoryID": "y1",
+      "altitude": 1,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 14,
+        "r": 6,
+        "s": -20
+      }
+    },
+    {
+      "uid": "qGZcYYSNmj",
+      "inventoryID": "z1",
+      "altitude": 2,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 5,
+        "r": 5,
+        "s": -10
+      }
+    },
+    {
+      "uid": "PsfD9nxyN7",
+      "inventoryID": "z1",
+      "altitude": 2,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 4,
+        "r": 5,
+        "s": -9
+      }
+    },
+    {
+      "uid": "XIr5I2D99e",
+      "inventoryID": "z1",
+      "altitude": 2,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 3,
+        "r": 5,
+        "s": -8
+      }
+    },
+    {
+      "uid": "U38xtIUnX1",
+      "inventoryID": "z1",
+      "altitude": 2,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 4,
+        "r": 4,
+        "s": -8
+      }
+    },
+    {
+      "uid": "ecWDXzwlZ_",
+      "inventoryID": "z1",
+      "altitude": 2,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 5,
+        "r": 4,
+        "s": -9
+      }
+    },
+    {
+      "uid": "1vPXtuGqZ-",
+      "inventoryID": "z1",
+      "altitude": 2,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 6,
+        "r": 4,
+        "s": -10
+      }
+    },
+    {
+      "uid": "E33heLuAEL",
+      "inventoryID": "z1",
+      "altitude": 2,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 7,
+        "r": 4,
+        "s": -11
+      }
+    },
+    {
+      "uid": "BYc3nX8H2O",
+      "inventoryID": "z1",
+      "altitude": 2,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 8,
+        "r": 4,
+        "s": -12
+      }
+    },
+    {
+      "uid": "Ecge7UVDg5",
+      "inventoryID": "z1",
+      "altitude": 2,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 9,
+        "r": 4,
+        "s": -13
+      }
+    },
+    {
+      "uid": "gmaAjs8Ex0",
+      "inventoryID": "z1",
+      "altitude": 2,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 10,
+        "r": 3,
+        "s": -13
+      }
+    },
+    {
+      "uid": "iht7a_yc44",
+      "inventoryID": "z1",
+      "altitude": 2,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 9,
+        "r": 3,
+        "s": -12
+      }
+    },
+    {
+      "uid": "16byFyIePl",
+      "inventoryID": "z1",
+      "altitude": 2,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 10,
+        "r": 2,
+        "s": -12
+      }
+    },
+    {
+      "uid": "9sQ36ch-b5",
+      "inventoryID": "z1",
+      "altitude": 2,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 9,
+        "r": 2,
+        "s": -11
+      }
+    },
+    {
+      "uid": "eQa8Bb98Gy",
+      "inventoryID": "z1",
+      "altitude": 2,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 8,
+        "r": 3,
+        "s": -11
+      }
+    },
+    {
+      "uid": "Dya2uAL5Tp",
+      "inventoryID": "z1",
+      "altitude": 2,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 8,
+        "r": 2,
+        "s": -10
+      }
+    },
+    {
+      "uid": "KAcVxmGxFe",
+      "inventoryID": "z1",
+      "altitude": 2,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 9,
+        "r": 1,
+        "s": -10
+      }
+    },
+    {
+      "uid": "DNdWgn32Tw",
+      "inventoryID": "z1",
+      "altitude": 2,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 8,
+        "r": 1,
+        "s": -9
+      }
+    },
+    {
+      "uid": "BF8qfegpD8",
+      "inventoryID": "z1",
+      "altitude": 2,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 8,
+        "r": 0,
+        "s": -8
+      }
+    },
+    {
+      "uid": "xLfdf1PxV0",
+      "inventoryID": "z1",
+      "altitude": 2,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 7,
+        "r": 1,
+        "s": -8
+      }
+    },
+    {
+      "uid": "thKMHyeSZl",
+      "inventoryID": "z1",
+      "altitude": 2,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 7,
+        "r": 2,
+        "s": -9
+      }
+    },
+    {
+      "uid": "jWLnpWdpkx",
+      "inventoryID": "z1",
+      "altitude": 2,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 7,
+        "r": 3,
+        "s": -10
+      }
+    },
+    {
+      "uid": "WFwk0qkZAF",
+      "inventoryID": "z1",
+      "altitude": 2,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 6,
+        "r": 3,
+        "s": -9
+      }
+    },
+    {
+      "uid": "aGq_hBHTbD",
+      "inventoryID": "z1",
+      "altitude": 2,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 5,
+        "r": 3,
+        "s": -8
+      }
+    },
+    {
+      "uid": "Fjmw4Jqydr",
+      "inventoryID": "z1",
+      "altitude": 2,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 6,
+        "r": 2,
+        "s": -8
+      }
+    },
+    {
+      "uid": "z0oxRvEAaM",
+      "inventoryID": "z2",
+      "altitude": 2,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 4,
+        "r": 9,
+        "s": -13
+      }
+    },
+    {
+      "uid": "WTrZdQM-T2",
+      "inventoryID": "z2",
+      "altitude": 2,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 5,
+        "r": 8,
+        "s": -13
+      }
+    },
+    {
+      "uid": "L7HmlI7AVr",
+      "inventoryID": "z2",
+      "altitude": 2,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 6,
+        "r": 8,
+        "s": -14
+      }
+    },
+    {
+      "uid": "MTdDRn1ZL6",
+      "inventoryID": "z2",
+      "altitude": 2,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 7,
+        "r": 8,
+        "s": -15
+      }
+    },
+    {
+      "uid": "mnBTPcOJds",
+      "inventoryID": "z2",
+      "altitude": 2,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 8,
+        "r": 8,
+        "s": -16
+      }
+    },
+    {
+      "uid": "Y-asPwgS6W",
+      "inventoryID": "z2",
+      "altitude": 2,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 9,
+        "r": 7,
+        "s": -16
+      }
+    },
+    {
+      "uid": "_0td3K6gTK",
+      "inventoryID": "z2",
+      "altitude": 2,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 10,
+        "r": 7,
+        "s": -17
+      }
+    },
+    {
+      "uid": "9qfDcIX3A-",
+      "inventoryID": "z2",
+      "altitude": 2,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 11,
+        "r": 7,
+        "s": -18
+      }
+    },
+    {
+      "uid": "-CEHl5r0_g",
+      "inventoryID": "z2",
+      "altitude": 2,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 10,
+        "r": 8,
+        "s": -18
+      }
+    },
+    {
+      "uid": "oG-RC6rg-b",
+      "inventoryID": "z2",
+      "altitude": 2,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 9,
+        "r": 8,
+        "s": -17
+      }
+    },
+    {
+      "uid": "k2E83KLAwD",
+      "inventoryID": "z2",
+      "altitude": 2,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 9,
+        "r": 9,
+        "s": -18
+      }
+    },
+    {
+      "uid": "AsUlTfSiHH",
+      "inventoryID": "z2",
+      "altitude": 2,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 8,
+        "r": 9,
+        "s": -17
+      }
+    },
+    {
+      "uid": "dlewOlD2_Z",
+      "inventoryID": "z2",
+      "altitude": 2,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 8,
+        "r": 10,
+        "s": -18
+      }
+    },
+    {
+      "uid": "Rh-eTSQb9y",
+      "inventoryID": "z2",
+      "altitude": 2,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 7,
+        "r": 11,
+        "s": -18
+      }
+    },
+    {
+      "uid": "TC2nr-nhz2",
+      "inventoryID": "z2",
+      "altitude": 2,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 6,
+        "r": 12,
+        "s": -18
+      }
+    },
+    {
+      "uid": "03PiIkPg4T",
+      "inventoryID": "z2",
+      "altitude": 2,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 6,
+        "r": 11,
+        "s": -17
+      }
+    },
+    {
+      "uid": "fptxIptGCJ",
+      "inventoryID": "z2",
+      "altitude": 2,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 7,
+        "r": 10,
+        "s": -17
+      }
+    },
+    {
+      "uid": "KukoKVnD5H",
+      "inventoryID": "z2",
+      "altitude": 2,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 7,
+        "r": 9,
+        "s": -16
+      }
+    },
+    {
+      "uid": "iR7LQANG2J",
+      "inventoryID": "z2",
+      "altitude": 2,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 6,
+        "r": 10,
+        "s": -16
+      }
+    },
+    {
+      "uid": "u9Sdp34PkW",
+      "inventoryID": "z2",
+      "altitude": 2,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 6,
+        "r": 9,
+        "s": -15
+      }
+    },
+    {
+      "uid": "3B5Iq5Udw-",
+      "inventoryID": "z2",
+      "altitude": 2,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 5,
+        "r": 10,
+        "s": -15
+      }
+    },
+    {
+      "uid": "AtBDCJJp64",
+      "inventoryID": "z2",
+      "altitude": 2,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 5,
+        "r": 9,
+        "s": -14
+      }
+    },
+    {
+      "uid": "hIKmBVrsNS",
+      "inventoryID": "z2",
+      "altitude": 2,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 4,
+        "r": 10,
+        "s": -14
+      }
+    },
+    {
+      "uid": "juujxp6h7b",
+      "inventoryID": "z2",
+      "altitude": 2,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 5,
+        "r": 11,
+        "s": -16
+      }
+    }
+  ],
+  "savedSelections": []
+}

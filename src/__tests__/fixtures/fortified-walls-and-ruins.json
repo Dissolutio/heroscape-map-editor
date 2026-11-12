@@ -1,0 +1,171 @@
+{
+  "hexMap": {
+    "id": "XznPVpge0A73v",
+    "name": "Fortified Walls and Ruins2/3",
+    "author": "",
+    "mapNotes": "",
+    "version": 1,
+    "shape": "rectangle",
+    "width": 12,
+    "length": 11,
+    "setsUsed": [],
+    "mapPortraitBase64": ""
+  },
+  "boardPieces": [
+    {
+      "uid": "rdo9D2Lksd",
+      "inventoryID": "rs2",
+      "altitude": 0,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 3,
+        "r": 2,
+        "s": -5
+      }
+    },
+    {
+      "uid": "wlwAsRtjNu",
+      "inventoryID": "rs3",
+      "altitude": 0,
+      "rotation": 5,
+      "pieceCoords": {
+        "q": 4,
+        "r": 3,
+        "s": -7
+      }
+    },
+    {
+      "uid": "-sIdwkdUOp",
+      "inventoryID": "rs3",
+      "altitude": 0,
+      "rotation": 3,
+      "pieceCoords": {
+        "q": 5,
+        "r": 1,
+        "s": -6
+      }
+    },
+    {
+      "uid": "k5E7Tp_U3s",
+      "inventoryID": "rs2",
+      "altitude": 0,
+      "rotation": 1,
+      "pieceCoords": {
+        "q": 2,
+        "r": 1,
+        "s": -3
+      }
+    },
+    {
+      "uid": "pdQiNAZnkC",
+      "inventoryID": "fw",
+      "altitude": 0,
+      "rotation": 5,
+      "pieceCoords": {
+        "q": 1,
+        "r": 5,
+        "s": -6
+      }
+    },
+    {
+      "uid": "gKWJSKXuiI",
+      "inventoryID": "fw",
+      "altitude": 0,
+      "rotation": 4,
+      "pieceCoords": {
+        "q": 3,
+        "r": 6,
+        "s": -9
+      }
+    },
+    {
+      "uid": "NFfyJNp6eC",
+      "inventoryID": "fw",
+      "altitude": 0,
+      "rotation": 4,
+      "pieceCoords": {
+        "q": 5,
+        "r": 5,
+        "s": -10
+      }
+    },
+    {
+      "uid": "uAxO1HoWk9",
+      "inventoryID": "fw",
+      "altitude": 0,
+      "rotation": 3,
+      "pieceCoords": {
+        "q": 7,
+        "r": 2,
+        "s": -9
+      }
+    },
+    {
+      "uid": "aIfIp3l67R",
+      "inventoryID": "fw",
+      "altitude": 0,
+      "rotation": 2,
+      "pieceCoords": {
+        "q": 7,
+        "r": 4,
+        "s": -11
+      }
+    },
+    {
+      "uid": "_EIxlGMojI",
+      "inventoryID": "fw",
+      "altitude": 0,
+      "rotation": 5,
+      "pieceCoords": {
+        "q": 9,
+        "r": 2,
+        "s": -11
+      }
+    },
+    {
+      "uid": "hp1IgBJLiD",
+      "inventoryID": "rs3",
+      "altitude": 0,
+      "rotation": 4,
+      "pieceCoords": {
+        "q": 7,
+        "r": 7,
+        "s": -14
+      }
+    },
+    {
+      "uid": "4BUP4pFMMm",
+      "inventoryID": "rs2",
+      "altitude": 0,
+      "rotation": 4,
+      "pieceCoords": {
+        "q": 4,
+        "r": 8,
+        "s": -12
+      }
+    },
+    {
+      "uid": "LbSvTpWoUN",
+      "inventoryID": "rs2",
+      "altitude": 0,
+      "rotation": 2,
+      "pieceCoords": {
+        "q": 1,
+        "r": 7,
+        "s": -8
+      }
+    },
+    {
+      "uid": "BjExubgR5Y",
+      "inventoryID": "rs2",
+      "altitude": 0,
+      "rotation": 5,
+      "pieceCoords": {
+        "q": 1,
+        "r": 8,
+        "s": -9
+      }
+    }
+  ],
+  "savedSelections": []
+}

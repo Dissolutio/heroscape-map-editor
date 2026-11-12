@@ -1,15 +1,17 @@
-import type { BoardHexes, CubeCoordinate, Piece } from '../types'
+import type { BoardHexes, BoardPieces, CubeCoordinate, Piece } from '../types'
 import { HexTerrain } from '../types'
 import { isFluidTerrainHex, isSolidTerrainHex } from '../utils/board-utils'
 import { HEXGRID_MAX_ALTITUDE } from '../utils/constants'
 import { genBoardHexID } from '../utils/map-utils'
 import { addPiece } from './addPiece'
+import { isEdgeNodePieceID } from './hexGrid/pieceCells'
 import { type IgnoredPieceUIDs, toIgnoredPieceUIDSet } from './ignoredPieceUIDs'
 import getPieceTemplateCoords from './rotationTransforms'
 import { getTemplateTopLevel } from './vertical-obstruction-templates'
 
 export function getSmartPlacementAltitude({
   boardHexes,
+  boardPieces = [],
   piece,
   pieceCoords,
   altitude,
@@ -17,6 +19,11 @@ export function getSmartPlacementAltitude({
   ignoreUID,
 }: {
   boardHexes: BoardHexes
+  /**
+   * The board's pieces. Only the edges-and-nodes pieces (walls) are read:
+   * a level where the piece would share a wall's edge or node is not clean.
+   */
+  boardPieces?: BoardPieces
   piece: Piece
   pieceCoords: CubeCoordinate
   altitude: number
@@ -47,6 +54,11 @@ export function getSmartPlacementAltitude({
   const localHexes: BoardHexes = {}
   const candidates = new Set([altitude])
   const ignoredUIDs = toIgnoredPieceUIDSet(ignoreUID)
+  const walls = boardPieces.filter(
+    (boardPiece) =>
+      isEdgeNodePieceID(boardPiece.inventoryID) &&
+      !ignoredUIDs.has(boardPiece.uid),
+  )
   const clearance = Math.max(piece.height, getTemplateTopLevel(piece.id))
   for (const coords of footprint) {
     for (
@@ -75,7 +87,7 @@ export function getSmartPlacementAltitude({
       placementAltitude: candidate,
       rotation,
       isVsTile: false,
-      boardPieces: [],
+      boardPieces: walls,
     }
     // addPiece clones the board hexes before editing them.
     const strict = addPiece({

@@ -359,3 +359,34 @@ test('Laur add-on previews snap to square and triangle pillar ports', async ({
   expect([0.5, 2.5, 4.5]).toContain(trianglePreview?.rotation)
   expect(trianglePreview?.rotation).not.toBe(1.5)
 })
+
+// A grass floor and one Fortified Wall at (4,4). Another Fortified Wall one
+// hex SE shares three of its template hexes but none of its edges or nodes
+// (see src/data/hexGrid/pieceFootprints.ts).
+const WALL_MAP = { ...FIXTURE_HEX_MAP, width: 10, length: 10 }
+const WALL_PIECES = [
+  ...Array.from({ length: 10 * 10 }, (_, index) => {
+    const r = Math.floor(index / 10)
+    const q = (index % 10) - Math.floor(r / 2)
+    return `0~${q}~${r}~0~g1`
+  }),
+  '1~4~4~0~fw',
+]
+
+test('a Fortified Wall beside another, on different edges, previews ok', async ({
+  page,
+}) => {
+  await page.goto(mapUrl(WALL_MAP, WALL_PIECES))
+  await waitForAppReady(page)
+  // size 0: the Fortified Wall has no size variants
+  await setPen(page, 'fw', 0, 0)
+  await page.mouse.move(0, 0)
+  await hoverHex(page, { q: 4, r: 5, altitude: 1 })
+  await page.waitForFunction(
+    () => window.__TEST__?.snapshot().placementPreview?.status !== undefined,
+  )
+  const preview = await page.evaluate(
+    () => window.__TEST__?.snapshot().placementPreview,
+  )
+  expect(preview).toMatchObject({ status: 'ok', altitude: 1, rotation: 0 })
+})
