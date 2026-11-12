@@ -676,8 +676,15 @@ const createUISlice: StateCreator<
   togglePieceSize: (n: number) =>
     set(
       produce((s) => {
+        const isPieceSizeFamily = Boolean(
+          piecesSoFar[s.penMode]?.pieceSizeFamily,
+        )
+        if (isPieceSizeFamily) {
+          s.penMode = getPieceIDForPenMode(s.penMode, n)
+        }
         s.pieceSize = n
         if (isPlacementPenMode(s.penMode)) {
+          if (isPieceSizeFamily) s.lastPenMode = s.penMode
           s.lastPenSize = n
         }
       }),

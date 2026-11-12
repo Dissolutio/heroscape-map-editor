@@ -58,7 +58,13 @@ test('default obstacle hotkeys select Evergreen Tree, Ship, and Laur Wall', asyn
       await page.waitForFunction(
         () => window.__TEST__?.snapshot().penPieceID === 'tr11',
       )
+      // The pen hotkey selects its own piece (Tree 10), like picking it in
+      // the pen selector: the last action wins over the current size.
       await page.keyboard.press('f')
+      await page.waitForFunction(
+        () => window.__TEST__?.snapshot().penPieceID === 'tr10',
+      )
+      await page.keyboard.press('2')
       await page.waitForFunction(
         () => window.__TEST__?.snapshot().penPieceID === 'tr11',
       )

@@ -89,13 +89,10 @@ export const getNewPieceSizeForPenMode = (
   }
   const newPiece = piecesSoFar[newMode]
   if (newPiece?.pieceSizeFamily) {
-    const oldPiece = piecesSoFar[oldMode]
-    const newSize =
-      oldPiece?.pieceSizeFamily === newPiece.pieceSizeFamily &&
-      newPieceSizes.includes(oldPieceSize)
-        ? oldPieceSize
-        : (newPiece.variantOrder ?? newPieceSizes[0])
-    return { newSize, newSizes: newPieceSizes }
+    return {
+      newSize: newPiece.variantOrder ?? newPieceSizes[0],
+      newSizes: newPieceSizes,
+    }
   }
   if (newPieceSizes.includes(oldPieceSize)) {
     return { newSize: oldPieceSize, newSizes: newPieceSizes }

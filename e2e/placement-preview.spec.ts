@@ -74,6 +74,31 @@ test('Ship hotkeys preview all variants and place a rope ladder on a wall', asyn
   await setPen(page, 'sl', 1)
   await hoverHex(page, { q: 4, r: 3, altitude: 0 })
 
+  await page.keyboard.press('2')
+  await page.waitForFunction(
+    () => window.__TEST__?.snapshot().penPieceID === 'sb',
+  )
+  const penMode = page.getByRole('combobox', { name: 'Pen Mode' })
+  await expect(penMode).toContainText('Ship Bow')
+  await penMode.click()
+  await page.getByRole('option', { name: /Ship Wall/ }).click()
+  await page.waitForFunction(() => {
+    const snapshot = window.__TEST__?.snapshot()
+    return snapshot?.penMode === 'sl' && snapshot.penPieceID === 'sl'
+  })
+  await expect(penMode).toContainText('Ship Wall')
+  // Wait for the closing menu's backdrop to go away, or the hover lands on it.
+  await expect(page.getByRole('listbox')).toBeHidden()
+  await page.mouse.move(0, 0)
+  await hoverHex(page, { q: 4, r: 3, altitude: 0 })
+  await page.waitForFunction(
+    () => window.__TEST__?.snapshot().placementPreview !== null,
+  )
+  const selectedWallPreview = await page.evaluate(() =>
+    window.__TEST__?.snapshot(),
+  )
+  expect(selectedWallPreview?.placementPreview).not.toBeNull()
+
   for (const [key, pieceID] of [
     ['1', 'sl'],
     ['2', 'sb'],
