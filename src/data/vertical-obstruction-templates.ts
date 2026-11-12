@@ -12,6 +12,31 @@ export const verticalObstructionTemplates: Dictionary<number[]> = {
    The order really matters here.
    These number arrays' indices must line up with the tileTemplates' indices, as each hex in a terrain model might have a different height.
   */
+  [Pieces.shipBow]: [
+    /* Ruins2, 10 on line 2 is the origin for rotation=0
+    the X's mark Critical support hexes, these must be supported by solid underneath
+              1/
+            10/             /^
+    \12----12/             /^
+     \13--13/             /^
+      \2/13/  rotation-0 /^
+    */
+    // first the basic2
+    13,
+    12,
+    // CUBE_NW, E of CUBE_EAST, NE of CUBE_NW
+    13,
+    10,
+    12,
+    // small same level blocker on far end of long wing
+    1,
+    // figurehead, special extrude, only blocks on level 3-13 relative to piece level
+    3 / 13, // TODO this is a placeholder number, obviously it will be more complicated than this
+  ],
+  [Pieces.shipWall]: [
+    // 3 hexes uniform height, tiny little knub that blocks 1 hex at same level
+    10, 10, 10, 1,
+  ],
   [Pieces.ruins2]: [
     // Played with this in virtualscape, and here's how much I think each hex in the template requires for clearance:
     /* Ruins2, 10 on line 2 is the origin for rotation=0
@@ -95,39 +120,3 @@ export const verticalSupportTemplates: Dictionary<number[]> = {
   ],
   [Pieces.fortifiedWall]: [1, 0, 0, 0, 0, 0, 0, 0],
 }
-
-//  LEGACY interiorHexTemplates: A failed approach which crossed wires with later notions of "auxiliary" hex (which can probably go away later) Was meant to represent the hexes of a ruin that must be supported by land for it to not fall down
-// export const interiorHexTemplates: Dictionary<number[]> = {
-//   /*
-//   THESE ARE BROKEN AND DO NOT SOLVE THE PROBLEM OF PERFECT VALID RUIN PLACEMENT: Edges need to be explored, they are different than hexes
-//   */
-//   [Pieces.ruins2]: [
-//     /* the i's mark the interior hexes
-//     --3--
-//     9--10i--7i---4
-//    --10--10--7--
-//     */
-//     // A value of "2"  means origin, "1" means auxiliary
-//     // first the basic3, which contains both of ruins2's interior hexes
-//     2,
-//     1, 0,
-//     // then the rest are not!
-//     0, 0, 0, 0, 0,
-//   ],
-//   [Pieces.ruins3]: [
-//     /* the i's mark the interior hexes
-//     --3--
-//     9---9i----8i---7i---3
-//     ---9---8---8---7--
-//     */
-//     // A value of "2"  means origin, "1" means auxiliary
-//     // first the basic3, which contains 2 of ruins3's interior hexes
-//     2,
-//     1, 0,
-//     // then the bottom-left, top-right, and bottom-right (top-right is our last interior hex)
-//     0,
-//     1, 0,
-//     // then the rest are not!
-//     0, 0, 0, 0,
-//   ],
-// }

@@ -245,6 +245,15 @@ const shipBow = [
     r: -2,
     s: 1,
   },
+  // small same level blocker on far end of long wing
+  {
+    // 3x CUBE_EAST
+    q: 3,
+    r: 0,
+    s: -3,
+  },
+  // Figurehead, only obstructs levels 2-13 relative to piece level
+  CUBE_WEST,
 ]
 const ruins2 = [...glacier6, ...ruinsCornerExterior]
 const ruins3 = [
@@ -319,7 +328,7 @@ const tileTemplates: Dictionary<CubeCoordinate[]> = {
   [Pieces.glacier6]: glacier6,
   [Pieces.hive]: glacier6,
   [Pieces.shipBow]: shipBow,
-  [Pieces.shipWall]: straight3,
+  [Pieces.shipWall]: straight4,
   // edge stuff below
   [Pieces.ruins2]: ruins2,
   [Pieces.ruins3]: ruins3,
