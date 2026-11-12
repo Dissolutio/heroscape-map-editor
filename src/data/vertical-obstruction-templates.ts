@@ -1,7 +1,60 @@
 import type { Dictionary } from 'lodash'
 import { Pieces } from '../types'
 
-export const verticalObstructionTemplates: Dictionary<number[]> = {
+/**
+ * One hex of an obstruction template. A number `n` blocks levels 1..n; a range
+ * blocks levels `from`..`to` inclusive. Levels are 1-based from the piece's own
+ * level (level 1 is the hex the piece sits in).
+ */
+export type ObstructionEntry = number | { from: number; to: number }
+
+/** 0-based offsets above the piece's altitude that the entry blocks. */
+export const getObstructedLevelOffsets = (
+  entry: ObstructionEntry,
+): number[] => {
+  const from = typeof entry === 'number' ? 1 : entry.from
+  const to = typeof entry === 'number' ? entry : entry.to
+  const offsets: number[] = []
+  for (let level = from; level <= to; level++) offsets.push(level - 1)
+  return offsets
+}
+
+/** The highest level (1-based) the entry blocks. */
+export const getObstructionTopLevel = (entry: ObstructionEntry): number =>
+  typeof entry === 'number' ? entry : entry.to
+
+/** True when the entry leaves the piece's own level free (e.g. the figurehead). */
+export const isBaseLevelOpen = (entry: ObstructionEntry): boolean =>
+  typeof entry !== 'number' && entry.from > 1
+
+/** The highest level any hex of the piece's template blocks. */
+export const getTemplateTopLevel = (pieceID: string): number =>
+  Math.max(
+    0,
+    ...(verticalObstructionTemplates[pieceID] ?? []).map(
+      getObstructionTopLevel,
+    ),
+  )
+
+/**
+ * Offsets blocked above template hex `index`: the template entry if there is
+ * one, otherwise the full height of the piece.
+ */
+export const getHexObstructionOffsets = (
+  piece: { id: string; height: number },
+  index: number,
+): number[] => {
+  const entry = verticalObstructionTemplates[piece.id]?.[index]
+  return getObstructedLevelOffsets(entry ?? piece.height)
+}
+
+/** True when template hex `index` of the piece leaves its own level free. */
+export const isHexBaseLevelOpen = (pieceID: string, index: number): boolean => {
+  const entry = verticalObstructionTemplates[pieceID]?.[index]
+  return entry !== undefined && isBaseLevelOpen(entry)
+}
+
+export const verticalObstructionTemplates: Dictionary<ObstructionEntry[]> = {
   [Pieces.outcrop3]: [5, 9, 7],
   [Pieces.glacier3]: [5, 9, 7],
   [Pieces.glacier4]: [7, 11, 11, 9],
@@ -30,8 +83,8 @@ export const verticalObstructionTemplates: Dictionary<number[]> = {
     12,
     // small same level blocker on far end of long wing
     1,
-    // figurehead, special extrude, only blocks on level 3-13 relative to piece level
-    3 / 13, // TODO this is a placeholder number, obviously it will be more complicated than this
+    // figurehead: blocks levels 3-13 only, levels 1 and 2 are open
+    { from: 3, to: 13 },
   ],
   [Pieces.shipWall]: [
     // 3 hexes uniform height, tiny little knub that blocks 1 hex at same level

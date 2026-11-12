@@ -1,6 +1,6 @@
 import type { ThreeEvent } from '@react-three/fiber'
 import { noop } from 'lodash'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { piecesSoFar } from '../../data/pieces'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
 import useBoundStore from '../../store/store'
@@ -13,7 +13,7 @@ import { hexUtilsGetShipBuildableCoords } from '../../utils/hex-utils'
 import { genBoardHexID } from '../../utils/map-utils'
 import { hexTerrainColor } from '../maphex/hexColors'
 import { basicModelMaterial } from './materials'
-import { shipDeckColor } from './shipDeckColor'
+import { getActiveDeckSection, shipDeckColor } from './shipDeckColor'
 import { useDisposableGLTF } from './useDisposableGLTF'
 
 type ShipWallProps = {
@@ -179,6 +179,19 @@ export function ShipWall({ pid, bp, onPointerUp }: ShipWallProps) {
     onPointerUpBody(e)
   }
 
+  // Never trust the local section alone: see getActiveDeckSection
+  const activeDeckSection = getActiveDeckSection({
+    section: hoveredBuildableSection,
+    pid,
+    hoveredPieceID,
+    isSolidLandPenMode: Boolean(isSolidLandPenMode),
+  })
+  useEffect(() => {
+    if (hoveredBuildableSection !== null && activeDeckSection === null) {
+      setHoveredBuildableSection(null)
+    }
+  }, [hoveredBuildableSection, activeDeckSection])
+
   const selectedPieceIDs = useBoundStore((s) => s.selectedPieceIDs)
   const yellowColor = 'yellow'
   const isSelected = selectedPieceIDs.includes(pid ?? '')
@@ -187,7 +200,7 @@ export function ShipWall({ pid, bp, onPointerUp }: ShipWallProps) {
   // Hovering either deck section lights both (one colour for the two decks)
   const buildableColor = shipDeckColor(
     isHighlighted,
-    hoveredBuildableSection !== null,
+    activeDeckSection !== null,
   )
 
   return (

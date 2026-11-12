@@ -15,7 +15,11 @@ import { worldToCube } from '../data/dragMove'
 import { shouldRenderPlacedPiece } from '../data/startZoneVisibility'
 import useBoundStore from '../store/store'
 import { type BoardHex, type BoardPiece, HexTerrain, Pieces } from '../types'
-import { isFluidTerrainHex, isSolidTerrainHex } from '../utils/board-utils'
+import {
+  getShipPlacementAltitude,
+  isFluidTerrainHex,
+  isSolidTerrainHex,
+} from '../utils/board-utils'
 import {
   HEXGRID_HEXCAP_FLUID_HEIGHT,
   HEXGRID_HEXCAP_FLUID_SCALE,
@@ -211,6 +215,11 @@ const MapBoardPiece3DModel = ({
   const boardPieces = useBoundStore((s) => s.boardPieces)
   const { x, z, y, yBase, yBaseCap, yWithBase, yGlyph, yGlyphFluidUnder } =
     getBoardHex3DCoords({ ...pieceCoords, altitude: altitude + 1 })
+  // Ships sit at the full level even over a half-level fluid cap
+  const { y: yShip } = getBoardHex3DCoords({
+    ...pieceCoords,
+    altitude: getShipPlacementAltitude(altitude) + 1,
+  })
   const underHexID = genBoardHexID({ ...pieceCoords, altitude })
   const underHexTerrain = boardHexes?.[underHexID]?.terrain ?? HexTerrain.grass
   const isUnderHexFluid = isFluidTerrainHex(underHexTerrain)
@@ -469,12 +478,8 @@ const MapBoardPiece3DModel = ({
       <group
         position={[
           x,
-          // either gets moved down to fluid level, or up to solid cap level
-          y -
-            HEXGRID_HEX_HEIGHT -
-            (isUnderHexFluid
-              ? HEXGRID_HEX_HEIGHT - HEXGRID_HEXCAP_FLUID_HEIGHT
-              : -HEXGRID_HEXCAP_HEIGHT / 2),
+          // ships never drop to a fluid cap: they sit at the full level, as on solid
+          yShip - HEXGRID_HEX_HEIGHT + HEXGRID_HEXCAP_HEIGHT / 2,
           z,
         ]}
         rotation={[0, getObstaclRotation(rotation), 0]}
@@ -491,12 +496,8 @@ const MapBoardPiece3DModel = ({
       <group
         position={[
           x,
-          // either gets moved down to fluid level, or up to solid cap level
-          y -
-            HEXGRID_HEX_HEIGHT -
-            (isUnderHexFluid
-              ? HEXGRID_HEX_HEIGHT - HEXGRID_HEXCAP_FLUID_HEIGHT
-              : -HEXGRID_HEXCAP_HEIGHT / 2),
+          // ships never drop to a fluid cap: they sit at the full level, as on solid
+          yShip - HEXGRID_HEX_HEIGHT + HEXGRID_HEXCAP_HEIGHT / 2,
           z,
         ]}
         rotation={[0, getObstaclRotation(rotation), 0]}

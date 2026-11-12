@@ -29,7 +29,7 @@ import { getLaurAddonHitHex } from '../data/laurAddonStacking'
 import { applyPieceMoves } from '../data/movePieces'
 import { piecesSoFar } from '../data/pieces'
 import getPieceTemplateCoords from '../data/rotationTransforms'
-import { verticalObstructionTemplates } from '../data/vertical-obstruction-templates'
+import { getTemplateTopLevel } from '../data/vertical-obstruction-templates'
 import { getViewingLevelAfterPlacing } from '../store/map-slice'
 import useBoundStore from '../store/store'
 import type { BoardHex, BoardPiece, CubeCoordinate } from '../types'
@@ -477,7 +477,7 @@ describe('multi-selection drag', () => {
     })
     const clearance = Math.max(
       piecesSoFar.og4.height,
-      ...(verticalObstructionTemplates.og4 ?? []),
+      getTemplateTopLevel('og4'),
     )
     expect(90 + clearance).toBeGreaterThan(HEXGRID_MAX_ALTITUDE)
     expect(target.evaluation.status).toBe('blocked')

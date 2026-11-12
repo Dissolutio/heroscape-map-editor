@@ -38,7 +38,7 @@ import {
 import { piecesSoFar } from './pieces'
 import getPieceTemplateCoords from './rotationTransforms'
 import { getSmartPlacementAltitude } from './smartPlacement'
-import { verticalObstructionTemplates } from './vertical-obstruction-templates'
+import { getTemplateTopLevel } from './vertical-obstruction-templates'
 import { type HexEdgeId, edgeIdFromHex } from './hexGrid/edgesAndNodes'
 
 /** The two pieces of state placement reads. */
@@ -419,10 +419,7 @@ export function evaluatePlacement(
       reason: 'offMap',
     }
   }
-  const clearance = Math.max(
-    piece.height,
-    ...(verticalObstructionTemplates[piece.id] ?? []),
-  )
+  const clearance = Math.max(piece.height, getTemplateTopLevel(piece.id))
   const minimumAltitude = resolution.edgeId ? -1 : 0
   if (
     checkHeightBounds &&

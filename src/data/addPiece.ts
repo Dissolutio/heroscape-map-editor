@@ -16,6 +16,8 @@ import {
   getLandAltitudeIncrement,
   isBridgingObstaclePieceID,
   isFluidTerrainHex,
+  getShipPlacementAltitude,
+  isShipPieceID,
   isSolidTerrainHex,
   isWholeLevelAltitude,
 } from '../utils/board-utils'
@@ -26,6 +28,8 @@ import { piecesSoFar } from './pieces'
 import getPieceTemplateCoords from './rotationTransforms'
 import {
   openBaseHexTemplates,
+  getHexObstructionOffsets,
+  isHexBaseLevelOpen,
   verticalObstructionTemplates,
   verticalSupportTemplates,
 } from './vertical-obstruction-templates'
@@ -125,13 +129,15 @@ export function addPiece({
   const isFluidUnderAllForIncrement = underHexIds.every((id) =>
     isFluidTerrainHex(newBoardHexes?.[id]?.terrain ?? ''),
   )
-  const newPieceAltitude =
-    placementAltitude +
-    getLandAltitudeIncrement(
-      piece.terrain,
-      isFluidUnderAllForIncrement,
-      placementAltitude,
-    )
+  // Ships sit at a full level: a half-level fluid cap counts as a full one.
+  const newPieceAltitude = isShipPieceID(piece.id)
+    ? getShipPlacementAltitude(placementAltitude) + 1
+    : placementAltitude +
+      getLandAltitudeIncrement(
+        piece.terrain,
+        isFluidUnderAllForIncrement,
+        placementAltitude,
+      )
   const newHexIds = piecePlaneCoords.map((cubeCoord) =>
     genBoardHexID({ ...cubeCoord, altitude: newPieceAltitude }),
   )
@@ -184,14 +190,10 @@ export function addPiece({
     (id) => (newBoardHexes?.[id]?.terrain ?? '') === HexTerrain.empty,
   )
   const isVerticalClearanceForPiece = newHexIds.every((_, i) => {
-    const clearanceHexIds = Array(
-      verticalObstructionTemplates?.[piece.id]?.[i] ?? piece.height,
-    )
-      .fill(0)
-      .map((_, j) => {
-        const altitude = newPieceAltitude + j
-        return genBoardHexID({ ...piecePlaneCoords[i], altitude })
-      })
+    const clearanceHexIds = getHexObstructionOffsets(piece, i).map((j) => {
+      const altitude = newPieceAltitude + j
+      return genBoardHexID({ ...piecePlaneCoords[i], altitude })
+    })
     return clearanceHexIds.every((clearanceHexId) => {
       const hex = newBoardHexes?.[clearanceHexId]
       if (!hex) return true // if no boardHex is written, then it is definitely empty
@@ -211,12 +213,12 @@ export function addPiece({
   // isObstaclePieceSupported: EXCEPTION MADE FOR OBSTACLES WITH FLUID BASES, THEY CAN BRIDGE
   const isObstaclePieceSupported =
     isSolidUnderAll ||
+    // Ships are held by an edge interlock: no hex needs support from below
+    isShipPieceID(piece.id) ||
     // Some obstacles, and glyphs/startzones, can be placed on fluid tiles
     ((piece.id === Pieces.laurWallSquarePillar ||
       piece.id === Pieces.laurWallPillarStackable ||
       piece.id === Pieces.laurWallTrianglePillar ||
-      piece.id === Pieces.shipBow ||
-      piece.id === Pieces.shipWall ||
       piece.id === Pieces.cannon ||
       isGlyphPiece ||
       isStartZonePiece) &&
@@ -404,36 +406,34 @@ export function addPiece({
 
         // write in vertical clearances for all the hexes a ruin borders
         // these are writing inside the loop for all ground-level hexes
-        Array(verticalObstructionTemplates?.[piece.id]?.[i] ?? piece.height)
-          .fill(0)
-          .forEach((_, j) => {
-            if (j === 0) {
-              // SKIP the first hex, it's the obstacle origin/auxiliary hex
-              return
-            }
-            const clearanceHexAltitude = newPieceAltitude + j
-            const clearanceID = genBoardHexID({
-              ...piecePlaneCoords[i],
-              altitude: clearanceHexAltitude,
-            })
-            if (!newBoardHexes[clearanceID] || permissive) {
-              // BUGFIX: only write in vertical clearance if nothing is already there? But...this seems an incomplete solution
-              trackDisplaced(clearanceID)
-              newBoardHexes[clearanceID] = {
-                id: clearanceID,
-                q: piecePlaneCoords[i].q,
-                r: piecePlaneCoords[i].r,
-                s: piecePlaneCoords[i].s,
-                altitude: clearanceHexAltitude,
-                terrain: piece.terrain,
-                pieceID,
-                boardPieceUID: uid,
-                inventoryID: piece.id,
-                pieceRotation: rotation,
-                isVerticalClearanceHex: true,
-              }
-            }
+        getHexObstructionOffsets(piece, i).forEach((j) => {
+          if (j === 0) {
+            // SKIP the first hex, it's the obstacle origin/auxiliary hex
+            return
+          }
+          const clearanceHexAltitude = newPieceAltitude + j
+          const clearanceID = genBoardHexID({
+            ...piecePlaneCoords[i],
+            altitude: clearanceHexAltitude,
           })
+          if (!newBoardHexes[clearanceID] || permissive) {
+            // BUGFIX: only write in vertical clearance if nothing is already there? But...this seems an incomplete solution
+            trackDisplaced(clearanceID)
+            newBoardHexes[clearanceID] = {
+              id: clearanceID,
+              q: piecePlaneCoords[i].q,
+              r: piecePlaneCoords[i].r,
+              s: piecePlaneCoords[i].s,
+              altitude: clearanceHexAltitude,
+              terrain: piece.terrain,
+              pieceID,
+              boardPieceUID: uid,
+              inventoryID: piece.id,
+              pieceRotation: rotation,
+              isVerticalClearanceHex: true,
+            }
+          }
+        })
 
         // write in the new ruin hex origin and auxiliary
         trackDisplaced(newHexID)
@@ -729,63 +729,66 @@ export function addPiece({
     const openBaseHexIndices = new Set(openBaseHexTemplates[piece.id] ?? [])
     newHexIds.forEach((newHexID, i) => {
       const isOpenBaseHex = openBaseHexIndices.has(i)
+      // A template range that starts above level 1 (Ship Bow figurehead) leaves
+      // the lower levels completely free: no base hex, no cap cleared.
+      const isRangeAboveBase = isHexBaseLevelOpen(piece.id, i)
       const hexUnderneath = newBoardHexes?.[underHexIds[i]]
       // remove caps covered by this obstacle (open base hexes leave the cap below intact)
-      if (hexUnderneath && !isOpenBaseHex) {
+      if (hexUnderneath && !isOpenBaseHex && !isRangeAboveBase) {
         clearCap(hexUnderneath.id)
       }
       // write in the new base level hexes (origin+auxiliaries)
-      trackDisplaced(newHexID)
-      newBoardHexes[newHexID] = {
-        id: newHexID,
-        q: piecePlaneCoords[i].q,
-        r: piecePlaneCoords[i].r,
-        s: piecePlaneCoords[i].s,
-        altitude: newPieceAltitude,
-        terrain: piece.terrain,
-        pieceID,
-        boardPieceUID: uid,
-        inventoryID: piece.id,
-        pieceRotation: rotation,
-        isObstacleOrigin: i === 0, //only the first hex is an origin (because we made the template arrays this way. with origin hex at index 0)
-        isObstacleAuxiliary: i !== 0 && !isOpenBaseHex, // big tree, glaciers/outcrops, have aux hexes that render only a cap
-        isVerticalClearanceHex: isOpenBaseHex,
-        obstacleHeight: piece.height,
+      if (!isRangeAboveBase) {
+        trackDisplaced(newHexID)
+        newBoardHexes[newHexID] = {
+          id: newHexID,
+          q: piecePlaneCoords[i].q,
+          r: piecePlaneCoords[i].r,
+          s: piecePlaneCoords[i].s,
+          altitude: newPieceAltitude,
+          terrain: piece.terrain,
+          pieceID,
+          boardPieceUID: uid,
+          inventoryID: piece.id,
+          pieceRotation: rotation,
+          isObstacleOrigin: i === 0, //only the first hex is an origin (because we made the template arrays this way. with origin hex at index 0)
+          isObstacleAuxiliary: i !== 0 && !isOpenBaseHex, // big tree, glaciers/outcrops, have aux hexes that render only a cap
+          isVerticalClearanceHex: isOpenBaseHex,
+          obstacleHeight: piece.height,
+        }
       }
       //  if we have a vertical obstruction template for an obstacle, use it, otherwise use its height
       if (verticalObstructionTemplates[piece.id]) {
         try {
           // write in vertical clearances for the different parts of obstacle
-          Array(verticalObstructionTemplates[piece.id][i])
-            .fill(0)
-            .forEach((_, j) => {
-              if (j === 0) {
-                // SKIP the first hex, it's the obstacle origin/auxiliary hex
-                return
-              }
-              const clearanceHexAltitude = newPieceAltitude + j
-              const clearanceID = genBoardHexID({
-                ...piecePlaneCoords[i],
-                altitude: clearanceHexAltitude,
-              })
-              if (!newBoardHexes[clearanceID] || permissive) {
-                // BUGFIX: only write in vertical clearance if nothing is already there? But...this seems an incomplete solution
-                trackDisplaced(clearanceID)
-                newBoardHexes[clearanceID] = {
-                  id: clearanceID,
-                  q: piecePlaneCoords[i].q,
-                  r: piecePlaneCoords[i].r,
-                  s: piecePlaneCoords[i].s,
-                  altitude: clearanceHexAltitude,
-                  terrain: piece.terrain,
-                  pieceID,
-                  boardPieceUID: uid,
-                  inventoryID: piece.id,
-                  pieceRotation: rotation,
-                  isVerticalClearanceHex: true,
-                }
-              }
+          getHexObstructionOffsets(piece, i).forEach((j) => {
+            if (j === 0) {
+              // SKIP the first hex, it's the obstacle origin/auxiliary hex
+              return
+            }
+            const clearanceHexAltitude = newPieceAltitude + j
+            const clearanceID = genBoardHexID({
+              ...piecePlaneCoords[i],
+              altitude: clearanceHexAltitude,
             })
+            if (!newBoardHexes[clearanceID] || permissive) {
+              // BUGFIX: only write in vertical clearance if nothing is already there? But...this seems an incomplete solution
+              trackDisplaced(clearanceID)
+              newBoardHexes[clearanceID] = {
+                id: clearanceID,
+                q: piecePlaneCoords[i].q,
+                r: piecePlaneCoords[i].r,
+                s: piecePlaneCoords[i].s,
+                altitude: clearanceHexAltitude,
+                terrain: piece.terrain,
+                pieceID,
+                boardPieceUID: uid,
+                inventoryID: piece.id,
+                pieceRotation: rotation,
+                isVerticalClearanceHex: true,
+              }
+            }
+          })
         } catch (error) {
           addPieceError = {
             message: 'Failed to fill out vertical obstruction for obstacle',

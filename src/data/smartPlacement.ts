@@ -6,7 +6,7 @@ import { genBoardHexID } from '../utils/map-utils'
 import { addPiece } from './addPiece'
 import { type IgnoredPieceUIDs, toIgnoredPieceUIDSet } from './ignoredPieceUIDs'
 import getPieceTemplateCoords from './rotationTransforms'
-import { verticalObstructionTemplates } from './vertical-obstruction-templates'
+import { getTemplateTopLevel } from './vertical-obstruction-templates'
 
 export function getSmartPlacementAltitude({
   boardHexes,
@@ -47,10 +47,7 @@ export function getSmartPlacementAltitude({
   const localHexes: BoardHexes = {}
   const candidates = new Set([altitude])
   const ignoredUIDs = toIgnoredPieceUIDSet(ignoreUID)
-  const clearance = Math.max(
-    piece.height,
-    ...(verticalObstructionTemplates[piece.id] ?? []),
-  )
+  const clearance = Math.max(piece.height, getTemplateTopLevel(piece.id))
   for (const coords of footprint) {
     for (
       let level = altitude;
