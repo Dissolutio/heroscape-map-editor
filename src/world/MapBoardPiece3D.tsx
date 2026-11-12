@@ -64,6 +64,7 @@ import { RopeLadder } from './models/RopeLadder'
 import Ruins2 from './models/Ruins2'
 import Ruins3 from './models/Ruins3'
 import { ShipBow } from './models/ShipBow'
+import { getShipBowRestOffset } from '../data/shipBowRest'
 import { ShipWall } from './models/ShipWall.tsx'
 import Shroudshroom7 from './models/Shroudshroom7'
 import Shroudshroom10 from './models/Shroudshroom10'
@@ -496,8 +497,13 @@ const MapBoardPiece3DModel = ({
       <group
         position={[
           x,
-          // ships never drop to a fluid cap: they sit at the full level, as on solid
-          yShip - HEXGRID_HEX_HEIGHT + HEXGRID_HEXCAP_HEIGHT / 2,
+          // the bow sits at the full level, as on solid, but its model rests on
+          // a single fluid tile (visual only, see data/shipBowRest.ts). The
+          // deck highlight and click targets are part of the model.
+          yShip -
+            HEXGRID_HEX_HEIGHT +
+            HEXGRID_HEXCAP_HEIGHT / 2 +
+            getShipBowRestOffset(bp, boardHexes),
           z,
         ]}
         rotation={[0, getObstaclRotation(rotation), 0]}
