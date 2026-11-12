@@ -149,6 +149,7 @@ const StartZoneIcon = ({
 export default function PenModeControls() {
   const penMode = useBoundStore((state) => state.penMode)
   const lastPenMode = useBoundStore((state) => state.lastPenMode)
+  const lastPenSize = useBoundStore((state) => state.lastPenSize)
   const setsUsed = useBoundStore((state) => state.hexMap.setsUsed)
   const terrainConstraintSource = useBoundStore(
     (state) => state.terrainConstraintSource,
@@ -167,7 +168,11 @@ export default function PenModeControls() {
   const genericSolidCapColor = useBoundStore((s) => s.genericSolidCapColor)
   const genericFluidCapColor = useBoundStore((s) => s.genericFluidCapColor)
   const handleChange = (event: SelectChangeEvent) => {
-    togglePenMode(event.target.value)
+    const mode = event.target.value
+    togglePenMode(
+      mode,
+      mode === lastPenMode ? { preferredSize: lastPenSize } : undefined,
+    )
   }
   const penModeHotkey = (action: string) => {
     const hotkey = hotkeyLookup[action]
