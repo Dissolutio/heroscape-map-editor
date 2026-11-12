@@ -6,12 +6,7 @@
     "shape": "rectangle",
     "width": 19,
     "length": 13,
-    "setsUsed": [
-      "I",
-      "K",
-      "X",
-      "Y"
-    ],
+    "setsUsed": ["I", "K", "X", "Y"],
     "mapNotes": "",
     "mapPortraitBase64": "",
     "version": 1
