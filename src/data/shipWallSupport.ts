@@ -14,13 +14,16 @@ import { genBoardHexID } from '../utils/map-utils'
 
 /*
  Ship Wall support (physical rules, John 2026-11-12). Offsets are at rotation 0
- and rotate with the piece. The wall is `straight4`: main hexes 1-3 at
- q = 0, 1, 2 along the row (r = 0), then the knub at q = 3.
+ and rotate with the piece. The wall's template is main hexes 1-3 at
+ q = 0, 1, 2 along the row (r = 0), the knub at q = 3, then the two notch
+ hexes (1,-1,0) and (2,-1,-1), which block level 2 only.
 
  Each main hex i, at (i, 0, -i), has an interlock on its two north faces, so
  it faces its NW neighbor (i, -1, 1-i) and its NE neighbor (i+1, -1, -i). The
  knub has none. Together they face four interface hexes, the row just north:
    (0,-1,1)  (1,-1,0)  (2,-1,-1)  (3,-1,-2)
+ The middle two are the notch hexes. The wall's range there starts at level
+ 2, so land at the wall's own level still counts.
 
  Counterweight (how much land sits behind the wall) is physics, not
  coordinates, so the app leaves it to the builders (John, 2026-11-12).

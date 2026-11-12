@@ -186,7 +186,11 @@ export function addPiece({
   const isPlacingOnTable = underHexIds.every(
     (id) => (newBoardHexes?.[id]?.terrain ?? '') === HexTerrain.empty,
   )
-  const isSpaceFree = newHexIds.every(isHexFree)
+  // A hex whose template range starts above level 1 (the Ship Bow figurehead,
+  // the ships' notch hexes) leaves its own level to whatever is there.
+  const isSpaceFree = newHexIds.every(
+    (id, i) => isHexBaseLevelOpen(piece.id, i) || isHexFree(id),
+  )
   const isSolidUnderAtLeastOne = underHexIds.some(
     (id) =>
       isSolidTerrainHex(newBoardHexes?.[id]?.terrain ?? '') ||
