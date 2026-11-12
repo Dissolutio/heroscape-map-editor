@@ -191,4 +191,28 @@ describe('walls in the store', () => {
     expect(ownerOfOrigin()).toBe('wall')
     expectReplayMatches()
   })
+
+  it("undoing a placement over a wall's origin hex gives the hex back", () => {
+    load([...floor, bp('wall', Pieces.fortifiedWall, 5, 6, 1)])
+    const before = snapshot()
+    store.getState().paintTile({
+      piece: piecesSoFar[Pieces.cannon],
+      clickedHexCoords: at(5, 6),
+      altitude: 1,
+      rotation: 0,
+    })
+    const origin = () =>
+      Object.values(store.getState().boardHexes).find(
+        (hex) => hex.q === 5 && hex.r === 6 && hex.altitude === 2,
+      )
+    expect(origin()?.inventoryID).toBe(Pieces.cannon)
+    expect(store.getState().conflictedPieceUIDs).toEqual([])
+    undo()
+    expect(origin()).toMatchObject({
+      boardPieceUID: 'wall',
+      isObstacleOrigin: true,
+    })
+    expect(snapshot()).toEqual(before)
+    expectReplayMatches()
+  })
 })

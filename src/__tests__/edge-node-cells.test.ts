@@ -5,11 +5,12 @@
  * Every piece fills cells (hex interior, edge, node) over level ranges, and
  * two pieces conflict when they fill the same cell at an overlapping level.
  * Undeclared pieces fill the hex cell, 6 edges and 6 nodes of every hex they
- * write; the walls fill only their footprint's edges and nodes (derived from
- * the 3D models, src/data/hexGrid/wallFootprints.ts); the Cannon fills only
- * its hex cell.
+ * write; the walls fill only their footprint's edges and nodes, and against a
+ * wall the ships fill only their footprint's hex cells, edges and nodes (both
+ * derived from the 3D models, src/data/hexGrid/pieceFootprints.ts); the
+ * Cannon and the glyphs fill only their hex cell.
  *
- * Wall at origin O, rotation 0 (see wallFootprints.ts for the diagram):
+ * Wall at origin O, rotation 0 (see pieceFootprints.ts for the diagram):
  * - FW at O+(-2,1) shares edge:-2,1,1 with it (two walls end to end);
  * - FW at O+SE (0,1) shares three template hexes but no cell.
  */
@@ -22,13 +23,14 @@ import {
   type HexNodeId,
 } from '../data/hexGrid/edgesAndNodes'
 import {
-  getEdgeNodePieceCells,
+  getPieceFootprintCells,
   getEdgeNodePieceColumns,
   isEdgeNodePieceID,
+  isFootprintPieceID,
   isHexCenterPieceID,
 } from '../data/hexGrid/pieceCells'
 import { pieceCellDeclarations } from '../data/hexGrid/pieceFeatures'
-import { wallFootprints } from '../data/hexGrid/wallFootprints'
+import { pieceFootprints } from '../data/hexGrid/pieceFootprints'
 import { piecesSoFar } from '../data/pieces'
 import { getPlacementPreviewState } from '../data/placementPreview'
 import {
@@ -40,9 +42,15 @@ import {
   type BoardPiece,
   type CubeCoordinate,
   type HexMap,
+  HexTerrain,
   Pieces,
 } from '../types'
 import { hexUtilsAdd, hexUtilsRotateAroundOrigin_000 } from '../utils/hex-utils'
+import getPieceTemplateCoords from '../data/rotationTransforms'
+import {
+  getHexObstructionOffsets,
+  getObstructedLevelOffsets,
+} from '../data/vertical-obstruction-templates'
 import fortifiedWallsAndRuins from './fixtures/fortified-walls-and-ruins.json'
 import twinIronsDockyard from './fixtures/twin-irons-dockyard.json'
 import {
@@ -50,8 +58,14 @@ import {
   hexAt,
   makeTable,
   place,
+  remove,
   withGrassFloor,
 } from './helpers/board'
+
+const toCube = (key: string) => {
+  const [q, r, s] = key.split(',').map(Number)
+  return { q, r, s }
+}
 
 const floor = withGrassFloor(makeTable())
 const O = floor.center
@@ -89,36 +103,10 @@ describe('fixture maps John built physically', () => {
     expect(conflicted).toEqual([])
   })
 
-  /*
-   * KNOWN GAP: the dockyard still reports its two Fortified Wall / Ship Wall
-   * pairs. The Ship Wall is undeclared, so by default it fills all 6 edges
-   * and 6 nodes of its 4 hexes. Each Ship Wall runs along a row whose lower
-   * edges carry a Fortified Wall, and its knub hex is the Fortified Wall's
-   * origin hex, so they share edges and nodes at levels 2-9. On the table
-   * they fit, so the Ship Wall's declaration is what is wrong. Fix: declare
-   * the Ship Wall (its own footprint, or hex-center) in pieceCellDeclarations
-   * once John confirms its base; then change this to `it` and drop the pin
-   * below.
-   */
-  it.fails('KNOWN GAP: twin-irons-dockyard loads with zero conflicted pieces', () => {
-    expect(loadFixture(twinIronsDockyard).conflicted).toEqual([])
-  })
-
-  it('twin-irons-dockyard: only the Fortified Wall / Ship Wall pairs remain (the Cannons are clear)', () => {
+  it('twin-irons-dockyard loads with zero conflicted pieces', () => {
     const { map, conflicted } = loadFixture(twinIronsDockyard)
     expect(map.droppedPieces).toEqual([])
-    const conflictedIDs = conflicted
-      .map(
-        (uid) =>
-          map.boardPieces.find((piece) => piece.uid === uid)?.inventoryID,
-      )
-      .sort()
-    expect(conflictedIDs).toEqual([
-      Pieces.fortifiedWall,
-      Pieces.fortifiedWall,
-      Pieces.shipWall,
-      Pieces.shipWall,
-    ])
+    expect(conflicted).toEqual([])
   })
 })
 
@@ -202,13 +190,52 @@ describe('the cell rule', () => {
     ])
   })
 
-  it('a ship wall or tree beside the wall: the default (all 6 edges and nodes) conflicts', () => {
+  it('a Ship Wall in the wall row, its knub on the wall origin, does not conflict (the dockyard)', () => {
+    // The hull runs along the north half of the row; the wall stands on the
+    // row's south edges.
+    expect(
+      conflictsOn(
+        bp('wall', Pieces.fortifiedWall, O),
+        bp('ship', Pieces.shipWall, at(-3, 0)),
+      ),
+    ).toEqual([])
+  })
+
+  it('a Ship Wall one row south, its hull on the wall edges, conflicts', () => {
     expect(
       conflictsOn(
         bp('wall', Pieces.fortifiedWall, O),
         bp('ship', Pieces.shipWall, SE),
       ),
     ).toEqual(['ship', 'wall'])
+  })
+
+  it('ships keep owning their hexes against everything but walls', () => {
+    expect(
+      conflictsOn(bp('ship', Pieces.shipWall, O), bp('land', 'g1', at(1, 0))),
+    ).toEqual(['land', 'ship'])
+    expect(
+      conflictsOn(
+        bp('ship', Pieces.shipWall, O),
+        bp('other', Pieces.shipWall, at(3, 0)),
+      ),
+    ).toEqual(['other', 'ship'])
+  })
+
+  it('a glyph in a hex next to the wall edge does not conflict; with land in its hex it does, as before', () => {
+    expect(
+      conflictsOn(bp('wall', Pieces.fortifiedWall, O), bp('glyph', 'y0', SE)),
+    ).toEqual([])
+    expect(
+      conflictsOn(bp('wall', Pieces.fortifiedWall, O), bp('glyph', 'y31', SE)),
+    ).toEqual([])
+    expect(conflictsOn(bp('glyph', 'y0', SE), bp('land', 'g1', SE))).toEqual([
+      'glyph',
+      'land',
+    ])
+  })
+
+  it('a tree beside the wall: the default (all 6 edges and nodes) conflicts', () => {
     expect(
       conflictsOn(bp('wall', Pieces.fortifiedWall, O), bp('tree', 'tr10', SE)),
     ).toEqual(['tree', 'wall'])
@@ -236,70 +263,91 @@ describe('the cell rule', () => {
 })
 
 describe('the declarations', () => {
-  it('declares the three walls as edges-and-nodes and only the Cannon as hex-center', () => {
+  it('declares the walls, the ships, the Cannon and every glyph', () => {
+    const glyphIDs = Object.values(piecesSoFar)
+      .filter(
+        (piece) =>
+          piece.terrain === HexTerrain.glyphPower ||
+          piece.terrain === HexTerrain.glyphTreasure,
+      )
+      .map((piece) => piece.id)
+    expect(glyphIDs.length).toBeGreaterThan(60)
     expect(
       Object.entries(pieceCellDeclarations)
         .map(([id, declaration]) => `${id}:${declaration.fills}`)
         .sort(),
-    ).toEqual([
-      'cn:hex-center',
-      'fw:edges-and-nodes',
-      'rs2:edges-and-nodes',
-      'rs3:edges-and-nodes',
-    ])
+    ).toEqual(
+      [
+        'cn:hex-center',
+        'fw:edges-and-nodes',
+        'rs2:edges-and-nodes',
+        'rs3:edges-and-nodes',
+        'sb:footprint',
+        'sl:footprint',
+        ...glyphIDs.map((id) => `${id}:hex-center`),
+      ].sort(),
+    )
     for (const id of Object.keys(pieceCellDeclarations)) {
       expect(piecesSoFar[id], id).toBeDefined()
     }
     expect(isEdgeNodePieceID(Pieces.fortifiedWall)).toBe(true)
     expect(isEdgeNodePieceID('g1')).toBe(false)
     expect(isHexCenterPieceID(Pieces.cannon)).toBe(true)
+    expect(isHexCenterPieceID(Pieces.glyphPower)).toBe(true)
+    expect(isFootprintPieceID(Pieces.shipWall)).toBe(true)
   })
 })
 
 describe('footprints', () => {
   const walls = [Pieces.fortifiedWall, Pieces.ruins2, Pieces.ruins3]
+  const footprintPieces = [...walls, Pieces.shipWall, Pieces.shipBow]
   const origin = { q: 0, r: 0, s: 0 }
   const cellsAt = (inventoryID: string, rotation: number, altitude = 0) =>
-    getEdgeNodePieceCells({
+    getPieceFootprintCells({
       inventoryID,
       pieceCoords: origin,
       rotation,
       altitude,
     })
   const touching = (cell: string) =>
-    (cell.startsWith('edge:')
-      ? hexesForEdge(cell as HexEdgeId)
-      : hexesForNode(cell as HexNodeId)
+    (cell.startsWith('hex:')
+      ? [toCube(cell.slice(4))]
+      : cell.startsWith('edge:')
+        ? hexesForEdge(cell as HexEdgeId)
+        : hexesForNode(cell as HexNodeId)
     )
       .map(({ q, r, s }) => `${q + 0},${r + 0},${s + 0}`)
       .sort()
 
-  it.each(walls)('%s at rotation 0 matches the table', (inventoryID) => {
-    expect(
-      Object.fromEntries(
-        cellsAt(inventoryID, 0).map(({ cell, bottom, top }) => [
-          cell,
-          [bottom, top],
-        ]),
-      ),
-    ).toEqual(
-      Object.fromEntries(
-        Object.entries(wallFootprints[inventoryID]).map(([cell, levels]) => [
-          cell,
-          [0, levels],
-        ]),
-      ),
-    )
-  })
+  it.each(footprintPieces)(
+    '%s at rotation 0 matches the table',
+    (inventoryID) => {
+      expect(
+        Object.fromEntries(
+          cellsAt(inventoryID, 0).map(({ cell, bottom, top }) => [
+            cell,
+            [bottom, top],
+          ]),
+        ),
+      ).toEqual(
+        Object.fromEntries(
+          Object.entries(pieceFootprints[inventoryID]).map(([cell, entry]) => {
+            const offsets = getObstructedLevelOffsets(entry)
+            return [cell, [Math.min(...offsets), Math.max(...offsets) + 1]]
+          }),
+        ),
+      )
+    },
+  )
 
   it('the tables are the derived shapes', () => {
     const summary = (inventoryID: string) => {
-      const cells = Object.keys(wallFootprints[inventoryID])
+      const cells = Object.keys(pieceFootprints[inventoryID])
       return {
         edges: cells.filter((cell) => cell.startsWith('edge:')).length,
         nodes: cells.filter((cell) => cell.startsWith('node:')).length,
         tallest: Math.max(
-          ...Object.values(wallFootprints[inventoryID]).map(Number),
+          ...Object.values(pieceFootprints[inventoryID]).map(Number),
         ),
       }
     }
@@ -312,7 +360,7 @@ describe('footprints', () => {
     expect(summary(Pieces.ruins3)).toEqual({ edges: 7, nodes: 8, tallest: 10 })
   })
 
-  it.each(walls)(
+  it.each(footprintPieces)(
     '%s at each of the 6 rotations is the rotation-0 table, rotated',
     (inventoryID) => {
       const base = cellsAt(inventoryID, 0)
@@ -347,8 +395,98 @@ describe('footprints', () => {
     },
   )
 
+  // The derive script carries copies of the ships' templates: its output must
+  // stay within the real ones (src/data/vertical-obstruction-templates.ts).
+  it.each([Pieces.shipWall, Pieces.shipBow])(
+    '%s cells stay within its obstruction template',
+    (inventoryID) => {
+      const template = getPieceTemplateCoords({
+        clickedHex: origin,
+        rotation: 0,
+        template: piecesSoFar[inventoryID].template,
+        isVsTile: false,
+      })
+      const levelsOf = new Map(
+        template.map((hex, index) => {
+          const offsets = getHexObstructionOffsets(
+            piecesSoFar[inventoryID],
+            index,
+          )
+          return [
+            `${hex.q + 0},${hex.r + 0},${hex.s + 0}`,
+            [Math.min(...offsets), Math.max(...offsets) + 1],
+          ]
+        }),
+      )
+      for (const { cell, bottom, top } of cellsAt(inventoryID, 0)) {
+        const allowed = touching(cell)
+          .map((hex) => levelsOf.get(hex))
+          .filter((levels) => levels !== undefined)
+        expect(allowed.length, cell).toBeGreaterThan(0)
+        expect(bottom, cell).toBeGreaterThanOrEqual(
+          Math.min(...allowed.map(([from]) => from)),
+        )
+        expect(top, cell).toBeLessThanOrEqual(
+          Math.max(...allowed.map(([, to]) => to)),
+        )
+      }
+    },
+  )
+
+  it('the Ship Wall knub hex fills only its own level, and only where it meets the wall', () => {
+    const knub = '3,0,-3'
+    const cells = cellsAt(Pieces.shipWall, 0)
+    // no hex cell: the hull ends at the knub hex's west edge
+    expect(cells.map(({ cell }) => cell)).not.toContain(`hex:${knub}`)
+    // every cell of the knub hex also borders a full-height wall hex
+    for (const { cell } of cells.filter(({ cell }) =>
+      touching(cell).includes(knub),
+    )) {
+      expect(
+        touching(cell).some((hex) =>
+          ['0,0,0', '1,0,-1', '2,0,-2'].includes(hex),
+        ),
+        cell,
+      ).toBe(true)
+    }
+  })
+
+  it("the Ship Bow figurehead's lowest two levels are free", () => {
+    const figurehead = '-1,0,1'
+    const cells = cellsAt(Pieces.shipBow, 0)
+    expect(
+      cells.find(({ cell }) => cell === `hex:${figurehead}`),
+    ).toMatchObject({ bottom: 2, top: 13 })
+    // nothing that borders only the figurehead (among the bow's hexes)
+    // reaches below level 3
+    const bowHexes = new Set(
+      getPieceTemplateCoords({
+        clickedHex: origin,
+        rotation: 0,
+        template: Pieces.shipBow,
+        isVsTile: false,
+      }).map(({ q, r, s }) => `${q + 0},${r + 0},${s + 0}`),
+    )
+    for (const { cell, bottom } of cells) {
+      const inBow = touching(cell).filter((hex) => bowHexes.has(hex))
+      if (inBow.length === 1 && inBow[0] === figurehead) {
+        expect(bottom, cell).toBeGreaterThanOrEqual(2)
+      }
+    }
+  })
+
+  it('ships sit on the full level: a half-level altitude rounds up', () => {
+    const cells = getPieceFootprintCells({
+      inventoryID: Pieces.shipWall,
+      pieceCoords: origin,
+      rotation: 0,
+      altitude: 1.5,
+    })
+    expect(Math.min(...cells.map(({ bottom }) => bottom))).toBe(2)
+  })
+
   it('cells follow the piece origin and altitude', () => {
-    const moved = getEdgeNodePieceCells({
+    const moved = getPieceFootprintCells({
       inventoryID: Pieces.fortifiedWall,
       pieceCoords: { q: 2, r: -1, s: -1 },
       rotation: 0,
@@ -444,6 +582,40 @@ describe('the same rule in previews and smart placement', () => {
 })
 
 describe('replay', () => {
+  it("removing a piece that held a wall's origin hex gives the hex back, as a fresh replay does", () => {
+    let board: Board = floor
+    board = place({
+      board,
+      pieceID: Pieces.fortifiedWall,
+      at: O,
+      altitude: 1,
+      uid: 'wall',
+      permissive: true,
+    }).board
+    const wallOrigin = hexAt(board, O, 2)
+    expect(wallOrigin).toMatchObject({
+      boardPieceUID: 'wall',
+      isObstacleOrigin: true,
+    })
+    board = place({
+      board,
+      pieceID: Pieces.cannon,
+      at: O,
+      altitude: 1,
+      uid: 'cannon',
+      permissive: true,
+    }).board
+    expect(hexAt(board, O, 2)?.boardPieceUID).toBe('cannon')
+
+    board = remove(board, 'cannon').board
+    expect(hexAt(board, O, 2)).toEqual(wallOrigin)
+    const replayed = rebuildBoardStateFromPieces(
+      board.boardPieces,
+      makeTable().boardHexes,
+    )
+    expect(board.boardHexes).toEqual(replayed.boardHexes)
+  })
+
   it('a fresh replay of a board with walls gives the same boardHexes as placing one at a time', () => {
     const pieces = [
       ...floorPieces,
