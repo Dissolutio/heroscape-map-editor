@@ -14,6 +14,7 @@
  */
 import { describe, expect, it } from 'vitest'
 import { piecesSoFar } from '../data/pieces'
+import { evaluatePlacement, resolvePlacement } from '../data/placement'
 import { rebuildBoardStateFromPieces } from '../data/rebuildBoardState'
 import getPieceTemplateCoords from '../data/rotationTransforms'
 import {
@@ -30,6 +31,7 @@ import type { BoardPiece, CubeCoordinate } from '../types'
 import { Pieces } from '../types'
 import { CUBE_EAST, CUBE_NE, HEXGRID_HEX_HEIGHT } from '../utils/constants'
 import { hexUtilsAdd, hexUtilsRotateAroundOrigin_000 } from '../utils/hex-utils'
+import { getShipBowDeckPointerHex } from '../world/models/shipBowDeck'
 import { type Board, hexAt, makeTable, place } from './helpers/board'
 
 const table = makeTable()
@@ -300,5 +302,77 @@ describe('getShipBowRestOffset', () => {
     )
     expect(origin?.altitude).toBe(2)
     expect(board.conflictedPieceUIDs).toEqual([])
+  })
+})
+
+describe('building on the Ship Bow deck (the notch hexes at level 7)', () => {
+  const sections = ['forward', 'aft'] as const
+  const deckBoard = (rotation: number) => {
+    const bow = bp('bow', Pieces.shipBow, center, SHIP_ALTITUDE, rotation)
+    return {
+      bow,
+      board: rebuildBoardStateFromPieces([...floor, bow], table.boardHexes),
+    }
+  }
+
+  it.each([0, 2])(
+    'at rotation %i, the deck sections are the notch hexes and a click resolves land to level 7',
+    (rotation) => {
+      const { bow, board } = deckBoard(rotation)
+      sections.forEach((section, i) => {
+        const pointer = getShipBowDeckPointerHex(bow, section, board.boardHexes)
+        expect({ q: pointer.q, r: pointer.r }).toEqual({
+          q: notchHexes(rotation)[i].q,
+          r: notchHexes(rotation)[i].r,
+        })
+        // the bow's own notch clearance at level 6 is passed over
+        expect(pointer.boardPieceUID).toBe('')
+        const resolution = resolvePlacement(piecesSoFar.g1, pointer, 0, board)
+        expect(resolution).toMatchObject({
+          rule: 'land',
+          altitude: SHIP_ALTITUDE + 6,
+        })
+        const painted = place({
+          board,
+          pieceID: 'g1',
+          at: pointer,
+          altitude: SHIP_ALTITUDE + 6,
+          permissive: true,
+          uid: 'deck',
+        })
+        expect(painted.displacedUIDs).toEqual([])
+        expect(hexAt(painted.board, pointer, SHIP_ALTITUDE + 7)).toMatchObject({
+          boardPieceUID: 'deck',
+        })
+      })
+    },
+  )
+
+  it("hands over another piece's hex at that key as it is", () => {
+    const { bow, board } = deckBoard(0)
+    const conflicting = rebuildBoardStateFromPieces(
+      [...board.boardPieces, landAtLevel('land', notchHexes(0)[0], 6)],
+      table.boardHexes,
+    )
+    const pointer = getShipBowDeckPointerHex(
+      bow,
+      'forward',
+      conflicting.boardHexes,
+    )
+    expect(pointer.boardPieceUID).toBe('land')
+  })
+
+  // The deck holds land up physically ("where land attaches"), but addPiece
+  // only counts solid land, castle bases and the table as support, so the
+  // pen preview flags land on the deck as not supported (painting still
+  // places it, with no conflict). Same as before the notch hexes existed.
+  it.fails('KNOWN GAP: land on a Ship Bow deck previews ok', () => {
+    const { bow, board } = deckBoard(0)
+    const pointer = getShipBowDeckPointerHex(bow, 'forward', board.boardHexes)
+    const evaluation = evaluatePlacement(
+      board,
+      resolvePlacement(piecesSoFar.g1, pointer, 0, board),
+    )
+    expect(evaluation.status).toBe('ok')
   })
 })
