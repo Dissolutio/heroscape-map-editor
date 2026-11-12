@@ -1,7 +1,7 @@
 import type { BoardHexes, BoardPieces, CubeCoordinate, Piece } from '../types'
 import type { HexEdgeId } from './hexGrid/edgesAndNodes'
 import { addPiece } from './addPiece'
-import { getUnsupportedLaurAddonUIDs } from './laurAddonSupport'
+import { getUnsupportedPieceUIDs } from './unsupportedPieces'
 import { piecesSoFar } from './pieces'
 import { rebuildBoardStateFromPieces } from './rebuildBoardState'
 import { removePiece } from './removePiece'
@@ -144,8 +144,9 @@ export function applyPieceMoves(
     boardHexes: rebuilt.boardHexes,
     boardPieces: rebuilt.boardPieces,
     conflictedPieceUIDs: rebuilt.conflictedPieceUIDs,
-    unsupportedPieceUIDs: getUnsupportedLaurAddonUIDs({
+    unsupportedPieceUIDs: getUnsupportedPieceUIDs({
       boardPieces: rebuilt.boardPieces,
+      boardHexes: rebuilt.boardHexes,
     }),
     highestAltitude: Math.max(...resolved.map((m) => m.altitude)),
   }
