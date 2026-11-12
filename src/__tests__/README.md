@@ -58,6 +58,8 @@ Three.js through a CommonJS entry point, not from an application `require`.
 | `buildup-map-load-order.test.ts`              | Same-altitude support/overlap order for newer add-ons through `buildupJsonFileMap`, derived conflict/support state, a ladder control, and JSON save/reload idempotence.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
 | `hex-grid.test.ts`                            | Cube coordinates, directions, rotation, grid generation, odd-r conversion.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
 | `edges-and-nodes.test.ts`                     | Current edge/corner representations, the tested integer-lattice prototype and equivalence checks, plus application-level edge/node acceptance items (`it.todo`).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| `edge-node-cells.test.ts`                     | The edge/node cell rule (`data/hexGrid/pieceCells.ts`): both fixture maps John built (the dockyard Ship Wall pairs are a known gap), walls against walls, land, cannons, ship walls and trees, each footprint at all 6 rotations, and previews and smart placement agreeing with the replay.                                                                                                                                                                                                                                                                                                                                                                                          |
+| `store-edge-node-walls.test.ts`               | The real store with walls: place, rotate, move and remove, each step equal to a fresh replay, and exact undo/redo.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
 | `terrain-constraints.test.ts`                 | Inventory normalization, set/personal/file constraints, and exact pen-mode availability under inventory constraints.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
 | `sets-to-build-map.test.ts`                   | Era catalogs, jungle interchange, Mixed eligibility, irreducible set covers, box/count ceilings, ignored and unlisted pieces, collection shortfalls, and time-budget fallback.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
 | `adapt-to-collection.test.ts`                 | Missing-terrain and obstacle adaptation suggestions, footprint-safe family substitutions and height preference, gameplay-affecting obstacle priority, deterministic shared inventory allocation, owned buried fill, naming defaults, and leftovers.                                                                                                                                                                                                                                                                                                                                                                                                                                   |
@@ -141,6 +143,28 @@ the missing step. Today the registrations a piece needs are: the `Pieces` consta
 the set inventories (`data/inventories.ts`), and a Virtualscape code in
 `data/pieceCodes.ts` if the old editor had it. The 3D model/loader and the
 SVG/PDF shapes are not checked by tests yet.
+
+## Adding an edge or node piece (cells)
+
+Conflicts between pieces are cells (`src/data/hexGrid/pieceCells.ts`): a hex
+interior, an edge or a node, each filled over a level range. Two pieces
+conflict when they fill the same cell at overlapping levels. A piece that is
+not in `pieceCellDeclarations` (`src/data/hexGrid/pieceFeatures.ts`) fills the
+hex cell, 6 edges and 6 nodes of every hex it writes, which is the old "one
+owner per hex" rule.
+
+- A piece whose base stays in the middle of the hex (the Cannon): add
+  `{ fills: 'hex-center' }`.
+- A piece that stands between hexes (Fortified Wall, Ruins 2/3): derive its
+  footprint from the model with `scripts/derive-wall-footprints.mjs` (add it to
+  the script's `pieces` list, run `--check` and `--write`), then add
+  `{ fills: 'edges-and-nodes', footprint: wallFootprints[...] }`. Its boardHexes
+  stay for rendering and support only and never own a hex.
+
+Data only: addPiece, the replay, the previews and smart placement all read the
+declarations. Add the piece to the declaration and footprint tests in
+`edge-node-cells.test.ts`, and check it in the app with `?cells=1`, which draws
+every wall's cells in the 3D view.
 
 ## Adding an action-log entry
 
