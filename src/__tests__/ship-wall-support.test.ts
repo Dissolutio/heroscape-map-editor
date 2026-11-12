@@ -1,8 +1,8 @@
 /**
  * SHIP WALL SUPPORT (data/shipWallSupport.ts). The wall sits side by side
  * with solid land at its own level: all 4 interface hexes (the row north of it
- * at rotation 0) must be solid land, plus 2 counterweight land hexes in the
- * next row out. Fluid never connects; nothing under the wall matters.
+ * at rotation 0) must be solid land. Counterweight is left to the builders.
+ * Fluid never connects; nothing under the wall matters.
  * The Ship Bow is never unsupported.
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -43,7 +43,6 @@ const add = (a: CubeCoordinate, b: CubeCoordinate): CubeCoordinate => ({
 
 // rotation-0 cubes relative to the wall origin
 const INTERFACE = [c(0, -1), c(1, -1), c(2, -1), c(3, -1)]
-const COUNTERWEIGHT = [c(0, -2), c(1, -2), c(2, -2), c(3, -2), c(4, -2)]
 
 const ORIGIN = c(6, 8)
 
@@ -91,16 +90,11 @@ const check = (b: ReturnType<typeof build>) =>
 
 describe.each([0, 2])('Ship Wall support at rotation %i', (rotation) => {
   const iface = INTERFACE.map((o) => at(o, rotation))
-  const counter = COUNTERWEIGHT.map((o) => at(o, rotation))
-  const fullLand = [...iface, counter[0], counter[1]].map((p) => ({ at: p }))
+  const fullLand = iface.map((p) => ({ at: p }))
 
-  it('is supported with all 4 interface hexes and 2 counterweight hexes', () => {
+  it('is supported with all 4 interface hexes on solid land', () => {
     const result = check(build({ rotation, land: fullLand }))
-    expect(result).toEqual({
-      supported: true,
-      missingInterfaceHexes: [],
-      counterweightCount: 2,
-    })
+    expect(result).toEqual({ supported: true, missingInterfaceHexes: [] })
   })
 
   it('is unsupported with an empty interface hex, and lists it', () => {
@@ -133,7 +127,7 @@ describe.each([0, 2])('Ship Wall support at rotation %i', (rotation) => {
           ? { ...l, altitude: wallAltitude + delta }
           : { ...l, altitude: wallAltitude },
       )
-      const floor = [...iface, ...counter].map((p) => ({
+      const floor = iface.map((p) => ({
         at: p,
         altitude: 0,
       }))
@@ -145,30 +139,9 @@ describe.each([0, 2])('Ship Wall support at rotation %i', (rotation) => {
     },
   )
 
-  it('is unsupported with a short counterweight, reporting how many it has', () => {
-    const result = check(
-      build({
-        rotation,
-        land: [...iface.map((p) => ({ at: p })), { at: counter[2] }],
-      }),
-    )
-    expect(result.supported).toBe(false)
-    expect(result.missingInterfaceHexes).toEqual([])
-    expect(result.counterweightCount).toBe(1)
-    expect(getShipWallSupportReasons(result)).toEqual([
-      'Ship Wall: needs 1 more land hexes behind the interlocks for counterweight (has 1)',
-    ])
-  })
-
   it('is supported when stacked at level 2 on top of level-1 tiles', () => {
-    const lower = [...iface, counter[0], counter[1]].map((p) => ({
-      at: p,
-      altitude: 0,
-    }))
-    const upper = [...iface, counter[0], counter[1]].map((p) => ({
-      at: p,
-      altitude: 1,
-    }))
+    const lower = iface.map((p) => ({ at: p, altitude: 0 }))
+    const upper = iface.map((p) => ({ at: p, altitude: 1 }))
     const result = check(
       build({ rotation, wallAltitude: 1, land: [...lower, ...upper] }),
     )
@@ -178,17 +151,6 @@ describe.each([0, 2])('Ship Wall support at rotation %i', (rotation) => {
   it('needs nothing under the wall', () => {
     const b = build({ rotation, land: fullLand })
     expect(getUnsupportedPieceUIDs(b.board)).toEqual([])
-  })
-
-  it('counts a counterweight hex only if it touches a connected interface hex', () => {
-    // counter[4] only touches iface[3]; with that interface hex fluid it is not connected
-    const land = [
-      ...iface.map((p, i) => ({ at: p, pieceID: i === 3 ? 'w1' : 'g1' })),
-      { at: counter[4] },
-      { at: counter[3] },
-    ]
-    const result = check(build({ rotation, land }))
-    expect(result.counterweightCount).toBe(1) // counter[3] touches iface[2] too
   })
 })
 
@@ -225,9 +187,7 @@ describe('board level derivation', () => {
     const iface = INTERFACE.map((o) => at(o, 0))
     const b = build({
       rotation: 0,
-      land: [...iface, at(COUNTERWEIGHT[0], 0), at(COUNTERWEIGHT[1], 0)].map(
-        (p) => ({ at: p }),
-      ),
+      land: iface.map((p) => ({ at: p })),
     })
     expect(getUnsupportedPieceUIDs(b.board)).toEqual([])
     const tile = b.board.boardPieces.find(
@@ -280,7 +240,7 @@ describe('store', () => {
 
   it('turns the wall amber when an interface tile is removed, and undo restores it', () => {
     const iface = INTERFACE.map((o) => at(o, 0))
-    const land = [...iface, at(COUNTERWEIGHT[0], 0), at(COUNTERWEIGHT[1], 0)]
+    const land = iface
     const pieces: BoardPiece[] = [
       ...land.map((p, i) => ({
         uid: `land-${i}`,
