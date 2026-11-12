@@ -28,11 +28,7 @@ import {
 import { getCycleableLevels, getOverlayLevel } from '../utils/map-utils'
 import { ControlTabsListItemButton } from './ControlTabsListItemButton'
 
-export const FileControlsTab = ({
-  is2DOpen,
-}: {
-  is2DOpen: boolean
-}) => {
+export const FileControlsTab = ({ is2DOpen }: { is2DOpen: boolean }) => {
   const hexMap = useBoundStore((s) => s.hexMap)
   const boardPieces = useBoundStore((s) => s.boardPieces)
   const boardHexes = useBoundStore((s) => s.boardHexes)
@@ -285,16 +281,12 @@ export const FileControlsTab = ({
       return
     }
 
-    const labels = removed.map((item) => {
-      switch (item) {
-        case 'startZones':
-          return 'start zones'
-        case 'objectiveMarkers':
-          return 'objective markers'
-        case 'glyphs':
-          return 'glyphs'
-      }
-    })
+    const labelsByRemoved: Record<ShareUrlRemoved, string> = {
+      startZones: 'start zones',
+      objectiveMarkers: 'objective markers',
+      glyphs: 'glyphs',
+    }
+    const labels = removed.map((item) => labelsByRemoved[item])
     const omitted =
       labels.length === 1
         ? labels[0]

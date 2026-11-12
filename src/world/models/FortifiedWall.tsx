@@ -7,11 +7,7 @@ import { hexTerrainColor } from '../maphex/hexColors'
 import { basicModelMaterial } from './materials'
 import { useDisposableGLTF } from './useDisposableGLTF'
 
-export function FortifiedWall({
-  pid,
-}: {
-  pid: string
-}) {
+export function FortifiedWall({ pid }: { pid: string }) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useDisposableGLTF('/FortifiedWall.glb') as any
   const isLightsAndShadowsRender = useBoundStore(

@@ -487,54 +487,48 @@ describe('removePiece never throws', () => {
 })
 
 describe('KNOWN GAPS in the engine', () => {
-  it.fails(
-    'KNOWN GAP: strict addPiece rejects lwl2 at an integer rotation',
-    () => {
-      // The long Laur wall spans pillar to pillar over a hex VERTEX, so only
-      // half-step rotations (0.5 ... 5.5) are physical. The UI only offers
-      // those (getPossibleRotationsForPenMode), but the engine does not
-      // enforce it: the laurWallAddon branch records any rotation. A file,
-      // link or future caller can create an impossible wall.
-      // Fix with the edges-and-nodes work (see data/laurAddonFootprints.ts,
-      // which already returns null for this case).
-      const floor = withGrassFloor(makeTable())
-      const pillar = place({
-        board: floor,
-        pieceID: 'lwp',
-        at: floor.center,
-        altitude: 1,
-        uid: 'pillar',
-      })
-      expect(pillar.error).toBeUndefined()
-      const wall = place({
-        board: pillar.board,
-        pieceID: 'lwl2',
-        at: floor.center,
-        altitude: 10,
-        rotation: 1,
-      })
-      expect(wall.error).toBeDefined()
-    },
-  )
+  it.fails('KNOWN GAP: strict addPiece rejects lwl2 at an integer rotation', () => {
+    // The long Laur wall spans pillar to pillar over a hex VERTEX, so only
+    // half-step rotations (0.5 ... 5.5) are physical. The UI only offers
+    // those (getPossibleRotationsForPenMode), but the engine does not
+    // enforce it: the laurWallAddon branch records any rotation. A file,
+    // link or future caller can create an impossible wall.
+    // Fix with the edges-and-nodes work (see data/laurAddonFootprints.ts,
+    // which already returns null for this case).
+    const floor = withGrassFloor(makeTable())
+    const pillar = place({
+      board: floor,
+      pieceID: 'lwp',
+      at: floor.center,
+      altitude: 1,
+      uid: 'pillar',
+    })
+    expect(pillar.error).toBeUndefined()
+    const wall = place({
+      board: pillar.board,
+      pieceID: 'lwl2',
+      at: floor.center,
+      altitude: 10,
+      rotation: 1,
+    })
+    expect(wall.error).toBeDefined()
+  })
 
-  it.fails(
-    'KNOWN GAP: strict addPiece rejects a Laur wall add-on with no pillar under it',
-    () => {
-      // Add-ons hang off a Laur square or triangle pillar at their anchor hex,
-      // but strict placement never checks for one: lwl2 placed on bare grass
-      // is accepted. The pillar-support rule belongs to the edges-and-nodes
-      // work, so this is documented, not fixed.
-      const floor = withGrassFloor(makeTable())
-      const wall = place({
-        board: floor,
-        pieceID: 'lwl2',
-        at: floor.center,
-        altitude: 1,
-        rotation: 0.5,
-      })
-      expect(wall.error).toBeDefined()
-    },
-  )
+  it.fails('KNOWN GAP: strict addPiece rejects a Laur wall add-on with no pillar under it', () => {
+    // Add-ons hang off a Laur square or triangle pillar at their anchor hex,
+    // but strict placement never checks for one: lwl2 placed on bare grass
+    // is accepted. The pillar-support rule belongs to the edges-and-nodes
+    // work, so this is documented, not fixed.
+    const floor = withGrassFloor(makeTable())
+    const wall = place({
+      board: floor,
+      pieceID: 'lwl2',
+      at: floor.center,
+      altitude: 1,
+      rotation: 0.5,
+    })
+    expect(wall.error).toBeDefined()
+  })
 
   it('addPiece does not mutate the board it was given', () => {
     // Compare the complete map, including fields such as `isCap` on existing
@@ -546,38 +540,35 @@ describe('KNOWN GAPS in the engine', () => {
   })
 
   for (const pieceID of ['bt', 'rw', 'lws']) {
-    it.fails(
-      `a second identical ${pieceID} on the same hex and rotation is rejected`,
-      () => {
-        // Edge add-ons that render from boardPieces (battlements, road walls,
-        // Laur wall addons, rope ladders) write no hexes, so nothing can collide
-        // with them, and their support check is a hard-coded `true`
-        // ("isBattlementPieceSupported_true ... TODO: validate pieces"). Start
-        // zones got explicit duplicate protection; these did not. Ladders are
-        // fine because they do write hexes.
-        //
-        // ASSUMPTION to confirm: an exact duplicate (same hex, altitude, rotation)
-        // is never intended. This is also the thin end of the edge/node problem:
-        // the same physical edge can be named from either neighboring hex (see
-        // edges-and-nodes.test.ts), which this check would not catch either.
-        const floor = withGrassFloor(makeTable())
-        const first = place({
-          board: floor,
-          pieceID,
-          at: floor.center,
-          altitude: 1,
-          uid: 'one',
-        })
-        expect(first.error).toBeUndefined()
-        const second = place({
-          board: first.board,
-          pieceID,
-          at: floor.center,
-          altitude: 1,
-          uid: 'two',
-        })
-        expect(second.error).toBeDefined()
-      },
-    )
+    it.fails(`a second identical ${pieceID} on the same hex and rotation is rejected`, () => {
+      // Edge add-ons that render from boardPieces (battlements, road walls,
+      // Laur wall addons, rope ladders) write no hexes, so nothing can collide
+      // with them, and their support check is a hard-coded `true`
+      // ("isBattlementPieceSupported_true ... TODO: validate pieces"). Start
+      // zones got explicit duplicate protection; these did not. Ladders are
+      // fine because they do write hexes.
+      //
+      // ASSUMPTION to confirm: an exact duplicate (same hex, altitude, rotation)
+      // is never intended. This is also the thin end of the edge/node problem:
+      // the same physical edge can be named from either neighboring hex (see
+      // edges-and-nodes.test.ts), which this check would not catch either.
+      const floor = withGrassFloor(makeTable())
+      const first = place({
+        board: floor,
+        pieceID,
+        at: floor.center,
+        altitude: 1,
+        uid: 'one',
+      })
+      expect(first.error).toBeUndefined()
+      const second = place({
+        board: first.board,
+        pieceID,
+        at: floor.center,
+        altitude: 1,
+        uid: 'two',
+      })
+      expect(second.error).toBeDefined()
+    })
   }
 })

@@ -10,6 +10,7 @@ import { hexPoints3DFromCenter } from '../../utils/map-utils'
 extend({ Line_: Line })
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
+  // biome-ignore lint/style/noNamespace: JSX augmentation requires a namespace.
   namespace JSX {
     interface IntrinsicElements {
       line_: Object3DNode<Line, typeof Line>
@@ -68,7 +69,10 @@ export default function HeightRing({ position }: { position: Vector3 }) {
 export function TopOutlineInterlockHex({
   position,
   boardHex,
-}: { position: Vector3; boardHex: BoardHex }) {
+}: {
+  position: Vector3
+  boardHex: BoardHex
+}) {
   // SITE OF STRANGE BUG: somehow, pieceRotation is a string, sometimes, not a number, and throws off the geo logic (no idea how!)
   // console.log("🚀 ~ TopOutlineInterlockHex ~ boardHex.pieceRotation:", boardHex.pieceRotation, typeof boardHex.pieceRotation)
   const color = boardHex.terrain === 'asphalt' ? 'gray' : 'black'

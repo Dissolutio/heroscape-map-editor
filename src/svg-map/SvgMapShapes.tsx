@@ -115,11 +115,7 @@ export const SvgMapShapeSettingsContext = createContext<SvgMapShapeSettings>({
 //     </>
 //   )
 // }
-export const SvgEmptyHex = ({
-  hex,
-}: {
-  hex: BoardHex
-}) => {
+export const SvgEmptyHex = ({ hex }: { hex: BoardHex }) => {
   const fillColor = 'white'
   const borderColor = getSvgHexBorderColor(hex)
   const { points } = getHexagonSvgPolygonPointsAt00(SVG_HEX_RADIUS)
@@ -169,11 +165,7 @@ export const SvgHexDecor = ({
     </>
   )
 }
-const SvgSnowSnowflake = ({
-  isSubLevel,
-}: {
-  isSubLevel?: boolean
-}) => {
+const SvgSnowSnowflake = ({ isSubLevel }: { isSubLevel?: boolean }) => {
   const fillColor = isSubLevel
     ? svgSubLevelColors.snowDecor
     : svgColors.snowDecor
@@ -190,11 +182,7 @@ const SvgSnowSnowflake = ({
     </>
   )
 }
-const SvgIceSnowflake = ({
-  isSubLevel,
-}: {
-  isSubLevel?: boolean
-}) => {
+const SvgIceSnowflake = ({ isSubLevel }: { isSubLevel?: boolean }) => {
   const fillColor = isSubLevel ? svgSubLevelColors.iceDecor : svgColors.iceDecor
   return (
     <>
@@ -209,11 +197,7 @@ const SvgIceSnowflake = ({
     </>
   )
 }
-const SvgRoadCobblestone = ({
-  isSubLevel,
-}: {
-  isSubLevel?: boolean
-}) => {
+const SvgRoadCobblestone = ({ isSubLevel }: { isSubLevel?: boolean }) => {
   const roadDecorScale = 11
   const fillColor = isSubLevel
     ? svgSubLevelColors.roadDecor
@@ -244,11 +228,7 @@ const SvgRoadCobblestone = ({
     </>
   )
 }
-const SvgWoodMarkings = ({
-  isSubLevel,
-}: {
-  isSubLevel?: boolean
-}) => {
+const SvgWoodMarkings = ({ isSubLevel }: { isSubLevel?: boolean }) => {
   // const fillColor = 'black'
   const fillColor = isSubLevel ? svgSubLevelColors.cannon : svgColors.cannon
 
@@ -1763,6 +1743,9 @@ export const SvgOutcrop4 = ({
 }
 const SvgSubLevelWhiteBackerPolygon = ({
   points,
-}: { points: string; borderWidth?: number }) => {
+}: {
+  points: string
+  borderWidth?: number
+}) => {
   return <polygon points={points} fill={'white'} />
 }
