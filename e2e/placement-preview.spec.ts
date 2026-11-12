@@ -87,6 +87,9 @@ test('Ship hotkeys preview all variants and place a rope ladder on a wall', asyn
     return snapshot?.penMode === 'sl' && snapshot.penPieceID === 'sl'
   })
   await expect(penMode).toContainText('Ship Wall')
+  // Wait for the closing menu's backdrop to go away, or the hover lands on it.
+  await expect(page.getByRole('listbox')).toBeHidden()
+  await page.mouse.move(0, 0)
   await hoverHex(page, { q: 4, r: 3, altitude: 0 })
   await page.waitForFunction(
     () => window.__TEST__?.snapshot().placementPreview !== null,
