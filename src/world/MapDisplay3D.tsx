@@ -4,7 +4,7 @@ import type React from 'react'
 import { type Group, type Object3DEventMap, Raycaster, Vector2 } from 'three'
 import { worldToCube } from '../data/dragMove.ts'
 import { mapTableHexes } from '../data/fitMapToPieces.ts'
-import { isPerHexLandOverride } from '../e2e/isE2E.ts'
+import { isCellsOverlay, isPerHexLandOverride } from '../e2e/isE2E.ts'
 import { useMiddleClickPickPenMode } from '../hooks/useMiddleClickPickPenMode.tsx'
 import useBoundStore from '../store/store.ts'
 import type { BoardHex, BoardHexes } from '../types.ts'
@@ -35,6 +35,12 @@ import LandSubterrainInstanced, {
 } from './models/LandSubterrainInstanced.tsx'
 import ObjectiveMarkers3D from './models/ObjectiveMarkers3D.tsx'
 import { getLandHexInstanceIDs } from './models/landHexInstances.ts'
+import { lazyWithRetry } from '../utils/lazyWithRetry.ts'
+
+// `?cells=1` only: the module is never loaded otherwise.
+const WallCellsOverlay = isCellsOverlay
+  ? lazyWithRetry(() => import('./debug/WallCellsOverlay.tsx'))
+  : null
 
 function RightClickPieceCapture({
   boardHexes,
@@ -227,6 +233,11 @@ export default function MapDisplay3D({
         <ObjectiveMarkerPlacementPreview />
         <OperationPiecePreviews />
         <DragPreview3D />
+        {WallCellsOverlay && (
+          <Suspense fallback={null}>
+            <WallCellsOverlay />
+          </Suspense>
+        )}
         <EmptyHexes
           boardHexArr={instanceBoardHexes.emptyHexCaps}
           onPointerUp={onPointerUpPaintPiece}
