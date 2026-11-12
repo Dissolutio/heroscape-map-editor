@@ -90,7 +90,9 @@ test('Ship hotkeys preview all variants and place a rope ladder on a wall', asyn
   // Wait for the closing menu's backdrop to go away, or the hover lands on it.
   await expect(page.getByRole('listbox')).toBeHidden()
   await page.mouse.move(0, 0)
-  await hoverHex(page, { q: 4, r: 3, altitude: 0 })
+  // The Ship Wall is 4 hexes long (knub included), so hover far enough west
+  // on this 8-wide map for the whole wall to fit.
+  await hoverHex(page, { q: 2, r: 3, altitude: 0 })
   await page.waitForFunction(
     () => window.__TEST__?.snapshot().placementPreview !== null,
   )
