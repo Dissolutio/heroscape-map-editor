@@ -10,6 +10,7 @@ import {
   edgeIdFromHex,
   nodeIdFromHexRotation,
 } from './edgesAndNodes'
+import { type EdgeNodeFootprint, wallFootprints } from './wallFootprints'
 
 export type PieceFeatureKind = 'edge' | 'node'
 export type PieceFeatureId = HexFeatureId
@@ -121,6 +122,48 @@ export const pieceTopologyDeclarations = {
     source: 'attachment',
   },
 } as const satisfies Record<string, PieceTopologyDeclaration>
+
+/**
+ * Which cells a piece fills, for the cell conflict rule in pieceCells.ts:
+ * two pieces conflict when they fill the same cell (a hex interior, an edge or
+ * a node) at an overlapping level.
+ *
+ * A piece that is not listed here uses the default: every hex it writes into
+ * boardHexes fills its hex cell plus that hex's 6 edges and 6 nodes, so two
+ * undeclared pieces conflict exactly when they claim the same hex.
+ *
+ * - `hex-center`: the base stays clear of the hex edges (a round disc in the
+ *   middle of the hex). The piece fills only its hex cells.
+ * - `edges-and-nodes`: the piece stands between hexes. It fills only the
+ *   edges and nodes in its footprint, each over its own levels, and no hex
+ *   cell. Its boardHexes are kept only for rendering and support, and never
+ *   displace another piece (see addPiece).
+ *
+ * To add an edge piece, derive its footprint table (see
+ * scripts/derive-wall-footprints.mjs and wallFootprints.ts) and add one entry
+ * here. No other code changes.
+ */
+export type PieceCellDeclaration =
+  | { fills: 'hex-center' }
+  | { fills: 'edges-and-nodes'; footprint: EdgeNodeFootprint }
+
+export const pieceCellDeclarations: Readonly<
+  Record<string, PieceCellDeclaration>
+> = {
+  [Pieces.cannon]: { fills: 'hex-center' },
+  [Pieces.fortifiedWall]: {
+    fills: 'edges-and-nodes',
+    footprint: wallFootprints[Pieces.fortifiedWall],
+  },
+  [Pieces.ruins2]: {
+    fills: 'edges-and-nodes',
+    footprint: wallFootprints[Pieces.ruins2],
+  },
+  [Pieces.ruins3]: {
+    fills: 'edges-and-nodes',
+    footprint: wallFootprints[Pieces.ruins3],
+  },
+}
 
 type PieceFeatureInput = {
   pieceID: string

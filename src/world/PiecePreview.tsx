@@ -260,6 +260,7 @@ function PiecePreviewModel({
     if (piece.terrain === HexTerrain.laurWallAddon) return hoveredHexForModel
     const altitude = getSmartPlacementAltitude({
       boardHexes,
+      boardPieces,
       piece,
       pieceCoords: hoveredHexForModel,
       altitude: hoveredHexForModel.altitude,
@@ -275,6 +276,7 @@ function PiecePreviewModel({
     }
   }, [
     boardHexes,
+    boardPieces,
     hoveredHexForModel,
     hoveredHexOverride,
     penModeRotation,

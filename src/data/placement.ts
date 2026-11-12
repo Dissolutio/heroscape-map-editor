@@ -40,6 +40,7 @@ import getPieceTemplateCoords from './rotationTransforms'
 import { getSmartPlacementAltitude } from './smartPlacement'
 import { getTemplateTopLevel } from './vertical-obstruction-templates'
 import { type HexEdgeId, edgeIdFromHex } from './hexGrid/edgesAndNodes'
+import { getEdgeNodePieceColumns } from './hexGrid/pieceCells'
 
 /** The two pieces of state placement reads. */
 export type PlacementBoard = {
@@ -265,6 +266,7 @@ function resolveByRule(
   const smartAltitude = () =>
     getSmartPlacementAltitude({
       boardHexes,
+      boardPieces,
       piece,
       pieceCoords: coords,
       altitude: clickedAltitude,
@@ -437,7 +439,17 @@ export function evaluatePlacement(
   const probeClearance = Math.max(1, clearance)
   const ignoredUIDs = toIgnoredPieceUIDSet(ignoreUID)
   const localHexes: BoardHexes = {}
-  for (const hexCoords of footprint) {
+  // A wall's edges and nodes also border hexes outside its template.
+  const probeColumns = [
+    ...footprint,
+    ...getEdgeNodePieceColumns({
+      inventoryID: piece.id,
+      pieceCoords: coords,
+      rotation,
+      altitude,
+    }),
+  ]
+  for (const hexCoords of probeColumns) {
     for (
       let level = altitude;
       level <= altitude + probeClearance + 2;
