@@ -26,10 +26,10 @@
 import type {
   BoardHex,
   BoardHexes,
+  BoardPiece,
   BoardPieces,
   CubeCoordinate,
 } from '../../types'
-import { genBoardHexID } from '../../utils/map-utils'
 import { hexUtilsRotateAroundOrigin_000 } from '../../utils/hex-utils'
 import {
   getObstructedLevelOffsets,
@@ -53,6 +53,8 @@ export type FilledCell = {
   bottom: number
   /** Level the cell is filled up to (exclusive). */
   top: number
+  /** The 2 (edge) or 3 (node) hexes the cell borders. */
+  hexes: readonly CubeCoordinate[]
 }
 
 type CellPiece = {
@@ -148,12 +150,15 @@ export function getEdgeNodePieceCells(piece: CellPiece): FilledCell[] {
   const cells = footprints[rotation].map(({ kind, coords, entry }) => {
     const scale = kind === 'edge' ? 2 : 3
     const offsets = getObstructedLevelOffsets(entry)
-    return {
-      cell: `${kind}:${normalizeZero(scale * q + coords.q)},${normalizeZero(
+    const cell =
+      `${kind}:${normalizeZero(scale * q + coords.q)},${normalizeZero(
         scale * r + coords.r,
-      )},${normalizeZero(scale * s + coords.s)}` as HexEdgeId | HexNodeId,
+      )},${normalizeZero(scale * s + coords.s)}` as HexEdgeId | HexNodeId
+    return {
+      cell,
       bottom: piece.altitude + Math.min(...offsets),
       top: piece.altitude + Math.max(...offsets) + 1,
+      hexes: hexesTouchingCell(cell),
     }
   })
   cellsByPiece.set(piece, { signature, cells })
@@ -170,8 +175,8 @@ export function hexesTouchingCell(cell: HexEdgeId | HexNodeId) {
 /** Every hex an edges-and-nodes piece touches: the columns it can conflict in. */
 export function getEdgeNodePieceColumns(piece: CellPiece): CubeCoordinate[] {
   const columns = new Map<string, CubeCoordinate>()
-  for (const { cell } of getEdgeNodePieceCells(piece)) {
-    for (const hex of hexesTouchingCell(cell)) {
+  for (const { hexes } of getEdgeNodePieceCells(piece)) {
+    for (const hex of hexes) {
       columns.set(`${hex.q},${hex.r},${hex.s}`, hex)
     }
   }
@@ -200,20 +205,90 @@ const overlaps = (bottom: number, top: number, other: FilledCell) =>
 
 type IndexedCell = FilledCell & { uid: string }
 
-function indexEdgeNodePieces(boardPieces: BoardPieces, excludeUID: string) {
-  const index = new Map<string, IndexedCell[]>()
-  for (const piece of boardPieces) {
-    if (piece.uid === excludeUID || !isEdgeNodePieceID(piece.inventoryID)) {
-      continue
-    }
-    for (const cell of getEdgeNodePieceCells(piece)) {
-      const entries = index.get(cell.cell)
-      const entry = { ...cell, uid: piece.uid }
-      if (entries) entries.push(entry)
-      else index.set(cell.cell, [entry])
-    }
+const columnKey = ({ q, r }: CubeCoordinate) => `${q},${r}`
+
+// genBoardHexID, with the (often half-level) altitude formatted once.
+const altitudeStrings = new Map<number, string>()
+function hexKey({ q, r }: CubeCoordinate, altitude: number) {
+  let text = altitudeStrings.get(altitude)
+  if (text === undefined) {
+    text = String(altitude)
+    altitudeStrings.set(altitude, text)
   }
+  return `${text}~${q}~${r}`
+}
+
+// A wall's cells tagged with its uid, and the columns they touch, per piece.
+const indexedCellsByPiece = new WeakMap<
+  BoardPiece,
+  {
+    cells: FilledCell[]
+    uid: string
+    indexed: IndexedCell[]
+    columns: string[]
+  }
+>()
+function getIndexedCells(piece: BoardPiece) {
+  const cells = getEdgeNodePieceCells(piece)
+  const cached = indexedCellsByPiece.get(piece)
+  if (cached?.cells === cells && cached.uid === piece.uid) {
+    return { cells: cached.indexed, columns: cached.columns }
+  }
+  const indexed = cells.map((cell) => ({ ...cell, uid: piece.uid }))
+  const columns = [
+    ...new Set(cells.flatMap((cell) => cell.hexes.map(columnKey))),
+  ]
+  indexedCellsByPiece.set(piece, { cells, uid: piece.uid, indexed, columns })
+  return { cells: indexed, columns }
+}
+
+type EdgeNodeIndex = {
+  /** The walls' cells by cell id. */
+  byCell: Map<string, IndexedCell[]>
+  /** Every column a wall touches. */
+  columns: Set<string>
+}
+
+// The index of a board piece list, built once per list. An index is never
+// changed after it is built; the length guards against a list pushed to
+// after it was indexed.
+const indexByPieces = new WeakMap<
+  BoardPieces,
+  { length: number; index: EdgeNodeIndex }
+>()
+
+function getEdgeNodeIndex(boardPieces: BoardPieces): EdgeNodeIndex {
+  const cached = indexByPieces.get(boardPieces)
+  if (cached?.length === boardPieces.length) return cached.index
+  const index: EdgeNodeIndex = { byCell: new Map(), columns: new Set() }
+  for (const piece of boardPieces) {
+    if (!isEdgeNodePieceID(piece.inventoryID)) continue
+    const indexed = getIndexedCells(piece)
+    for (const entry of indexed.cells) {
+      const entries = index.byCell.get(entry.cell)
+      if (entries) entries.push(entry)
+      else index.byCell.set(entry.cell, [entry])
+    }
+    for (const column of indexed.columns) index.columns.add(column)
+  }
+  indexByPieces.set(boardPieces, { length: boardPieces.length, index })
   return index
+}
+
+/**
+ * Let `next` (a copy of `previous` plus one piece that is not a wall) reuse
+ * `previous`'s index, so a replay rebuilds it only when a wall is added.
+ */
+export function shareEdgeNodeIndex(
+  previous: BoardPieces,
+  next: BoardPieces,
+  addedInventoryID: string,
+) {
+  if (isEdgeNodePieceID(addedInventoryID)) return
+  const cached = indexByPieces.get(previous)
+  if (cached?.length === previous.length) {
+    indexByPieces.set(next, { length: next.length, index: cached.index })
+  }
 }
 
 /**
@@ -245,26 +320,41 @@ export function findCellConflicts({
   const conflicts = new Set<string>()
   if (isEdgeNodePieceID(piece.inventoryID)) {
     const cells = getEdgeNodePieceCells(piece)
-    const others = indexEdgeNodePieces(boardPieces, uid)
+    const others = getEdgeNodeIndex(boardPieces).byCell
+    // Each column this piece touches, with the level span of its cells there.
+    const columns = new Map<
+      string,
+      { coords: CubeCoordinate; bottom: number; top: number }
+    >()
     for (const cell of cells) {
       for (const other of others.get(cell.cell) ?? []) {
-        if (overlaps(cell.bottom, cell.top, other)) conflicts.add(other.uid)
+        if (other.uid !== uid && overlaps(cell.bottom, cell.top, other)) {
+          conflicts.add(other.uid)
+        }
       }
+      for (const coords of cell.hexes) {
+        const key = columnKey(coords)
+        const column = columns.get(key)
+        if (column) {
+          column.bottom = Math.min(column.bottom, cell.bottom)
+          column.top = Math.max(column.top, cell.top)
+        } else {
+          columns.set(key, { coords, bottom: cell.bottom, top: cell.top })
+        }
+      }
+    }
+    const cellsByID = new Map(cells.map((cell) => [cell.cell as string, cell]))
+    for (const { coords, bottom, top } of columns.values()) {
       // A hex at altitude a fills [a - 1, a), so the hexes that can overlap
       // [bottom, top) sit at altitudes in (bottom, top + 1).
-      for (const coords of hexesTouchingCell(cell.cell)) {
-        for (
-          let altitude = cell.bottom + 0.5;
-          altitude < cell.top + 1;
-          altitude += 0.5
-        ) {
-          const hex = boardHexes[genBoardHexID({ ...coords, altitude })]
-          if (
-            hex?.boardPieceUID &&
-            hex.boardPieceUID !== uid &&
-            getBoardHexEdgeNodeCells(hex).length > 0
-          ) {
+      for (let altitude = bottom + 0.5; altitude < top + 1; altitude += 0.5) {
+        const hex = boardHexes[hexKey(coords, altitude)]
+        if (!hex?.boardPieceUID || hex.boardPieceUID === uid) continue
+        for (const hexCell of getBoardHexEdgeNodeCells(hex)) {
+          const cell = cellsByID.get(hexCell)
+          if (cell && overlaps(altitude - 1, altitude, cell)) {
             conflicts.add(hex.boardPieceUID)
+            break
           }
         }
       }
@@ -275,12 +365,16 @@ export function findCellConflicts({
   if (isHexCenterPieceID(piece.inventoryID) || writtenHexes.length === 0) {
     return []
   }
-  const walls = indexEdgeNodePieces(boardPieces, uid)
-  if (walls.size === 0) return []
+  const walls = getEdgeNodeIndex(boardPieces)
+  if (walls.byCell.size === 0) return []
   for (const hex of writtenHexes) {
+    if (!walls.columns.has(columnKey(hex))) continue
     for (const cell of getBoardHexEdgeNodeCells(hex)) {
-      for (const wall of walls.get(cell) ?? []) {
-        if (overlaps(hex.altitude - 1, hex.altitude, wall)) {
+      for (const wall of walls.byCell.get(cell) ?? []) {
+        if (
+          wall.uid !== uid &&
+          overlaps(hex.altitude - 1, hex.altitude, wall)
+        ) {
           conflicts.add(wall.uid)
         }
       }

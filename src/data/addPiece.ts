@@ -35,7 +35,11 @@ import {
   verticalSupportTemplates,
 } from './vertical-obstruction-templates'
 import { getSupportingLaurPillar, isLaurPillarID } from './laurPillarStacking'
-import { findCellConflicts, isEdgeNodePieceID } from './hexGrid/pieceCells'
+import {
+  findCellConflicts,
+  isEdgeNodePieceID,
+  shareEdgeNodeIndex,
+} from './hexGrid/pieceCells'
 
 export function addPiece({
   // state to mutate and return
@@ -922,6 +926,7 @@ export function addPiece({
     })) {
       displacedUIDs.add(conflictUID)
     }
+    shareEdgeNodeIndex(boardPieces, newBoardPieces, piece.id)
   }
   if (!hasBoardPiece && !addPieceError && !isDuplicateStartZone) {
     addPieceError = {
