@@ -1,6 +1,6 @@
 import type { ThreeEvent } from '@react-three/fiber'
 import { noop } from 'lodash'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { piecesSoFar } from '../../data/pieces'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
 import useBoundStore from '../../store/store'
@@ -13,7 +13,7 @@ import { hexUtilsGetShipBuildableCoords } from '../../utils/hex-utils'
 import { genBoardHexID } from '../../utils/map-utils'
 import { hexTerrainColor } from '../maphex/hexColors'
 import { basicModelMaterial } from './materials'
-import { shipDeckColor } from './shipDeckColor'
+import { getActiveDeckSection, shipDeckColor } from './shipDeckColor'
 import { useDisposableGLTF } from './useDisposableGLTF'
 
 type ShipBowProps = {
@@ -197,6 +197,19 @@ export function ShipBow({ pid, bp, onPointerUp }: ShipBowProps) {
     }
   }
 
+  // Never trust the local section alone: see getActiveDeckSection
+  const activeDeckSection = getActiveDeckSection({
+    section: hoveredBuildableSection,
+    pid,
+    hoveredPieceID,
+    isSolidLandPenMode: Boolean(isSolidLandPenMode),
+  })
+  useEffect(() => {
+    if (hoveredBuildableSection !== null && activeDeckSection === null) {
+      setHoveredBuildableSection(null)
+    }
+  }, [hoveredBuildableSection, activeDeckSection])
+
   const selectedPieceIDs = useBoundStore((s) => s.selectedPieceIDs)
   const yellowColor = 'yellow'
   const isSelected = selectedPieceIDs.includes(pid ?? '')
@@ -205,11 +218,11 @@ export function ShipBow({ pid, bp, onPointerUp }: ShipBowProps) {
   // Determine colors for buildable sections
   const forwardBuildableColor = shipDeckColor(
     isHighlighted,
-    hoveredBuildableSection === 'forward',
+    activeDeckSection === 'forward',
   )
   const aftBuildableColor = shipDeckColor(
     isHighlighted,
-    hoveredBuildableSection === 'aft',
+    activeDeckSection === 'aft',
   )
   const color = isHighlighted ? yellowColor : hexTerrainColor.shipWood
   const colorShipBowIron = isHighlighted
