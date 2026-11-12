@@ -1,7 +1,12 @@
 import type { BoardHex, Piece } from '../types'
+import { Pieces } from '../types'
 import { evaluateLaurAddonConflicts } from './laurAddonConflicts'
 import { isLaurAddonSupported } from './laurAddonSupport'
 import { isLaurWallAddonPieceID } from '../utils/board-utils'
+import {
+  evaluateShipWallSupport,
+  getShipWallSupportReasons,
+} from './shipWallSupport'
 import {
   type PlacementEvaluation,
   type PlacementResolution,
@@ -48,6 +53,25 @@ export function getPlacementPreviewState(
     }
     if (unsupported) {
       const supportReason = 'Missing required Laur pillar ports'
+      evaluation.reason = evaluation.reason
+        ? `${evaluation.reason}; ${supportReason}`
+        : supportReason
+    }
+  }
+  if (piece.id === Pieces.shipWall && !('blocked' in resolution)) {
+    // Ship Walls may be placed anywhere; this only flags them amber.
+    const support = evaluateShipWallSupport(
+      {
+        altitude: resolution.altitude,
+        rotation: resolution.rotation,
+        pieceCoords: resolution.coords,
+      },
+      board.boardHexes,
+      board.boardPieces,
+    )
+    unsupported = !support.supported
+    if (unsupported) {
+      const supportReason = getShipWallSupportReasons(support).join('; ')
       evaluation.reason = evaluation.reason
         ? `${evaluation.reason}; ${supportReason}`
         : supportReason

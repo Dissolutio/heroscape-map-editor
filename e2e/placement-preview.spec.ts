@@ -21,6 +21,27 @@ const SHIP_LADDER_PIECES = [
   '1~0~1~0~g1',
 ]
 
+test('a Ship Wall with no land beside it previews amber (unsupported)', async ({
+  page,
+}) => {
+  await page.goto(mapUrl(SHIP_LADDER_MAP, []))
+  await waitForAppReady(page)
+  await setPen(page, 'sl', 1)
+  await page.mouse.move(0, 0)
+  // 4 hexes long: hover far enough west on the 8-wide map for the wall to fit
+  await hoverHex(page, { q: 2, r: 3, altitude: 0 })
+  await page.waitForFunction(
+    () => window.__TEST__?.snapshot().placementPreview?.unsupported === true,
+  )
+  const preview = await page.evaluate(
+    () => window.__TEST__?.snapshot().placementPreview,
+  )
+  expect(preview).toMatchObject({ status: 'ok', unsupported: true })
+  expect(preview?.reason).toContain(
+    'Ship Wall: 4 of 4 interlocks not connected to solid land',
+  )
+})
+
 test('a solid land pen previews ok over a free hex', async ({ page }) => {
   await setPen(page, 'g', 1)
   await hoverHex(page, { q: 0, r: 0, altitude: 0 })
