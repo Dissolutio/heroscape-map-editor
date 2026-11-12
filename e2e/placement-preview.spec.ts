@@ -362,7 +362,7 @@ test('Laur add-on previews snap to square and triangle pillar ports', async ({
 
 // A grass floor and one Fortified Wall at (4,4). Another Fortified Wall one
 // hex SE shares three of its template hexes but none of its edges or nodes
-// (see src/data/hexGrid/wallFootprints.ts).
+// (see src/data/hexGrid/pieceFootprints.ts).
 const WALL_MAP = { ...FIXTURE_HEX_MAP, width: 10, length: 10 }
 const WALL_PIECES = [
   ...Array.from({ length: 10 * 10 }, (_, index) => {
