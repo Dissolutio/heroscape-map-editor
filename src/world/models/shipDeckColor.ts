@@ -1,3 +1,4 @@
+import type { ShipDeckSection } from '../../data/shipDeck'
 import { hexTerrainColor } from '../maphex/hexColors'
 
 /**
@@ -12,7 +13,7 @@ export function shipDeckColor(
   return isHighlighted || isSectionHovered ? 'yellow' : hexTerrainColor.shipWood
 }
 
-export type DeckSection = 'forward' | 'aft'
+export type DeckSection = ShipDeckSection
 
 /**
  * The deck section that may light up. The section a pointer entered is local

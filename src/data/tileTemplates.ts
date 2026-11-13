@@ -231,8 +231,9 @@ const wallWalk9 = [
 
 const ruinsCornerExterior = [CUBE_NW, CUBE_WEST]
 // Both ships: the hex NE of the origin and the hex E of that one interlock with
-// the ship. Land sits in them at the ship's own level; the hull overhangs them.
-const shipNotch = [
+// the ship. Land sits in them at the ship's own level; the hull overhangs them,
+// and level 7 above them is the ship's deck (see shipDeck.ts).
+export const SHIP_NOTCH_OFFSETS: CubeCoordinate[] = [
   CUBE_NE,
   {
     // E of CUBE_NE
@@ -267,11 +268,11 @@ const shipBow = [
   CUBE_WEST,
   // the two notch hexes (block space only, levels 2-6): land sits in them at
   // level 1, the hull overhangs them above that
-  ...shipNotch,
+  ...SHIP_NOTCH_OFFSETS,
 ]
 // Ship Wall: the 3 main hexes and the knub (as straight4), then the two notch
 // hexes (block space only, level 2)
-const shipWall = [...straight4, ...shipNotch]
+const shipWall = [...straight4, ...SHIP_NOTCH_OFFSETS]
 const ruins2 = [...glacier6, ...ruinsCornerExterior]
 const ruins3 = [
   ...glacier6,

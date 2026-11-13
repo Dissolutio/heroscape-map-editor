@@ -525,6 +525,22 @@ function TestBridgeInner() {
           center.z + offset.y * 0.35,
         )
       },
+      screenPosOfShipDeck: (uid, section) => {
+        const bounds = new Box3()
+        get().scene.traverse((object) => {
+          if (
+            object instanceof Mesh &&
+            object.userData.shipDeckUID === uid &&
+            object.userData.shipDeckSection === section
+          ) {
+            bounds.union(new Box3().setFromObject(object))
+          }
+        })
+        if (bounds.isEmpty()) return null
+        const center = bounds.getCenter(new Vector3())
+        // the deck's top surface, where a click lands on it from above
+        return project(center.x, bounds.max.y, center.z)
+      },
       screenPosOfPiece: (uid) => {
         const { boardPieces, boardHexes } = useBoundStore.getState()
         const bp = boardPieces.find((piece) => piece.uid === uid)

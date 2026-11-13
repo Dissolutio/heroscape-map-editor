@@ -180,6 +180,50 @@ export async function clickHex(
   await clickCanvasAt(page, point, `Hex ${JSON.stringify(hex)}`)
 }
 
+/**
+ * The canvas point of a placed ship's deck section (its own mesh), once the
+ * model has rendered it.
+ */
+async function shipDeckPoint(
+  page: Page,
+  uid: string,
+  section: 'forward' | 'aft',
+) {
+  await waitForAppReady(page)
+  const handle = await page.waitForFunction(
+    ({ id, deck }) => window.__TEST__?.screenPosOfShipDeck(id, deck) ?? null,
+    { id: uid, deck: section },
+  )
+  return (await handle.jsonValue()) as { x: number; y: number }
+}
+
+/** Move the pointer onto a placed ship's deck section. */
+export async function hoverShipDeck(
+  page: Page,
+  uid: string,
+  section: 'forward' | 'aft',
+) {
+  const point = await toPagePoint(
+    page,
+    await shipDeckPoint(page, uid, section),
+    `Ship ${uid} ${section} deck`,
+  )
+  await page.mouse.move(point.x, point.y)
+}
+
+/** Left-click a placed ship's deck section. */
+export async function clickShipDeck(
+  page: Page,
+  uid: string,
+  section: 'forward' | 'aft',
+) {
+  await clickCanvasAt(
+    page,
+    await shipDeckPoint(page, uid, section),
+    `Ship ${uid} ${section} deck`,
+  )
+}
+
 /** Move the pointer to a hex using its projected canvas position. */
 export async function hoverHex(
   page: Page,
