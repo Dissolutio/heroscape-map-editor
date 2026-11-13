@@ -6,6 +6,7 @@ import {
 
 const NETLIFY = {
   NETLIFY: 'true',
+  CONTEXT: 'production',
   BRANCH: 'main',
   COMMIT_REF: '0123456789abcdef0123456789abcdef01234567',
 }
@@ -58,6 +59,18 @@ describe('resolveReleaseVersion', () => {
         headTags: null,
       }),
     ).toBe('local-development')
+  })
+
+  it('on a Netlify branch or preview deploy, is web-<short commit>, never a release number', () => {
+    for (const CONTEXT of ['branch-deploy', 'deploy-preview']) {
+      expect(
+        resolveReleaseVersion({
+          env: { ...NETLIFY, CONTEXT, BRANCH: 'dev' },
+          tags: TAGS,
+          headTags: [],
+        }),
+      ).toBe('web-0123456')
+    }
   })
 
   it('off Netlify, with no version given, is local-development', () => {
