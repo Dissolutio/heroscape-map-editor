@@ -1,6 +1,7 @@
 import type { Page } from '@playwright/test'
 import {
   clickPiece,
+  pickFromMenu,
   expect,
   findPieceUid,
   FIXTURE_URL,
@@ -368,7 +369,7 @@ test('diffuse textures survive tier and lighting changes', async ({ page }) => {
   await page.locator('#simple-tab-3').click()
   const graphics = page.getByTestId('graphics-tier-select')
   await graphics.click()
-  await page.getByRole('option', { name: 'Medium (diffuse textures)' }).click()
+  await pickFromMenu(page, 'Medium (diffuse textures)')
   await expect(page.getByTestId('graphics-texture-status')).toHaveText(
     'Textures ready',
   )
@@ -456,7 +457,7 @@ test('diffuse textures survive tier and lighting changes', async ({ page }) => {
   }
   const chooseTier = async (label: string) => {
     await graphics.click()
-    await page.getByRole('option', { name: label }).click()
+    await pickFromMenu(page, label)
     await waitForAppReady(page)
   }
 

@@ -153,6 +153,14 @@ export type E2ETestBridge = {
   cameraQuaternion: () => [number, number, number, number]
   /** Where to click the canvas to hit a placed piece, or null. */
   screenPosOfPiece: (uid: string) => ScreenPoint | null
+  /**
+   * Where to point at a placed ship's deck section (its own mesh, the top of
+   * the notch hex), or null.
+   */
+  screenPosOfShipDeck: (
+    uid: string,
+    section: 'forward' | 'aft',
+  ) => ScreenPoint | null
   /** Where to click the canvas to hit a rendered objective marker, or null. */
   screenPosOfObjectiveMarker: (uid: string) => ScreenPoint | null
   /** Where to click the canvas to hit a hex's top surface, or null. */

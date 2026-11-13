@@ -3,10 +3,13 @@ import { FIXTURE_HEX_MAP, FIXTURE_PIECE_IDS } from './fixture-map'
 import {
   clickHex,
   clickPiece,
+  clickShipDeck,
   expect,
   findPieceUid,
   hoverHex,
+  hoverShipDeck,
   mapUrl,
+  pickFromMenu,
   setPen,
   test,
   waitForAppReady,
@@ -40,6 +43,50 @@ test('a Ship Wall with no land beside it previews amber (unsupported)', async ({
   expect(preview?.reason).toContain(
     'Ship Wall: 4 of 4 interlocks not connected to solid land',
   )
+})
+
+// A Ship Wall on the table at (4,3), turned so its notch hexes, (3,4) and
+// (2,4), face the camera. Its deck is level 7 over them: land placed at
+// altitude 6.
+const SHIP_DECK_PIECES = ['0~4~3~3~sl']
+
+test('a land pen on a Ship Wall deck previews ok and places the tile at level 7', async ({
+  page,
+}) => {
+  await page.goto(mapUrl(SHIP_LADDER_MAP, SHIP_DECK_PIECES))
+  await waitForAppReady(page)
+  const wallUID = await findPieceUid(page, { inventoryID: 'sl', q: 4, r: 3 })
+  await setPen(page, 'g', 1)
+  await page.mouse.move(0, 0)
+  await hoverShipDeck(page, wallUID, 'forward')
+  // the deck holds the tile up: the normal preview, no amber
+  await page.waitForFunction(() => {
+    const preview = window.__TEST__?.snapshot().placementPreview
+    return preview?.status === 'ok' && preview.unsupported === false
+  })
+  const preview = await page.evaluate(
+    () => window.__TEST__?.snapshot().placementPreview,
+  )
+  expect(preview).toMatchObject({
+    status: 'ok',
+    unsupported: false,
+    reason: null,
+    footprintCount: 1,
+  })
+
+  await clickShipDeck(page, wallUID, 'forward')
+  await page.waitForFunction(() =>
+    window.__TEST__
+      ?.listPieces()
+      .some((piece) => piece.inventoryID === 'g1' && piece.altitude === 6),
+  )
+  const tile = await page.evaluate(() =>
+    window.__TEST__?.listPieces().find((piece) => piece.inventoryID === 'g1'),
+  )
+  expect(tile).toMatchObject({
+    pieceCoords: { q: 3, r: 4 },
+    altitude: 6,
+  })
 })
 
 test('a solid land pen previews ok over a free hex', async ({ page }) => {
@@ -102,14 +149,12 @@ test('Ship hotkeys preview all variants and place a rope ladder on a wall', asyn
   const penMode = page.getByRole('combobox', { name: 'Pen Mode' })
   await expect(penMode).toContainText('Ship Bow')
   await penMode.click()
-  await page.getByRole('option', { name: /Ship Wall/ }).click()
+  await pickFromMenu(page, /Ship Wall/)
   await page.waitForFunction(() => {
     const snapshot = window.__TEST__?.snapshot()
     return snapshot?.penMode === 'sl' && snapshot.penPieceID === 'sl'
   })
   await expect(penMode).toContainText('Ship Wall')
-  // Wait for the closing menu's backdrop to go away, or the hover lands on it.
-  await expect(page.getByRole('listbox')).toBeHidden()
   await page.mouse.move(0, 0)
   // The Ship Wall is 4 hexes long (knub included), so hover far enough west
   // on this 8-wide map for the whole wall to fit.
