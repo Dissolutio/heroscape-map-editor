@@ -224,6 +224,20 @@ export async function clickShipDeck(
   )
 }
 
+/**
+ * Pick an option from the open MUI menu (a Select such as Pen Mode or the
+ * graphics tier), then wait until the menu is fully gone. The listbox turns
+ * aria-hidden (so "hidden") as soon as the menu starts to close, but its
+ * full-screen root and invisible backdrop stay over the canvas through the
+ * exit transition. A hover or click made before then lands on that layer and
+ * the canvas never sees it (CI traces, 2026-11-11 and 2026-11-13). Use this
+ * whenever the test goes on to touch the map.
+ */
+export async function pickFromMenu(page: Page, name: string | RegExp) {
+  await page.getByRole('option', { name }).click()
+  await page.locator('.MuiMenu-root').waitFor({ state: 'detached' })
+}
+
 /** Move the pointer to a hex using its projected canvas position. */
 export async function hoverHex(
   page: Page,

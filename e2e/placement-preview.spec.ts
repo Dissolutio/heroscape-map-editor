@@ -9,6 +9,7 @@ import {
   hoverHex,
   hoverShipDeck,
   mapUrl,
+  pickFromMenu,
   setPen,
   test,
   waitForAppReady,
@@ -148,14 +149,12 @@ test('Ship hotkeys preview all variants and place a rope ladder on a wall', asyn
   const penMode = page.getByRole('combobox', { name: 'Pen Mode' })
   await expect(penMode).toContainText('Ship Bow')
   await penMode.click()
-  await page.getByRole('option', { name: /Ship Wall/ }).click()
+  await pickFromMenu(page, /Ship Wall/)
   await page.waitForFunction(() => {
     const snapshot = window.__TEST__?.snapshot()
     return snapshot?.penMode === 'sl' && snapshot.penPieceID === 'sl'
   })
   await expect(penMode).toContainText('Ship Wall')
-  // Wait for the closing menu's backdrop to go away, or the hover lands on it.
-  await expect(page.getByRole('listbox')).toBeHidden()
   await page.mouse.move(0, 0)
   // The Ship Wall is 4 hexes long (knub included), so hover far enough west
   // on this 8-wide map for the whole wall to fit.

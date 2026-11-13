@@ -8,6 +8,7 @@ import {
   findPieceUid,
   hoverHex,
   mapUrl,
+  pickFromMenu,
   saveEvidence,
   setPen,
   test,
@@ -104,7 +105,7 @@ test('Marvel Ruins render their parts and stay selectable by graphics tier', asy
 
   const graphics = page.getByTestId('graphics-tier-select')
   await graphics.click()
-  await page.getByRole('option', { name: 'Low (classic look)' }).click()
+  await pickFromMenu(page, 'Low (classic look)')
   const ruinUIDs = await Promise.all(
     MARVEL_RUIN_PIECES.map((piece) => findPieceUid(page, piece)),
   )
@@ -117,7 +118,7 @@ test('Marvel Ruins render their parts and stay selectable by graphics tier', asy
   for (const [index, tier] of tiers.entries()) {
     if (index > 0) {
       await graphics.click()
-      await page.getByRole('option', { name: tier.label }).click()
+      await pickFromMenu(page, tier.label)
       await expect(page.getByTestId('graphics-texture-status')).toHaveText(
         'Textures ready',
       )
@@ -181,7 +182,7 @@ test('the Marro Hive stays selectable and uses texture maps by graphics tier', a
   for (const [index, tier] of tiers.entries()) {
     if (index > 0) {
       await graphics.click()
-      await page.getByRole('option', { name: tier.label }).click()
+      await pickFromMenu(page, tier.label)
       await expect(page.getByTestId('graphics-texture-status')).toHaveText(
         'Textures ready',
       )
@@ -225,7 +226,7 @@ test('evergreen trees stay selectable and use texture maps by graphics tier', as
 
   const graphics = page.getByTestId('graphics-tier-select')
   await graphics.click()
-  await page.getByRole('option', { name: 'Low (classic look)' }).click()
+  await pickFromMenu(page, 'Low (classic look)')
   const treeUIDs = await Promise.all(
     EVERGREEN_PIECES.map((piece) => findPieceUid(page, piece)),
   )
@@ -238,7 +239,7 @@ test('evergreen trees stay selectable and use texture maps by graphics tier', as
   for (const [index, tier] of tiers.entries()) {
     if (index > 0) {
       await graphics.click()
-      await page.getByRole('option', { name: tier.label }).click()
+      await pickFromMenu(page, tier.label)
       await expect(page.getByTestId('graphics-texture-status')).toHaveText(
         'Textures ready',
       )
@@ -293,7 +294,7 @@ test('the Stone Wall stays selectable and uses texture maps by graphics tier', a
 
   const graphics = page.getByTestId('graphics-tier-select')
   await graphics.click()
-  await page.getByRole('option', { name: 'Low (classic look)' }).click()
+  await pickFromMenu(page, 'Low (classic look)')
   const roadWallUID = await findPieceUid(page, {
     inventoryID: 'rw',
     q: 2,
@@ -308,7 +309,7 @@ test('the Stone Wall stays selectable and uses texture maps by graphics tier', a
   for (const [index, tier] of tiers.entries()) {
     if (index > 0) {
       await graphics.click()
-      await page.getByRole('option', { name: tier.label }).click()
+      await pickFromMenu(page, tier.label)
       await expect(page.getByTestId('graphics-texture-status')).toHaveText(
         'Textures ready',
       )
@@ -372,7 +373,7 @@ test('Ruins 2 and 3 stay selectable and use texture maps by graphics tier', asyn
 
   const graphics = page.getByTestId('graphics-tier-select')
   await graphics.click()
-  await page.getByRole('option', { name: 'Low (classic look)' }).click()
+  await pickFromMenu(page, 'Low (classic look)')
   const ruins = [
     { inventoryID: 'rs2', q: 3, r: 0 },
     { inventoryID: 'rs3', q: 0, r: 5 },
@@ -389,7 +390,7 @@ test('Ruins 2 and 3 stay selectable and use texture maps by graphics tier', asyn
   for (const [index, tier] of tiers.entries()) {
     if (index > 0) {
       await graphics.click()
-      await page.getByRole('option', { name: tier.label }).click()
+      await pickFromMenu(page, tier.label)
       await expect(page.getByTestId('graphics-texture-status')).toHaveText(
         'Textures ready',
       )
@@ -460,7 +461,7 @@ test('graphics tier loads Medium textures and returns to the classic Low rendere
   await page.mouse.move(0, 0)
   await expect(page.getByRole('tooltip')).toBeHidden()
   await graphics.click()
-  await page.getByRole('option', { name: 'Medium (diffuse textures)' }).click()
+  await pickFromMenu(page, 'Medium (diffuse textures)')
   await expect(page.getByTestId('graphics-texture-status')).toHaveText(
     'Textures ready',
   )
@@ -475,7 +476,7 @@ test('graphics tier loads Medium textures and returns to the classic Low rendere
   await expect(lookDialog).toBeVisible()
 
   await graphics.click()
-  await page.getByRole('option', { name: 'Low (classic look)' }).click()
+  await pickFromMenu(page, 'Low (classic look)')
   await expect(graphics).toContainText('Low (classic look)')
   await expect(lookSettings).toHaveCount(0)
   await expect(lookDialog).toBeHidden()
@@ -533,7 +534,7 @@ test('hover, paint, select, and drag work in every graphics tier', async ({
   for (const [index, tier] of tiers.entries()) {
     if (index > 0) {
       await graphics.click()
-      await page.getByRole('option', { name: tier.label }).click()
+      await pickFromMenu(page, tier.label)
       await expect(page.getByTestId('graphics-texture-status')).toHaveText(
         'Textures ready',
       )
@@ -670,12 +671,7 @@ test('tree placement previews render transparently in every graphics tier', asyn
   ]
   const chooseTier = async (label: string) => {
     await graphics.click()
-    await page.getByRole('option', { name: label }).click()
-    // The closing menu keeps a full-screen layer (an invisible backdrop) over
-    // the canvas through its exit transition. A hover made before it is gone
-    // lands on that layer, the canvas never sees the pointer, and no preview
-    // ever renders (CI, 2026-11-08 and 2026-11-11).
-    await page.locator('.MuiMenu-root').waitFor({ state: 'detached' })
+    await pickFromMenu(page, label)
   }
 
   await chooseTier(tiers[0].label)
@@ -809,11 +805,11 @@ test('jungle palms use tiered cutout fronds and stay selectable with transparent
   )
 
   await graphics.click()
-  await page.getByRole('option', { name: tiers[0].label }).click()
+  await pickFromMenu(page, tiers[0].label)
   for (const [index, tier] of tiers.entries()) {
     if (index > 0) {
       await graphics.click()
-      await page.getByRole('option', { name: tier.label }).click()
+      await pickFromMenu(page, tier.label)
       await expect(page.getByTestId('graphics-texture-status')).toHaveText(
         'Textures ready',
       )
