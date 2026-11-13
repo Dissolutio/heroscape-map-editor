@@ -668,14 +668,21 @@ test('tree placement previews render transparently in every graphics tier', asyn
     { label: 'Medium (diffuse textures)', hasMap: true },
     { label: 'High (PBR textures)', hasMap: true },
   ]
+  const chooseTier = async (label: string) => {
+    await graphics.click()
+    await page.getByRole('option', { name: label }).click()
+    // The closing menu keeps a full-screen layer (an invisible backdrop) over
+    // the canvas through its exit transition. A hover made before it is gone
+    // lands on that layer, the canvas never sees the pointer, and no preview
+    // ever renders (CI, 2026-11-08 and 2026-11-11).
+    await page.locator('.MuiMenu-root').waitFor({ state: 'detached' })
+  }
 
-  await graphics.click()
-  await page.getByRole('option', { name: tiers[0].label }).click()
+  await chooseTier(tiers[0].label)
 
   for (const [index, tier] of tiers.entries()) {
     if (index > 0) {
-      await graphics.click()
-      await page.getByRole('option', { name: tier.label }).click()
+      await chooseTier(tier.label)
       await expect(page.getByTestId('graphics-texture-status')).toHaveText(
         'Textures ready',
       )
@@ -685,32 +692,34 @@ test('tree placement previews render transparently in every graphics tier', asyn
       await setPen(page, 'tr10', size)
       await hoverHex(page, { q: 0, r: 0, altitude: 0 })
 
+      // Wait for the whole preview at once: after the size-1 pass, the size-1
+      // tree is still there until the size-4 preview replaces it.
       await expect
-        .poll(async () =>
-          page.evaluate(() =>
-            window.__TEST__
-              ?.snapshot()
-              .previewMeshes.filter((mesh) => mesh.family === 'evergreenTree'),
-          ),
-        )
-        .toEqual(
-          expect.arrayContaining([
-            expect.objectContaining({
-              family: 'evergreenTree',
-              part: 'tree',
-              hasMap: tier.hasMap,
-              transparent: true,
-            }),
-          ]),
-        )
-
-      const previews = await page.evaluate(() =>
-        window.__TEST__
-          ?.snapshot()
-          .previewMeshes.filter((mesh) => mesh.family === 'evergreenTree'),
-      )
-      expect(previews?.length).toBe(size === 1 ? 1 : 3)
-      expect(previews?.every((mesh) => mesh.opacity < 1)).toBe(true)
+        .poll(async () => {
+          const previews = await page.evaluate(
+            () =>
+              window.__TEST__
+                ?.snapshot()
+                .previewMeshes.filter(
+                  (mesh) => mesh.family === 'evergreenTree',
+                ) ?? [],
+          )
+          return {
+            count: previews.length,
+            hasTransparentTree: previews.some(
+              (mesh) =>
+                mesh.part === 'tree' &&
+                mesh.hasMap === tier.hasMap &&
+                mesh.transparent,
+            ),
+            allSeeThrough: previews.every((mesh) => mesh.opacity < 1),
+          }
+        })
+        .toEqual({
+          count: size === 1 ? 1 : 3,
+          hasTransparentTree: true,
+          allSeeThrough: true,
+        })
     }
 
     await hoverHex(page, { q: 1, r: 0, altitude: 0 })
