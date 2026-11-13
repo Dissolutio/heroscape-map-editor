@@ -85,10 +85,27 @@ export const verticalObstructionTemplates: Dictionary<ObstructionEntry[]> = {
     1,
     // figurehead: blocks levels 3-13 only, levels 1 and 2 are open
     { from: 3, to: 13 },
+    // the two notch hexes (CUBE_NE, then E of that): land fits at level 1
+    // beside the ship, the hull overhangs levels 2-6, and level 7 is the
+    // upper deck where land attaches and stacks up
+    { from: 2, to: 6 },
+    { from: 2, to: 6 },
   ],
   [Pieces.shipWall]: [
-    // 3 hexes uniform height, tiny little knub that blocks 1 hex at same level
-    10, 10, 10, 1,
+    /* Ship Wall at rotation 0, levels blocked per hex (origin is the first 9)
+         [2-2] [2-2]          <- notch hexes, NE of the origin and E of that
+      9     9     9     1     <- 3 main hexes, then the knub
+    */
+    // 3 hexes uniform height (land at level 10 passes over the guardrail),
+    // tiny little knub that blocks 1 hex at same level
+    9,
+    9,
+    9,
+    1,
+    // the two notch hexes (CUBE_NE, then E of that): land fits at level 1
+    // beside the wall, the hull overhangs level 2, land fits again from 3 up
+    { from: 2, to: 2 },
+    { from: 2, to: 2 },
   ],
   [Pieces.ruins2]: [
     // Played with this in virtualscape, and here's how much I think each hex in the template requires for clearance:

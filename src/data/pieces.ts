@@ -1587,7 +1587,7 @@ export const piecesSoFar: Dictionary<Piece> = {
     isObstaclePiece: true,
     size: 4,
     template: Pieces.shipWall,
-    height: 10,
+    height: 9,
     pieceSizeFamily: 'ship',
     variantOrder: 1,
     variantLabel: 'Ship Wall',

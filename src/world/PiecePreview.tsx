@@ -59,6 +59,7 @@ import { RopeLadder } from './models/RopeLadder'
 import { Ruins2Preview } from './models/Ruins2'
 import { Ruins3Preview } from './models/Ruins3'
 import { ShipBow } from './models/ShipBow'
+import { getShipBowRestOffset } from '../data/shipBowRest'
 import { ShipWall } from './models/ShipWall'
 import Shroudshroom7 from './models/Shroudshroom7'
 import Shroudshroom10 from './models/Shroudshroom10'
@@ -589,10 +590,20 @@ function PiecePreviewModel({
     )
   }
   if (isShipBowHex && isLandOrEmptyBeneath) {
+    // The bow sits at the full level, but its model rests on a single fluid
+    // tile (visual only, see data/shipBowRest.ts)
+    const bowRestOffset = getShipBowRestOffset(
+      {
+        inventoryID: pieceID,
+        altitude: hoveredHexForPreview.altitude,
+        rotation: penModeRotation,
+        pieceCoords: hoveredHexForPreview,
+      },
+      boardHexes,
+    )
     return (
       <group
-        // ships never drop to a fluid cap: they sit at the full level
-        position={[x, yShip + HEXGRID_HEXCAP_HEIGHT / 2, z]}
+        position={[x, yShip + HEXGRID_HEXCAP_HEIGHT / 2 + bowRestOffset, z]}
         rotation={[0, getObstaclRotation(penModeRotation), 0]}
       >
         <Suspense fallback={<ModelLoader />}>

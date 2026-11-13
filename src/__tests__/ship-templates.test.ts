@@ -61,12 +61,14 @@ describe('getObstructedLevelOffsets', () => {
 })
 
 describe('Ship Wall', () => {
-  it('has a footprint of 4 hexes and a size that matches', () => {
+  it('has a footprint of 6 hexes (4 plus the 2 notch hexes); its size stays 4', () => {
     const t = makeTable()
-    expect(footprint(Pieces.shipWall, at(t))).toHaveLength(4)
+    expect(footprint(Pieces.shipWall, at(t))).toHaveLength(6)
+    // the notch hexes block space only: the piece is still a 4 hex piece
     expect(piecesSoFar[Pieces.shipWall].size).toBe(4)
+    expect(piecesSoFar[Pieces.shipWall].height).toBe(9)
   })
-  it('blocks levels 1-10 on the first 3 hexes and only level 1 on the 4th', () => {
+  it('blocks levels 1-9 on the first 3 hexes and only level 1 on the 4th', () => {
     const t = withGrassFloor(makeTable())
     const placed = place({
       board: t,
@@ -76,8 +78,8 @@ describe('Ship Wall', () => {
     })
     expect(placed.error).toBeUndefined()
     const cells = footprint(Pieces.shipWall, at(t))
-    cells.forEach((cell, i) => {
-      const top = i < 3 ? 10 : 1
+    cells.slice(0, 4).forEach((cell, i) => {
+      const top = i < 3 ? 9 : 1
       for (let level = 1; level <= 12; level++) {
         const hex = hexAt(placed.board, cell, OWN + level - 1)
         const blocked =
@@ -103,8 +105,10 @@ describe('Ship Bow', () => {
   }
   const altitudeOfBow = OWN
 
-  it('has a 7 hex footprint and a size that matches', () => {
-    expect(footprint(Pieces.shipBow, at(makeTable()))).toHaveLength(7)
+  it('has a 9 hex footprint (7 plus the 2 notch hexes); its size stays 7', () => {
+    expect(footprint(Pieces.shipBow, at(makeTable()))).toHaveLength(9)
+    // the notch hexes block space only, like the knub and the figurehead
+    // (which the size has always counted)
     expect(piecesSoFar[Pieces.shipBow].size).toBe(7)
   })
 

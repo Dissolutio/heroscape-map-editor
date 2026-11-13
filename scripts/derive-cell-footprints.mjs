@@ -98,19 +98,28 @@ const obstacleRotation = (rotation) =>
 const shipWallTemplate = [
   [
     { q: 0, r: 0 },
-    { from: 1, to: 10 },
+    { from: 1, to: 9 },
   ],
   [
     { q: 1, r: 0 },
-    { from: 1, to: 10 },
+    { from: 1, to: 9 },
   ],
   [
     { q: 2, r: 0 },
-    { from: 1, to: 10 },
+    { from: 1, to: 9 },
   ],
   [
     { q: 3, r: 0 },
     { from: 1, to: 1 },
+  ],
+  // the notch hexes
+  [
+    { q: 1, r: -1 },
+    { from: 2, to: 2 },
+  ],
+  [
+    { q: 2, r: -1 },
+    { from: 2, to: 2 },
   ],
 ]
 const shipBowTemplate = [
@@ -141,6 +150,15 @@ const shipBowTemplate = [
   [
     { q: -1, r: 0 },
     { from: 3, to: 13 },
+  ],
+  // the notch hexes
+  [
+    { q: 1, r: -1 },
+    { from: 2, to: 6 },
+  ],
+  [
+    { q: 2, r: -1 },
+    { from: 2, to: 6 },
   ],
 ]
 
