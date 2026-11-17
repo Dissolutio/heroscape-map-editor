@@ -1,3 +1,10 @@
+Nov-16-2026
+TLDR: Ships fit like the real pieces. Fortified Walls and Ruins 2/3 sit between hexes, so no more false conflicts.
+
+- **Ship Wall/Bow conflict rules**: Ship Wall/Bow block exactly the space the real pieces do, including the side blocking knub and the bow figurehead.
+- **Fortified Walls and Ruins 2/3**: They sit on hex edges, we now have a system for this, so their conflicts are tracked much better.
+- **Pen selector**: The piece size families were overriding the pen selector, but not now.
+
 Nov-11-2026 Hotfix
 Windows desktop textures and map picture fixed. Map size in inches and cm. Convert map shape.
 

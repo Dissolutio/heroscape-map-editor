@@ -35,6 +35,7 @@ import {
   verticalSupportTemplates,
 } from './vertical-obstruction-templates'
 import { getSupportingLaurPillar, isLaurPillarID } from './laurPillarStacking'
+import { getShipDeckHexIDs } from './shipDeck'
 import {
   findCellConflicts,
   isEdgeNodePieceID,
@@ -854,9 +855,16 @@ export function addPiece({
     const isFluidUnderAtLeastOne = underHexIds.some((id) =>
       isFluidTerrainHex(newBoardHexes?.[id]?.terrain ?? ''),
     )
+    // a land tile with a hex on a ship's deck (level 7 over its notch hexes)
+    // is held up by the ship, as one hex on land would be (John, 2026-11-12)
+    const shipDeckHexIDs = getShipDeckHexIDs(newBoardPieces)
+    const isShipDeckUnderAtLeastOne = underHexIds.some((id) =>
+      shipDeckHexIDs.has(id),
+    )
     const isLandPieceSupported =
       isPlacingOnTable ||
       isSolidUnderAtLeastOne ||
+      isShipDeckUnderAtLeastOne ||
       // fluid can always stack on fluid; solid can only land on fluid once it's on a half-level
       (isFluidTerrainHex(piece.terrain) && isFluidUnderAtLeastOne) ||
       (isSolidTerrainHex(piece.terrain) &&

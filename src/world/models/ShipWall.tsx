@@ -2,6 +2,7 @@ import type { ThreeEvent } from '@react-three/fiber'
 import { noop } from 'lodash'
 import React, { useEffect, useState } from 'react'
 import { piecesSoFar } from '../../data/pieces'
+import { getShipDeckPointerHex } from '../../data/shipDeck'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
 import useBoundStore from '../../store/store'
 import type { BoardHex, BoardPiece, CubeCoordinate } from '../../types'
@@ -45,65 +46,11 @@ export function ShipWall({ pid, bp, onPointerUp }: ShipWallProps) {
   const isSolidLandPenMode =
     selectedPiece && isSolidTerrainHex(selectedPiece.terrain)
 
-  const getForwardBuildableCoords = (): CubeCoordinate | null => {
-    if (!bp) return null
-    return hexUtilsGetShipBuildableCoords(bp.pieceCoords, bp.rotation).forward
-  }
-
-  const getAftBuildableCoords = (): CubeCoordinate | null => {
-    if (!bp) return null
-    return hexUtilsGetShipBuildableCoords(bp.pieceCoords, bp.rotation).aft
-  }
-
-  const getForwardBuildableHex = (): BoardHex => {
-    if (!bp) return {} as BoardHex
-    const coords = getForwardBuildableCoords()
-    if (!coords) return {} as BoardHex
-    const hexID = genBoardHexID({
-      ...coords,
-      altitude: bp.altitude + 6,
-    })
-    return (
-      boardHexes[hexID] ||
-      ({
-        ...coords,
-        altitude: bp.altitude + 6,
-        boardPieceUID: '',
-        inventoryID: '',
-        pieceID: '',
-        pieceRotation: 0,
-        terrain: HexTerrain.empty,
-        isCap: false,
-        isObstacleOrigin: false,
-        isObstacleAuxiliary: false,
-      } as BoardHex)
-    )
-  }
-
-  const getAftBuildableHex = (): BoardHex => {
-    if (!bp) return {} as BoardHex
-    const coords = getAftBuildableCoords()
-    if (!coords) return {} as BoardHex
-    const hexID = genBoardHexID({
-      ...coords,
-      altitude: bp.altitude + 6,
-    })
-    return (
-      boardHexes[hexID] ||
-      ({
-        ...coords,
-        altitude: bp.altitude + 6,
-        boardPieceUID: '',
-        inventoryID: '',
-        pieceID: '',
-        pieceRotation: 0,
-        terrain: HexTerrain.empty,
-        isCap: false,
-        isObstacleOrigin: false,
-        isObstacleAuxiliary: false,
-      } as BoardHex)
-    )
-  }
+  // the deck sections' hexes, at the deck altitude (see getShipDeckPointerHex)
+  const getForwardBuildableHex = (): BoardHex =>
+    bp ? getShipDeckPointerHex(bp, 'forward', boardHexes) : ({} as BoardHex)
+  const getAftBuildableHex = (): BoardHex =>
+    bp ? getShipDeckPointerHex(bp, 'aft', boardHexes) : ({} as BoardHex)
 
   const onPointerEnterForwardBuildable = (e: ThreeEvent<PointerEvent>) => {
     if (!isSolidLandPenMode) return
@@ -226,6 +173,7 @@ export function ShipWall({ pid, bp, onPointerUp }: ShipWallProps) {
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
         geometry={nodes.ShipWallForwardBuildable.geometry}
+        userData={{ shipDeckUID: pid ?? null, shipDeckSection: 'forward' }}
         onPointerUp={(e) => (pid ? onPointerUpForwardBuildable(e) : noop())}
         onPointerEnter={(e) =>
           pid && isSolidLandPenMode
@@ -255,6 +203,7 @@ export function ShipWall({ pid, bp, onPointerUp }: ShipWallProps) {
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
         geometry={nodes.ShipWallAftBuildable.geometry}
+        userData={{ shipDeckUID: pid ?? null, shipDeckSection: 'aft' }}
         onPointerUp={(e) => (pid ? onPointerUpAftBuildable(e) : noop())}
         onPointerEnter={(e) =>
           pid && isSolidLandPenMode

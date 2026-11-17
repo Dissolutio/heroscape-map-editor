@@ -2,6 +2,7 @@ import {
   clickPiece,
   expect,
   findPieceUid,
+  pickFromMenu,
   FIXTURE_URL,
   setPen,
   test,
@@ -73,9 +74,7 @@ test('right-click selection actions work in every graphics tier', async ({
   for (const [index, tier] of tiers.entries()) {
     if (index > 0) {
       await graphics.click()
-      await page.getByRole('option', { name: tier }).click()
-      await expect(page.getByRole('listbox')).toBeHidden()
-      await page.locator('.MuiMenu-root').waitFor({ state: 'detached' })
+      await pickFromMenu(page, tier)
     }
     await waitForAppReady(page)
     await rightClickPiece(page, grass)

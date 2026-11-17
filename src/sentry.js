@@ -27,6 +27,7 @@ Sentry.init({
     httpBodies: [],
   },
 
-  // Link errors to your GitHub Git Tag release version
+  // Link errors to the release: vite.config.ts computes the version once and
+  // defines it here, so this matches the Sentry plugin's release name
   release: `hexoscape@${import.meta.env.VITE_RELEASE_VERSION || 'local-development'}`,
 })

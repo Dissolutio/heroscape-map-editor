@@ -2,6 +2,7 @@ import type { ThreeEvent } from '@react-three/fiber'
 import { noop } from 'lodash'
 import React, { useEffect, useState } from 'react'
 import { piecesSoFar } from '../../data/pieces'
+import { getShipDeckPointerHex } from '../../data/shipDeck'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
 import useBoundStore from '../../store/store'
 import type { BoardHex, BoardPiece } from '../../types'
@@ -9,7 +10,6 @@ import { isSolidTerrainHex } from '../../utils/board-utils'
 import { PIECE_PREVIEW_OPACITY } from '../../utils/constants'
 import { hexTerrainColor } from '../maphex/hexColors'
 import { basicModelMaterial } from './materials'
-import { getShipBowDeckPointerHex } from './shipBowDeck'
 import { getActiveDeckSection, shipDeckColor } from './shipDeckColor'
 import { useDisposableGLTF } from './useDisposableGLTF'
 
@@ -47,9 +47,9 @@ export function ShipBow({ pid, bp, onPointerUp }: ShipBowProps) {
 
   // Get the hexes for buildable sections (at altitude +6)
   const getForwardBuildableHex = (): BoardHex =>
-    bp ? getShipBowDeckPointerHex(bp, 'forward', boardHexes) : ({} as BoardHex)
+    bp ? getShipDeckPointerHex(bp, 'forward', boardHexes) : ({} as BoardHex)
   const getAftBuildableHex = (): BoardHex =>
-    bp ? getShipBowDeckPointerHex(bp, 'aft', boardHexes) : ({} as BoardHex)
+    bp ? getShipDeckPointerHex(bp, 'aft', boardHexes) : ({} as BoardHex)
 
   // Handlers for buildable mesh interactions
   const onPointerEnterForwardBuildable = (e: ThreeEvent<PointerEvent>) => {
@@ -215,6 +215,7 @@ export function ShipBow({ pid, bp, onPointerUp }: ShipBowProps) {
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
         geometry={nodes.ShipBowForwardBuildable.geometry}
+        userData={{ shipDeckUID: pid ?? null, shipDeckSection: 'forward' }}
         onPointerUp={(e) => (pid ? onPointerUpForwardBuildable(e) : noop())}
         onPointerEnter={(e) =>
           isSolidLandPenMode
@@ -243,6 +244,7 @@ export function ShipBow({ pid, bp, onPointerUp }: ShipBowProps) {
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
         geometry={nodes.ShipBowAftBuildable.geometry}
+        userData={{ shipDeckUID: pid ?? null, shipDeckSection: 'aft' }}
         onPointerUp={(e) => (pid ? onPointerUpAftBuildable(e) : noop())}
         onPointerEnter={(e) =>
           isSolidLandPenMode

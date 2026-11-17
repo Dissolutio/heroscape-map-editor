@@ -2,7 +2,7 @@ import { execFileSync } from 'node:child_process'
 import { appendFileSync } from 'node:fs'
 import { pathToFileURL } from 'node:url'
 
-const parseVersion = (tag) => {
+export const parseVersion = (tag) => {
   const match = /^v(\d+)\.(\d+)\.(\d+)$/.exec(tag)
   return match
     ? {
@@ -38,7 +38,7 @@ export function computeNextVersion({ ref, isTag, tags, headTags = [] }) {
   return { version: next, skip: false }
 }
 
-function gitTags(args) {
+export function gitTags(args) {
   return execFileSync('git', ['tag', ...args], { encoding: 'utf8' })
     .split(/\r?\n/)
     .filter(Boolean)

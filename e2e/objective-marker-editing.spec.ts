@@ -8,6 +8,7 @@ import {
   expect,
   findPieceUid,
   mapUrl,
+  pickFromMenu,
   test,
   waitForAppReady,
 } from './fixtures'
@@ -188,7 +189,7 @@ test('derives objective marker numbers unless the number is pinned', async ({
   await page.getByRole('tab', { name: 'Build' }).click()
   const penMode = page.getByRole('combobox', { name: 'Pen Mode' })
   await penMode.click()
-  await page.getByRole('option', { name: 'Objective Marker' }).click()
+  await pickFromMenu(page, 'Objective Marker')
 
   const numberInput = page.getByRole('spinbutton', { name: 'Marker number' })
   const pinNumber = page.getByRole('checkbox', { name: 'Pin value' })
@@ -253,7 +254,7 @@ test('derives objective marker numbers unless the number is pinned', async ({
     .toBe(1)
   await page.getByRole('tab', { name: 'Build' }).click()
   await penMode.click()
-  await page.getByRole('option', { name: 'Objective Marker' }).click()
+  await pickFromMenu(page, 'Objective Marker')
   await expect(numberInput).toHaveValue('2')
   await placeAt(3, 2)
   await expect
@@ -277,7 +278,7 @@ test('derives objective marker numbers unless the number is pinned', async ({
     .toBeNull()
   await page.getByRole('tab', { name: 'Build' }).click()
   await penMode.click()
-  await page.getByRole('option', { name: 'Objective Marker' }).click()
+  await pickFromMenu(page, 'Objective Marker')
   await expect(numberInput).toHaveValue('3')
 
   await pinNumber.check()
@@ -317,7 +318,7 @@ test('derives objective marker numbers unless the number is pinned', async ({
     .toBeNull()
   await page.getByRole('tab', { name: 'Build' }).click()
   await penMode.click()
-  await page.getByRole('option', { name: 'Objective Marker' }).click()
+  await pickFromMenu(page, 'Objective Marker')
   await expect(numberInput).toHaveValue('2')
 
   await page.getByRole('button', { name: 'Text', exact: true }).click()
@@ -342,7 +343,7 @@ test('keeps auto-numbering correct after loading a map and creating a new one', 
   await page.getByRole('tab', { name: 'Build' }).click()
   const penMode = page.getByRole('combobox', { name: 'Pen Mode' })
   await penMode.click()
-  await page.getByRole('option', { name: 'Objective Marker' }).click()
+  await pickFromMenu(page, 'Objective Marker')
   const numberInput = page.getByRole('spinbutton', { name: 'Marker number' })
   await expect(numberInput).toHaveValue('1')
 
@@ -368,7 +369,7 @@ test('keeps auto-numbering correct after loading a map and creating a new one', 
   await waitForAppReady(page)
   await page.getByRole('tab', { name: 'Build' }).click()
   await penMode.click()
-  await page.getByRole('option', { name: 'Objective Marker' }).click()
+  await pickFromMenu(page, 'Objective Marker')
   await expect(numberInput).toHaveValue('2')
 
   await page.getByRole('tab', { name: 'File' }).click()
@@ -384,7 +385,7 @@ test('keeps auto-numbering correct after loading a map and creating a new one', 
 
   await page.getByRole('tab', { name: 'Build' }).click()
   await penMode.click()
-  await page.getByRole('option', { name: 'Objective Marker' }).click()
+  await pickFromMenu(page, 'Objective Marker')
   await expect(numberInput).toHaveValue('1')
 })
 
@@ -397,7 +398,7 @@ test('places, edits, drags, deletes, and undoes an objective marker', async ({
   await page.getByRole('tab', { name: 'Build' }).click()
   const penMode = page.getByRole('combobox', { name: 'Pen Mode' })
   await penMode.click()
-  await page.getByRole('option', { name: 'Objective Marker' }).click()
+  await pickFromMenu(page, 'Objective Marker')
   await page.getByRole('button', { name: '2-hex marker' }).click()
 
   const canvas = page.locator('canvas').first()
