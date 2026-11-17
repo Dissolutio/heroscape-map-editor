@@ -1,13 +1,9 @@
 Nov-16-2026
-TLDR: Ships fit like the real pieces. Fortified Walls and Ruins 2/3 sit between hexes, so no more false conflicts. Ship decks hold land. The pen selector gives you the piece you pick.
+TLDR: Ships fit like the real pieces. Fortified Walls and Ruins 2/3 sit between hexes, so no more false conflicts.
 
-- **Ships**: Ship Wall and Ship Bow block exactly the space the real pieces do, including the knub, the figurehead and the gap under the deck. Ship Wall is 9 levels tall, so land at level 10 passes over its rail. A Ship Wall no longer sinks into water. A Ship Bow on a single water tile rests half a level lower in 3D, like the real one.
-- **Ship Wall support**: A Ship Wall turns amber until all 4 hexes it interlocks with hold solid land at its level. Water doesn't count.
-- **Ship decks**: Land placed on either ship's deck (level 7) is held up by the ship. Click the deck with a land pen to build there.
-- **Fortified Walls and Ruins 2/3**: They sit on hex edges, so walls, cannons, ships and glyphs right beside them no longer show as conflicts. Land in their hexes at their level still conflicts.
-- **Pen selector**: Picking a piece always gives you that piece, even after a size hotkey switched it.
-- **Hide heights on glyphs**: Removed.
-- **Fixes**: A crash when the pen preview pointed off a hex. A Ship Bow deck that stayed yellow.
+- **Ship Wall/Bow conflict rules**: Ship Wall/Bow block exactly the space the real pieces do, including the side blocking knub and the bow figurehead.
+- **Fortified Walls and Ruins 2/3**: They sit on hex edges, we now have a system for this, so their conflicts are tracked much better.
+- **Pen selector**: The piece size families were overriding the pen selector, but not now.
 
 Nov-11-2026 Hotfix
 Windows desktop textures and map picture fixed. Map size in inches and cm. Convert map shape.
