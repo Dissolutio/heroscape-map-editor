@@ -197,7 +197,9 @@ test('suggests unit names lazily and keeps them in saved map files', async ({
       name: 'Show controls for taking a map picture, controlling the camera, and editing preferences',
     })
     .click()
-  const vcToggle = page.getByRole('checkbox', { name: 'Include VC Content' })
+  const vcToggle = page.getByRole('checkbox', {
+    name: 'Include VC unit/terrain data',
+  })
   await expect(vcToggle).not.toBeChecked()
   await vcToggle.check()
   await page

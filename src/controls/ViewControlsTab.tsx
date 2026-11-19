@@ -492,22 +492,22 @@ const GeneralContentSettings = () => {
   )
 
   return (
-    <Box sx={{ px: 1 }}>
+    <Tooltip
+      title="Show community custom (VC) units and content. Not official Hasbro or Renegade releases."
+      describeChild
+    >
       <FormControlLabel
         control={
           <Switch
             checked={includeVCContent}
             onChange={(event) => toggleIncludeVCContent(event.target.checked)}
-            inputProps={{ 'aria-label': 'Include VC Content' }}
+            inputProps={{ 'aria-label': 'Include VC unit/terrain data' }}
+            size="small"
           />
         }
-        label="Include VC Content"
+        label="Include VC unit/terrain data"
       />
-      <FormHelperText sx={{ mt: -0.5 }}>
-        Show community custom (VC) units and content. Not official Hasbro or
-        Renegade releases.
-      </FormHelperText>
-    </Box>
+    </Tooltip>
   )
 }
 
