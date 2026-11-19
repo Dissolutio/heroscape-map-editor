@@ -59,6 +59,7 @@ import {
 import { clearLastPointerWorldPoint } from './hoverWorldPoint'
 import LookSettingsDialog from '../layout/LookSettingsDialog'
 import ActionLog from './ActionLog'
+import { useMuiMediaQuery } from '../layout/useMuiMediaQuery'
 import {
   collectWebGLDiagnostics,
   collectWebGLDiagnosticsFromCanvas,
@@ -309,8 +310,16 @@ const World = ({
   const isFrameloopDemand = useBoundStore((s) => s.isFrameloopDemand)
   const isTakingPicture = useBoundStore((s) => s.isTakingPicture)
   const isShowActionLog = useBoundStore((s) => s.isShowActionLog)
+  const selectedObjectiveMarkerUID = useBoundStore(
+    (s) => s.selectedObjectiveMarkerUID,
+  )
   const is2DOpen = useBoundStore((s) => s.is2DOpen)
   const isPdfOpen = useBoundStore((s) => s.isPdfOpen)
+  const { isSmallScreenWidth } = useMuiMediaQuery()
+  const worldContainerRef = useRef<HTMLDivElement>(null)
+  const [worldContainerWidth, setWorldContainerWidth] = useState(
+    typeof window === 'undefined' ? 0 : window.innerWidth,
+  )
   const [isTabActive, setIsTabActive] = useState(true)
   const perspectiveCameraRef = useRef<ThreePerspectiveCamera>(null)
   const rightPointerDown = useRef<{ x: number; y: number } | null>(null)
@@ -431,9 +440,20 @@ const World = ({
       document.removeEventListener('visibilitychange', handleVisibility)
   }, [])
 
+  useEffect(() => {
+    const container = worldContainerRef.current
+    if (!container) return
+    const updateWidth = () => setWorldContainerWidth(container.clientWidth)
+    updateWidth()
+    const observer = new ResizeObserver(updateWidth)
+    observer.observe(container)
+    return () => observer.disconnect()
+  }, [])
+
   return (
     <ClickAwayListener onClickAway={handleClickAway}>
       <div
+        ref={worldContainerRef}
         onPointerDownCapture={handleContainerPointerDown}
         onPointerUpCapture={handleContainerPointerUp}
         onContextMenuCapture={handleCanvasContextMenu}
@@ -582,7 +602,11 @@ const World = ({
           !isTakingPicture &&
           !is2DOpen &&
           !isPdfOpen &&
-          isShowActionLog && <ActionLog />}
+          isShowActionLog &&
+          !(
+            selectedObjectiveMarkerUID &&
+            (isSmallScreenWidth || worldContainerWidth < 680)
+          ) && <ActionLog />}
         {isPerformanceEnabled && <PerformanceOverlay />}
         <SelectedPieceReadout cameraControlsRef={cameraControlsRef} />
         <LookSettingsDialog />
