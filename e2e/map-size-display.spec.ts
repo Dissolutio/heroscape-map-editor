@@ -137,7 +137,7 @@ test('shows live map size controls and conversion across map dialogs', async ({
   await saveEvidence(page, 'map-size-display-create')
 })
 
-test('trims padded maps without moving pieces', async ({ page }) => {
+test('trims padded maps and normalizes piece coordinates', async ({ page }) => {
   const paddedMap = {
     id: 'trim-map',
     name: 'Trim Map',
@@ -168,6 +168,9 @@ test('trims padded maps without moving pieces', async ({ page }) => {
     (uid) => window.__TEST__?.screenPosOfPiece(uid) ?? null,
     pieceUID,
   )
+  const beforeConflictCount = await page.evaluate(
+    () => window.__TEST__?.snapshot().conflictedPieceCount ?? 0,
+  )
   await page.getByRole('button', { name: 'Trim map' }).click()
   await waitForAppReady(page)
 
@@ -184,7 +187,20 @@ test('trims padded maps without moving pieces', async ({ page }) => {
     (uid) => window.__TEST__?.screenPosOfPiece(uid) ?? null,
     pieceUID,
   )
-  expect(afterPiece).toEqual(beforePiece)
+  expect(afterPiece).not.toEqual(beforePiece)
+  await expect
+    .poll(() => page.evaluate(() => window.__TEST__?.snapshot().mapOriginQ))
+    .toBe(0)
+  await expect
+    .poll(() => page.evaluate(() => window.__TEST__?.snapshot().mapOriginR))
+    .toBe(0)
+  await expect
+    .poll(() =>
+      page.evaluate(
+        () => window.__TEST__?.snapshot().conflictedPieceCount ?? 0,
+      ),
+    )
+    .toBe(beforeConflictCount)
 
   await page
     .getByRole('dialog', { name: 'Edit Map' })

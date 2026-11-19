@@ -1,7 +1,7 @@
 import { enqueueSnackbar } from 'notistack'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { buildupJsonFileMap } from '../data/buildupMap'
-import { trimMap } from '../data/convertMapShape'
+import { trimAndNormalizeMap } from '../data/convertMapShape'
 import {
   getUrlMapString,
   parseMapDataArrayFromCrushed,
@@ -816,11 +816,13 @@ describe('real store undo and redo', () => {
       }),
     )
     const before = snapshot()
-    const result = trimMap(store.getState().hexMap, [piece])
+    const result = trimAndNormalizeMap(store.getState().hexMap, [piece])
     expect(result.ok).toBe(true)
     if (!result.ok) throw new Error(result.error)
 
-    store.getState().loadMap(buildupJsonFileMap([piece], result.hexMap))
+    store
+      .getState()
+      .loadMap(buildupJsonFileMap(result.boardPieces, result.hexMap))
     expect(store.getState().hexMap.length).toBeLessThan(10)
     expect(store.getState().hexMap.width).toBeLessThan(12)
     expect(historyLength()).toBe(1)

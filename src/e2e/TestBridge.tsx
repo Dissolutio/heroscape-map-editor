@@ -390,6 +390,9 @@ function TestBridgeInner() {
           mapName: s.hexMap.name,
           mapWidth: s.hexMap.width,
           mapLength: s.hexMap.length,
+          mapOriginQ: s.hexMap.originQ ?? 0,
+          mapOriginR: s.hexMap.originR ?? 0,
+          conflictedPieceCount: s.conflictedPieceUIDs.length,
           pieceCount: s.boardPieces.length,
           objectiveMarkerCount: s.hexMap.objectiveMarkers?.length ?? 0,
           objectiveMarkerDraft: {

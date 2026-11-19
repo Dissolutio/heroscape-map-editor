@@ -15,7 +15,7 @@ import { useMemo, useState } from 'react'
 import { AdaptToCollectionDialog } from './AdaptToCollectionDialog'
 import { buildupJsonFileMap } from '../data/buildupMap'
 import { canShrinkMapWithoutDroppingPieces, resizeMap } from '../data/resizeMap'
-import { trimMap } from '../data/convertMapShape'
+import { trimAndNormalizeMap } from '../data/convertMapShape'
 import { DIALOGS } from '../layout/dialogNames'
 import { useMuiMediaQuery } from '../layout/useMuiMediaQuery'
 import useBoundStore from '../store/store'
@@ -229,26 +229,39 @@ export const EditControlsTab = () => {
   }
   // Memoized: the fit walks every piece, and this tab re-renders often.
   const trimResult = useMemo(
-    () => trimMap(hexMap, boardPieces),
+    () => trimAndNormalizeMap(hexMap, boardPieces),
     [hexMap, boardPieces],
   )
-  const trimmedHexMap =
-    trimResult.ok &&
-    trimResult.hexMap.length <= hexMap.length &&
-    trimResult.hexMap.width <= hexMap.width
-      ? trimResult.hexMap
-      : hexMap
   const trimDisabled =
     boardPieces.length === 0 ||
-    (trimmedHexMap.length === hexMap.length &&
-      trimmedHexMap.width === hexMap.width)
+    (trimResult.ok &&
+      trimResult.hexMap.length === hexMap.length &&
+      trimResult.hexMap.width === hexMap.width &&
+      (trimResult.hexMap.originQ ?? 0) === 0 &&
+      (trimResult.hexMap.originR ?? 0) === 0 &&
+      (trimResult.hexMap.objectiveMarkers?.length ?? 0) ===
+        (hexMap.objectiveMarkers?.length ?? 0) &&
+      trimResult.boardPieces.every(
+        (piece, index) =>
+          piece.pieceCoords.q === boardPieces[index]?.pieceCoords.q &&
+          piece.pieceCoords.r === boardPieces[index]?.pieceCoords.r &&
+          piece.pieceCoords.s === boardPieces[index]?.pieceCoords.s,
+      ) &&
+      (trimResult.hexMap.objectiveMarkers ?? []).every(
+        (marker, index) =>
+          marker.anchor.q === hexMap.objectiveMarkers?.[index]?.anchor.q &&
+          marker.anchor.r === hexMap.objectiveMarkers?.[index]?.anchor.r &&
+          marker.anchor.s === hexMap.objectiveMarkers?.[index]?.anchor.s &&
+          marker.anchor.altitude ===
+            hexMap.objectiveMarkers?.[index]?.anchor.altitude,
+      ))
   const trimMapAction = () => {
     if (trimDisabled || !trimResult.ok) return
-    loadMap(buildupJsonFileMap(boardPieces, trimmedHexMap))
+    loadMap(buildupJsonFileMap(trimResult.boardPieces, trimResult.hexMap))
     useBoundStore.getState().recordActionLog({
       type: 'trim',
-      length: trimmedHexMap.length,
-      width: trimmedHexMap.width,
+      length: trimResult.hexMap.length,
+      width: trimResult.hexMap.width,
     })
   }
   const lengthShrinkBlockedByPieces =
