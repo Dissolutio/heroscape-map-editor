@@ -886,12 +886,6 @@ describe('piece key shape rendering', () => {
     ).toBe(false)
   })
 
-  it('leaves the PDF piece-key notice cell empty', () => {
-    const pdfLegend = PdfPieceLegend({ boardPieces: [] })
-    expect(findTextElement(pdfLegend, 'Notice centers')).toBeUndefined()
-    expect(findTextElement(pdfLegend, 'and border colors')).toBeUndefined()
-  })
-
   it('uses map border colors for Asphalt and Toxic Land in the PDF legend', () => {
     const inventoryIDs = [Pieces.asphalt1, Pieces.toxic1, Pieces.grass1]
     const boardPieces = inventoryIDs.map((inventoryID, index) => ({

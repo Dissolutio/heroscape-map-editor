@@ -67,8 +67,6 @@ import {
   type WebGLDiagnostics,
   WebGLContextCreationError,
 } from './webglContext'
-
-const NARROW_WORLD_WIDTH_PX = 680
 import { getDragState } from './drag/dragController'
 
 const BILLBOARD_WARMUP_MS = 4000
@@ -319,10 +317,8 @@ const World = ({
   const isPdfOpen = useBoundStore((s) => s.isPdfOpen)
   const { isSmallScreenWidth } = useMuiMediaQuery()
   const worldContainerRef = useRef<HTMLDivElement>(null)
-  const [isNarrowWorld, setIsNarrowWorld] = useState(
-    typeof window === 'undefined'
-      ? false
-      : window.innerWidth < NARROW_WORLD_WIDTH_PX,
+  const [worldContainerWidth, setWorldContainerWidth] = useState(
+    typeof window === 'undefined' ? 0 : window.innerWidth,
   )
   const [isTabActive, setIsTabActive] = useState(true)
   const perspectiveCameraRef = useRef<ThreePerspectiveCamera>(null)
@@ -447,14 +443,9 @@ const World = ({
   useEffect(() => {
     const container = worldContainerRef.current
     if (!container) return
-    const updateNarrowState = () => {
-      const nextIsNarrow = container.clientWidth < NARROW_WORLD_WIDTH_PX
-      setIsNarrowWorld((current) =>
-        current === nextIsNarrow ? current : nextIsNarrow,
-      )
-    }
-    updateNarrowState()
-    const observer = new ResizeObserver(updateNarrowState)
+    const updateWidth = () => setWorldContainerWidth(container.clientWidth)
+    updateWidth()
+    const observer = new ResizeObserver(updateWidth)
     observer.observe(container)
     return () => observer.disconnect()
   }, [])
@@ -614,7 +605,7 @@ const World = ({
           isShowActionLog &&
           !(
             selectedObjectiveMarkerUID &&
-            (isSmallScreenWidth || isNarrowWorld)
+            (isSmallScreenWidth || worldContainerWidth < 680)
           ) && <ActionLog />}
         {isPerformanceEnabled && <PerformanceOverlay />}
         <SelectedPieceReadout cameraControlsRef={cameraControlsRef} />

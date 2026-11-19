@@ -45,7 +45,6 @@ export type ActionLogAction = (
       selectionLabel: string
     }
   | { type: 'convert'; count: number }
-  | { type: 'trim'; length: number; width: number }
   | { type: 'adapt'; count: number }
   | {
       type: 'marker'
@@ -113,13 +112,6 @@ export function formatActionLogAction(action: ActionLogAction) {
         kind: 'convert' as const,
         severity: 'info' as const,
         text: `Converted ${action.count} ${action.count === 1 ? 'piece' : 'pieces'}`,
-        undoable: true,
-      }
-    case 'trim':
-      return {
-        kind: 'convert' as const,
-        severity: 'info' as const,
-        text: `Trimmed map to ${action.width} × ${action.length}`,
         undoable: true,
       }
     case 'adapt':
