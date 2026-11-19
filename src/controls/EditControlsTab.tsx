@@ -11,7 +11,7 @@ import {
 } from '@mui/material'
 import { FcVlc } from 'react-icons/fc'
 import { FcRules } from 'react-icons/fc'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { AdaptToCollectionDialog } from './AdaptToCollectionDialog'
 import { buildupJsonFileMap } from '../data/buildupMap'
 import { canShrinkMapWithoutDroppingPieces, resizeMap } from '../data/resizeMap'
@@ -227,7 +227,11 @@ export const EditControlsTab = () => {
     const resized = resizeMap(hexMap, boardPieces, dimension, delta)
     loadMap(buildupJsonFileMap(resized.boardPieces, resized.hexMap))
   }
-  const trimResult = trimMap(hexMap, boardPieces)
+  // Memoized: the fit walks every piece, and this tab re-renders often.
+  const trimResult = useMemo(
+    () => trimMap(hexMap, boardPieces),
+    [hexMap, boardPieces],
+  )
   const trimmedHexMap =
     trimResult.ok &&
     trimResult.hexMap.length <= hexMap.length &&

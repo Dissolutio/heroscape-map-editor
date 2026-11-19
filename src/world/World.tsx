@@ -67,9 +67,9 @@ import {
   type WebGLDiagnostics,
   WebGLContextCreationError,
 } from './webglContext'
+import { getDragState } from './drag/dragController'
 
 const NARROW_WORLD_WIDTH_PX = 680
-import { getDragState } from './drag/dragController'
 
 const BILLBOARD_WARMUP_MS = 4000
 const WEBGL_FAILURE_SESSION_KEY = 'webgl-context-failure-reported'
