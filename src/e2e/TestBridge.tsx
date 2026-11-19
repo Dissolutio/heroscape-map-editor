@@ -687,6 +687,8 @@ function TestBridgeInner() {
           })
         }
       },
+      deselectObjectiveMarker: () =>
+        useBoundStore.getState().setSelectedObjectiveMarkerUID(null),
       stats: () => {
         const { calls, triangles, frame: frames } = get().gl.info.render
         return { calls, triangles, frames }

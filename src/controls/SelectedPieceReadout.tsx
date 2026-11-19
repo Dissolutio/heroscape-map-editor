@@ -31,10 +31,12 @@ const SelectedPieceReadout = ({
   if (selectedObjectiveMarker) {
     return (
       <div
+        data-testid="selected-objective-marker-readout"
         style={{
           position: 'absolute',
           bottom: 0,
-          left: 0,
+          right: 0,
+          zIndex: 5,
           padding: isSmallScreenWidth ? 4 : 10,
           margin: isSmallScreenWidth ? 4 : 10,
           width: 'min(320px, calc(100vw - 24px))',

@@ -198,5 +198,6 @@ export type E2ETestBridge = {
   ) => boolean
   setLookBackgroundColor: (color: string) => void
   seedActionLog: (count: number) => void
+  deselectObjectiveMarker: () => void
   stats: () => { calls: number; triangles: number; frames: number }
 }
