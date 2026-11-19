@@ -188,7 +188,7 @@ describe('convertMapShape', () => {
     })
   })
 
-  it('chooses the smallest normalized rectangle parity candidate', () => {
+  it('always puts the top row of a trimmed rectangle at row 0', () => {
     const padded = {
       ...rectangleFixture,
       shape: 'rectangle' as const,
@@ -207,6 +207,9 @@ describe('convertMapShape', () => {
     for (const boardPiece of result.boardPieces) {
       expect(doesPieceFitOnMap(boardPiece, table)).toBe(true)
     }
+    expect(
+      Math.min(...result.boardPieces.map(({ pieceCoords }) => pieceCoords.r)),
+    ).toBe(0)
   })
 
   it('trims padded rectangles and hexagons to their footprint', () => {

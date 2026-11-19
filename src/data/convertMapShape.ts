@@ -149,7 +149,10 @@ export function trimAndNormalizeMap(
       width: number
     }> = []
 
-    for (const targetMinR of [0, 1]) {
+    // Always put the top row at row 0, like shifting the pieces north-west
+    // by hand (John, 2026-11-19). Starting at row 1 could save a column on
+    // tall maps, but leaves an empty top row.
+    for (const targetMinR of [0]) {
       const rowOffset = targetMinR - minOriginalR
       const shiftedPieces = boardPieces.map((piece) => ({
         ...piece,
