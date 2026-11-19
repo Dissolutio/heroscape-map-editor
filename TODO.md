@@ -15,7 +15,7 @@ One bullet per item, 80 characters or less. Same text as the Project doc
 - Laur add-ons on edge/node cells (no false flags next to walls)
 - Ships on cells against every piece, not just walls
 - Right-click: "Select connected on same level" (adds to the selection)
-- ❓ More right-click items: convert, delete, use as pen
+- Right-click: Convert terrain, Delete, Use as pen
 - Selected readout: show how many selected pieces are hidden from view
 - ❓ Piece key font: Proxima Nova license, or free Sofia Sans Condensed
 - ❓ "Notice centers and border colors" wording, maybe "Size and border color"
