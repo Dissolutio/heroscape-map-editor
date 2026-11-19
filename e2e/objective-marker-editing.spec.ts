@@ -99,6 +99,15 @@ test('suggests unit names lazily and keeps them in saved map files', async ({
   page,
 }) => {
   const unitNameRequests: string[] = []
+  await page.route('**/objective-marker-unit-names.json', (route) =>
+    route.fulfill({
+      contentType: 'application/json',
+      body: JSON.stringify({
+        official: ['10th Regiment of Foot', 'Syvarris (RotV)', 'Syvarris (GS)'],
+        vc: ['Hrognak (1.0)', 'Hrognak (2.0)'],
+      }),
+    }),
+  )
   page.on('request', (request) => {
     if (request.url().endsWith('/objective-marker-unit-names.json')) {
       unitNameRequests.push(request.url())
@@ -178,6 +187,34 @@ test('suggests unit names lazily and keeps them in saved map files', async ({
   await expect(
     page.getByRole('combobox', { name: 'Objective marker name' }),
   ).toHaveValue('10th Regiment of Foot')
+
+  await nameInput.fill('Hrognak')
+  await expect(
+    page.getByRole('option', { name: 'Hrognak (1.0)', exact: true }),
+  ).toHaveCount(0)
+  await page
+    .getByRole('tab', {
+      name: 'Show controls for taking a map picture, controlling the camera, and editing preferences',
+    })
+    .click()
+  const vcToggle = page.getByRole('checkbox', {
+    name: 'Include VC unit/terrain data',
+  })
+  await expect(vcToggle).not.toBeChecked()
+  await vcToggle.check()
+  await page
+    .getByRole('tab', {
+      name: 'Show controls for editing details of the current map',
+    })
+    .click()
+  await nameInput.fill('Hro')
+  await nameInput.fill('Hrognak')
+  await expect(
+    page.getByRole('option', { name: 'Hrognak (1.0)', exact: true }),
+  ).toBeVisible()
+  await expect(
+    page.getByRole('option', { name: 'Hrognak (2.0)', exact: true }),
+  ).toBeVisible()
 })
 
 test('derives objective marker numbers unless the number is pinned', async ({

@@ -470,6 +470,7 @@ export default function ViewControlsTab({
         {is3DOpen && <ViewPreferencesSwitchForm />}
         {isPdfOpen && <PdfPreferencesSwitchForm />}
         {is2DOpen && <SVGPreferencesSwitchForm />}
+        <GeneralContentSettings />
         <GenericTerrainColorsForm />
         <Button
           onClick={handleResetSettings}
@@ -481,6 +482,32 @@ export default function ViewControlsTab({
         </Button>
       </Box>
     </Box>
+  )
+}
+
+const GeneralContentSettings = () => {
+  const includeVCContent = useBoundStore((state) => state.includeVCContent)
+  const toggleIncludeVCContent = useBoundStore(
+    (state) => state.toggleIncludeVCContent,
+  )
+
+  return (
+    <Tooltip
+      title="Show community custom (VC) units and content. Not official Hasbro or Renegade releases."
+      describeChild
+    >
+      <FormControlLabel
+        control={
+          <Switch
+            checked={includeVCContent}
+            onChange={(event) => toggleIncludeVCContent(event.target.checked)}
+            inputProps={{ 'aria-label': 'Include VC unit/terrain data' }}
+            size="small"
+          />
+        }
+        label="Include VC unit/terrain data"
+      />
+    </Tooltip>
   )
 }
 
