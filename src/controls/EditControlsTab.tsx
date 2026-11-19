@@ -15,6 +15,7 @@ import { useState } from 'react'
 import { AdaptToCollectionDialog } from './AdaptToCollectionDialog'
 import { buildupJsonFileMap } from '../data/buildupMap'
 import { canShrinkMapWithoutDroppingPieces, resizeMap } from '../data/resizeMap'
+import { trimMap } from '../data/convertMapShape'
 import { DIALOGS } from '../layout/dialogNames'
 import { useMuiMediaQuery } from '../layout/useMuiMediaQuery'
 import useBoundStore from '../store/store'
@@ -225,6 +226,26 @@ export const EditControlsTab = () => {
   const resizeAndLoad = (dimension: 'length' | 'width', delta: 1 | -1) => {
     const resized = resizeMap(hexMap, boardPieces, dimension, delta)
     loadMap(buildupJsonFileMap(resized.boardPieces, resized.hexMap))
+  }
+  const trimResult = trimMap(hexMap, boardPieces)
+  const trimmedHexMap =
+    trimResult.ok &&
+    trimResult.hexMap.length <= hexMap.length &&
+    trimResult.hexMap.width <= hexMap.width
+      ? trimResult.hexMap
+      : hexMap
+  const trimDisabled =
+    boardPieces.length === 0 ||
+    (trimmedHexMap.length === hexMap.length &&
+      trimmedHexMap.width === hexMap.width)
+  const trimMapAction = () => {
+    if (trimDisabled || !trimResult.ok) return
+    loadMap(buildupJsonFileMap(boardPieces, trimmedHexMap))
+    useBoundStore.getState().recordActionLog({
+      type: 'trim',
+      length: trimmedHexMap.length,
+      width: trimmedHexMap.width,
+    })
   }
   const lengthShrinkBlockedByPieces =
     hexMap.length > 1 &&
@@ -511,6 +532,23 @@ export const EditControlsTab = () => {
               Down Left
             </Button>
           </ButtonGroup>
+          <Tooltip
+            title="This will remove all extra hexes from the edges of a map, potentially reducing its size."
+            disableHoverListener={!trimDisabled}
+          >
+            <span>
+              <Button
+                aria-label="Trim map"
+                disabled={trimDisabled}
+                onClick={trimMapAction}
+                size="small"
+                sx={{ ml: 1, verticalAlign: 'middle' }}
+                title="This will remove all extra hexes from the edges of a map, potentially reducing its size."
+              >
+                Trim map
+              </Button>
+            </span>
+          </Tooltip>
         </CardContent>
       </Card>
 

@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 import { buildupJsonFileMap } from '../data/buildupMap'
-import { convertMapShape } from '../data/convertMapShape'
+import { convertMapShape, trimMap } from '../data/convertMapShape'
 import {
   doesPieceFitOnMap,
   fitMapToPieces,
@@ -41,7 +41,7 @@ const piece = (
   uid: `${inventoryID}-${q}-${r}`,
   inventoryID,
   altitude: 0,
-  rotation: 0,
+  rotation: 0 as const,
   pieceCoords: { q, r, s: -q - r },
   ...options,
 })
@@ -160,6 +160,111 @@ function pieceHexes(map: MapState) {
 }
 
 describe('convertMapShape', () => {
+  it('trims padded rectangles and hexagons to their footprint', () => {
+    const rectangle = {
+      ...rectangleFixture,
+      shape: 'rectangle' as const,
+      length: 10,
+      width: 12,
+      originQ: 0,
+      originR: 0,
+    }
+    const rectangleResult = trimMap(rectangle, [piece(Pieces.grass1, 2, 2)])
+    expect(rectangleResult.ok).toBe(true)
+    if (!rectangleResult.ok) throw new Error(rectangleResult.error)
+    expect(rectangleResult.hexMap.length).toBeLessThan(rectangle.length)
+    expect(rectangleResult.hexMap.width).toBeLessThan(rectangle.width)
+
+    const hexagon = {
+      ...hexagonFixture,
+      shape: 'hexagon' as const,
+      length: 10,
+      width: 10,
+      originQ: 0,
+      originR: 0,
+    }
+    const hexagonResult = trimMap(hexagon, [piece(Pieces.grass1, 2, 2)])
+    expect(hexagonResult.ok).toBe(true)
+    if (!hexagonResult.ok) throw new Error(hexagonResult.error)
+    expect(hexagonResult.hexMap.length).toBeLessThan(hexagon.length)
+    expect(hexagonResult.hexMap.width).toBeLessThan(hexagon.width)
+  })
+
+  it('does not change an already-trimmed map', () => {
+    const trimmed = {
+      ...rectangleFixture,
+      shape: 'rectangle' as const,
+      length: 1,
+      width: 1,
+      originQ: 2,
+      originR: 2,
+    }
+    const result = trimMap(trimmed, [piece(Pieces.grass1, 2, 2)])
+    expect(result.ok).toBe(true)
+    if (!result.ok) throw new Error(result.error)
+    expect(result.hexMap).toEqual(trimmed)
+  })
+
+  it('keeps markers, start zones, and rim pieces inside the trim', () => {
+    const markerHexMap = {
+      ...rectangleFixture,
+      shape: 'rectangle' as const,
+      length: 10,
+      width: 10,
+      originQ: 0,
+      originR: 0,
+      objectiveMarkers: [
+        {
+          uid: 'edge-marker',
+          anchor: { q: 9, r: 9, s: -18, altitude: 1 },
+          size: 2 as const,
+          rotation: 0 as const,
+          style: 'black' as const,
+          content: { kind: 'number' as const, value: 1 },
+        },
+      ],
+    }
+    const markerResult = trimMap(markerHexMap, [])
+    expect(markerResult.ok).toBe(true)
+    if (!markerResult.ok) throw new Error(markerResult.error)
+    expect(
+      tableContainsCoords(
+        markerResult.hexMap,
+        getMapTableFootprintCoords(markerHexMap, []),
+      ),
+    ).toBe(true)
+
+    const startZoneMap = {
+      ...rectangleFixture,
+      shape: 'rectangle' as const,
+      length: 10,
+      width: 10,
+      originQ: 0,
+      originR: 0,
+    }
+    const startResult = trimMap(startZoneMap, [piece(Pieces.startZone1, 9, 9)])
+    expect(startResult.ok).toBe(true)
+    if (!startResult.ok) throw new Error(startResult.error)
+    expect(
+      tableContainsCoords(
+        startResult.hexMap,
+        getMapTableFootprintCoords(startZoneMap, [
+          piece(Pieces.startZone1, 9, 9),
+        ]),
+      ),
+    ).toBe(true)
+
+    const rimResult = trimMap(
+      {
+        ...hexagonFixture,
+        shape: 'hexagon' as const,
+        length: 7,
+        width: 7,
+      },
+      [piece(Pieces.battlement, 6, 0)],
+    )
+    expect(rimResult.ok).toBe(true)
+  })
   it('round-trips a mixed hexagon map without changing its pieces or details', () => {
     const original = buildupJsonFileMap(mixedBoardPieces, mixedHexMap)
     const rectangle = buildupJsonFileMap(
