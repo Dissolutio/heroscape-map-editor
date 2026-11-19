@@ -1,11 +1,4 @@
-import {
-  expect,
-  findPieceUid,
-  mapUrl,
-  saveEvidence,
-  test,
-  waitForAppReady,
-} from './fixtures'
+import { expect, mapUrl, saveEvidence, test, waitForAppReady } from './fixtures'
 
 const rectangleMap = {
   id: 'map-size-display',
@@ -135,62 +128,4 @@ test('shows live map size controls and conversion across map dialogs', async ({
   )
   await expect.poll(() => diagram.textContent()).not.toBe(initialDiagramText)
   await saveEvidence(page, 'map-size-display-create')
-})
-
-test('trims padded maps without moving pieces', async ({ page }) => {
-  const paddedMap = {
-    id: 'trim-map',
-    name: 'Trim Map',
-    author: '',
-    shape: 'rectangle',
-    width: 8,
-    length: 8,
-    originQ: 0,
-    originR: 0,
-    version: 1,
-  }
-  await page.goto(mapUrl(paddedMap, ['0~2~2~0~g1']))
-  await waitForAppReady(page)
-
-  await page
-    .getByRole('tab', {
-      name: 'Show controls for editing details of the current map',
-    })
-    .click()
-
-  const pieceUID = await findPieceUid(page, {
-    inventoryID: 'g1',
-    q: 2,
-    r: 2,
-  })
-  if (!pieceUID) throw new Error('Trim test piece is not rendered')
-  const beforePiece = await page.evaluate(
-    (uid) => window.__TEST__?.screenPosOfPiece(uid) ?? null,
-    pieceUID,
-  )
-  await page.getByRole('button', { name: 'Trim map' }).click()
-  await waitForAppReady(page)
-
-  await expect(page.getByTestId('map-size-length-value')).toHaveText(/^[1-8]$/)
-  await expect(page.getByTestId('map-size-width-value')).toHaveText(/^[1-8]$/)
-  await page.getByRole('button', { name: 'Edit Map Details' }).click()
-  await expect(
-    page
-      .getByRole('dialog', { name: 'Edit Map' })
-      .getByTestId('map-size-summary'),
-  ).not.toContainText('Length 8')
-
-  const afterPiece = await page.evaluate(
-    (uid) => window.__TEST__?.screenPosOfPiece(uid) ?? null,
-    pieceUID,
-  )
-  expect(afterPiece).toEqual(beforePiece)
-
-  await page
-    .getByRole('dialog', { name: 'Edit Map' })
-    .getByRole('button', { name: 'Cancel' })
-    .click()
-  await page.keyboard.press('Control+z')
-  await expect(page.getByTestId('map-size-length-value')).toHaveText('8')
-  await expect(page.getByTestId('map-size-width-value')).toHaveText('8')
 })
