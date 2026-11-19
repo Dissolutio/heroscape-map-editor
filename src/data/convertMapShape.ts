@@ -88,3 +88,32 @@ export function convertMapShape(
     },
   }
 }
+
+export function trimMap(
+  hexMap: HexMap,
+  boardPieces: readonly BoardPiece[],
+): ConvertMapShapeResult {
+  const result = convertMapShape(
+    hexMap,
+    boardPieces,
+    hexMap.shape as MapShape,
+    {
+      margin: 0,
+    },
+  )
+  if (!result.ok) return result
+
+  if (
+    result.hexMap.length > hexMap.length ||
+    result.hexMap.width > hexMap.width
+  ) {
+    return { ok: true, hexMap }
+  }
+  if (
+    result.hexMap.length === hexMap.length &&
+    result.hexMap.width === hexMap.width
+  ) {
+    return { ok: true, hexMap }
+  }
+  return result
+}

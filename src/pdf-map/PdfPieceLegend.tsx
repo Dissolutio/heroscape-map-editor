@@ -202,18 +202,7 @@ function LandGrid({
           justifyContent: 'center',
         }}
       >
-        <View style={{ alignItems: 'flex-start' }}>
-          <LegendText
-            style={{ fontSize: 7, fontWeight: 'bold', textAlign: 'left' }}
-          >
-            Notice centers
-          </LegendText>
-          <LegendText
-            style={{ fontSize: 7, fontWeight: 'bold', textAlign: 'left' }}
-          >
-            and border colors
-          </LegendText>
-        </View>
+        <View />
       </View>
       {columns.map((column) => (
         <View
