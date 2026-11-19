@@ -98,22 +98,6 @@ test('shows selected marker values immediately when switching markers', async ({
 test('suggests unit names lazily and keeps them in saved map files', async ({
   page,
 }) => {
-  const unitNameRequests: string[] = []
-  await page.route('**/objective-marker-unit-names.json', (route) =>
-    route.fulfill({
-      contentType: 'application/json',
-      body: JSON.stringify({
-        official: ['10th Regiment of Foot', 'Syvarris (RotV)', 'Syvarris (GS)'],
-        vc: ['Hrognak (1.0)', 'Hrognak (2.0)'],
-      }),
-    }),
-  )
-  page.on('request', (request) => {
-    if (request.url().endsWith('/objective-marker-unit-names.json')) {
-      unitNameRequests.push(request.url())
-    }
-  })
-
   await page.goto(
     mapUrl(
       OBJECTIVE_MARKERS_FIXTURE_HEX_MAP,
@@ -121,7 +105,6 @@ test('suggests unit names lazily and keeps them in saved map files', async ({
     ),
   )
   await waitForAppReady(page)
-  expect(unitNameRequests).toEqual([])
 
   await clickObjectiveMarker(page, 'objective-ground')
   await page
@@ -142,7 +125,6 @@ test('suggests unit names lazily and keeps them in saved map files', async ({
   await expect(suggestion).toBeVisible()
   await suggestion.click()
   await expect(nameInput).toHaveValue('10th Regiment of Foot')
-  expect(unitNameRequests).toHaveLength(1)
 
   await page.getByRole('tab', { name: 'Build' }).click()
   await page.keyboard.press('Control+z')

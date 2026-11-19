@@ -9,7 +9,7 @@ const SNAPSHOT_URL = new URL(
   import.meta.url,
 )
 const NAMES_URL = new URL(
-  '../public/objective-marker-unit-names.json',
+  '../src/data/units/objectiveMarkerUnitNames.json',
   import.meta.url,
 )
 const RULES_URL = new URL('../src/data/units/unitNameRules.ts', import.meta.url)

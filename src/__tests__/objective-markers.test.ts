@@ -14,7 +14,10 @@ import {
   getUrlMapString,
   parseMapDataArrayFromCrushed,
 } from '../data/jsonCrush'
-import { getObjectiveMarkerNameSuggestions } from '../data/objectiveMarkerNameSuggestions'
+import {
+  getObjectiveMarkerNameSuggestions,
+  normalizeObjectiveMarkerUnitNames,
+} from '../data/objectiveMarkerNameSuggestions'
 import { getObjectiveMarkerPlacementStatus } from '../data/objectiveMarkerPlacement'
 import {
   type ObjectiveMarker,
@@ -221,9 +224,33 @@ describe('objective marker data', () => {
     expect(normalizeObjectiveMarkerName('x'.repeat(61))).toBe('x'.repeat(60))
   })
 
+  it('normalizes current and legacy unit-name JSON shapes', () => {
+    expect(
+      normalizeObjectiveMarkerUnitNames({
+        official: ['Agent Carr (RotV)'],
+        vc: ['Hrognak (1.0)'],
+      }),
+    ).toEqual({
+      official: ['Agent Carr (RotV)'],
+      vc: ['Hrognak (1.0)'],
+    })
+    expect(
+      normalizeObjectiveMarkerUnitNames(['10th Regiment of Foot', '', 42]),
+    ).toEqual({
+      official: ['10th Regiment of Foot'],
+      vc: [],
+    })
+    expect(() => normalizeObjectiveMarkerUnitNames(null)).toThrow(
+      'Invalid unit-name data',
+    )
+    expect(() =>
+      normalizeObjectiveMarkerUnitNames({ official: [], vc: 'all' }),
+    ).toThrow('Invalid unit-name data')
+  })
+
   it('keeps the snapshot and generated names in sync with the heroscape.org source model', () => {
     const generatedFile = readFileSync(
-      new URL('../../public/objective-marker-unit-names.json', import.meta.url),
+      new URL('../data/units/objectiveMarkerUnitNames.json', import.meta.url),
       'utf8',
     )
     const generatedNames = JSON.parse(generatedFile) as {
@@ -303,7 +330,7 @@ describe('objective marker data', () => {
 
   it('offers Renegade and VC repeat names according to the toggle', () => {
     const generatedFile = readFileSync(
-      new URL('../../public/objective-marker-unit-names.json', import.meta.url),
+      new URL('../data/units/objectiveMarkerUnitNames.json', import.meta.url),
       'utf8',
     )
     const names = JSON.parse(generatedFile) as {
