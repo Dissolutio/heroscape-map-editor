@@ -8,6 +8,8 @@ import {
   FormControl,
   FormControlLabel,
   FormHelperText,
+  IconButton,
+  InputAdornment,
   TextField,
   Tooltip,
   ToggleButton,
@@ -372,6 +374,7 @@ export default function ObjectiveMarkerControls({
           key={nameSource}
           freeSolo
           openOnFocus
+          clearIcon={null}
           options={unitNames}
           value={current.name ?? null}
           inputValue={nameValue}
@@ -379,12 +382,13 @@ export default function ObjectiveMarkerControls({
             getObjectiveMarkerNameSuggestions(unitNames, state.inputValue)
           }
           onInputChange={(_, value, reason) => {
-            if (reason === 'input') {
+            if (reason === 'input' || reason === 'clear') {
               setNameInput({ source: nameSource, value })
             }
           }}
           onChange={(_, value) => {
             if (typeof value === 'string') saveName(value)
+            else saveName('')
           }}
           onBlur={() => saveName(nameValue)}
           renderInput={(params) => (
@@ -393,6 +397,34 @@ export default function ObjectiveMarkerControls({
               size="small"
               label="Name"
               onFocus={loadUnitNames}
+              InputProps={{
+                ...params.InputProps,
+                endAdornment: (
+                  <>
+                    {nameValue && (
+                      <InputAdornment position="end">
+                        <IconButton
+                          aria-label="Clear objective marker name"
+                          edge="end"
+                          size="small"
+                          onMouseDown={(event) => event.preventDefault()}
+                          onClick={() => {
+                            setNameInput({ source: nameSource, value: '' })
+                            if (marker)
+                              updateMarker(marker.uid, { name: undefined })
+                            else updateDraft({ name: undefined })
+                          }}
+                        >
+                          <span aria-hidden="true" style={{ fontSize: 18 }}>
+                            ×
+                          </span>
+                        </IconButton>
+                      </InputAdornment>
+                    )}
+                    {params.InputProps.endAdornment}
+                  </>
+                ),
+              }}
               inputProps={{
                 ...params.inputProps,
                 'aria-label': 'Objective marker name',

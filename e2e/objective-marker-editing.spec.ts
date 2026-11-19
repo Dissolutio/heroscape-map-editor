@@ -148,6 +148,16 @@ test('suggests unit names lazily and keeps them in saved map files', async ({
     .click()
   await expect(nameInput).toHaveValue('10th Regiment of Foot')
 
+  await page
+    .getByRole('button', { name: 'Clear objective marker name', exact: true })
+    .click()
+  await expect(nameInput).toHaveValue('')
+  await nameInput.fill('10th')
+  await page
+    .getByRole('option', { name: '10th Regiment of Foot', exact: true })
+    .click()
+  await expect(nameInput).toHaveValue('10th Regiment of Foot')
+
   await page.getByRole('tab', { name: 'File' }).click()
   await page.getByRole('button', { name: 'Download Map File' }).click()
   const downloadPromise = page.waitForEvent('download')
