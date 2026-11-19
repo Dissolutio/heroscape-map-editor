@@ -92,6 +92,8 @@ export interface UISlice {
   toggleIsShowObjectiveMarkers: (show: boolean) => void
   isObjectiveMarkerNumbersFaceCamera: boolean
   toggleIsObjectiveMarkerNumbersFaceCamera: (show: boolean) => void
+  includeVCContent: boolean
+  toggleIncludeVCContent: (include: boolean) => void
   isShowActionLog: boolean
   toggleIsShowActionLog: (show: boolean) => void
   resetSettings: () => void
@@ -368,6 +370,7 @@ const createUISlice: StateCreator<
   isShowObjectiveMarkers: true,
   toggleIsObjectiveMarkerNumbersFaceCamera: (show) =>
     set({ isObjectiveMarkerNumbersFaceCamera: show }),
+  toggleIncludeVCContent: (include) => set({ includeVCContent: include }),
   toggleIsShowObjectiveMarkers: (show) =>
     set(
       produce((s) => {

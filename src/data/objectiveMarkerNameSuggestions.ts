@@ -1,4 +1,9 @@
-let unitNamesPromise: Promise<string[]> | undefined
+export type ObjectiveMarkerUnitNames = {
+  official: string[]
+  vc: string[]
+}
+
+let unitNamesPromise: Promise<ObjectiveMarkerUnitNames> | undefined
 
 export async function loadObjectiveMarkerUnitNames() {
   unitNamesPromise ??= fetch(
@@ -9,10 +14,24 @@ export async function loadObjectiveMarkerUnitNames() {
       return response.json() as Promise<unknown>
     })
     .then((data) => {
-      if (!Array.isArray(data)) throw new Error('Invalid unit-name data')
-      return data.filter(
-        (name): name is string => typeof name === 'string' && name.length > 0,
-      )
+      if (
+        typeof data !== 'object' ||
+        data === null ||
+        !('official' in data) ||
+        !('vc' in data)
+      ) {
+        throw new Error('Invalid unit-name data')
+      }
+      const validateNames = (value: unknown) => {
+        if (!Array.isArray(value)) throw new Error('Invalid unit-name data')
+        return value.filter(
+          (name): name is string => typeof name === 'string' && name.length > 0,
+        )
+      }
+      return {
+        official: validateNames(data.official),
+        vc: validateNames(data.vc),
+      }
     })
     .catch((error: unknown) => {
       unitNamesPromise = undefined

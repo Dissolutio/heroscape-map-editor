@@ -470,6 +470,7 @@ export default function ViewControlsTab({
         {is3DOpen && <ViewPreferencesSwitchForm />}
         {isPdfOpen && <PdfPreferencesSwitchForm />}
         {is2DOpen && <SVGPreferencesSwitchForm />}
+        <GeneralContentSettings />
         <GenericTerrainColorsForm />
         <Button
           onClick={handleResetSettings}
@@ -480,6 +481,32 @@ export default function ViewControlsTab({
           Reset settings
         </Button>
       </Box>
+    </Box>
+  )
+}
+
+const GeneralContentSettings = () => {
+  const includeVCContent = useBoundStore((state) => state.includeVCContent)
+  const toggleIncludeVCContent = useBoundStore(
+    (state) => state.toggleIncludeVCContent,
+  )
+
+  return (
+    <Box sx={{ px: 1 }}>
+      <FormControlLabel
+        control={
+          <Switch
+            checked={includeVCContent}
+            onChange={(event) => toggleIncludeVCContent(event.target.checked)}
+            inputProps={{ 'aria-label': 'Include VC Content' }}
+          />
+        }
+        label="Include VC Content"
+      />
+      <FormHelperText sx={{ mt: -0.5 }}>
+        Show community custom (VC) units and content. Not official Hasbro or
+        Renegade releases.
+      </FormHelperText>
     </Box>
   )
 }

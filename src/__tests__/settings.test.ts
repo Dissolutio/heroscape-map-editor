@@ -304,6 +304,26 @@ describe('settings persistence', () => {
     expect(loadSettings().isObjectiveMarkerNumbersFaceCamera).toBe(false)
   })
 
+  it('defaults Include VC Content off and persists it across reload', () => {
+    expect(SETTINGS_DEFAULTS.includeVCContent).toBe(false)
+    expect(serializeSettings(SETTINGS_DEFAULTS)).toBeNull()
+
+    const changed = {
+      ...SETTINGS_DEFAULTS,
+      includeVCContent: true,
+    }
+    const serialized = serializeSettings(changed)
+    expect(serialized).toEqual({
+      v: 1,
+      values: { includeVCContent: true },
+    })
+    storage.setItem(LS_KEYS.settings, JSON.stringify(serialized))
+    expect(loadSettings().includeVCContent).toBe(true)
+
+    expect(resetSettings()).toBe(true)
+    expect(loadSettings().includeVCContent).toBe(false)
+  })
+
   it('ignores a non-boolean PDF ladder overlay value', () => {
     storage.setItem(
       LS_KEYS.settings,

@@ -50,6 +50,7 @@ export default function ObjectiveMarkerControls({
   const updateDraft = useBoundStore((state) => state.updateObjectiveMarkerDraft)
   const updateMarker = useBoundStore((state) => state.updateObjectiveMarker)
   const removeMarker = useBoundStore((state) => state.removeObjectiveMarker)
+  const includeVCContent = useBoundStore((state) => state.includeVCContent)
   const { hotkeyLookup } = useHotkeyConfig()
   const tableHexIDs = useMemo(() => mapTableHexes(hexMap), [hexMap])
   const [contentInput, setContentInput] = useState({
@@ -65,7 +66,17 @@ export default function ObjectiveMarkerControls({
     source: marker?.uid ?? 'draft',
     value: marker?.name ?? draft.name ?? '',
   }))
-  const [unitNames, setUnitNames] = useState<string[]>([])
+  const [unitNameData, setUnitNameData] = useState({
+    official: [] as string[],
+    vc: [] as string[],
+  })
+  const unitNames = useMemo(
+    () =>
+      includeVCContent
+        ? [...unitNameData.official, ...unitNameData.vc]
+        : unitNameData.official,
+    [includeVCContent, unitNameData],
+  )
   const current: ObjectiveMarkerDraft | ObjectiveMarker = marker ?? draft
   const nameIdentity = marker?.uid ?? 'draft'
   const content =
@@ -108,8 +119,8 @@ export default function ObjectiveMarkerControls({
 
   const loadUnitNames = () => {
     void loadObjectiveMarkerUnitNames()
-      .then(setUnitNames)
-      .catch(() => setUnitNames([]))
+      .then(setUnitNameData)
+      .catch(() => setUnitNameData({ official: [], vc: [] }))
   }
 
   const updatePlacementField = (
