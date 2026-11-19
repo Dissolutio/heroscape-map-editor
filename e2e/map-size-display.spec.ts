@@ -119,7 +119,7 @@ test('shows live map size controls and conversion across map dialogs', async ({
   await expect(createSummary).toContainText('Length 20 · Width 20 hexes')
   await expect(diagram).toHaveAttribute(
     'aria-label',
-    await createSummary.innerText(),
+    await createSummary.textContent(),
   )
   const initialDiagramText = await diagram.textContent()
 
@@ -131,7 +131,7 @@ test('shows live map size controls and conversion across map dialogs', async ({
   await expect(createSummary).toContainText('Length 20 · Width 21 hexes')
   await expect(diagram).toHaveAttribute(
     'aria-label',
-    await createSummary.innerText(),
+    await createSummary.textContent(),
   )
   await expect.poll(() => diagram.textContent()).not.toBe(initialDiagramText)
   await saveEvidence(page, 'map-size-display-create')
