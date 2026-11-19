@@ -15,7 +15,7 @@ One bullet per item, 80 characters or less. Same text as the Project doc
 - Laur add-ons on edge/node cells (no false flags next to walls)
 - Ships on cells against every piece, not just walls
 - ❓ More right-click menu items: grow selection, convert, delete, use as pen
-- ❓ More moments to drop the selection: level change, leave 3D, inventory
+- Selected readout: show how many selected pieces are hidden from view
 - ❓ Piece key font: Proxima Nova license, or free Sofia Sans Condensed
 - ❓ "Notice centers and border colors" wording, maybe "Size and border color"
 - More hotkey actions: inventory dialog, convert terrain
