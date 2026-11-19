@@ -493,7 +493,7 @@ const GeneralContentSettings = () => {
 
   return (
     <Tooltip
-      title="Show community custom (VC) units and content. Not official Hasbro or Renegade releases."
+      title="Show community custom (VC) units and content."
       describeChild
     >
       <FormControlLabel
