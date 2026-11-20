@@ -8,7 +8,12 @@ import {
   isRotationPivotAtPieceOrigin,
   resolveRotationPivot,
 } from '../data/rotationPivot'
+import {
+  isGlyphBoardPiece,
+  isStartZoneBoardPiece,
+} from '../data/startZoneVisibility'
 import getPieceTemplateCoords from '../data/rotationTransforms'
+import { getHiddenSelectionPieces } from '../selection/selectionMenuActions'
 import { pickPieceAsPenMode } from '../hooks/useMiddleClickPickPenMode'
 import useBoundStore from '../store/store'
 import { isFluidTerrainHex, isSolidTerrainHex } from '../utils/board-utils'
@@ -301,6 +306,9 @@ export function SelectedPieceControls({
   const boardPieces = useBoundStore((s) => s.boardPieces)
   const boardHexes = useBoundStore((s) => s.boardHexes)
   const selectedPieceIDs = useBoundStore((s) => s.selectedPieceIDs)
+  const viewingLevel = useBoundStore((s) => s.viewingLevel)
+  const isShowStartZones = useBoundStore((s) => s.isShowStartZones)
+  const isShowGlyphs = useBoundStore((s) => s.isShowGlyphs)
   const storedRotationPivot = useBoundStore((s) => s.rotationPivot)
   const conflictedPieceUIDs = useBoundStore((s) => s.conflictedPieceUIDs)
   const movePieces = useBoundStore((s) => s.movePieces)
@@ -321,6 +329,24 @@ export function SelectedPieceControls({
   if (!firstBp) return null
 
   const isMulti = selectedBoardPieces.length > 1
+  const hiddenSelectionPieces = getHiddenSelectionPieces(
+    boardPieces,
+    boardHexes,
+    selectedPieceIDs,
+    viewingLevel,
+    isShowStartZones,
+    isShowGlyphs,
+  )
+  const hiddenSelectionMessage =
+    hiddenSelectionPieces.length === 0
+      ? null
+      : isMulti
+        ? `${hiddenSelectionPieces.length} of ${selectedBoardPieces.length} selected are hidden`
+        : !isShowStartZones && isStartZoneBoardPiece(firstBp)
+          ? 'This piece is hidden by a view toggle.'
+          : !isShowGlyphs && isGlyphBoardPiece(firstBp)
+            ? 'This piece is hidden by a view toggle.'
+            : 'This piece is hidden at the current viewing level.'
   const hasNonOriginPivot =
     !isMulti &&
     groupRotationPivot !== undefined &&
@@ -549,6 +575,11 @@ export function SelectedPieceControls({
         partiallyBuried={partiallyBuriedCount}
         subBuried={subBuriedCount}
       />
+      {hiddenSelectionMessage && (
+        <Typography sx={{ fontSize: 10, color: 'text.secondary', mb: 0.5 }}>
+          {hiddenSelectionMessage}
+        </Typography>
+      )}
       {selectedPieceIDs.length === 1 && selectedBoardPieces.length === 1 && (
         <Tooltip title="Use this piece as the pen">
           <Button

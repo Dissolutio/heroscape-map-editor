@@ -5,6 +5,7 @@ import { getLaurAddonFeatureId } from '../data/laurAddonPlacement'
 import { piecesSoFar } from '../data/pieces'
 import {
   getSelectionMenuItems,
+  getHiddenSelectionPieces,
   getVisibleSelectionPieces,
   invertSelection,
   selectConnected,
@@ -175,6 +176,29 @@ describe('selection menu pure actions', () => {
     expect(
       selectSameLevel(context(board, ['stacked'], ['stacked'], 1, false)),
     ).toEqual([])
+  })
+
+  it('identifies selected pieces hidden by the viewing level or a view toggle', () => {
+    const table = makeTable(12)
+    const floor = put(table, Pieces.grass1, table.center, 0, 'floor')
+    const stacked = put(floor, Pieces.grass1, table.center, 1, 'stacked')
+    const zone = put(
+      stacked,
+      Pieces.startZone1,
+      { q: table.center.q + 4, r: table.center.r, s: table.center.s - 4 },
+      0,
+      'zone',
+    )
+
+    expect(
+      getHiddenSelectionPieces(
+        zone.boardPieces,
+        zone.boardHexes,
+        ['floor', 'stacked', 'zone'],
+        1,
+        false,
+      ).map((bp) => bp.uid),
+    ).toEqual(['stacked', 'zone'])
   })
 
   it('inverts only visible placed pieces and does not include objective markers', () => {

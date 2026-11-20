@@ -120,6 +120,29 @@ export function getVisibleSelectionPieces(
   })
 }
 
+export function getHiddenSelectionPieces(
+  boardPieces: readonly BoardPiece[],
+  boardHexes: BoardHexes,
+  selectedPieceIDs: readonly string[],
+  viewingLevel: number,
+  isShowStartZones: boolean,
+  isShowGlyphs = true,
+) {
+  const selectedIDs = new Set(selectedPieceIDs)
+  const visibleIDs = new Set(
+    getVisibleSelectionPieces(
+      boardPieces,
+      boardHexes,
+      viewingLevel,
+      isShowStartZones,
+      isShowGlyphs,
+    ).map((piece) => piece.uid),
+  )
+  return boardPieces.filter(
+    (piece) => selectedIDs.has(piece.uid) && !visibleIDs.has(piece.uid),
+  )
+}
+
 function getVisibleSeeds(ctx: SelectionMenuContext) {
   const visibleIDs = new Set(
     getVisibleSelectionPieces(
