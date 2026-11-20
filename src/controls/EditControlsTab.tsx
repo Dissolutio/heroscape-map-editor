@@ -232,29 +232,15 @@ export const EditControlsTab = () => {
     () => trimAndNormalizeMap(hexMap, boardPieces),
     [hexMap, boardPieces],
   )
-  const trimDisabled =
-    boardPieces.length === 0 ||
-    (trimResult.ok &&
-      trimResult.hexMap.length === hexMap.length &&
-      trimResult.hexMap.width === hexMap.width &&
-      (trimResult.hexMap.originQ ?? 0) === 0 &&
-      (trimResult.hexMap.originR ?? 0) === 0 &&
-      (trimResult.hexMap.objectiveMarkers?.length ?? 0) ===
-        (hexMap.objectiveMarkers?.length ?? 0) &&
-      trimResult.boardPieces.every(
-        (piece, index) =>
-          piece.pieceCoords.q === boardPieces[index]?.pieceCoords.q &&
-          piece.pieceCoords.r === boardPieces[index]?.pieceCoords.r &&
-          piece.pieceCoords.s === boardPieces[index]?.pieceCoords.s,
-      ) &&
-      (trimResult.hexMap.objectiveMarkers ?? []).every(
-        (marker, index) =>
-          marker.anchor.q === hexMap.objectiveMarkers?.[index]?.anchor.q &&
-          marker.anchor.r === hexMap.objectiveMarkers?.[index]?.anchor.r &&
-          marker.anchor.s === hexMap.objectiveMarkers?.[index]?.anchor.s &&
-          marker.anchor.altitude ===
-            hexMap.objectiveMarkers?.[index]?.anchor.altitude,
-      ))
+  const trimDisabled = trimResult.ok && trimResult.note !== undefined
+  const trimTooltip =
+    trimResult.ok && trimResult.note === 'empty'
+      ? "There's nothing on the map to trim."
+      : trimResult.ok && trimResult.note === 'zigzag'
+        ? 'Already as small as it can be. Removing the empty top row would need one more column, because the rows zigzag.'
+        : trimResult.ok && trimResult.note === 'already-small'
+          ? 'Already as small as it can be.'
+          : 'This will remove all extra hexes from the edges of a map, potentially reducing its size.'
   const trimMapAction = () => {
     if (trimDisabled || !trimResult.ok) return
     loadMap(buildupJsonFileMap(trimResult.boardPieces, trimResult.hexMap))
@@ -550,7 +536,7 @@ export const EditControlsTab = () => {
             </Button>
           </ButtonGroup>
           <Tooltip
-            title="This will remove all extra hexes from the edges of a map, potentially reducing its size."
+            title={trimTooltip}
             disableHoverListener={!trimDisabled}
           >
             <span>
@@ -560,7 +546,7 @@ export const EditControlsTab = () => {
                 onClick={trimMapAction}
                 size="small"
                 sx={{ ml: 1, verticalAlign: 'middle' }}
-                title="This will remove all extra hexes from the edges of a map, potentially reducing its size."
+                title={trimTooltip}
               >
                 Trim map
               </Button>

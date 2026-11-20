@@ -188,7 +188,76 @@ describe('convertMapShape', () => {
     })
   })
 
-  it('always puts the top row of a trimmed rectangle at row 0', () => {
+  it('keeps a full-width rectangle unchanged when its odd shift needs a column', () => {
+    const fullWidth = {
+      ...rectangleFixture,
+      shape: 'rectangle' as const,
+      length: 6,
+      width: 6,
+      originQ: 0,
+      originR: 0,
+    }
+    const pieces = Array.from({ length: 5 * fullWidth.width }, (_, index) => {
+      const row = Math.floor(index / fullWidth.width) + 1
+      const column = index % fullWidth.width
+      return piece(
+        Pieces.grass1,
+        column - Math.floor(row / 2),
+        row,
+        { uid: `full-width-${index}` },
+      )
+    })
+
+    const result = trimAndNormalizeMap(fullWidth, pieces)
+
+    expect(result.ok).toBe(true)
+    if (!result.ok) throw new Error(result.error)
+    expect(result.hexMap).toBe(fullWidth)
+    expect(result.hexMap).toMatchObject({ length: 6, width: 6 })
+    expect(result.note).toBe('zigzag')
+  })
+
+  it('keeps the zigzag when trimming a full-width rectangle with empty rows', () => {
+    const fullWidth = {
+      ...rectangleFixture,
+      shape: 'rectangle' as const,
+      length: 15,
+      width: 6,
+      originQ: 0,
+      originR: 0,
+    }
+    const pieces = Array.from({ length: 7 * fullWidth.width }, (_, index) => {
+      const row = Math.floor(index / fullWidth.width) + 3
+      const column = index % fullWidth.width
+      return piece(
+        Pieces.grass1,
+        column - Math.floor(row / 2),
+        row,
+        { uid: `full-width-gap-${index}` },
+      )
+    })
+
+    const result = trimAndNormalizeMap(fullWidth, pieces)
+
+    expect(result.ok).toBe(true)
+    if (!result.ok) throw new Error(result.error)
+    expect(result.hexMap.width).toBe(fullWidth.width)
+    expect(result.hexMap.length).toBe(8)
+    expect(
+      Math.min(...result.boardPieces.map(({ pieceCoords }) => pieceCoords.r)),
+    ).toBe(1)
+    expect(
+      Math.max(...result.boardPieces.map(({ pieceCoords }) => pieceCoords.r)),
+    ).toBe(7)
+    const table = mapTableHexes(result.hexMap)
+    expect(
+      result.boardPieces.every((boardPiece) =>
+        doesPieceFitOnMap(boardPiece, table),
+      ),
+    ).toBe(true)
+  })
+
+  it('puts a non-full-width odd top row at row 0', () => {
     const padded = {
       ...rectangleFixture,
       shape: 'rectangle' as const,
@@ -210,6 +279,22 @@ describe('convertMapShape', () => {
     expect(
       Math.min(...result.boardPieces.map(({ pieceCoords }) => pieceCoords.r)),
     ).toBe(0)
+  })
+
+  it('puts an even top row at row 0', () => {
+    const padded = {
+      ...rectangleFixture,
+      shape: 'rectangle' as const,
+      length: 10,
+      width: 10,
+      originQ: 0,
+      originR: 0,
+    }
+    const result = trimAndNormalizeMap(padded, [piece(Pieces.grass1, 3, 2)])
+
+    expect(result.ok).toBe(true)
+    if (!result.ok) throw new Error(result.error)
+    expect(result.boardPieces[0]?.pieceCoords.r).toBe(0)
   })
 
   it('trims padded rectangles and hexagons to their footprint', () => {

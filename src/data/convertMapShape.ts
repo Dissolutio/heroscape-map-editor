@@ -107,6 +107,7 @@ export type TrimAndNormalizeResult =
       ok: true
       hexMap: HexMap
       boardPieces: BoardPiece[]
+      note?: 'empty' | 'already-small' | 'zigzag'
     }
   | { ok: false; error: 'too-large' }
 
@@ -120,6 +121,31 @@ function translateCoordinate(
 function withoutOrigin(hexMap: HexMap): HexMap {
   const { originQ: _originQ, originR: _originR, ...normalized } = hexMap
   return normalized
+}
+
+function haveSameCoordinates(
+  firstPieces: readonly BoardPiece[],
+  secondPieces: readonly BoardPiece[],
+  firstMarkers: NonNullable<HexMap['objectiveMarkers']>,
+  secondMarkers: NonNullable<HexMap['objectiveMarkers']>,
+) {
+  return (
+    firstPieces.length === secondPieces.length &&
+    firstPieces.every(
+      (piece, index) =>
+        piece.pieceCoords.q === secondPieces[index]?.pieceCoords.q &&
+        piece.pieceCoords.r === secondPieces[index]?.pieceCoords.r &&
+        piece.pieceCoords.s === secondPieces[index]?.pieceCoords.s,
+    ) &&
+    firstMarkers.length === secondMarkers.length &&
+    firstMarkers.every(
+      (marker, index) =>
+        marker.anchor.q === secondMarkers[index]?.anchor.q &&
+        marker.anchor.r === secondMarkers[index]?.anchor.r &&
+        marker.anchor.s === secondMarkers[index]?.anchor.s &&
+        marker.anchor.altitude === secondMarkers[index]?.anchor.altitude,
+    )
+  )
 }
 
 export function trimAndNormalizeMap(
@@ -137,22 +163,34 @@ export function trimAndNormalizeMap(
             ? hexMap
             : withoutOrigin(hexMap),
         boardPieces: boardPieces.map((piece) => ({ ...piece })),
+        note: boardPieces.length === 0 ? 'empty' : 'already-small',
       }
     }
 
     const minOriginalR = Math.min(...originalCoords.map(({ r }) => r))
+    const hasOddTopShift = Math.abs(minOriginalR % 2) === 1
     const candidates: Array<{
-      dr: number
       boardPieces: BoardPiece[]
       hexMap: HexMap
       length: number
       width: number
     }> = []
 
-    // Always put the top row at row 0, like shifting the pieces north-west
-    // by hand (John, 2026-11-19). Starting at row 1 could save a column on
-    // tall maps, but leaves an empty top row.
-    for (const targetMinR of [0]) {
+    // Put the top row at row 0 unless an odd shift would widen the map; then
+    // keep the zigzag by leaving the top content row at row 1.
+    let usedZigzagFallback = false
+    for (const targetMinR of [0, 1]) {
+      if (targetMinR === 1) {
+        const rowZeroCandidate = candidates[0]
+        if (
+          !hasOddTopShift ||
+          !rowZeroCandidate ||
+          rowZeroCandidate.width <= hexMap.width
+        ) {
+          continue
+        }
+        usedZigzagFallback = true
+      }
       const rowOffset = targetMinR - minOriginalR
       const shiftedPieces = boardPieces.map((piece) => ({
         ...piece,
@@ -222,7 +260,6 @@ export function trimAndNormalizeMap(
       const length = maxR + 1
       const width = maxCol + 1
       candidates.push({
-        dr: targetMinR,
         boardPieces: normalizedPieces,
         hexMap: withoutOrigin({
           ...normalizedHexMap,
@@ -237,25 +274,48 @@ export function trimAndNormalizeMap(
       })
     }
 
-    candidates.sort((first, second) => {
-      const firstArea = first.length * first.width
-      const secondArea = second.length * second.width
-      if (firstArea !== secondArea) return firstArea - secondArea
-      return first.width - second.width
-    })
-    const candidate = candidates[0]
+    const candidate = candidates[candidates.length - 1]
     if (!candidate) return { ok: false, error: 'too-large' }
     if (candidate.length > hexMap.length || candidate.width > hexMap.width) {
       return {
         ok: true,
         hexMap,
         boardPieces: boardPieces.map((p) => ({ ...p })),
+        note:
+          boardPieces.length === 0
+            ? 'empty'
+            : usedZigzagFallback
+              ? 'zigzag'
+              : 'already-small',
+      }
+    }
+    if (
+      candidate.length === hexMap.length &&
+      candidate.width === hexMap.width &&
+      haveSameCoordinates(
+        boardPieces,
+        candidate.boardPieces,
+        originalMarkers,
+        candidate.hexMap.objectiveMarkers ?? [],
+      )
+    ) {
+      return {
+        ok: true,
+        hexMap,
+        boardPieces: boardPieces.map((piece) => ({ ...piece })),
+        note:
+          boardPieces.length === 0
+            ? 'empty'
+            : usedZigzagFallback
+              ? 'zigzag'
+              : 'already-small',
       }
     }
     return {
       ok: true,
       hexMap: candidate.hexMap,
       boardPieces: candidate.boardPieces,
+      ...(boardPieces.length === 0 ? { note: 'empty' as const } : {}),
     }
   }
 
@@ -265,6 +325,7 @@ export function trimAndNormalizeMap(
       ok: true,
       hexMap: withoutOrigin(hexMap),
       boardPieces: boardPieces.map((piece) => ({ ...piece })),
+      note: boardPieces.length === 0 ? 'empty' : 'already-small',
     }
   }
   const fit = getHexagonTableFit(
@@ -303,11 +364,34 @@ export function trimAndNormalizeMap(
     version: 1,
   })
   if (size > hexMap.length || size > hexMap.width) {
-    return { ok: true, hexMap, boardPieces: boardPieces.map((p) => ({ ...p })) }
+    return {
+      ok: true,
+      hexMap,
+      boardPieces: boardPieces.map((p) => ({ ...p })),
+      note: boardPieces.length === 0 ? 'empty' : 'already-small',
+    }
+  }
+  if (
+    size === hexMap.length &&
+    size === hexMap.width &&
+    haveSameCoordinates(
+      boardPieces,
+      translatedPieces,
+      hexMap.objectiveMarkers ?? [],
+      translatedMarkers,
+    )
+  ) {
+    return {
+      ok: true,
+      hexMap,
+      boardPieces: boardPieces.map((piece) => ({ ...piece })),
+      note: boardPieces.length === 0 ? 'empty' : 'already-small',
+    }
   }
   return {
     ok: true,
     hexMap: normalizedHexMap,
     boardPieces: translatedPieces,
+    ...(boardPieces.length === 0 ? { note: 'empty' as const } : {}),
   }
 }
