@@ -4,11 +4,12 @@ import { hexesForEdge } from '../data/hexGrid/edgesAndNodes'
 import { getLaurAddonFeatureId } from '../data/laurAddonPlacement'
 import { piecesSoFar } from '../data/pieces'
 import {
-  getSelectionMenuItems,
   getHiddenSelectionPieces,
+  getSelectionMenuItems,
   getVisibleSelectionPieces,
   invertSelection,
   selectConnected,
+  selectConnectedSameLevel,
   selectSameLevel,
   selectSameType,
   selectionMenuActions,
@@ -89,6 +90,46 @@ function selectionBoard(boardPieces: BoardPiece[], hexes: BoardHex[]): Board {
     boardPieces,
     boardHexes: Object.fromEntries(hexes.map((hex) => [hex.id, hex])),
   }
+}
+
+function twoLevelHillBoard() {
+  const table = makeTable(16)
+  const center = table.center
+  const neighbor = hexUtilsAdd(center, HEX_DIRECTIONS[0])
+  const isolated = {
+    q: center.q + 6,
+    r: center.r + 6,
+    s: center.s - 12,
+  }
+  const pieces = [
+    piece('floor', Pieces.grass1, center, 0),
+    piece('lower-neighbor', Pieces.sand1, neighbor, 0),
+    piece('top', Pieces.grass1, center, 1),
+    piece('top-neighbor', Pieces.sand1, neighbor, 1),
+    piece('isolated-top', Pieces.grass1, isolated, 1),
+    piece(
+      'hidden-top',
+      Pieces.grass1,
+      hexUtilsAdd(isolated, HEX_DIRECTIONS[0]),
+      2,
+    ),
+  ]
+  return selectionBoard(
+    pieces,
+    [
+      occupiedHex('floor', Pieces.grass1, center, 1),
+      occupiedHex('lower-neighbor', Pieces.sand1, neighbor, 1),
+      occupiedHex('top', Pieces.grass1, center, 2),
+      occupiedHex('top-neighbor', Pieces.sand1, neighbor, 2),
+      occupiedHex('isolated-top', Pieces.grass1, isolated, 2),
+      occupiedHex(
+        'hidden-top',
+        Pieces.grass1,
+        hexUtilsAdd(isolated, HEX_DIRECTIONS[0]),
+        3,
+      ),
+    ],
+  )
 }
 
 describe('selection menu pure actions', () => {
@@ -219,7 +260,7 @@ describe('selection menu pure actions', () => {
     expect(invertSelection(ctx)).not.toContain(objectiveMarkerUID)
   })
 
-  it('excludes hidden glyphs from every selection menu action', () => {
+  it('does not add hidden glyphs but preserves prior hidden selection', () => {
     const table = makeTable(12)
     const board = put(table, Pieces.glyphPower, table.center, 0, 'glyph')
     const ctx = context(board, ['glyph'], ['glyph'], 3, true, false)
@@ -232,7 +273,11 @@ describe('selection menu pure actions', () => {
           selected = pieceIDs
         },
       })
-      expect(selected).not.toContain('glyph')
+      if (action.id === 'connected-same-level') {
+        expect(selected).toContain('glyph')
+      } else {
+        expect(selected).not.toContain('glyph')
+      }
     }
   })
 
@@ -243,6 +288,7 @@ describe('selection menu pure actions', () => {
 
     expect(selectSameType(ctx)).toEqual([])
     expect(selectConnected(ctx)).toEqual([])
+    expect(selectConnectedSameLevel(ctx)).toEqual([])
     expect(selectSameLevel(ctx)).toEqual([])
     expect(invertSelection(ctx)).toEqual(['grass'])
   })
@@ -321,6 +367,33 @@ describe('selection menu pure actions', () => {
       'grass',
       'sand',
     ])
+  })
+
+  it('selects only visible side-connected land at each seed altitude', () => {
+    const board = twoLevelHillBoard()
+    const selected = selectConnectedSameLevel(
+      context(board, ['top'], ['top'], 2),
+    )
+
+    expect(selected).toEqual(['top', 'top-neighbor'])
+    expect(selected).not.toContain('floor')
+    expect(selected).not.toContain('lower-neighbor')
+    expect(selected).not.toContain('isolated-top')
+    expect(selected).not.toContain('hidden-top')
+  })
+
+  it('adds connected land from another selected level without losing the first', () => {
+    const board = twoLevelHillBoard()
+    const selected = selectConnectedSameLevel(
+      context(board, ['top', 'floor'], ['top', 'floor'], 2),
+    )
+
+    expect(selected).toContain('top')
+    expect(selected).toContain('top-neighbor')
+    expect(selected).toContain('floor')
+    expect(selected).toContain('lower-neighbor')
+    expect(selected).not.toContain('isolated-top')
+    expect(selected).not.toContain('hidden-top')
   })
 
   it('connects obstacles only to their supported land and through connected land', () => {
@@ -562,7 +635,7 @@ describe('selection menu pure actions', () => {
 })
 
 describe('selection menu action registry', () => {
-  it('keeps the first four actions ordered and disables seed actions without a seed', () => {
+  it('orders selection actions and disables seed actions without a seed', () => {
     const table = makeTable(8)
     const board = put(table, Pieces.grass1, table.center, 0, 'grass')
     const ctx = context(board)
@@ -571,16 +644,16 @@ describe('selection menu action registry', () => {
     expect(items.map(({ action }) => action.id)).toEqual([
       'same-type',
       'connected',
+      'connected-same-level',
       'same-level',
       'invert',
     ])
     expect(items.map(({ enabled }) => enabled)).toEqual([
-      false,
-      false,
-      false,
-      true,
+      false, false, false, false, true,
     ])
     expect(items[0].disabledReason).toBe('Select a visible piece first.')
+    expect(items[2].action.isEnabled(ctx)).toBe(items[1].action.isEnabled(ctx))
+    expect(items[2].disabledReason).toBe(items[1].disabledReason)
   })
 
   it('includes newly registered actions in the menu data', () => {

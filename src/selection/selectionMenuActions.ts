@@ -375,6 +375,34 @@ function buildPieceNeighbors(
   return neighbors
 }
 
+function buildSideLandNeighbors(
+  landPieces: readonly BoardPiece[],
+  boardHexes: BoardHexes,
+) {
+  const neighbors = new Map(
+    landPieces.map((piece) => [piece.uid, new Set<string>()]),
+  )
+  const piecesByUID = new Map(landPieces.map((piece) => [piece.uid, piece]))
+
+  for (const hex of Object.values(boardHexes)) {
+    const piece = piecesByUID.get(hex.boardPieceUID ?? '')
+    if (!piece) continue
+
+    for (const direction of Object.values(HEX_DIRECTIONS)) {
+      const neighborCoords = hexUtilsAdd(hex, direction)
+      const adjacent = boardHexes[
+        genBoardHexID({ ...neighborCoords, altitude: hex.altitude })
+      ]
+      const neighbor = piecesByUID.get(adjacent?.boardPieceUID ?? '')
+      if (neighbor?.altitude === piece.altitude) {
+        addNeighbor(neighbors, piece.uid, neighbor.uid)
+      }
+    }
+  }
+
+  return neighbors
+}
+
 export function selectConnected(ctx: SelectionMenuContext) {
   const visiblePieces = getVisibleSelectionPieces(
     ctx.boardPieces,
@@ -404,6 +432,61 @@ export function selectConnected(ctx: SelectionMenuContext) {
     .map((piece) => piece.uid)
 }
 
+export function selectConnectedSameLevel(ctx: SelectionMenuContext) {
+  const visibleLandPieces = getVisibleSelectionPieces(
+    ctx.boardPieces,
+    ctx.boardHexes,
+    ctx.viewingLevel,
+    ctx.isShowStartZones,
+    ctx.isShowGlyphs,
+  ).filter((piece) => getConnectionCategory(piece.inventoryID) === 'land')
+  const landByUID = new Map(
+    visibleLandPieces.map((piece) => [piece.uid, piece]),
+  )
+  const neighbors = buildSideLandNeighbors(
+    visibleLandPieces,
+    ctx.boardHexes,
+  )
+  const seedsByAltitude = new Map<number, string[]>()
+
+  for (const uid of getVisibleSeeds(ctx)) {
+    const seed = landByUID.get(uid)
+    if (!seed) continue
+    const seeds = seedsByAltitude.get(seed.altitude)
+    if (seeds) seeds.push(uid)
+    else seedsByAltitude.set(seed.altitude, [uid])
+  }
+
+  const connected = new Set<string>()
+  for (const [altitude, seeds] of seedsByAltitude) {
+    const queue = [...seeds]
+    const visited = new Set(queue)
+    for (let index = 0; index < queue.length; index += 1) {
+      const uid = queue[index]
+      connected.add(uid)
+      for (const neighborUID of neighbors.get(uid) ?? []) {
+        if (
+          visited.has(neighborUID) ||
+          landByUID.get(neighborUID)?.altitude !== altitude
+        ) {
+          continue
+        }
+        visited.add(neighborUID)
+        queue.push(neighborUID)
+      }
+    }
+  }
+
+  return [
+    ...new Set([
+      ...ctx.selectedPieceIDs,
+      ...visibleLandPieces
+        .filter((piece) => connected.has(piece.uid))
+        .map((piece) => piece.uid),
+    ]),
+  ]
+}
+
 const hasVisibleSeeds = (ctx: SelectionMenuContext) =>
   getVisibleSeeds(ctx).length > 0
 
@@ -430,6 +513,17 @@ export const selectionMenuActions: SelectionMenuAction[] = [
     isEnabled: hasVisibleSeeds,
     disabledReason: seedRequired,
     run: (ctx) => ctx.setSelectedPieceIDs(selectConnected(ctx)),
+  },
+  {
+    id: 'connected-same-level',
+    label: 'Select connected on same level',
+    group: 'selection',
+    tooltip:
+      'Adds the land touching the selection side by side at the same level. ' +
+      'Run it again from another level to add that level too.',
+    isEnabled: hasVisibleSeeds,
+    disabledReason: seedRequired,
+    run: (ctx) => ctx.setSelectedPieceIDs(selectConnectedSameLevel(ctx)),
   },
   {
     id: 'same-level',
