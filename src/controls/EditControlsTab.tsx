@@ -11,10 +11,11 @@ import {
 } from '@mui/material'
 import { FcVlc } from 'react-icons/fc'
 import { FcRules } from 'react-icons/fc'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { AdaptToCollectionDialog } from './AdaptToCollectionDialog'
 import { buildupJsonFileMap } from '../data/buildupMap'
 import { canShrinkMapWithoutDroppingPieces, resizeMap } from '../data/resizeMap'
+import { trimAndNormalizeMap } from '../data/convertMapShape'
 import { DIALOGS } from '../layout/dialogNames'
 import { useMuiMediaQuery } from '../layout/useMuiMediaQuery'
 import useBoundStore from '../store/store'
@@ -225,6 +226,43 @@ export const EditControlsTab = () => {
   const resizeAndLoad = (dimension: 'length' | 'width', delta: 1 | -1) => {
     const resized = resizeMap(hexMap, boardPieces, dimension, delta)
     loadMap(buildupJsonFileMap(resized.boardPieces, resized.hexMap))
+  }
+  // Memoized: the fit walks every piece, and this tab re-renders often.
+  const trimResult = useMemo(
+    () => trimAndNormalizeMap(hexMap, boardPieces),
+    [hexMap, boardPieces],
+  )
+  const trimDisabled =
+    boardPieces.length === 0 ||
+    (trimResult.ok &&
+      trimResult.hexMap.length === hexMap.length &&
+      trimResult.hexMap.width === hexMap.width &&
+      (trimResult.hexMap.originQ ?? 0) === 0 &&
+      (trimResult.hexMap.originR ?? 0) === 0 &&
+      (trimResult.hexMap.objectiveMarkers?.length ?? 0) ===
+        (hexMap.objectiveMarkers?.length ?? 0) &&
+      trimResult.boardPieces.every(
+        (piece, index) =>
+          piece.pieceCoords.q === boardPieces[index]?.pieceCoords.q &&
+          piece.pieceCoords.r === boardPieces[index]?.pieceCoords.r &&
+          piece.pieceCoords.s === boardPieces[index]?.pieceCoords.s,
+      ) &&
+      (trimResult.hexMap.objectiveMarkers ?? []).every(
+        (marker, index) =>
+          marker.anchor.q === hexMap.objectiveMarkers?.[index]?.anchor.q &&
+          marker.anchor.r === hexMap.objectiveMarkers?.[index]?.anchor.r &&
+          marker.anchor.s === hexMap.objectiveMarkers?.[index]?.anchor.s &&
+          marker.anchor.altitude ===
+            hexMap.objectiveMarkers?.[index]?.anchor.altitude,
+      ))
+  const trimMapAction = () => {
+    if (trimDisabled || !trimResult.ok) return
+    loadMap(buildupJsonFileMap(trimResult.boardPieces, trimResult.hexMap))
+    useBoundStore.getState().recordActionLog({
+      type: 'trim',
+      length: trimResult.hexMap.length,
+      width: trimResult.hexMap.width,
+    })
   }
   const lengthShrinkBlockedByPieces =
     hexMap.length > 1 &&
@@ -511,6 +549,23 @@ export const EditControlsTab = () => {
               Down Left
             </Button>
           </ButtonGroup>
+          <Tooltip
+            title="This will remove all extra hexes from the edges of a map, potentially reducing its size."
+            disableHoverListener={!trimDisabled}
+          >
+            <span>
+              <Button
+                aria-label="Trim map"
+                disabled={trimDisabled}
+                onClick={trimMapAction}
+                size="small"
+                sx={{ ml: 1, verticalAlign: 'middle' }}
+                title="This will remove all extra hexes from the edges of a map, potentially reducing its size."
+              >
+                Trim map
+              </Button>
+            </span>
+          </Tooltip>
         </CardContent>
       </Card>
 

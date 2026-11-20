@@ -72,6 +72,12 @@ export function getMapTableFootprintCoords(
 ): CubeCoordinate[] {
   return [
     ...boardPieces.flatMap(getPieceFootprintCoords),
+    ...boardPieces
+      .filter((boardPiece) => {
+        const piece = piecesSoFar[boardPiece.inventoryID]
+        return piece && rimPieces.has(piece.id)
+      })
+      .map((boardPiece) => boardPiece.pieceCoords),
     ...(hexMap.objectiveMarkers ?? []).flatMap(
       getObjectiveMarkerFootprintCoords,
     ),

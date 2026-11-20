@@ -1,7 +1,11 @@
 import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 import { buildupJsonFileMap } from '../data/buildupMap'
-import { convertMapShape } from '../data/convertMapShape'
+import {
+  convertMapShape,
+  trimAndNormalizeMap,
+  trimMap,
+} from '../data/convertMapShape'
 import {
   doesPieceFitOnMap,
   fitMapToPieces,
@@ -16,6 +20,7 @@ import { Pieces } from '../types'
 import { MAX_HEXAGON_MAP_DIMENSION } from '../utils/constants'
 import { genBoardHexID } from '../utils/map-utils'
 import { hexUtilsGenHexagonGrid } from '../utils/hex-utils'
+import twinIronsDockyard from './fixtures/twin-irons-dockyard.json'
 
 const rectangleFixtureData = JSON.parse(
   readFileSync(
@@ -41,7 +46,7 @@ const piece = (
   uid: `${inventoryID}-${q}-${r}`,
   inventoryID,
   altitude: 0,
-  rotation: 0,
+  rotation: 0 as const,
   pieceCoords: { q, r, s: -q - r },
   ...options,
 })
@@ -160,6 +165,191 @@ function pieceHexes(map: MapState) {
 }
 
 describe('convertMapShape', () => {
+  it('normalizes middle rectangle content to top-left and default origin', () => {
+    const padded = {
+      ...rectangleFixture,
+      shape: 'rectangle' as const,
+      length: 20,
+      width: 20,
+      originQ: 0,
+      originR: 0,
+    }
+    const result = trimAndNormalizeMap(padded, [piece(Pieces.grass1, 7, 7)])
+    expect(result.ok).toBe(true)
+    if (!result.ok) throw new Error(result.error)
+    expect(result.hexMap.originQ).toBeUndefined()
+    expect(result.hexMap.originR).toBeUndefined()
+    expect(result.hexMap.length).toBe(1)
+    expect(result.hexMap.width).toBe(1)
+    expect(result.boardPieces[0].pieceCoords).toEqual({
+      q: 0,
+      r: 0,
+      s: 0,
+    })
+  })
+
+  it('always puts the top row of a trimmed rectangle at row 0', () => {
+    const padded = {
+      ...rectangleFixture,
+      shape: 'rectangle' as const,
+      length: 20,
+      width: 20,
+      originQ: 0,
+      originR: 0,
+    }
+    const result = trimAndNormalizeMap(padded, [
+      piece(Pieces.grass1, 7, 7),
+      piece(Pieces.grass1, 8, 8),
+    ])
+    expect(result.ok).toBe(true)
+    if (!result.ok) throw new Error(result.error)
+    const table = mapTableHexes(result.hexMap)
+    for (const boardPiece of result.boardPieces) {
+      expect(doesPieceFitOnMap(boardPiece, table)).toBe(true)
+    }
+    expect(
+      Math.min(...result.boardPieces.map(({ pieceCoords }) => pieceCoords.r)),
+    ).toBe(0)
+  })
+
+  it('trims padded rectangles and hexagons to their footprint', () => {
+    const rectangle = {
+      ...rectangleFixture,
+      shape: 'rectangle' as const,
+      length: 10,
+      width: 12,
+      originQ: 0,
+      originR: 0,
+    }
+    const rectangleResult = trimMap(rectangle, [piece(Pieces.grass1, 2, 2)])
+    expect(rectangleResult.ok).toBe(true)
+    if (!rectangleResult.ok) throw new Error(rectangleResult.error)
+    expect(rectangleResult.hexMap.length).toBeLessThan(rectangle.length)
+    expect(rectangleResult.hexMap.width).toBeLessThan(rectangle.width)
+
+    const hexagon = {
+      ...hexagonFixture,
+      shape: 'hexagon' as const,
+      length: 10,
+      width: 10,
+      originQ: 0,
+      originR: 0,
+    }
+    const hexagonResult = trimMap(hexagon, [piece(Pieces.grass1, 2, 2)])
+    expect(hexagonResult.ok).toBe(true)
+    if (!hexagonResult.ok) throw new Error(hexagonResult.error)
+    expect(hexagonResult.hexMap.length).toBeLessThan(hexagon.length)
+    expect(hexagonResult.hexMap.width).toBeLessThan(hexagon.width)
+  })
+
+  it('does not change an already-trimmed map', () => {
+    const trimmed = {
+      ...rectangleFixture,
+      shape: 'rectangle' as const,
+      length: 1,
+      width: 1,
+      originQ: undefined,
+      originR: undefined,
+    }
+    const result = trimAndNormalizeMap(trimmed, [piece(Pieces.grass1, 0, 0)])
+    expect(result.ok).toBe(true)
+    if (!result.ok) throw new Error(result.error)
+    expect(result.hexMap.length).toBe(trimmed.length)
+    expect(result.hexMap.width).toBe(trimmed.width)
+    expect(result.hexMap.originQ ?? 0).toBe(0)
+    expect(result.hexMap.originR ?? 0).toBe(0)
+    expect(result.boardPieces[0].pieceCoords).toEqual({
+      q: 0,
+      r: 0,
+      s: 0,
+    })
+  })
+
+  it('trims the dockyard fixture from padded bounds to zero conflicts', () => {
+    const fixture = twinIronsDockyard as {
+      hexMap: HexMap
+      boardPieces: BoardPiece[]
+    }
+    const padded = {
+      ...fixture.hexMap,
+      length: 20,
+      width: 26,
+      originQ: 0,
+      originR: 0,
+    }
+    const result = trimAndNormalizeMap(padded, fixture.boardPieces)
+    expect(result.ok).toBe(true)
+    if (!result.ok) throw new Error(result.error)
+    expect(result.hexMap.length).toBeLessThanOrEqual(13)
+    expect(result.hexMap.width).toBeLessThanOrEqual(19)
+    expect(computeConflictedPieceUIDs(result.boardPieces)).toEqual([])
+  })
+
+  it('keeps markers, start zones, and rim pieces inside the trim', () => {
+    const markerHexMap = {
+      ...rectangleFixture,
+      shape: 'rectangle' as const,
+      length: 10,
+      width: 10,
+      originQ: 0,
+      originR: 0,
+      objectiveMarkers: [
+        {
+          uid: 'edge-marker',
+          anchor: { q: 9, r: 9, s: -18, altitude: 1 },
+          size: 2 as const,
+          rotation: 0 as const,
+          style: 'black' as const,
+          content: { kind: 'number' as const, value: 1 },
+        },
+      ],
+    }
+    const markerResult = trimAndNormalizeMap(markerHexMap, [])
+    expect(markerResult.ok).toBe(true)
+    if (!markerResult.ok) throw new Error(markerResult.error)
+    expect(markerResult.hexMap.objectiveMarkers?.[0].anchor).toMatchObject({
+      q: 0,
+      r: 0,
+      s: 0,
+    })
+    expect(
+      tableContainsCoords(
+        markerResult.hexMap,
+        getMapTableFootprintCoords(markerResult.hexMap, []),
+      ),
+    ).toBe(true)
+
+    const startZoneMap = {
+      ...rectangleFixture,
+      shape: 'rectangle' as const,
+      length: 10,
+      width: 10,
+      originQ: 0,
+      originR: 0,
+    }
+    const startResult = trimAndNormalizeMap(startZoneMap, [
+      piece(Pieces.startZone1, 9, 9),
+    ])
+    expect(startResult.ok).toBe(true)
+    if (!startResult.ok) throw new Error(startResult.error)
+    expect(
+      tableContainsCoords(
+        startResult.hexMap,
+        getMapTableFootprintCoords(startResult.hexMap, startResult.boardPieces),
+      ),
+    ).toBe(true)
+
+    const rimResult = trimAndNormalizeMap(
+      {
+        ...hexagonFixture,
+        shape: 'hexagon' as const,
+        length: 7,
+        width: 7,
+      },
+      [piece(Pieces.battlement, 6, 0)],
+    )
+    expect(rimResult.ok).toBe(true)
+  })
   it('round-trips a mixed hexagon map without changing its pieces or details', () => {
     const original = buildupJsonFileMap(mixedBoardPieces, mixedHexMap)
     const rectangle = buildupJsonFileMap(

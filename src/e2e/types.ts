@@ -7,6 +7,9 @@ export type E2ESnapshot = {
   mapName: string
   mapWidth: number
   mapLength: number
+  mapOriginQ: number
+  mapOriginR: number
+  conflictedPieceCount: number
   pieceCount: number
   objectiveMarkerCount: number
   objectiveMarkerDraft: { size: 1 | 2; style: 'black' | 'white' }
