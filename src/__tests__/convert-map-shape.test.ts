@@ -15,14 +15,17 @@ import {
 import { getObjectiveMarkerFootprint } from '../data/objectiveMarkers'
 import { computeConflictedPieceUIDs } from '../data/rebuildBoardState'
 import { getUnsupportedLaurAddonUIDs } from '../data/laurAddonSupport'
-import type { BoardPiece, CubeCoordinate, HexMap, MapState } from '../types'
+import type { BoardPiece, CubeCoordinate, HexMap } from '../types'
 import { Pieces } from '../types'
 import {
   MAX_HEXAGON_MAP_DIMENSION,
   MAX_RECTANGLE_MAP_DIMENSION,
 } from '../utils/constants'
 import { genBoardHexID } from '../utils/map-utils'
-import { hexUtilsGenHexagonGrid } from '../utils/hex-utils'
+import {
+  hexUtilsGenHexagonGrid,
+  hexUtilsGenRectangleGrid,
+} from '../utils/hex-utils'
 import twinIronsDockyard from './fixtures/twin-irons-dockyard.json'
 
 const rectangleFixtureData = JSON.parse(
@@ -110,7 +113,7 @@ function getConvertedMap(
 ) {
   const result = convertMapShape(hexMap, boardPieces, targetShape, { margin })
   if (!result.ok) throw new Error(`Map conversion failed: ${result.error}`)
-  return result.hexMap
+  return result
 }
 
 function tableContainsCoords(hexMap: HexMap, coords: CubeCoordinate[]) {
@@ -118,6 +121,20 @@ function tableContainsCoords(hexMap: HexMap, coords: CubeCoordinate[]) {
   return coords.every((coord) =>
     table.has(genBoardHexID({ ...coord, altitude: 0 })),
   )
+}
+
+function expectNewMapTable(hexMap: HexMap) {
+  const coords =
+    hexMap.shape === 'hexagon'
+      ? hexUtilsGenHexagonGrid(Math.max(hexMap.length, hexMap.width) - 1)
+      : hexUtilsGenRectangleGrid(hexMap.width, hexMap.length)
+  expect([...mapTableHexes(hexMap)].sort()).toEqual(
+    coords
+      .map((coord) => genBoardHexID({ ...coord, altitude: 0 }))
+      .sort(),
+  )
+  expect(hexMap.originQ).toBeUndefined()
+  expect(hexMap.originR).toBeUndefined()
 }
 
 function expectNoEmptyRectangleRowsOrColumns(
@@ -173,18 +190,6 @@ function expectMargin(
     expect(col - minCol).toBeGreaterThanOrEqual(margin)
     expect(minCol + hexMap.width - 1 - col).toBeGreaterThanOrEqual(margin)
   }
-}
-
-function pieceHexes(map: MapState) {
-  return Object.values(map.boardHexes)
-    .filter((hex) => hex.boardPieceUID)
-    .map(({ id, terrain, altitude, boardPieceUID }) => ({
-      id,
-      terrain,
-      altitude,
-      boardPieceUID,
-    }))
-    .sort((a, b) => a.id.localeCompare(b.id))
 }
 
 describe('convertMapShape', () => {
@@ -508,28 +513,42 @@ describe('convertMapShape', () => {
     )
     expect(rimResult.ok).toBe(true)
   })
-  it('round-trips a mixed hexagon map without changing its pieces or details', () => {
+  it('preserves piece identities and map details while normalizing coordinates', () => {
     const original = buildupJsonFileMap(mixedBoardPieces, mixedHexMap)
-    const rectangle = buildupJsonFileMap(
+    const rectangleConversion = getConvertedMap(
+      original.hexMap,
       original.boardPieces,
-      getConvertedMap(original.hexMap, original.boardPieces, 'rectangle'),
+      'rectangle',
+    )
+    const rectangle = buildupJsonFileMap(
+      rectangleConversion.boardPieces,
+      rectangleConversion.hexMap,
+    )
+    const hexagonConversion = getConvertedMap(
+      rectangle.hexMap,
+      rectangle.boardPieces,
+      'hexagon',
     )
     const hexagon = buildupJsonFileMap(
-      rectangle.boardPieces,
-      getConvertedMap(rectangle.hexMap, rectangle.boardPieces, 'hexagon'),
+      hexagonConversion.boardPieces,
+      hexagonConversion.hexMap,
     )
 
-    expect(rectangle.boardPieces).toEqual(original.boardPieces)
-    expect(hexagon.boardPieces).toEqual(original.boardPieces)
-    const battlement = original.boardPieces.find(
+    expect(rectangle.boardPieces.map(({ uid }) => uid).sort()).toEqual(
+      original.boardPieces.map(({ uid }) => uid).sort(),
+    )
+    expect(hexagon.boardPieces.map(({ uid }) => uid).sort()).toEqual(
+      original.boardPieces.map(({ uid }) => uid).sort(),
+    )
+    const battlement = hexagon.boardPieces.find(
       ({ inventoryID }) => inventoryID === Pieces.battlement,
     )
     if (!battlement) throw new Error('Expected the rim battlement')
-    const radius = original.hexMap.length - 1
+    const radius = hexagon.hexMap.length - 1
     const centerQ =
-      (original.hexMap.originQ ?? 0) +
+      (hexagon.hexMap.originQ ?? 0) +
       (radius % 2 === 0 ? radius / 2 : Math.floor(radius / 2 + 0.5))
-    const centerR = (original.hexMap.originR ?? 0) + radius
+    const centerR = (hexagon.hexMap.originR ?? 0) + radius
     const centerS = -centerQ - centerR
     expect(
       Math.max(
@@ -537,83 +556,173 @@ describe('convertMapShape', () => {
         Math.abs(battlement.pieceCoords.r - centerR),
         Math.abs(battlement.pieceCoords.s - centerS),
       ),
-    ).toBe(radius)
+    ).toBeLessThanOrEqual(radius - 1)
     expect(hexagon.hexMap).toMatchObject({
       id: original.hexMap.id,
       name: original.hexMap.name,
       author: original.hexMap.author,
       mapNotes: original.hexMap.mapNotes,
       setsUsed: original.hexMap.setsUsed,
-      objectiveMarkers: original.hexMap.objectiveMarkers,
       version: 1,
     })
+    expectNewMapTable(rectangle.hexMap)
+    expectNewMapTable(hexagon.hexMap)
+    expect(
+      tableContainsCoords(
+        hexagon.hexMap,
+        getMapTableFootprintCoords(hexagon.hexMap, hexagon.boardPieces),
+      ),
+    ).toBe(true)
   })
 
   it.each(['hexagon', 'rectangle'] as const)(
     'covers all footprints with margin on a %s table',
     (targetShape) => {
       const original = buildupJsonFileMap(mixedBoardPieces, mixedHexMap)
-      const convertedMap = getConvertedMap(
+      const converted = getConvertedMap(
         original.hexMap,
         original.boardPieces,
         targetShape,
       )
-      const footprints = getMapTableFootprintCoords(
-        original.hexMap,
-        original.boardPieces,
-      )
-
       expect(
-        original.boardPieces.every((boardPiece) =>
-          doesPieceFitOnMap(boardPiece, mapTableHexes(convertedMap)),
+        converted.boardPieces.every((boardPiece) =>
+          doesPieceFitOnMap(boardPiece, mapTableHexes(converted.hexMap)),
         ),
       ).toBe(true)
-      expect(tableContainsCoords(convertedMap, footprints)).toBe(true)
-      expectMargin(convertedMap, footprints, 1)
+      const convertedFootprints = getMapTableFootprintCoords(
+        converted.hexMap,
+        converted.boardPieces,
+      )
+      expect(tableContainsCoords(converted.hexMap, convertedFootprints)).toBe(
+        true,
+      )
+      expectMargin(converted.hexMap, convertedFootprints, 1)
+      expectNewMapTable(converted.hexMap)
     },
   )
+
+  it.each([
+    {
+      label: 'even-sized',
+      boardPieces: [piece(Pieces.grass1, 8, 10)],
+      size: 2,
+    },
+    {
+      label: 'odd-sized',
+      boardPieces: [
+        piece(Pieces.grass1, 8, 10),
+        piece(Pieces.grass1, 10, 10),
+      ],
+      size: 3,
+    },
+  ])(
+    'normalizes an off-center rectangle to a new $label hexagon',
+    ({ boardPieces, size }) => {
+      const sourceMap = {
+        ...rectangleFixture,
+        shape: 'rectangle' as const,
+        length: 20,
+        width: 20,
+        originQ: 0,
+        originR: 0,
+      }
+      const converted = getConvertedMap(sourceMap, boardPieces, 'hexagon')
+      const footprints = getMapTableFootprintCoords(
+        converted.hexMap,
+        converted.boardPieces,
+      )
+
+      expect(converted.hexMap.length).toBe(size)
+      expectNewMapTable(converted.hexMap)
+      expect(
+        converted.boardPieces.every((boardPiece) =>
+          doesPieceFitOnMap(boardPiece, mapTableHexes(converted.hexMap)),
+        ),
+      ).toBe(true)
+      expectMargin(converted.hexMap, footprints, 1)
+    },
+  )
+
+  it('normalizes a hexagon to a new rectangle with a one-hex margin', () => {
+    const converted = getConvertedMap(
+      mixedHexMap,
+      mixedBoardPieces,
+      'rectangle',
+    )
+    const footprints = getMapTableFootprintCoords(
+      converted.hexMap,
+      converted.boardPieces,
+    )
+
+    expectNewMapTable(converted.hexMap)
+    expect(Math.min(...footprints.map(({ r }) => r))).toBe(1)
+    expect(
+      Math.min(
+        ...footprints.map(({ q, r }) => q + Math.floor(r / 2)),
+      ),
+    ).toBe(1)
+    expect(
+      converted.boardPieces.every((boardPiece) =>
+        doesPieceFitOnMap(boardPiece, mapTableHexes(converted.hexMap)),
+      ),
+    ).toBe(true)
+    expect(
+      tableContainsCoords(converted.hexMap, footprints),
+    ).toBe(true)
+  })
 
   it.each(['hexagon', 'rectangle'] as const)(
     'fits a %s table tightly when margin is zero',
     (targetShape) => {
       const original = buildupJsonFileMap(mixedBoardPieces, mixedHexMap)
-      const convertedMap = getConvertedMap(
+      const converted = getConvertedMap(
         original.hexMap,
         original.boardPieces,
         targetShape,
         0,
       )
-      const footprints = getMapTableFootprintCoords(
-        original.hexMap,
-        original.boardPieces,
+      const convertedFootprints = getMapTableFootprintCoords(
+        converted.hexMap,
+        converted.boardPieces,
       )
-
-      expectMargin(convertedMap, footprints, 0)
+      expectMargin(converted.hexMap, convertedFootprints, 0)
       if (targetShape === 'hexagon') {
-        const radius = convertedMap.length - 1
+        const radius = converted.hexMap.length - 1
         const smallerMap = {
-          ...convertedMap,
+          ...converted.hexMap,
           width: radius,
           length: radius,
         }
-        expect(tableContainsCoords(smallerMap, footprints)).toBe(false)
+        expect(tableContainsCoords(smallerMap, convertedFootprints)).toBe(false)
       } else {
-        const smallerWidth = { ...convertedMap, width: convertedMap.width - 1 }
-        const smallerLength = {
-          ...convertedMap,
-          length: convertedMap.length - 1,
+        const smallerWidth = {
+          ...converted.hexMap,
+          width: converted.hexMap.width - 1,
         }
-        expect(tableContainsCoords(smallerWidth, footprints)).toBe(false)
-        expect(tableContainsCoords(smallerLength, footprints)).toBe(false)
+        const smallerLength = {
+          ...converted.hexMap,
+          length: converted.hexMap.length - 1,
+        }
+        expect(tableContainsCoords(smallerWidth, convertedFootprints)).toBe(
+          false,
+        )
+        expect(tableContainsCoords(smallerLength, convertedFootprints)).toBe(
+          false,
+        )
       }
     },
   )
 
-  it('keeps piece hexes and derived conflict/support state equivalent', () => {
+  it('preserves piece identities and derived conflict/support state', () => {
     const original = buildupJsonFileMap(mixedBoardPieces, mixedHexMap)
-    const converted = buildupJsonFileMap(
+    const conversion = getConvertedMap(
+      original.hexMap,
       original.boardPieces,
-      getConvertedMap(original.hexMap, original.boardPieces, 'rectangle'),
+      'rectangle',
+    )
+    const converted = buildupJsonFileMap(
+      conversion.boardPieces,
+      conversion.hexMap,
     )
     const originalConflicts = computeConflictedPieceUIDs(original.boardPieces)
     const convertedConflicts = computeConflictedPieceUIDs(converted.boardPieces)
@@ -624,7 +733,10 @@ describe('convertMapShape', () => {
       boardPieces: converted.boardPieces,
     })
 
-    expect(pieceHexes(converted)).toEqual(pieceHexes(original))
+    expect(converted.boardPieces.map(({ uid }) => uid).sort()).toEqual(
+      original.boardPieces.map(({ uid }) => uid).sort(),
+    )
+    expectNewMapTable(converted.hexMap)
     expect(originalConflicts.length).toBeGreaterThan(0)
     expect(convertedConflicts).toEqual(originalConflicts)
     expect(originalUnsupported.length).toBeGreaterThan(0)
@@ -636,7 +748,7 @@ describe('convertMapShape', () => {
       rectangleFixtureData.boardPieces,
       rectangleFixture,
     )
-    const convertedMap = getConvertedMap(
+    const converted = getConvertedMap(
       original.hexMap,
       original.boardPieces,
       'hexagon',
@@ -645,10 +757,14 @@ describe('convertMapShape', () => {
 
     expect(
       tableContainsCoords(
-        convertedMap,
-        getMapTableFootprintCoords(original.hexMap, original.boardPieces),
+        converted.hexMap,
+        getMapTableFootprintCoords(
+          converted.hexMap,
+          converted.boardPieces,
+        ),
       ),
     ).toBe(true)
+    expectNewMapTable(converted.hexMap)
   })
 
   it('converts a fully covered 40 by 40 rectangle to hexagon and back', () => {
@@ -670,7 +786,12 @@ describe('convertMapShape', () => {
           uid: `full-rectangle-${originR}-${index}`,
         })
       })
-      const toHexagon = convertMapShape(fullRectangle, coveredPieces, 'hexagon')
+      const toHexagon = convertMapShape(
+        fullRectangle,
+        coveredPieces,
+        'hexagon',
+        { margin: 0 },
+      )
 
       expect(toHexagon.ok).toBe(true)
       if (!toHexagon.ok) throw new Error(toHexagon.error)
@@ -679,7 +800,7 @@ describe('convertMapShape', () => {
 
       const backToRectangle = convertMapShape(
         toHexagon.hexMap,
-        coveredPieces,
+        toHexagon.boardPieces,
         'rectangle',
         { margin: 0 },
       )
@@ -691,9 +812,13 @@ describe('convertMapShape', () => {
         length: 40,
       })
       expect(
-        buildupJsonFileMap(coveredPieces, backToRectangle.hexMap).boardPieces,
-      ).toEqual(coveredPieces)
+        buildupJsonFileMap(
+          backToRectangle.boardPieces,
+          backToRectangle.hexMap,
+        ).boardPieces.map(({ uid }) => uid),
+      ).toEqual(coveredPieces.map(({ uid }) => uid))
       expect(backToRectangle.hexMap.shape).toBe('rectangle')
+      expectNewMapTable(backToRectangle.hexMap)
     }
 
     expect(requiredSizes).toEqual([32, 32])
@@ -705,7 +830,7 @@ describe('convertMapShape', () => {
       hexagonFixtureData.boardPieces,
       hexagonFixture,
     )
-    const convertedMap = getConvertedMap(
+    const converted = getConvertedMap(
       original.hexMap,
       original.boardPieces,
       'rectangle',
@@ -714,24 +839,34 @@ describe('convertMapShape', () => {
 
     expect(
       tableContainsCoords(
-        convertedMap,
-        getMapTableFootprintCoords(original.hexMap, original.boardPieces),
+        converted.hexMap,
+        getMapTableFootprintCoords(
+          converted.hexMap,
+          converted.boardPieces,
+        ),
       ),
     ).toBe(true)
+    expectNewMapTable(converted.hexMap)
   })
 
   it('uses the Create New Map defaults for empty tables', () => {
     const toRectangle = convertMapShape(hexagonFixture, [], 'rectangle')
     const toHexagon = convertMapShape(rectangleFixture, [], 'hexagon')
 
+    expect(toRectangle.ok).toBe(true)
+    if (!toRectangle.ok) throw new Error(toRectangle.error)
+    expect(toRectangle.hexMap.originQ).toBeUndefined()
+    expect(toRectangle.hexMap.originR).toBeUndefined()
+    expect(toHexagon.ok).toBe(true)
+    if (!toHexagon.ok) throw new Error(toHexagon.error)
+    expect(toHexagon.hexMap.originQ).toBeUndefined()
+    expect(toHexagon.hexMap.originR).toBeUndefined()
     expect(toRectangle).toMatchObject({
       ok: true,
       hexMap: {
         shape: 'rectangle',
         width: 20,
         length: 20,
-        originQ: 0,
-        originR: 0,
       },
     })
     expect(toHexagon).toMatchObject({
@@ -740,8 +875,6 @@ describe('convertMapShape', () => {
         shape: 'hexagon',
         width: 10,
         length: 10,
-        originQ: 0,
-        originR: 0,
       },
     })
   })
@@ -749,10 +882,10 @@ describe('convertMapShape', () => {
   it('marks converted hexagons current so legacy loading does not grow them', () => {
     const legacyMap = { ...hexagonFixture, version: 0 }
     const rectangle = getConvertedMap(legacyMap, [], 'rectangle')
-    const hexagon = getConvertedMap(rectangle, [], 'hexagon')
-    const rebuilt = buildupJsonFileMap([], hexagon)
+    const hexagon = getConvertedMap(rectangle.hexMap, [], 'hexagon')
+    const rebuilt = buildupJsonFileMap(hexagon.boardPieces, hexagon.hexMap)
 
-    expect(hexagon).toMatchObject({
+    expect(hexagon.hexMap).toMatchObject({
       version: 1,
       width: 10,
       length: 10,
@@ -799,14 +932,16 @@ describe('convertMapShape', () => {
       ...hexagonFixture,
       objectiveMarkers: [marker],
     })
-    const convertedMap = getConvertedMap(
+    const converted = getConvertedMap(
       original.hexMap,
       original.boardPieces,
       'rectangle',
-      0,
     )
-    const markerFootprints = getObjectiveMarkerFootprint(marker)
+    const convertedMarker = converted.hexMap.objectiveMarkers?.[0]
+    if (!convertedMarker) throw new Error('Expected the converted marker')
+    const markerFootprints = getObjectiveMarkerFootprint(convertedMarker)
 
-    expect(tableContainsCoords(convertedMap, markerFootprints)).toBe(true)
+    expect(tableContainsCoords(converted.hexMap, markerFootprints)).toBe(true)
+    expectNewMapTable(converted.hexMap)
   })
 })

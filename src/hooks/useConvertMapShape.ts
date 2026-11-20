@@ -27,7 +27,7 @@ export function useConvertMapShape() {
 
     loadMap(
       buildupJsonFileMap(
-        boardPieces,
+        result.boardPieces,
         result.hexMap,
         undefined,
         savedSelections,
