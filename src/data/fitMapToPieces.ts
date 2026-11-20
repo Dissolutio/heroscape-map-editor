@@ -84,49 +84,12 @@ export function getMapTableFootprintCoords(
   ]
 }
 
-function addHexagonCoordsToExtents(
+function getHexagonExtentsFit(
   extents: HexagonExtents,
-  coords: ReturnType<typeof getPieceTemplateCoords>,
-): HexagonExtents {
-  return coords.reduce(
-    (next, { q, r, s }) => ({
-      minQ: Math.min(next.minQ, q),
-      maxQ: Math.max(next.maxQ, q),
-      minR: Math.min(next.minR, r),
-      maxR: Math.max(next.maxR, r),
-      minS: Math.min(next.minS, s),
-      maxS: Math.max(next.maxS, s),
-    }),
-    extents,
-  )
-}
-
-export function getHexagonTableFit(
-  coords: readonly CubeCoordinate[],
-  minimumRadius = 0,
-  margin = 0,
-  maximumRadius = Number.POSITIVE_INFINITY,
+  minimumRadius: number,
+  margin: number,
+  maximumRadius: number,
 ): { radius: number; originQ: number; originR: number } | null {
-  if (!coords.length) return null
-
-  const extents = coords.reduce<HexagonExtents>(
-    (next, { q, r, s }) => ({
-      minQ: Math.min(next.minQ, q),
-      maxQ: Math.max(next.maxQ, q),
-      minR: Math.min(next.minR, r),
-      maxR: Math.max(next.maxR, r),
-      minS: Math.min(next.minS, s),
-      maxS: Math.max(next.maxS, s),
-    }),
-    {
-      minQ: Number.POSITIVE_INFINITY,
-      maxQ: Number.NEGATIVE_INFINITY,
-      minR: Number.POSITIVE_INFINITY,
-      maxR: Number.NEGATIVE_INFINITY,
-      minS: Number.POSITIVE_INFINITY,
-      maxS: Number.NEGATIVE_INFINITY,
-    },
-  )
   const minimumFittingRadius = Math.max(
     minimumRadius,
     Math.ceil((extents.maxQ - extents.minQ) / 2),
@@ -212,6 +175,57 @@ export function getHexagonTableFit(
   return null
 }
 
+function addHexagonCoordsToExtents(
+  extents: HexagonExtents,
+  coords: ReturnType<typeof getPieceTemplateCoords>,
+): HexagonExtents {
+  return coords.reduce(
+    (next, { q, r, s }) => ({
+      minQ: Math.min(next.minQ, q),
+      maxQ: Math.max(next.maxQ, q),
+      minR: Math.min(next.minR, r),
+      maxR: Math.max(next.maxR, r),
+      minS: Math.min(next.minS, s),
+      maxS: Math.max(next.maxS, s),
+    }),
+    extents,
+  )
+}
+
+export function getHexagonTableFit(
+  coords: readonly CubeCoordinate[],
+  minimumRadius = 0,
+  margin = 0,
+  maximumRadius = Number.POSITIVE_INFINITY,
+): { radius: number; originQ: number; originR: number } | null {
+  if (!coords.length) return null
+
+  const extents = coords.reduce<HexagonExtents>(
+    (next, { q, r, s }) => ({
+      minQ: Math.min(next.minQ, q),
+      maxQ: Math.max(next.maxQ, q),
+      minR: Math.min(next.minR, r),
+      maxR: Math.max(next.maxR, r),
+      minS: Math.min(next.minS, s),
+      maxS: Math.max(next.maxS, s),
+    }),
+    {
+      minQ: Number.POSITIVE_INFINITY,
+      maxQ: Number.NEGATIVE_INFINITY,
+      minR: Number.POSITIVE_INFINITY,
+      maxR: Number.NEGATIVE_INFINITY,
+      minS: Number.POSITIVE_INFINITY,
+      maxS: Number.NEGATIVE_INFINITY,
+    },
+  )
+  return getHexagonExtentsFit(
+    extents,
+    minimumRadius,
+    margin,
+    maximumRadius,
+  )
+}
+
 function getFittingHexagonFootprints(
   hexMap: HexMap,
   boardPieces: readonly BoardPiece[],
@@ -242,7 +256,7 @@ function getFittingHexagonFootprints(
     if (coords.length === 0) continue
 
     const nextExtents = addHexagonCoordsToExtents(extents, coords)
-    if (getHexagonFitRadius(nextExtents) > maxRadius) {
+    if (!getHexagonExtentsFit(nextExtents, radius, 0, maxRadius)) {
       droppedPieces.push(boardPiece)
       continue
     }
@@ -254,7 +268,7 @@ function getFittingHexagonFootprints(
   for (const marker of hexMap.objectiveMarkers ?? []) {
     const coords = getObjectiveMarkerFootprintCoords(marker)
     const nextExtents = addHexagonCoordsToExtents(extents, coords)
-    if (getHexagonFitRadius(nextExtents) > maxRadius) {
+    if (!getHexagonExtentsFit(nextExtents, radius, 0, maxRadius)) {
       droppedObjectiveMarkers.push(marker)
       continue
     }
