@@ -1,0 +1,87 @@
+{
+  "hexMap": {
+    "id": "1oY8gmrBygefh",
+    "name": "Mountains of Modi",
+    "author": "",
+    "mapNotes": "",
+    "version": 1,
+    "shape": "hexagon",
+    "width": 13,
+    "length": 13,
+    "setsUsed": [],
+    "mapPortraitBase64": ""
+  },
+  "boardPieces": [
+    {
+      "uid": "YQeqnoUrOO",
+      "inventoryID": "d24",
+      "altitude": 0,
+      "rotation": 0,
+      "pieceCoords": { "q": 8, "r": 14, "s": -22 }
+    },
+    {
+      "uid": "Z_XADjr1n9",
+      "inventoryID": "d24",
+      "altitude": 0,
+      "rotation": 4,
+      "pieceCoords": { "q": 3, "r": 12, "s": -15 }
+    },
+    {
+      "uid": "NmQDFuk71z",
+      "inventoryID": "d24",
+      "altitude": 0,
+      "rotation": 3,
+      "pieceCoords": { "q": 2, "r": 19, "s": -21 }
+    },
+    {
+      "uid": "HKez7J9gwq",
+      "inventoryID": "g1",
+      "altitude": 0,
+      "rotation": 0,
+      "pieceCoords": { "q": -1, "r": 14, "s": -13 }
+    },
+    {
+      "uid": "qn_NCHzLZf",
+      "inventoryID": "g1",
+      "altitude": 0,
+      "rotation": 0,
+      "pieceCoords": { "q": 11, "r": 19, "s": -30 }
+    },
+    {
+      "uid": "-Ap5Wpi1PL",
+      "inventoryID": "d24",
+      "altitude": 1,
+      "rotation": 5,
+      "pieceCoords": { "q": 6, "r": 14, "s": -20 }
+    },
+    {
+      "uid": "oAq_Ulhwbr",
+      "inventoryID": "d24",
+      "altitude": 1,
+      "rotation": 4,
+      "pieceCoords": { "q": 0, "r": 16, "s": -16 }
+    },
+    {
+      "uid": "xixN0Xwjr5",
+      "inventoryID": "d24",
+      "altitude": 2,
+      "rotation": 3,
+      "pieceCoords": { "q": 5, "r": 18, "s": -23 }
+    },
+    {
+      "uid": "w_fld-9fPB",
+      "inventoryID": "d24",
+      "altitude": 3,
+      "rotation": 3,
+      "pieceCoords": { "q": 10, "r": 16, "s": -26 }
+    },
+    {
+      "uid": "1QDEYnHCZy",
+      "inventoryID": "d24",
+      "altitude": 4,
+      "rotation": 3,
+      "pieceCoords": { "q": 10, "r": 14, "s": -24 }
+    }
+  ],
+  "savedSelections": []
+}
