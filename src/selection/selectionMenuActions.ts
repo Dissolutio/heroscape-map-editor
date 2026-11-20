@@ -75,6 +75,11 @@ export type SelectionMenuContext = {
   isShowStartZones: boolean
   isShowGlyphs: boolean
   setSelectedPieceIDs: (pieceIDs: readonly string[]) => void
+  contextPieceUID?: string
+  convertTerrainDisabledReason?: string
+  openConvertTerrainPicker?: () => void
+  deleteSelectedPieces: () => void
+  pickPieceAsPen: (pieceUID: string) => void
 }
 
 export type SelectionMenuAction = {
@@ -493,6 +498,17 @@ const hasVisibleSeeds = (ctx: SelectionMenuContext) =>
 const seedRequired = (ctx: SelectionMenuContext) =>
   hasVisibleSeeds(ctx) ? undefined : 'Select a visible piece first.'
 
+function getUseAsPenPieceUID(ctx: SelectionMenuContext) {
+  const pieceUID = ctx.contextPieceUID || ctx.selectedPieceIDs[0]
+  return ctx.boardPieces.some((piece) => piece.uid === pieceUID)
+    ? pieceUID
+    : undefined
+}
+
+const canUseAsPen = (ctx: SelectionMenuContext) =>
+  ctx.selectedPieceIDs.length === 1 &&
+  getUseAsPenPieceUID(ctx) !== undefined
+
 export const selectionMenuActions: SelectionMenuAction[] = [
   {
     id: 'same-type',
@@ -534,6 +550,40 @@ export const selectionMenuActions: SelectionMenuAction[] = [
     isEnabled: hasVisibleSeeds,
     disabledReason: seedRequired,
     run: (ctx) => ctx.setSelectedPieceIDs(selectSameLevel(ctx)),
+  },
+  {
+    id: 'convert-terrain',
+    label: 'Convert terrain',
+    group: 'piece-actions',
+    tooltip: 'Choose a terrain to convert the selected pieces to.',
+    isEnabled: (ctx) => ctx.convertTerrainDisabledReason === undefined,
+    disabledReason: (ctx) =>
+      ctx.convertTerrainDisabledReason ?? 'No eligible pieces selected',
+    run: (ctx) => ctx.openConvertTerrainPicker?.(),
+  },
+  {
+    id: 'delete',
+    label: 'Delete',
+    group: 'piece-actions',
+    tooltip: 'Delete the selected pieces.',
+    isEnabled: (ctx) =>
+      ctx.selectedPieceIDs.some((uid) =>
+        ctx.boardPieces.some((piece) => piece.uid === uid),
+      ),
+    disabledReason: () => 'Select a piece to delete.',
+    run: (ctx) => ctx.deleteSelectedPieces(),
+  },
+  {
+    id: 'use-as-pen',
+    label: 'Use as pen',
+    group: 'piece-actions',
+    tooltip: 'Use the selected piece as the pen.',
+    isEnabled: canUseAsPen,
+    disabledReason: () => 'Select one piece to use as pen.',
+    run: (ctx) => {
+      const pieceUID = getUseAsPenPieceUID(ctx)
+      if (pieceUID) ctx.pickPieceAsPen(pieceUID)
+    },
   },
   {
     id: 'invert',

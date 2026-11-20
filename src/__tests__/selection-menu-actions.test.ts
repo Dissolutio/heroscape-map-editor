@@ -41,6 +41,11 @@ function context(
     isShowStartZones,
     isShowGlyphs,
     setSelectedPieceIDs: noSelection,
+    contextPieceUID: seedPieceIDs[0] ?? '',
+    convertTerrainDisabledReason: 'No eligible pieces selected',
+    openConvertTerrainPicker: noSelection,
+    deleteSelectedPieces: noSelection,
+    pickPieceAsPen: noSelection,
   }
 }
 
@@ -624,6 +629,11 @@ describe('selection menu pure actions', () => {
       isShowStartZones: true,
       isShowGlyphs: true,
       setSelectedPieceIDs: noSelection,
+      contextPieceUID: '',
+      convertTerrainDisabledReason: 'No eligible pieces selected',
+      openConvertTerrainPicker: noSelection,
+      deleteSelectedPieces: noSelection,
+      pickPieceAsPen: noSelection,
     } satisfies SelectionMenuContext
 
     const start = performance.now()
@@ -646,14 +656,92 @@ describe('selection menu action registry', () => {
       'connected',
       'connected-same-level',
       'same-level',
+      'convert-terrain',
+      'delete',
+      'use-as-pen',
       'invert',
     ])
     expect(items.map(({ enabled }) => enabled)).toEqual([
-      false, false, false, false, true,
+      false, false, false, false, false, false, false, true,
     ])
     expect(items[0].disabledReason).toBe('Select a visible piece first.')
     expect(items[2].action.isEnabled(ctx)).toBe(items[1].action.isEnabled(ctx))
     expect(items[2].disabledReason).toBe(items[1].disabledReason)
+    expect(items[4].disabledReason).toBe('No eligible pieces selected')
+    expect(items[5].disabledReason).toBe('Select a piece to delete.')
+    expect(items[6].disabledReason).toBe('Select one piece to use as pen.')
+    expect(items[0].action.group).toBe('selection')
+    expect(items[4].action.group).toBe('piece-actions')
+    expect(items[7].action.group).toBe('global')
+  })
+
+  it('runs shared terrain, delete, and pen actions and disables invalid choices', () => {
+    const table = makeTable(8)
+    const board = put(table, Pieces.grass1, table.center, 0, 'grass')
+    let terrainPickerOpened = false
+    let deleted = false
+    let usedPenUID = ''
+    const ctx: SelectionMenuContext = {
+      ...context(board, ['grass']),
+      convertTerrainDisabledReason: undefined,
+      openConvertTerrainPicker: () => {
+        terrainPickerOpened = true
+      },
+      deleteSelectedPieces: () => {
+        deleted = true
+      },
+      pickPieceAsPen: (pieceUID) => {
+        usedPenUID = pieceUID
+      },
+    }
+    const actionByID = new Map(
+      selectionMenuActions.map((action) => [action.id, action]),
+    )
+    const terrainAction = actionByID.get('convert-terrain')
+    const deleteAction = actionByID.get('delete')
+    const penAction = actionByID.get('use-as-pen')
+    if (!terrainAction || !deleteAction || !penAction) {
+      throw new Error('test setup: piece actions are missing')
+    }
+
+    expect(
+      getSelectionMenuItems(
+        [terrainAction, deleteAction, penAction],
+        ctx,
+      ).map(({ enabled }) => enabled),
+    ).toEqual([true, true, true])
+    terrainAction.run(ctx)
+    deleteAction.run(ctx)
+    penAction.run(ctx)
+    expect(terrainPickerOpened).toBe(true)
+    expect(deleted).toBe(true)
+    expect(usedPenUID).toBe('grass')
+    usedPenUID = ''
+    penAction.run({ ...ctx, contextPieceUID: '' })
+    expect(usedPenUID).toBe('grass')
+
+    const disabledCtx = {
+      ...context(board),
+      convertTerrainDisabledReason: 'No constrained terrain options available',
+    }
+    const disabledItems = getSelectionMenuItems(
+      [terrainAction, deleteAction, penAction],
+      disabledCtx,
+    )
+    expect(disabledItems.map(({ enabled }) => enabled)).toEqual([
+      false,
+      false,
+      false,
+    ])
+    expect(disabledItems[0].disabledReason).toBe(
+      'No constrained terrain options available',
+    )
+    expect(
+      penAction.isEnabled({
+        ...ctx,
+        selectedPieceIDs: ['grass', 'another'],
+      }),
+    ).toBe(false)
   })
 
   it('includes newly registered actions in the menu data', () => {
