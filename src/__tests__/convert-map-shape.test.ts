@@ -17,7 +17,10 @@ import { computeConflictedPieceUIDs } from '../data/rebuildBoardState'
 import { getUnsupportedLaurAddonUIDs } from '../data/laurAddonSupport'
 import type { BoardPiece, CubeCoordinate, HexMap, MapState } from '../types'
 import { Pieces } from '../types'
-import { MAX_HEXAGON_MAP_DIMENSION } from '../utils/constants'
+import {
+  MAX_HEXAGON_MAP_DIMENSION,
+  MAX_RECTANGLE_MAP_DIMENSION,
+} from '../utils/constants'
 import { genBoardHexID } from '../utils/map-utils'
 import { hexUtilsGenHexagonGrid } from '../utils/hex-utils'
 import twinIronsDockyard from './fixtures/twin-irons-dockyard.json'
@@ -117,6 +120,26 @@ function tableContainsCoords(hexMap: HexMap, coords: CubeCoordinate[]) {
   )
 }
 
+function expectNoEmptyRectangleRowsOrColumns(
+  hexMap: HexMap,
+  boardPieces: BoardPiece[],
+) {
+  const coords = getMapTableFootprintCoords(hexMap, boardPieces)
+  const rows = new Set(coords.map(({ r }) => r))
+  const columns = new Set(
+    coords.map(({ q, r }) => q + Math.floor(r / 2)),
+  )
+
+  expect(Array.from({ length: hexMap.length }, (_, row) => rows.has(row))).toEqual(
+    Array(hexMap.length).fill(true),
+  )
+  expect(
+    Array.from({ length: hexMap.width }, (_, column) =>
+      columns.has(column),
+    ),
+  ).toEqual(Array(hexMap.width).fill(true))
+}
+
 function expectMargin(
   hexMap: HexMap,
   coords: CubeCoordinate[],
@@ -186,9 +209,10 @@ describe('convertMapShape', () => {
       r: 0,
       s: 0,
     })
+    expectNoEmptyRectangleRowsOrColumns(result.hexMap, result.boardPieces)
   })
 
-  it('keeps a full-width rectangle unchanged when its odd shift needs a column', () => {
+  it('trims an odd-shifted full-width rectangle to every occupied edge', () => {
     const fullWidth = {
       ...rectangleFixture,
       shape: 'rectangle' as const,
@@ -212,12 +236,15 @@ describe('convertMapShape', () => {
 
     expect(result.ok).toBe(true)
     if (!result.ok) throw new Error(result.error)
-    expect(result.hexMap).toBe(fullWidth)
-    expect(result.hexMap).toMatchObject({ length: 6, width: 6 })
-    expect(result.note).toBe('zigzag')
+    expect(result.hexMap.length).toBe(fullWidth.length - 1)
+    expect(result.hexMap.width).toBe(fullWidth.width + 1)
+    expect(
+      Math.min(...result.boardPieces.map(({ pieceCoords }) => pieceCoords.r)),
+    ).toBe(0)
+    expectNoEmptyRectangleRowsOrColumns(result.hexMap, result.boardPieces)
   })
 
-  it('keeps the zigzag when trimming a full-width rectangle with empty rows', () => {
+  it('trims all empty rows on a full-width rectangle with a zigzag width increase', () => {
     const fullWidth = {
       ...rectangleFixture,
       shape: 'rectangle' as const,
@@ -241,20 +268,65 @@ describe('convertMapShape', () => {
 
     expect(result.ok).toBe(true)
     if (!result.ok) throw new Error(result.error)
-    expect(result.hexMap.width).toBe(fullWidth.width)
-    expect(result.hexMap.length).toBe(8)
+    expect(result.hexMap.width).toBe(fullWidth.width + 1)
+    expect(result.hexMap.length).toBe(7)
     expect(
       Math.min(...result.boardPieces.map(({ pieceCoords }) => pieceCoords.r)),
-    ).toBe(1)
+    ).toBe(0)
     expect(
       Math.max(...result.boardPieces.map(({ pieceCoords }) => pieceCoords.r)),
-    ).toBe(7)
+    ).toBe(6)
     const table = mapTableHexes(result.hexMap)
     expect(
       result.boardPieces.every((boardPiece) =>
         doesPieceFitOnMap(boardPiece, table),
       ),
     ).toBe(true)
+    expectNoEmptyRectangleRowsOrColumns(result.hexMap, result.boardPieces)
+  })
+
+  it('keeps an over-maximum zigzag result unchanged with a note', () => {
+    const fullWidth = {
+      ...rectangleFixture,
+      shape: 'rectangle' as const,
+      length: 3,
+      width: MAX_RECTANGLE_MAP_DIMENSION,
+      originQ: 0,
+      originR: 0,
+    }
+    const pieces = Array.from({ length: 2 * fullWidth.width }, (_, index) => {
+      const row = Math.floor(index / fullWidth.width) + 1
+      const column = index % fullWidth.width
+      return piece(
+        Pieces.grass1,
+        column - Math.floor(row / 2),
+        row,
+        { uid: `over-maximum-${index}` },
+      )
+    })
+
+    const result = trimAndNormalizeMap(fullWidth, pieces)
+
+    expect(result.ok).toBe(true)
+    if (!result.ok) throw new Error(result.error)
+    expect(result.hexMap).toBe(fullWidth)
+    expect(result.note).toBe('too-wide')
+  })
+
+  it('reports when an empty map has no pieces to trim', () => {
+    const result = trimAndNormalizeMap(
+      {
+        ...rectangleFixture,
+        shape: 'rectangle',
+        length: 10,
+        width: 10,
+      },
+      [],
+    )
+
+    expect(result.ok).toBe(true)
+    if (!result.ok) throw new Error(result.error)
+    expect(result.note).toBe('empty')
   })
 
   it('puts a non-full-width odd top row at row 0', () => {
@@ -279,22 +351,8 @@ describe('convertMapShape', () => {
     expect(
       Math.min(...result.boardPieces.map(({ pieceCoords }) => pieceCoords.r)),
     ).toBe(0)
-  })
-
-  it('puts an even top row at row 0', () => {
-    const padded = {
-      ...rectangleFixture,
-      shape: 'rectangle' as const,
-      length: 10,
-      width: 10,
-      originQ: 0,
-      originR: 0,
-    }
-    const result = trimAndNormalizeMap(padded, [piece(Pieces.grass1, 3, 2)])
-
-    expect(result.ok).toBe(true)
-    if (!result.ok) throw new Error(result.error)
-    expect(result.boardPieces[0]?.pieceCoords.r).toBe(0)
+    expect(result.hexMap.width).toBeLessThanOrEqual(padded.width)
+    expectNoEmptyRectangleRowsOrColumns(result.hexMap, result.boardPieces)
   })
 
   it('trims padded rectangles and hexagons to their footprint', () => {
@@ -306,11 +364,17 @@ describe('convertMapShape', () => {
       originQ: 0,
       originR: 0,
     }
-    const rectangleResult = trimMap(rectangle, [piece(Pieces.grass1, 2, 2)])
+    const rectangleResult = trimAndNormalizeMap(rectangle, [
+      piece(Pieces.grass1, 2, 2),
+    ])
     expect(rectangleResult.ok).toBe(true)
     if (!rectangleResult.ok) throw new Error(rectangleResult.error)
     expect(rectangleResult.hexMap.length).toBeLessThan(rectangle.length)
     expect(rectangleResult.hexMap.width).toBeLessThan(rectangle.width)
+    expectNoEmptyRectangleRowsOrColumns(
+      rectangleResult.hexMap,
+      rectangleResult.boardPieces,
+    )
 
     const hexagon = {
       ...hexagonFixture,
@@ -341,6 +405,8 @@ describe('convertMapShape', () => {
     if (!result.ok) throw new Error(result.error)
     expect(result.hexMap.length).toBe(trimmed.length)
     expect(result.hexMap.width).toBe(trimmed.width)
+    expect(result.hexMap).toBe(trimmed)
+    expect(result.note).toBe('already-trimmed')
     expect(result.hexMap.originQ ?? 0).toBe(0)
     expect(result.hexMap.originR ?? 0).toBe(0)
     expect(result.boardPieces[0].pieceCoords).toEqual({
@@ -348,6 +414,7 @@ describe('convertMapShape', () => {
       r: 0,
       s: 0,
     })
+    expectNoEmptyRectangleRowsOrColumns(result.hexMap, result.boardPieces)
   })
 
   it('trims the dockyard fixture from padded bounds to zero conflicts', () => {
@@ -368,6 +435,7 @@ describe('convertMapShape', () => {
     expect(result.hexMap.length).toBeLessThanOrEqual(13)
     expect(result.hexMap.width).toBeLessThanOrEqual(19)
     expect(computeConflictedPieceUIDs(result.boardPieces)).toEqual([])
+    expectNoEmptyRectangleRowsOrColumns(result.hexMap, result.boardPieces)
   })
 
   it('keeps markers, start zones, and rim pieces inside the trim', () => {
@@ -403,6 +471,7 @@ describe('convertMapShape', () => {
         getMapTableFootprintCoords(markerResult.hexMap, []),
       ),
     ).toBe(true)
+    expectNoEmptyRectangleRowsOrColumns(markerResult.hexMap, [])
 
     const startZoneMap = {
       ...rectangleFixture,
@@ -423,6 +492,10 @@ describe('convertMapShape', () => {
         getMapTableFootprintCoords(startResult.hexMap, startResult.boardPieces),
       ),
     ).toBe(true)
+    expectNoEmptyRectangleRowsOrColumns(
+      startResult.hexMap,
+      startResult.boardPieces,
+    )
 
     const rimResult = trimAndNormalizeMap(
       {

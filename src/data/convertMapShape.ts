@@ -107,7 +107,7 @@ export type TrimAndNormalizeResult =
       ok: true
       hexMap: HexMap
       boardPieces: BoardPiece[]
-      note?: 'empty' | 'already-small' | 'zigzag'
+      note?: 'empty' | 'already-trimmed' | 'too-wide' | 'too-long'
     }
   | { ok: false; error: 'too-large' }
 
@@ -163,158 +163,125 @@ export function trimAndNormalizeMap(
             ? hexMap
             : withoutOrigin(hexMap),
         boardPieces: boardPieces.map((piece) => ({ ...piece })),
-        note: boardPieces.length === 0 ? 'empty' : 'already-small',
+        note: boardPieces.length === 0 ? 'empty' : 'already-trimmed',
       }
     }
 
     const minOriginalR = Math.min(...originalCoords.map(({ r }) => r))
-    const hasOddTopShift = Math.abs(minOriginalR % 2) === 1
-    const candidates: Array<{
-      boardPieces: BoardPiece[]
-      hexMap: HexMap
-      length: number
-      width: number
-    }> = []
-
-    // Put the top row at row 0 unless an odd shift would widen the map; then
-    // keep the zigzag by leaving the top content row at row 1.
-    let usedZigzagFallback = false
-    for (const targetMinR of [0, 1]) {
-      if (targetMinR === 1) {
-        const rowZeroCandidate = candidates[0]
-        if (
-          !hasOddTopShift ||
-          !rowZeroCandidate ||
-          rowZeroCandidate.width <= hexMap.width
-        ) {
-          continue
-        }
-        usedZigzagFallback = true
-      }
-      const rowOffset = targetMinR - minOriginalR
-      const shiftedPieces = boardPieces.map((piece) => ({
-        ...piece,
-        pieceCoords: translateCoordinate(piece.pieceCoords, {
+    // Shift the top-left content to 0,0,0 with no empty rows or columns;
+    // odd-row zigzag shifts may add one column.
+    const rowOffset = -minOriginalR
+    const shiftedPieces = boardPieces.map((piece) => ({
+      ...piece,
+      pieceCoords: translateCoordinate(piece.pieceCoords, {
+        q: 0,
+        r: rowOffset,
+        s: -rowOffset,
+      }),
+    }))
+    const shiftedMarkers = originalMarkers.map((marker) => ({
+      ...marker,
+      anchor: {
+        ...translateCoordinate(marker.anchor, {
           q: 0,
           r: rowOffset,
           s: -rowOffset,
         }),
-      }))
-      const shiftedMarkers = originalMarkers.map((marker) => ({
-        ...marker,
-        anchor: {
-          ...translateCoordinate(marker.anchor, {
-            q: 0,
-            r: rowOffset,
-            s: -rowOffset,
-          }),
-          altitude: marker.anchor.altitude,
-        },
-      }))
-      const shiftedHexMap = {
-        ...hexMap,
-        objectiveMarkers: shiftedMarkers,
-      }
-      const shiftedCoords = getMapTableFootprintCoords(
-        shiftedHexMap,
-        shiftedPieces,
-      )
-      if (!shiftedCoords.length) continue
-      const minColumn = Math.min(
-        ...shiftedCoords.map(({ q, r }) => q + Math.floor(r / 2)),
-      )
-      const columnOffset = -minColumn
-      const normalizedPieces = shiftedPieces.map((piece) => ({
-        ...piece,
-        pieceCoords: translateCoordinate(piece.pieceCoords, {
+        altitude: marker.anchor.altitude,
+      },
+    }))
+    const shiftedHexMap = { ...hexMap, objectiveMarkers: shiftedMarkers }
+    const shiftedCoords = getMapTableFootprintCoords(
+      shiftedHexMap,
+      shiftedPieces,
+    )
+    if (!shiftedCoords.length) return { ok: false, error: 'too-large' }
+    const minColumn = Math.min(
+      ...shiftedCoords.map(({ q, r }) => q + Math.floor(r / 2)),
+    )
+    const columnOffset = -minColumn
+    const normalizedPieces = shiftedPieces.map((piece) => ({
+      ...piece,
+      pieceCoords: translateCoordinate(piece.pieceCoords, {
+        q: columnOffset,
+        r: 0,
+        s: -columnOffset,
+      }),
+    }))
+    const normalizedMarkers = shiftedMarkers.map((marker) => ({
+      ...marker,
+      anchor: {
+        ...translateCoordinate(marker.anchor, {
           q: columnOffset,
           r: 0,
           s: -columnOffset,
         }),
-      }))
-      const normalizedMarkers = shiftedMarkers.map((marker) => ({
-        ...marker,
-        anchor: {
-          ...translateCoordinate(marker.anchor, {
-            q: columnOffset,
-            r: 0,
-            s: -columnOffset,
-          }),
-          altitude: marker.anchor.altitude,
-        },
-      }))
-      const normalizedHexMap = {
-        ...hexMap,
-        ...(originalMarkers.length
-          ? { objectiveMarkers: normalizedMarkers }
-          : {}),
-      }
-      const normalizedCoords = getMapTableFootprintCoords(
-        normalizedHexMap,
-        normalizedPieces,
-      )
-      const maxR = Math.max(...normalizedCoords.map(({ r }) => r))
-      const maxCol = Math.max(
-        ...normalizedCoords.map(({ q, r }) => q + Math.floor(r / 2)),
-      )
-      const length = maxR + 1
-      const width = maxCol + 1
-      candidates.push({
-        boardPieces: normalizedPieces,
-        hexMap: withoutOrigin({
-          ...normalizedHexMap,
-          length,
-          width,
-          originQ: 0,
-          originR: 0,
-          version: 1,
-        }),
-        length,
-        width,
-      })
+        altitude: marker.anchor.altitude,
+      },
+    }))
+    const normalizedHexMap = {
+      ...hexMap,
+      ...(originalMarkers.length
+        ? { objectiveMarkers: normalizedMarkers }
+        : {}),
     }
-
-    const candidate = candidates[candidates.length - 1]
-    if (!candidate) return { ok: false, error: 'too-large' }
-    if (candidate.length > hexMap.length || candidate.width > hexMap.width) {
+    const normalizedCoords = getMapTableFootprintCoords(
+      normalizedHexMap,
+      normalizedPieces,
+    )
+    const maxR = Math.max(...normalizedCoords.map(({ r }) => r))
+    const maxCol = Math.max(
+      ...normalizedCoords.map(({ q, r }) => q + Math.floor(r / 2)),
+    )
+    const length = maxR + 1
+    const width = maxCol + 1
+    if (length > hexMap.length) {
       return {
         ok: true,
         hexMap,
         boardPieces: boardPieces.map((p) => ({ ...p })),
-        note:
-          boardPieces.length === 0
-            ? 'empty'
-            : usedZigzagFallback
-              ? 'zigzag'
-              : 'already-small',
+        note: 'too-long',
+      }
+    }
+    if (width > MAX_RECTANGLE_MAP_DIMENSION) {
+      return {
+        ok: true,
+        hexMap,
+        boardPieces: boardPieces.map((piece) => ({ ...piece })),
+        note: 'too-wide',
       }
     }
     if (
-      candidate.length === hexMap.length &&
-      candidate.width === hexMap.width &&
+      length === hexMap.length &&
+      width === hexMap.width &&
+      (hexMap.originQ ?? 0) === 0 &&
+      (hexMap.originR ?? 0) === 0 &&
       haveSameCoordinates(
         boardPieces,
-        candidate.boardPieces,
+        normalizedPieces,
         originalMarkers,
-        candidate.hexMap.objectiveMarkers ?? [],
+        normalizedMarkers,
       )
     ) {
       return {
         ok: true,
         hexMap,
         boardPieces: boardPieces.map((piece) => ({ ...piece })),
-        note:
-          boardPieces.length === 0
-            ? 'empty'
-            : usedZigzagFallback
-              ? 'zigzag'
-              : 'already-small',
+        note: boardPieces.length === 0 ? 'empty' : 'already-trimmed',
       }
     }
+    const candidateHexMap = withoutOrigin({
+      ...normalizedHexMap,
+      length,
+      width,
+      originQ: 0,
+      originR: 0,
+      version: 1,
+    })
     return {
       ok: true,
-      hexMap: candidate.hexMap,
-      boardPieces: candidate.boardPieces,
+      hexMap: candidateHexMap,
+      boardPieces: normalizedPieces,
       ...(boardPieces.length === 0 ? { note: 'empty' as const } : {}),
     }
   }
@@ -325,7 +292,7 @@ export function trimAndNormalizeMap(
       ok: true,
       hexMap: withoutOrigin(hexMap),
       boardPieces: boardPieces.map((piece) => ({ ...piece })),
-      note: boardPieces.length === 0 ? 'empty' : 'already-small',
+      note: boardPieces.length === 0 ? 'empty' : 'already-trimmed',
     }
   }
   const fit = getHexagonTableFit(
@@ -368,7 +335,7 @@ export function trimAndNormalizeMap(
       ok: true,
       hexMap,
       boardPieces: boardPieces.map((p) => ({ ...p })),
-      note: boardPieces.length === 0 ? 'empty' : 'already-small',
+      note: boardPieces.length === 0 ? 'empty' : 'already-trimmed',
     }
   }
   if (
@@ -385,7 +352,7 @@ export function trimAndNormalizeMap(
       ok: true,
       hexMap,
       boardPieces: boardPieces.map((piece) => ({ ...piece })),
-      note: boardPieces.length === 0 ? 'empty' : 'already-small',
+      note: boardPieces.length === 0 ? 'empty' : 'already-trimmed',
     }
   }
   return {

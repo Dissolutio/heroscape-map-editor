@@ -236,11 +236,13 @@ export const EditControlsTab = () => {
   const trimTooltip =
     trimResult.ok && trimResult.note === 'empty'
       ? "There's nothing on the map to trim."
-      : trimResult.ok && trimResult.note === 'zigzag'
-        ? 'Already as small as it can be. Removing the empty top row would need one more column, because the rows zigzag.'
-        : trimResult.ok && trimResult.note === 'already-small'
-          ? 'Already as small as it can be.'
-          : 'This will remove all extra hexes from the edges of a map, potentially reducing its size.'
+      : trimResult.ok && trimResult.note === 'too-wide'
+        ? 'Trimming would make the map wider than the maximum.'
+        : trimResult.ok && trimResult.note === 'too-long'
+          ? 'Trimming would make the map longer than its current size.'
+          : trimResult.ok && trimResult.note === 'already-trimmed'
+            ? 'Already trimmed: every row and column has something in it.'
+            : 'This will remove all extra hexes from the edges of a map, potentially reducing its size.'
   const trimMapAction = () => {
     if (trimDisabled || !trimResult.ok) return
     loadMap(buildupJsonFileMap(trimResult.boardPieces, trimResult.hexMap))
