@@ -56,7 +56,9 @@ for (const inventoryID of ['tr10', 'lwp']) {
     }
     const before = await page.screenshot({ clip })
 
-    const moveRight = page.getByTitle('Move selected piece 1 hex right')
+    const moveRight = page.getByRole('button', {
+      name: 'Move selected piece 1 hex east',
+    })
     await moveRight.hover()
     await page.waitForTimeout(1000) // the ghost applies its opacity per frame
     await page.mouse.move(box.x + 5, box.y + 5) // leave: the preview clears

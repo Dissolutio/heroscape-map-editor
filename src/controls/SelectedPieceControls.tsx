@@ -26,6 +26,7 @@ import {
 } from '../utils/map-utils'
 import { ConvertTerrainQuickSelect } from './ConvertTerrainQuickSelect'
 import DeletePieceButton from './DeletePieceButton'
+import { HexDirectionPad } from './HexDirectionPad'
 import {
   getRotationByListStep,
   hasIntegerRotationSteps,
@@ -169,20 +170,6 @@ function PieceTransformControls({
   onClearPreview: () => void
 }) {
   const isMulti = selectedPieceIDs.length > 1
-  const moveButton = (direction: number, title: string, label: string) => (
-    <Button
-      key={direction}
-      title={title}
-      onClick={() => onMove(direction)}
-      onMouseEnter={() => onPreviewMove(direction)}
-      onMouseLeave={onClearPreview}
-      onFocus={() => onPreviewMove(direction)}
-      onBlur={onClearPreview}
-      sx={{ fontSize: FONT_SIZE }}
-    >
-      {label}
-    </Button>
-  )
   const rotateButton = (direction: 1 | -1, title: string, label: string) => (
     <Button
       key={direction}
@@ -224,16 +211,12 @@ function PieceTransformControls({
       >
         {`Zoom To Selected${selectedPieceIDs.length > 1 ? ' Pieces' : ' Piece'}`}
       </Button>
-      <ButtonGroup aria-label="Move selected piece row 1" size="small">
-        {moveButton(3, 'Move selected piece 1 hex left', '←')}
-        {moveButton(4, 'Move selected piece 1 hex up-left', '↖')}
-        {moveButton(5, 'Move selected piece 1 hex up-right', '↗')}
-      </ButtonGroup>
-      <ButtonGroup aria-label="Move selected piece row 2" size="small">
-        {moveButton(0, 'Move selected piece 1 hex right', '→')}
-        {moveButton(1, 'Move selected piece 1 hex down-right', '↘')}
-        {moveButton(2, 'Move selected piece 1 hex down-left', '↙')}
-      </ButtonGroup>
+      <HexDirectionPad
+        label={`Move selected ${isMulti ? 'pieces' : 'piece'}`}
+        onMove={onMove}
+        onPreviewMove={onPreviewMove}
+        onClearPreview={onClearPreview}
+      />
       <ButtonGroup
         aria-label={
           isMulti
