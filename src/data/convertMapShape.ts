@@ -1,5 +1,5 @@
-import type { BoardPiece, HexMap } from '../types'
-import type { CubeCoordinate } from '../types'
+import type { BoardPiece, CubeCoordinate, HexMap } from '../types'
+import { genBoardHexID } from '../utils/map-utils'
 import { hexUtilsAdd } from '../utils/hex-utils'
 import {
   DEFAULT_NEW_HEXAGON_MAP_SIZE,
@@ -11,6 +11,7 @@ import {
 import {
   getHexagonTableFit,
   getMapTableFootprintCoords,
+  mapTableHexes,
 } from './fitMapToPieces'
 
 export type MapShape = 'hexagon' | 'rectangle'
@@ -100,9 +101,62 @@ function translateCoordinate(
   return hexUtilsAdd(coordinate, offset)
 }
 
-function withoutOrigin(hexMap: HexMap): HexMap {
-  const { originQ: _originQ, originR: _originR, ...normalized } = hexMap
-  return normalized
+export function normalizeLegacyMapOrigin(
+  hexMap: HexMap,
+  boardPieces: BoardPiece[],
+): { hexMap: HexMap; boardPieces: BoardPiece[] } {
+  const originQ = hexMap.originQ ?? 0
+  const originR = hexMap.originR ?? 0
+  if (originQ === 0 && originR === 0) return { hexMap, boardPieces }
+
+  const offset =
+    hexMap.shape === 'hexagon'
+      ? { q: -originQ, r: -originR, s: originQ + originR }
+      : {
+          q: originR / 2 - originQ,
+          r: -originR,
+          s: originQ + originR / 2,
+        }
+
+  if (hexMap.shape === 'rectangle') {
+    if (!Number.isInteger(originR / 2)) return { hexMap, boardPieces }
+    const tableHexes = mapTableHexes(withoutOrigin(hexMap))
+    const footprintCoords = getMapTableFootprintCoords(hexMap, boardPieces)
+    if (
+      !footprintCoords.every((coords) =>
+        tableHexes.has(
+          genBoardHexID({
+            ...translateCoordinate(coords, offset),
+            altitude: 0,
+          }),
+        ),
+      )
+    ) {
+      return { hexMap, boardPieces }
+    }
+  }
+
+  const normalizedHexMap = withoutOrigin({
+    ...hexMap,
+    ...(hexMap.objectiveMarkers
+      ? {
+          objectiveMarkers: hexMap.objectiveMarkers.map((marker) => ({
+            ...marker,
+            anchor: {
+              ...translateCoordinate(marker.anchor, offset),
+              altitude: marker.anchor.altitude,
+            },
+          })),
+        }
+      : {}),
+  })
+  return {
+    hexMap: normalizedHexMap,
+    boardPieces: boardPieces.map((piece) => ({
+      ...piece,
+      pieceCoords: translateCoordinate(piece.pieceCoords, offset),
+    })),
+  }
 }
 
 function haveSameCoordinates(
@@ -128,6 +182,11 @@ function haveSameCoordinates(
         marker.anchor.altitude === secondMarkers[index]?.anchor.altitude,
     )
   )
+}
+
+function withoutOrigin(hexMap: HexMap): HexMap {
+  const { originQ: _originQ, originR: _originR, ...normalized } = hexMap
+  return normalized
 }
 
 function normalizeMapContent(

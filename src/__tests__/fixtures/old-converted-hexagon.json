@@ -1,0 +1,1724 @@
+{
+  "hexMap": {
+    "id": "TwWekKigrJ8c_",
+    "name": "منارة غزة",
+    "author": "dissolutio",
+    "mapNotes": "",
+    "version": 1,
+    "shape": "hexagon",
+    "width": 14,
+    "length": 14,
+    "setsUsed": [],
+    "objectiveMarkers": [],
+    "originQ": -2,
+    "originR": -4,
+    "mapPortraitBase64": ""
+  },
+  "boardPieces": [
+    {
+      "uid": "old-converted-piece-001",
+      "inventoryID": "g24",
+      "altitude": 0,
+      "rotation": 5,
+      "pieceCoords": {
+        "q": 0,
+        "r": 11,
+        "s": -11
+      }
+    },
+    {
+      "uid": "old-converted-piece-002",
+      "inventoryID": "lp14",
+      "altitude": 0,
+      "rotation": 2,
+      "pieceCoords": {
+        "q": 5,
+        "r": 13,
+        "s": -18
+      }
+    },
+    {
+      "uid": "old-converted-piece-003",
+      "inventoryID": "s2",
+      "altitude": 0,
+      "rotation": 5,
+      "pieceCoords": {
+        "q": 5,
+        "r": 14,
+        "s": -19
+      }
+    },
+    {
+      "uid": "old-converted-piece-004",
+      "inventoryID": "r7",
+      "altitude": 0,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 3,
+        "r": 15,
+        "s": -18
+      }
+    },
+    {
+      "uid": "old-converted-piece-005",
+      "inventoryID": "s7",
+      "altitude": 0,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 12,
+        "r": 7,
+        "s": -19
+      }
+    },
+    {
+      "uid": "old-converted-piece-006",
+      "inventoryID": "wd2",
+      "altitude": 0,
+      "rotation": 1,
+      "pieceCoords": {
+        "q": 9,
+        "r": 13,
+        "s": -22
+      }
+    },
+    {
+      "uid": "old-converted-piece-007",
+      "inventoryID": "ww1",
+      "altitude": 0,
+      "rotation": 2,
+      "pieceCoords": {
+        "q": 5,
+        "r": 15,
+        "s": -20
+      }
+    },
+    {
+      "uid": "old-converted-piece-008",
+      "inventoryID": "s7",
+      "altitude": 0,
+      "rotation": 5,
+      "pieceCoords": {
+        "q": 6,
+        "r": 17,
+        "s": -23
+      }
+    },
+    {
+      "uid": "old-converted-piece-009",
+      "inventoryID": "w1",
+      "altitude": 0,
+      "rotation": 5,
+      "pieceCoords": {
+        "q": 9,
+        "r": 15,
+        "s": -24
+      }
+    },
+    {
+      "uid": "old-converted-piece-010",
+      "inventoryID": "w1",
+      "altitude": 0,
+      "rotation": 5,
+      "pieceCoords": {
+        "q": 8,
+        "r": 18,
+        "s": -26
+      }
+    },
+    {
+      "uid": "old-converted-piece-011",
+      "inventoryID": "w1",
+      "altitude": 0,
+      "rotation": 5,
+      "pieceCoords": {
+        "q": 4,
+        "r": 17,
+        "s": -21
+      }
+    },
+    {
+      "uid": "old-converted-piece-012",
+      "inventoryID": "ww1",
+      "altitude": 0,
+      "rotation": 5,
+      "pieceCoords": {
+        "q": 6,
+        "r": 15,
+        "s": -21
+      }
+    },
+    {
+      "uid": "old-converted-piece-013",
+      "inventoryID": "g24",
+      "altitude": 0,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 5,
+        "r": 3,
+        "s": -8
+      }
+    },
+    {
+      "uid": "old-converted-piece-014",
+      "inventoryID": "g24",
+      "altitude": 0,
+      "rotation": 3,
+      "pieceCoords": {
+        "q": 9,
+        "r": 7,
+        "s": -16
+      }
+    },
+    {
+      "uid": "old-converted-piece-015",
+      "inventoryID": "w1",
+      "altitude": 0,
+      "rotation": 3,
+      "pieceCoords": {
+        "q": 5,
+        "r": 17,
+        "s": -22
+      }
+    },
+    {
+      "uid": "old-converted-piece-016",
+      "inventoryID": "wd2",
+      "altitude": 0,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 5,
+        "r": 16,
+        "s": -21
+      }
+    },
+    {
+      "uid": "old-converted-piece-017",
+      "inventoryID": "s2",
+      "altitude": 0,
+      "rotation": 1,
+      "pieceCoords": {
+        "q": 9,
+        "r": 11,
+        "s": -20
+      }
+    },
+    {
+      "uid": "old-converted-piece-018",
+      "inventoryID": "r2",
+      "altitude": 0,
+      "rotation": 3,
+      "pieceCoords": {
+        "q": 4,
+        "r": 9,
+        "s": -13
+      }
+    },
+    {
+      "uid": "old-converted-piece-019",
+      "inventoryID": "r2",
+      "altitude": 0,
+      "rotation": 3,
+      "pieceCoords": {
+        "q": 2,
+        "r": 9,
+        "s": -11
+      }
+    },
+    {
+      "uid": "old-converted-piece-020",
+      "inventoryID": "g7",
+      "altitude": 0,
+      "rotation": 1,
+      "pieceCoords": {
+        "q": 1,
+        "r": 6,
+        "s": -7
+      }
+    },
+    {
+      "uid": "old-converted-piece-021",
+      "inventoryID": "s3",
+      "altitude": 0,
+      "rotation": 3,
+      "pieceCoords": {
+        "q": 6,
+        "r": 12,
+        "s": -18
+      }
+    },
+    {
+      "uid": "old-converted-piece-022",
+      "inventoryID": "ww1",
+      "altitude": 0,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 10,
+        "r": 11,
+        "s": -21
+      }
+    },
+    {
+      "uid": "old-converted-piece-023",
+      "inventoryID": "r7",
+      "altitude": 0,
+      "rotation": 1,
+      "pieceCoords": {
+        "q": -4,
+        "r": 12,
+        "s": -8
+      }
+    },
+    {
+      "uid": "old-converted-piece-024",
+      "inventoryID": "lp14",
+      "altitude": 0,
+      "rotation": 1,
+      "pieceCoords": {
+        "q": 7,
+        "r": 12,
+        "s": -19
+      }
+    },
+    {
+      "uid": "old-converted-piece-025",
+      "inventoryID": "r1",
+      "altitude": 0,
+      "rotation": 1,
+      "pieceCoords": {
+        "q": 13,
+        "r": 9,
+        "s": -22
+      }
+    },
+    {
+      "uid": "old-converted-piece-026",
+      "inventoryID": "w1",
+      "altitude": 0,
+      "rotation": 1,
+      "pieceCoords": {
+        "q": 11,
+        "r": 10,
+        "s": -21
+      }
+    },
+    {
+      "uid": "old-converted-piece-027",
+      "inventoryID": "w1",
+      "altitude": 0,
+      "rotation": 1,
+      "pieceCoords": {
+        "q": 13,
+        "r": 10,
+        "s": -23
+      }
+    },
+    {
+      "uid": "old-converted-piece-028",
+      "inventoryID": "g1",
+      "altitude": 0,
+      "rotation": 1,
+      "pieceCoords": {
+        "q": 10,
+        "r": 9,
+        "s": -19
+      }
+    },
+    {
+      "uid": "old-converted-piece-029",
+      "inventoryID": "s1",
+      "altitude": 0,
+      "rotation": 1,
+      "pieceCoords": {
+        "q": 4,
+        "r": 14,
+        "s": -18
+      }
+    },
+    {
+      "uid": "old-converted-piece-030",
+      "inventoryID": "s1",
+      "altitude": 0,
+      "rotation": 1,
+      "pieceCoords": {
+        "q": 6,
+        "r": 14,
+        "s": -20
+      }
+    },
+    {
+      "uid": "old-converted-piece-031",
+      "inventoryID": "s1",
+      "altitude": 0,
+      "rotation": 1,
+      "pieceCoords": {
+        "q": 7,
+        "r": 13,
+        "s": -20
+      }
+    },
+    {
+      "uid": "old-converted-piece-032",
+      "inventoryID": "w1",
+      "altitude": 0,
+      "rotation": 1,
+      "pieceCoords": {
+        "q": 8,
+        "r": 14,
+        "s": -22
+      }
+    },
+    {
+      "uid": "old-converted-piece-033",
+      "inventoryID": "wd2",
+      "altitude": 0,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 7,
+        "r": 15,
+        "s": -22
+      }
+    },
+    {
+      "uid": "old-converted-piece-034",
+      "inventoryID": "g1",
+      "altitude": 0,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 7,
+        "r": 14,
+        "s": -21
+      }
+    },
+    {
+      "uid": "old-converted-piece-035",
+      "inventoryID": "wd2",
+      "altitude": 0,
+      "rotation": 5,
+      "pieceCoords": {
+        "q": 10,
+        "r": 12,
+        "s": -22
+      }
+    },
+    {
+      "uid": "old-converted-piece-036",
+      "inventoryID": "g1",
+      "altitude": 0,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 12,
+        "r": 10,
+        "s": -22
+      }
+    },
+    {
+      "uid": "old-converted-piece-037",
+      "inventoryID": "s1",
+      "altitude": 0,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 12,
+        "r": 11,
+        "s": -23
+      }
+    },
+    {
+      "uid": "old-converted-piece-038",
+      "inventoryID": "g7",
+      "altitude": 0,
+      "rotation": 1,
+      "pieceCoords": {
+        "q": 0,
+        "r": 13,
+        "s": -13
+      }
+    },
+    {
+      "uid": "old-converted-piece-039",
+      "inventoryID": "g3",
+      "altitude": 0,
+      "rotation": 1,
+      "pieceCoords": {
+        "q": 0,
+        "r": 9,
+        "s": -9
+      }
+    },
+    {
+      "uid": "old-converted-piece-040",
+      "inventoryID": "g7",
+      "altitude": 0,
+      "rotation": 4,
+      "pieceCoords": {
+        "q": -3,
+        "r": 13,
+        "s": -10
+      }
+    },
+    {
+      "uid": "old-converted-piece-041",
+      "inventoryID": "g7",
+      "altitude": 0,
+      "rotation": 4,
+      "pieceCoords": {
+        "q": -5,
+        "r": 17,
+        "s": -12
+      }
+    },
+    {
+      "uid": "old-converted-piece-042",
+      "inventoryID": "ww1",
+      "altitude": 0,
+      "rotation": 3,
+      "pieceCoords": {
+        "q": 1,
+        "r": 14,
+        "s": -15
+      }
+    },
+    {
+      "uid": "old-converted-piece-043",
+      "inventoryID": "ww1",
+      "altitude": 0,
+      "rotation": 3,
+      "pieceCoords": {
+        "q": 0,
+        "r": 15,
+        "s": -15
+      }
+    },
+    {
+      "uid": "old-converted-piece-044",
+      "inventoryID": "g7",
+      "altitude": 0,
+      "rotation": 3,
+      "pieceCoords": {
+        "q": -3,
+        "r": 11,
+        "s": -8
+      }
+    },
+    {
+      "uid": "old-converted-piece-045",
+      "inventoryID": "g1",
+      "altitude": 0,
+      "rotation": 3,
+      "pieceCoords": {
+        "q": -2,
+        "r": 16,
+        "s": -14
+      }
+    },
+    {
+      "uid": "old-converted-piece-046",
+      "inventoryID": "ww1",
+      "altitude": 0,
+      "rotation": 5,
+      "pieceCoords": {
+        "q": 11,
+        "r": 7,
+        "s": -18
+      }
+    },
+    {
+      "uid": "old-converted-piece-047",
+      "inventoryID": "w1",
+      "altitude": 0,
+      "rotation": 4,
+      "pieceCoords": {
+        "q": 10,
+        "r": 7,
+        "s": -17
+      }
+    },
+    {
+      "uid": "old-converted-piece-048",
+      "inventoryID": "s2",
+      "altitude": 0,
+      "rotation": 4,
+      "pieceCoords": {
+        "q": 12,
+        "r": 6,
+        "s": -18
+      }
+    },
+    {
+      "uid": "old-converted-piece-049",
+      "inventoryID": "s2",
+      "altitude": 0,
+      "rotation": 4,
+      "pieceCoords": {
+        "q": 13,
+        "r": 6,
+        "s": -19
+      }
+    },
+    {
+      "uid": "old-converted-piece-050",
+      "inventoryID": "r7",
+      "altitude": 0,
+      "rotation": 4,
+      "pieceCoords": {
+        "q": 12,
+        "r": 4,
+        "s": -16
+      }
+    },
+    {
+      "uid": "old-converted-piece-051",
+      "inventoryID": "r1",
+      "altitude": 0,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 11,
+        "r": 5,
+        "s": -16
+      }
+    },
+    {
+      "uid": "old-converted-piece-052",
+      "inventoryID": "g1",
+      "altitude": 0,
+      "rotation": 5,
+      "pieceCoords": {
+        "q": -1,
+        "r": 9,
+        "s": -8
+      }
+    },
+    {
+      "uid": "old-converted-piece-053",
+      "inventoryID": "g1",
+      "altitude": 0,
+      "rotation": 5,
+      "pieceCoords": {
+        "q": -3,
+        "r": 14,
+        "s": -11
+      }
+    },
+    {
+      "uid": "old-converted-piece-054",
+      "inventoryID": "g1",
+      "altitude": 0,
+      "rotation": 5,
+      "pieceCoords": {
+        "q": -4,
+        "r": 14,
+        "s": -10
+      }
+    },
+    {
+      "uid": "old-converted-piece-055",
+      "inventoryID": "g1",
+      "altitude": 0,
+      "rotation": 5,
+      "pieceCoords": {
+        "q": -5,
+        "r": 15,
+        "s": -10
+      }
+    },
+    {
+      "uid": "old-converted-piece-056",
+      "inventoryID": "g3",
+      "altitude": 0,
+      "rotation": 1,
+      "pieceCoords": {
+        "q": 11,
+        "r": 0,
+        "s": -11
+      }
+    },
+    {
+      "uid": "old-converted-piece-057",
+      "inventoryID": "g3",
+      "altitude": 0,
+      "rotation": 1,
+      "pieceCoords": {
+        "q": 13,
+        "r": 0,
+        "s": -13
+      }
+    },
+    {
+      "uid": "old-converted-piece-058",
+      "inventoryID": "g3",
+      "altitude": 0,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 14,
+        "r": 0,
+        "s": -14
+      }
+    },
+    {
+      "uid": "old-converted-piece-059",
+      "inventoryID": "ww1",
+      "altitude": 0,
+      "rotation": 4,
+      "pieceCoords": {
+        "q": 11,
+        "r": 6,
+        "s": -17
+      }
+    },
+    {
+      "uid": "old-converted-piece-060",
+      "inventoryID": "w1",
+      "altitude": 0,
+      "rotation": 4,
+      "pieceCoords": {
+        "q": 10,
+        "r": 0,
+        "s": -10
+      }
+    },
+    {
+      "uid": "old-converted-piece-061",
+      "inventoryID": "w1",
+      "altitude": 0,
+      "rotation": 4,
+      "pieceCoords": {
+        "q": 9,
+        "r": 1,
+        "s": -10
+      }
+    },
+    {
+      "uid": "old-converted-piece-062",
+      "inventoryID": "w1",
+      "altitude": 0,
+      "rotation": 4,
+      "pieceCoords": {
+        "q": 12,
+        "r": 0,
+        "s": -12
+      }
+    },
+    {
+      "uid": "old-converted-piece-063",
+      "inventoryID": "r1",
+      "altitude": 0,
+      "rotation": 5,
+      "pieceCoords": {
+        "q": 1,
+        "r": 8,
+        "s": -9
+      }
+    },
+    {
+      "uid": "old-converted-piece-064",
+      "inventoryID": "w1",
+      "altitude": 0,
+      "rotation": 3,
+      "pieceCoords": {
+        "q": 10,
+        "r": 8,
+        "s": -18
+      }
+    },
+    {
+      "uid": "old-converted-piece-065",
+      "inventoryID": "w1",
+      "altitude": 0,
+      "rotation": 3,
+      "pieceCoords": {
+        "q": 9,
+        "r": 8,
+        "s": -17
+      }
+    },
+    {
+      "uid": "old-converted-piece-066",
+      "inventoryID": "w1",
+      "altitude": 0,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 8,
+        "r": 12,
+        "s": -20
+      }
+    },
+    {
+      "uid": "old-converted-piece-067",
+      "inventoryID": "w1",
+      "altitude": 0,
+      "rotation": 1,
+      "pieceCoords": {
+        "q": 9,
+        "r": 10,
+        "s": -19
+      }
+    },
+    {
+      "uid": "old-converted-piece-068",
+      "inventoryID": "w1",
+      "altitude": 0,
+      "rotation": 5,
+      "pieceCoords": {
+        "q": 10,
+        "r": 10,
+        "s": -20
+      }
+    },
+    {
+      "uid": "old-converted-piece-069",
+      "inventoryID": "w1",
+      "altitude": 0,
+      "rotation": 5,
+      "pieceCoords": {
+        "q": 8,
+        "r": 11,
+        "s": -19
+      }
+    },
+    {
+      "uid": "old-converted-piece-070",
+      "inventoryID": "w1",
+      "altitude": 0,
+      "rotation": 5,
+      "pieceCoords": {
+        "q": 8,
+        "r": 13,
+        "s": -21
+      }
+    },
+    {
+      "uid": "old-converted-piece-071",
+      "inventoryID": "sl",
+      "altitude": 0,
+      "rotation": 1,
+      "pieceCoords": {
+        "q": 1,
+        "r": 15,
+        "s": -16
+      }
+    },
+    {
+      "uid": "old-converted-piece-072",
+      "inventoryID": "w1",
+      "altitude": 0,
+      "rotation": 4,
+      "pieceCoords": {
+        "q": 8,
+        "r": 8,
+        "s": -16
+      }
+    },
+    {
+      "uid": "old-converted-piece-073",
+      "inventoryID": "r3",
+      "altitude": 0,
+      "rotation": 3,
+      "pieceCoords": {
+        "q": 11,
+        "r": 13,
+        "s": -24
+      }
+    },
+    {
+      "uid": "old-converted-piece-074",
+      "inventoryID": "w1",
+      "altitude": 0,
+      "rotation": 3,
+      "pieceCoords": {
+        "q": 8,
+        "r": 10,
+        "s": -18
+      }
+    },
+    {
+      "uid": "old-converted-piece-075",
+      "inventoryID": "w1",
+      "altitude": 0,
+      "rotation": 3,
+      "pieceCoords": {
+        "q": 7,
+        "r": 11,
+        "s": -18
+      }
+    },
+    {
+      "uid": "old-converted-piece-076",
+      "inventoryID": "r1",
+      "altitude": 0,
+      "rotation": 3,
+      "pieceCoords": {
+        "q": 7,
+        "r": 10,
+        "s": -17
+      }
+    },
+    {
+      "uid": "old-converted-piece-077",
+      "inventoryID": "g2",
+      "altitude": 0,
+      "rotation": 2,
+      "pieceCoords": {
+        "q": 3,
+        "r": 14,
+        "s": -17
+      }
+    },
+    {
+      "uid": "old-converted-piece-078",
+      "inventoryID": "w1",
+      "altitude": 0,
+      "rotation": 4,
+      "pieceCoords": {
+        "q": 14,
+        "r": 4,
+        "s": -18
+      }
+    },
+    {
+      "uid": "old-converted-piece-079",
+      "inventoryID": "w1",
+      "altitude": 0,
+      "rotation": 4,
+      "pieceCoords": {
+        "q": 14,
+        "r": 5,
+        "s": -19
+      }
+    },
+    {
+      "uid": "old-converted-piece-080",
+      "inventoryID": "g1",
+      "altitude": 0,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 4,
+        "r": 13,
+        "s": -17
+      }
+    },
+    {
+      "uid": "old-converted-piece-081",
+      "inventoryID": "s2",
+      "altitude": 0,
+      "rotation": 3,
+      "pieceCoords": {
+        "q": 9,
+        "r": 9,
+        "s": -18
+      }
+    },
+    {
+      "uid": "old-converted-piece-082",
+      "inventoryID": "w1",
+      "altitude": 0,
+      "rotation": 3,
+      "pieceCoords": {
+        "q": 16,
+        "r": 1,
+        "s": -17
+      }
+    },
+    {
+      "uid": "old-converted-piece-083",
+      "inventoryID": "w1",
+      "altitude": 0,
+      "rotation": 3,
+      "pieceCoords": {
+        "q": 15,
+        "r": 1,
+        "s": -16
+      }
+    },
+    {
+      "uid": "old-converted-piece-084",
+      "inventoryID": "w1",
+      "altitude": 0,
+      "rotation": 3,
+      "pieceCoords": {
+        "q": 15,
+        "r": 2,
+        "s": -17
+      }
+    },
+    {
+      "uid": "old-converted-piece-085",
+      "inventoryID": "sb",
+      "altitude": 1,
+      "rotation": 1,
+      "pieceCoords": {
+        "q": 8,
+        "r": 11,
+        "s": -19
+      }
+    },
+    {
+      "uid": "old-converted-piece-086",
+      "inventoryID": "wd2",
+      "altitude": 1,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 8,
+        "r": 9,
+        "s": -17
+      }
+    },
+    {
+      "uid": "old-converted-piece-087",
+      "inventoryID": "g24",
+      "altitude": 1,
+      "rotation": 5,
+      "pieceCoords": {
+        "q": 0,
+        "r": 11,
+        "s": -11
+      }
+    },
+    {
+      "uid": "old-converted-piece-088",
+      "inventoryID": "wd2",
+      "altitude": 1,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 10,
+        "r": 9,
+        "s": -19
+      }
+    },
+    {
+      "uid": "old-converted-piece-089",
+      "inventoryID": "lwp",
+      "altitude": 1,
+      "rotation": 5,
+      "pieceCoords": {
+        "q": 2,
+        "r": 8,
+        "s": -10
+      }
+    },
+    {
+      "uid": "old-converted-piece-090",
+      "inventoryID": "lwp",
+      "altitude": 1,
+      "rotation": 5,
+      "pieceCoords": {
+        "q": 3,
+        "r": 9,
+        "s": -12
+      }
+    },
+    {
+      "uid": "old-converted-piece-091",
+      "inventoryID": "wd2",
+      "altitude": 1,
+      "rotation": 1,
+      "pieceCoords": {
+        "q": 12,
+        "r": 9,
+        "s": -21
+      }
+    },
+    {
+      "uid": "old-converted-piece-092",
+      "inventoryID": "g7",
+      "altitude": 1,
+      "rotation": 1,
+      "pieceCoords": {
+        "q": 0,
+        "r": 13,
+        "s": -13
+      }
+    },
+    {
+      "uid": "old-converted-piece-093",
+      "inventoryID": "g3",
+      "altitude": 1,
+      "rotation": 1,
+      "pieceCoords": {
+        "q": 0,
+        "r": 6,
+        "s": -6
+      }
+    },
+    {
+      "uid": "old-converted-piece-094",
+      "inventoryID": "r3",
+      "altitude": 1,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 4,
+        "r": 4,
+        "s": -8
+      }
+    },
+    {
+      "uid": "old-converted-piece-095",
+      "inventoryID": "r24",
+      "altitude": 1,
+      "rotation": 1,
+      "pieceCoords": {
+        "q": 11,
+        "r": 1,
+        "s": -12
+      }
+    },
+    {
+      "uid": "old-converted-piece-096",
+      "inventoryID": "g2",
+      "altitude": 1,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 14,
+        "r": 0,
+        "s": -14
+      }
+    },
+    {
+      "uid": "old-converted-piece-097",
+      "inventoryID": "r7",
+      "altitude": 1,
+      "rotation": 4,
+      "pieceCoords": {
+        "q": 12,
+        "r": 4,
+        "s": -16
+      }
+    },
+    {
+      "uid": "old-converted-piece-098",
+      "inventoryID": "g1",
+      "altitude": 1,
+      "rotation": 4,
+      "pieceCoords": {
+        "q": 14,
+        "r": 1,
+        "s": -15
+      }
+    },
+    {
+      "uid": "old-converted-piece-099",
+      "inventoryID": "g1",
+      "altitude": 1,
+      "rotation": 4,
+      "pieceCoords": {
+        "q": 13,
+        "r": 1,
+        "s": -14
+      }
+    },
+    {
+      "uid": "old-converted-piece-100",
+      "inventoryID": "g1",
+      "altitude": 1,
+      "rotation": 4,
+      "pieceCoords": {
+        "q": 13,
+        "r": 0,
+        "s": -13
+      }
+    },
+    {
+      "uid": "old-converted-piece-101",
+      "inventoryID": "cn",
+      "altitude": 1,
+      "rotation": 5,
+      "pieceCoords": {
+        "q": -5,
+        "r": 14,
+        "s": -9
+      }
+    },
+    {
+      "uid": "old-converted-piece-102",
+      "inventoryID": "cn",
+      "altitude": 1,
+      "rotation": 5,
+      "pieceCoords": {
+        "q": -3,
+        "r": 16,
+        "s": -13
+      }
+    },
+    {
+      "uid": "old-converted-piece-103",
+      "inventoryID": "cn",
+      "altitude": 1,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": -3,
+        "r": 10,
+        "s": -7
+      }
+    },
+    {
+      "uid": "old-converted-piece-104",
+      "inventoryID": "y1",
+      "altitude": 1,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 1,
+        "r": 6,
+        "s": -7
+      }
+    },
+    {
+      "uid": "old-converted-piece-105",
+      "inventoryID": "y1",
+      "altitude": 1,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 4,
+        "r": 17,
+        "s": -21
+      }
+    },
+    {
+      "uid": "old-converted-piece-106",
+      "inventoryID": "y1",
+      "altitude": 1,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 8,
+        "r": 18,
+        "s": -26
+      }
+    },
+    {
+      "uid": "old-converted-piece-107",
+      "inventoryID": "y1",
+      "altitude": 1,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 9,
+        "r": 15,
+        "s": -24
+      }
+    },
+    {
+      "uid": "old-converted-piece-108",
+      "inventoryID": "y1",
+      "altitude": 1,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 7,
+        "r": 11,
+        "s": -18
+      }
+    },
+    {
+      "uid": "old-converted-piece-109",
+      "inventoryID": "y1",
+      "altitude": 1,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 11,
+        "r": 13,
+        "s": -24
+      }
+    },
+    {
+      "uid": "old-converted-piece-110",
+      "inventoryID": "y1",
+      "altitude": 1,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 13,
+        "r": 10,
+        "s": -23
+      }
+    },
+    {
+      "uid": "old-converted-piece-111",
+      "inventoryID": "y1",
+      "altitude": 1,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 11,
+        "r": 10,
+        "s": -21
+      }
+    },
+    {
+      "uid": "old-converted-piece-112",
+      "inventoryID": "y1",
+      "altitude": 1,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 9,
+        "r": 1,
+        "s": -10
+      }
+    },
+    {
+      "uid": "old-converted-piece-113",
+      "inventoryID": "y1",
+      "altitude": 1,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 7,
+        "r": 2,
+        "s": -9
+      }
+    },
+    {
+      "uid": "old-converted-piece-114",
+      "inventoryID": "y1",
+      "altitude": 1,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 5,
+        "r": 3,
+        "s": -8
+      }
+    },
+    {
+      "uid": "old-converted-piece-115",
+      "inventoryID": "wd2",
+      "altitude": 1,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 3,
+        "r": 16,
+        "s": -19
+      }
+    },
+    {
+      "uid": "old-converted-piece-116",
+      "inventoryID": "y1",
+      "altitude": 1,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 14,
+        "r": 4,
+        "s": -18
+      }
+    },
+    {
+      "uid": "old-converted-piece-117",
+      "inventoryID": "y1",
+      "altitude": 1,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 12,
+        "r": 0,
+        "s": -12
+      }
+    },
+    {
+      "uid": "old-converted-piece-118",
+      "inventoryID": "r2",
+      "altitude": 1,
+      "rotation": 5,
+      "pieceCoords": {
+        "q": 6,
+        "r": 17,
+        "s": -23
+      }
+    },
+    {
+      "uid": "old-converted-piece-119",
+      "inventoryID": "y1",
+      "altitude": 1,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 16,
+        "r": 1,
+        "s": -17
+      }
+    },
+    {
+      "uid": "old-converted-piece-120",
+      "inventoryID": "r2",
+      "altitude": 1,
+      "rotation": 5,
+      "pieceCoords": {
+        "q": 6,
+        "r": 18,
+        "s": -24
+      }
+    },
+    {
+      "uid": "old-converted-piece-121",
+      "inventoryID": "sl",
+      "altitude": 1,
+      "rotation": 3,
+      "pieceCoords": {
+        "q": 10,
+        "r": 8,
+        "s": -18
+      }
+    },
+    {
+      "uid": "old-converted-piece-122",
+      "inventoryID": "g24",
+      "altitude": 2,
+      "rotation": 5,
+      "pieceCoords": {
+        "q": 0,
+        "r": 11,
+        "s": -11
+      }
+    },
+    {
+      "uid": "old-converted-piece-123",
+      "inventoryID": "g7",
+      "altitude": 2,
+      "rotation": 1,
+      "pieceCoords": {
+        "q": 0,
+        "r": 13,
+        "s": -13
+      }
+    },
+    {
+      "uid": "old-converted-piece-124",
+      "inventoryID": "r3",
+      "altitude": 2,
+      "rotation": 2,
+      "pieceCoords": {
+        "q": 15,
+        "r": 0,
+        "s": -15
+      }
+    },
+    {
+      "uid": "old-converted-piece-125",
+      "inventoryID": "lwp",
+      "altitude": 2,
+      "rotation": 5,
+      "pieceCoords": {
+        "q": 9,
+        "r": 4,
+        "s": -13
+      }
+    },
+    {
+      "uid": "old-converted-piece-126",
+      "inventoryID": "y1",
+      "altitude": 2,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 0,
+        "r": 6,
+        "s": -6
+      }
+    },
+    {
+      "uid": "old-converted-piece-127",
+      "inventoryID": "g24",
+      "altitude": 3,
+      "rotation": 5,
+      "pieceCoords": {
+        "q": 0,
+        "r": 11,
+        "s": -11
+      }
+    },
+    {
+      "uid": "old-converted-piece-128",
+      "inventoryID": "g24",
+      "altitude": 4,
+      "rotation": 5,
+      "pieceCoords": {
+        "q": 0,
+        "r": 11,
+        "s": -11
+      }
+    },
+    {
+      "uid": "old-converted-piece-129",
+      "inventoryID": "g24",
+      "altitude": 5,
+      "rotation": 5,
+      "pieceCoords": {
+        "q": 0,
+        "r": 11,
+        "s": -11
+      }
+    },
+    {
+      "uid": "old-converted-piece-130",
+      "inventoryID": "g2",
+      "altitude": 6,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 1,
+        "r": 10,
+        "s": -11
+      }
+    },
+    {
+      "uid": "old-converted-piece-131",
+      "inventoryID": "r1",
+      "altitude": 6,
+      "rotation": 3,
+      "pieceCoords": {
+        "q": 7,
+        "r": 9,
+        "s": -16
+      }
+    },
+    {
+      "uid": "old-converted-piece-132",
+      "inventoryID": "wd2",
+      "altitude": 6,
+      "rotation": 1,
+      "pieceCoords": {
+        "q": 9,
+        "r": 11,
+        "s": -20
+      }
+    },
+    {
+      "uid": "old-converted-piece-133",
+      "inventoryID": "wd2",
+      "altitude": 6,
+      "rotation": 1,
+      "pieceCoords": {
+        "q": 2,
+        "r": 15,
+        "s": -17
+      }
+    },
+    {
+      "uid": "old-converted-piece-134",
+      "inventoryID": "wd2",
+      "altitude": 6,
+      "rotation": 5,
+      "pieceCoords": {
+        "q": 2,
+        "r": 14,
+        "s": -16
+      }
+    },
+    {
+      "uid": "old-converted-piece-135",
+      "inventoryID": "r2",
+      "altitude": 6,
+      "rotation": 3,
+      "pieceCoords": {
+        "q": 1,
+        "r": 11,
+        "s": -12
+      }
+    },
+    {
+      "uid": "old-converted-piece-136",
+      "inventoryID": "r24",
+      "altitude": 6,
+      "rotation": 4,
+      "pieceCoords": {
+        "q": 1,
+        "r": 13,
+        "s": -14
+      }
+    },
+    {
+      "uid": "old-converted-piece-137",
+      "inventoryID": "wd2",
+      "altitude": 7,
+      "rotation": 3,
+      "pieceCoords": {
+        "q": 9,
+        "r": 9,
+        "s": -18
+      }
+    },
+    {
+      "uid": "old-converted-piece-138",
+      "inventoryID": "lwp",
+      "altitude": 7,
+      "rotation": 1,
+      "pieceCoords": {
+        "q": 5,
+        "r": 11,
+        "s": -16
+      }
+    },
+    {
+      "uid": "old-converted-piece-139",
+      "inventoryID": "g2",
+      "altitude": 7,
+      "rotation": 4,
+      "pieceCoords": {
+        "q": 4,
+        "r": 12,
+        "s": -16
+      }
+    },
+    {
+      "uid": "old-converted-piece-140",
+      "inventoryID": "lwp",
+      "altitude": 7,
+      "rotation": 1,
+      "pieceCoords": {
+        "q": 3,
+        "r": 12,
+        "s": -15
+      }
+    },
+    {
+      "uid": "old-converted-piece-141",
+      "inventoryID": "g2",
+      "altitude": 8,
+      "rotation": 4,
+      "pieceCoords": {
+        "q": 4,
+        "r": 12,
+        "s": -16
+      }
+    },
+    {
+      "uid": "old-converted-piece-142",
+      "inventoryID": "g2",
+      "altitude": 9,
+      "rotation": 4,
+      "pieceCoords": {
+        "q": 4,
+        "r": 12,
+        "s": -16
+      }
+    },
+    {
+      "uid": "old-converted-piece-143",
+      "inventoryID": "lwp",
+      "altitude": 10,
+      "rotation": 1,
+      "pieceCoords": {
+        "q": 4,
+        "r": 11,
+        "s": -15
+      }
+    },
+    {
+      "uid": "old-converted-piece-144",
+      "inventoryID": "g1",
+      "altitude": 10,
+      "rotation": 1,
+      "pieceCoords": {
+        "q": 4,
+        "r": 12,
+        "s": -16
+      }
+    },
+    {
+      "uid": "old-converted-piece-145",
+      "inventoryID": "g1",
+      "altitude": 11,
+      "rotation": 1,
+      "pieceCoords": {
+        "q": 4,
+        "r": 12,
+        "s": -16
+      }
+    },
+    {
+      "uid": "old-converted-piece-146",
+      "inventoryID": "lwp",
+      "altitude": 12,
+      "rotation": 1,
+      "pieceCoords": {
+        "q": 4,
+        "r": 12,
+        "s": -16
+      }
+    },
+    {
+      "uid": "old-converted-piece-147",
+      "inventoryID": "lwl",
+      "altitude": 1,
+      "rotation": 3.5,
+      "pieceCoords": {
+        "q": 3,
+        "r": 9,
+        "s": -12
+      }
+    },
+    {
+      "uid": "old-converted-piece-148",
+      "inventoryID": "lwr",
+      "altitude": 2,
+      "rotation": 2,
+      "pieceCoords": {
+        "q": 9,
+        "r": 4,
+        "s": -13
+      }
+    },
+    {
+      "uid": "old-converted-piece-149",
+      "inventoryID": "lwr",
+      "altitude": 2,
+      "rotation": 0.5,
+      "pieceCoords": {
+        "q": 9,
+        "r": 4,
+        "s": -13
+      }
+    },
+    {
+      "uid": "old-converted-piece-150",
+      "inventoryID": "rl",
+      "altitude": 6,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 2,
+        "r": 15,
+        "s": -17
+      }
+    },
+    {
+      "uid": "old-converted-piece-151",
+      "inventoryID": "rl",
+      "altitude": 6,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 9,
+        "r": 12,
+        "s": -21
+      }
+    },
+    {
+      "uid": "old-converted-piece-152",
+      "inventoryID": "rl",
+      "altitude": 6,
+      "rotation": 3,
+      "pieceCoords": {
+        "q": 1,
+        "r": 10,
+        "s": -11
+      }
+    },
+    {
+      "uid": "old-converted-piece-153",
+      "inventoryID": "rl",
+      "altitude": 6,
+      "rotation": 2,
+      "pieceCoords": {
+        "q": 0,
+        "r": 11,
+        "s": -11
+      }
+    },
+    {
+      "uid": "old-converted-piece-154",
+      "inventoryID": "rl",
+      "altitude": 6,
+      "rotation": 0,
+      "pieceCoords": {
+        "q": 6,
+        "r": 10,
+        "s": -16
+      }
+    },
+    {
+      "uid": "old-converted-piece-155",
+      "inventoryID": "rl",
+      "altitude": 7,
+      "rotation": 5,
+      "pieceCoords": {
+        "q": 6,
+        "r": 6,
+        "s": -12
+      }
+    }
+  ]
+}
