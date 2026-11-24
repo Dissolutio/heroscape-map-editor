@@ -69,10 +69,7 @@ function minimumCenterScore(
       centerR += 1
     ) {
       const centerS = -centerQ - centerR
-      if (
-        centerS < extents.maxS - radius ||
-        centerS > extents.minS + radius
-      ) {
+      if (centerS < extents.maxS - radius || centerS > extents.minS + radius) {
         continue
       }
       minimum = Math.min(
@@ -88,9 +85,7 @@ function centerFromFit(
   fit: NonNullable<ReturnType<typeof getHexagonTableFit>>,
 ) {
   const offsetQ =
-    fit.radius % 2 === 0
-      ? fit.radius / 2
-      : Math.floor(fit.radius / 2 + 0.5)
+    fit.radius % 2 === 0 ? fit.radius / 2 : Math.floor(fit.radius / 2 + 0.5)
   return {
     q: fit.originQ + offsetQ,
     r: fit.originR + fit.radius,
@@ -175,19 +170,14 @@ describe('getHexagonTableFit', () => {
     const fit = getHexagonTableFit(footprints)
     if (!fit) throw new Error('Expected the trimmed footprint to fit')
     const extents = getExtents(footprints)
-    const centerQ =
-      radius % 2 === 0
-        ? radius / 2
-        : Math.floor(radius / 2 + 0.5)
+    const centerQ = radius % 2 === 0 ? radius / 2 : Math.floor(radius / 2 + 0.5)
     const centerR = radius
 
     expect(modiFixture.hexMap.length).toBe(13)
     expect(result.hexMap.length).toBe(10)
     expect(result.hexMap.width).toBe(10)
     expect(fit.radius).toBe(radius)
-    expect(
-      getHexagonTableFit(footprints, 0, 0, radius - 1),
-    ).toBeNull()
+    expect(getHexagonTableFit(footprints, 0, 0, radius - 1)).toBeNull()
     // Not all six sides touch the rim; the chosen center has the minimum
     // possible three-axis slack score at this smallest radius.
     expect(centerScore(extents, centerQ, centerR, radius)).toBe(

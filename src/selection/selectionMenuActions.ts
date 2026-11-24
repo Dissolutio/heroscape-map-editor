@@ -395,9 +395,8 @@ function buildSideLandNeighbors(
 
     for (const direction of Object.values(HEX_DIRECTIONS)) {
       const neighborCoords = hexUtilsAdd(hex, direction)
-      const adjacent = boardHexes[
-        genBoardHexID({ ...neighborCoords, altitude: hex.altitude })
-      ]
+      const adjacent =
+        boardHexes[genBoardHexID({ ...neighborCoords, altitude: hex.altitude })]
       const neighbor = piecesByUID.get(adjacent?.boardPieceUID ?? '')
       if (neighbor?.altitude === piece.altitude) {
         addNeighbor(neighbors, piece.uid, neighbor.uid)
@@ -448,10 +447,7 @@ export function selectConnectedSameLevel(ctx: SelectionMenuContext) {
   const landByUID = new Map(
     visibleLandPieces.map((piece) => [piece.uid, piece]),
   )
-  const neighbors = buildSideLandNeighbors(
-    visibleLandPieces,
-    ctx.boardHexes,
-  )
+  const neighbors = buildSideLandNeighbors(visibleLandPieces, ctx.boardHexes)
   const seedsByAltitude = new Map<number, string[]>()
 
   for (const uid of getVisibleSeeds(ctx)) {
@@ -506,8 +502,7 @@ function getUseAsPenPieceUID(ctx: SelectionMenuContext) {
 }
 
 const canUseAsPen = (ctx: SelectionMenuContext) =>
-  ctx.selectedPieceIDs.length === 1 &&
-  getUseAsPenPieceUID(ctx) !== undefined
+  ctx.selectedPieceIDs.length === 1 && getUseAsPenPieceUID(ctx) !== undefined
 
 export const selectionMenuActions: SelectionMenuAction[] = [
   {

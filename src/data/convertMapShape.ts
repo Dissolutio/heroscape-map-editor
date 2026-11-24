@@ -98,7 +98,11 @@ function translateCoordinate(
   coordinate: CubeCoordinate,
   offset: CubeCoordinate,
 ): CubeCoordinate {
-  return hexUtilsAdd(coordinate, offset)
+  const translated = hexUtilsAdd(coordinate, offset)
+  return {
+    ...translated,
+    s: translated.s === 0 ? 0 : translated.s,
+  }
 }
 
 export function normalizeLegacyMapOrigin(
@@ -331,15 +335,16 @@ export function trimAndNormalizeMap(
     }
   }
 
-  const normalized = normalizeMapContent(hexMap, boardPieces, hexMap.shape, 0)
+  const normalized = normalizeMapContent(
+    hexMap,
+    boardPieces,
+    hexMap.shape === 'hexagon' ? 'hexagon' : 'rectangle',
+    0,
+  )
   if (!normalized) return { ok: false, error: 'too-large' }
-  const { hexMap: normalizedHexMap, boardPieces: normalizedPieces } =
-    normalized
+  const { hexMap: normalizedHexMap, boardPieces: normalizedPieces } = normalized
 
-  if (
-    hexMap.shape === 'rectangle' &&
-    normalizedHexMap.length > hexMap.length
-  ) {
+  if (hexMap.shape === 'rectangle' && normalizedHexMap.length > hexMap.length) {
     return {
       ok: true,
       hexMap,

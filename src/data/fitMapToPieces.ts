@@ -150,8 +150,7 @@ function getHexagonExtentsFit(
               (largestSlack === bestLargestSlack &&
                 (!bestCenter ||
                   centerQ < bestCenter.q ||
-                  (centerQ === bestCenter.q &&
-                    centerR < bestCenter.r)))))
+                  (centerQ === bestCenter.q && centerR < bestCenter.r)))))
         ) {
           bestCenter = { q: centerQ, r: centerR }
           bestScore = score
@@ -218,12 +217,7 @@ export function getHexagonTableFit(
       maxS: Number.NEGATIVE_INFINITY,
     },
   )
-  return getHexagonExtentsFit(
-    extents,
-    minimumRadius,
-    margin,
-    maximumRadius,
-  )
+  return getHexagonExtentsFit(extents, minimumRadius, margin, maximumRadius)
 }
 
 function getFittingHexagonFootprints(

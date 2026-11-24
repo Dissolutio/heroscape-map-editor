@@ -119,22 +119,19 @@ function twoLevelHillBoard() {
       2,
     ),
   ]
-  return selectionBoard(
-    pieces,
-    [
-      occupiedHex('floor', Pieces.grass1, center, 1),
-      occupiedHex('lower-neighbor', Pieces.sand1, neighbor, 1),
-      occupiedHex('top', Pieces.grass1, center, 2),
-      occupiedHex('top-neighbor', Pieces.sand1, neighbor, 2),
-      occupiedHex('isolated-top', Pieces.grass1, isolated, 2),
-      occupiedHex(
-        'hidden-top',
-        Pieces.grass1,
-        hexUtilsAdd(isolated, HEX_DIRECTIONS[0]),
-        3,
-      ),
-    ],
-  )
+  return selectionBoard(pieces, [
+    occupiedHex('floor', Pieces.grass1, center, 1),
+    occupiedHex('lower-neighbor', Pieces.sand1, neighbor, 1),
+    occupiedHex('top', Pieces.grass1, center, 2),
+    occupiedHex('top-neighbor', Pieces.sand1, neighbor, 2),
+    occupiedHex('isolated-top', Pieces.grass1, isolated, 2),
+    occupiedHex(
+      'hidden-top',
+      Pieces.grass1,
+      hexUtilsAdd(isolated, HEX_DIRECTIONS[0]),
+      3,
+    ),
+  ])
 }
 
 describe('selection menu pure actions', () => {
@@ -662,7 +659,14 @@ describe('selection menu action registry', () => {
       'invert',
     ])
     expect(items.map(({ enabled }) => enabled)).toEqual([
-      false, false, false, false, false, false, false, true,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
     ])
     expect(items[0].disabledReason).toBe('Select a visible piece first.')
     expect(items[2].action.isEnabled(ctx)).toBe(items[1].action.isEnabled(ctx))
@@ -705,10 +709,9 @@ describe('selection menu action registry', () => {
     }
 
     expect(
-      getSelectionMenuItems(
-        [terrainAction, deleteAction, penAction],
-        ctx,
-      ).map(({ enabled }) => enabled),
+      getSelectionMenuItems([terrainAction, deleteAction, penAction], ctx).map(
+        ({ enabled }) => enabled,
+      ),
     ).toEqual([true, true, true])
     terrainAction.run(ctx)
     deleteAction.run(ctx)

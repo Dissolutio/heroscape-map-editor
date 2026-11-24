@@ -453,10 +453,7 @@ export const EditControlsTab = () => {
             onPreviewMove={previewAllPiecesMove}
             onClearPreview={clearPreview}
           />
-          <Tooltip
-            title={trimTooltip}
-            disableHoverListener={!trimDisabled}
-          >
+          <Tooltip title={trimTooltip} disableHoverListener={!trimDisabled}>
             <span>
               <Button
                 aria-label="Trim map"

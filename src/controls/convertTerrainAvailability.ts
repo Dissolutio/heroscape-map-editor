@@ -116,14 +116,11 @@ export function getConvertTerrainAvailability({
       )
     })
     .map(([terrain]) => terrain)
-    .sort((a, b) =>
-      formatTerrainLabel(a).localeCompare(formatTerrainLabel(b)),
-    )
+    .sort((a, b) => formatTerrainLabel(a).localeCompare(formatTerrainLabel(b)))
   const availableTerrains = Array.from(
-    (
-      hasSetConstraints
-        ? constrainedLandInventoryByTerrainAndSize
-        : landPieceInventoryByTerrainAndSize
+    (hasSetConstraints
+      ? constrainedLandInventoryByTerrainAndSize
+      : landPieceInventoryByTerrainAndSize
     ).entries(),
   )
     .filter(([terrain, targetBySize]) => {
@@ -133,9 +130,7 @@ export function getConvertTerrainAvailability({
       )
     })
     .map(([terrain]) => terrain)
-    .sort((a, b) =>
-      formatTerrainLabel(a).localeCompare(formatTerrainLabel(b)),
-    )
+    .sort((a, b) => formatTerrainLabel(a).localeCompare(formatTerrainLabel(b)))
   const hiddenForSelectionCount =
     allTerrains.length - terrainsValidForSelectedPieces.length
   const hiddenForConstraintsCount =
@@ -152,8 +147,7 @@ export function getConvertTerrainAvailability({
     selectedLandPieces.length > 0 && availableTerrains.length > 0
   const hasAvailableStartZoneTargets =
     selectedStartZonePieces.length > 0 && !hasMixedStartZoneSelection
-  const isDisabled =
-    !hasAvailableLandTargets && !hasAvailableStartZoneTargets
+  const isDisabled = !hasAvailableLandTargets && !hasAvailableStartZoneTargets
   const disabledMessage =
     selectedLandPieces.length === 0 && selectedStartZonePieces.length === 0
       ? 'No eligible pieces selected'

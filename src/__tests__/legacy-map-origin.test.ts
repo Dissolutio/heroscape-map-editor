@@ -13,17 +13,15 @@ import {
   hexUtilsGenHexagonGrid,
   hexUtilsGenRectangleGrid,
 } from '../utils/hex-utils'
-import {
-  genBoardHexID,
-  inflateBoardPiecesFromIds,
-} from '../utils/map-utils'
+import { mapTableHexes } from '../data/fitMapToPieces'
+import { genBoardHexID, inflateBoardPiecesFromIds } from '../utils/map-utils'
 import { parseMapShareUrlParams } from '../utils/mapShareUrl'
 import oldConvertedHexagonFixture from './fixtures/old-converted-hexagon.json'
 
 vi.mock('notistack', () => ({ enqueueSnackbar: vi.fn() }))
 
 const oldConvertedHexagonShareUrl =
-  'https://hexoscape.com/hs?m=%5B(\'id!\'TwWekKigrJ8c_Fname!\'%D9%85%D9%86%D8%A7%D8%B1%D8%A9%20%D8%BA%D8%B2%D8%A9Fauthor!\'dissolutioFmapNotes!\'Fversion!1~shape!\'hexagonFwidth!14~length!14~setsUsed!%5B%5D~objectiveMarkers!%5B%5D~originQ!-2~originR!-4~mapPortraitBase64!\'\')~0OA5z*2*lp14A5C4Hs2A3C5Gr7A12*7Gs7A9zLYA5C5*2*wwX6C7Hs7A9C5*5E8C8*5E4C7*5E6C5HwwX5*3Gg24A9*7Ig24A5C7*3E5C6GYA9fLs2A4ZIr2A2ZIr2A1*6Lg7A6qIs3A10fGwwX-4qLr7A7qLlp14A13ZLrX11C0CE13C0CE10ZLgX4C4LsX6C4LsX7zLsX8C4CE7C5GYA7C4GgX10qHYA12C0GgX12fGsX0zLg7A0ZLg3A-3zS*g7A-5C7S*g7A1C4IwwX0C5IwwX-3fIg7A-2C6IgX11*7HwwX10*7SE12*6S*s2A13*6S*s2A12SS*r7A11*5GrX-1ZHgX-3C4HgX-4C4HgX-5C5HgX11*0Lg3A13*0Lg3A14G0*g3A11*6S*wwX10G4E9L4E12G4E1*8HrX10*8*3E9*8*3E8q*0E9C0CE10C0*5E8f*5E8z*5E1C5LslA8*8SE11zIr3A8C0*3E7f*3E7C0IrX3C4*2*g2A14SSE14H4E4zGgX9ZIs2A16L3E15L3E15*2Iw1V*8fLsbV*8ZGYVOVC0ZGYV*2*8HlwpVI9HlwpVqZLYV*0zLg7VG6Lg3VSSGr3VfCLr24VC4G0*g2VqSS*r7VC4L4*g1VzL4*g1VzG4*g1V*-5C4HcnV*-3C6HcnV*-3C0GcnVL6DSC7D*8C8DZC5D*7fDfzDzC0DfC0DZCD*7*2DH3D*3C6GYVC4SDq*0D*6C7Hr2VC6CD*6C8Hr2VC0*8IslF2OF2*0zLg7F2C5G2*r3F2ZSHlwpF2G6Gy1F3OF4OF5OF6CC0Gg2F6*7ZIr1F6ZfLYF6*2C5LYF6*2C4HYF6CfIr2F6CzS*r24F7ZZIYF7*5fLlwpF7SqS*g2F7*3qLlwpF8SqS*g2F9SqS*g2V0SfLlwpV0SqLg1V1SqLg1V2SqLlwpVI9*3.5*lwlF2ZS*2*lwrF2ZS*0.5*lwrF6*2C5GrlF6ZqGrlF6CC0IrlF6*0f*2*rlF6*6C0GrlF7*6*6Hrl\'%5D*%2C\'AF0*L1DGy1VE*wXF\'~G*0*H*5*I*3*LC*O*0fHg24S*4VF1X1AYwd2Z*9fC1qC2zC3%01zqfZYXVSOLIHGFEDCA*_'
+  "https://hexoscape.com/hs?m=%5B('id!'TwWekKigrJ8c_Fname!'%D9%85%D9%86%D8%A7%D8%B1%D8%A9%20%D8%BA%D8%B2%D8%A9Fauthor!'dissolutioFmapNotes!'Fversion!1~shape!'hexagonFwidth!14~length!14~setsUsed!%5B%5D~objectiveMarkers!%5B%5D~originQ!-2~originR!-4~mapPortraitBase64!'')~0OA5z*2*lp14A5C4Hs2A3C5Gr7A12*7Gs7A9zLYA5C5*2*wwX6C7Hs7A9C5*5E8C8*5E4C7*5E6C5HwwX5*3Gg24A9*7Ig24A5C7*3E5C6GYA9fLs2A4ZIr2A2ZIr2A1*6Lg7A6qIs3A10fGwwX-4qLr7A7qLlp14A13ZLrX11C0CE13C0CE10ZLgX4C4LsX6C4LsX7zLsX8C4CE7C5GYA7C4GgX10qHYA12C0GgX12fGsX0zLg7A0ZLg3A-3zS*g7A-5C7S*g7A1C4IwwX0C5IwwX-3fIg7A-2C6IgX11*7HwwX10*7SE12*6S*s2A13*6S*s2A12SS*r7A11*5GrX-1ZHgX-3C4HgX-4C4HgX-5C5HgX11*0Lg3A13*0Lg3A14G0*g3A11*6S*wwX10G4E9L4E12G4E1*8HrX10*8*3E9*8*3E8q*0E9C0CE10C0*5E8f*5E8z*5E1C5LslA8*8SE11zIr3A8C0*3E7f*3E7C0IrX3C4*2*g2A14SSE14H4E4zGgX9ZIs2A16L3E15L3E15*2Iw1V*8fLsbV*8ZGYVOVC0ZGYV*2*8HlwpVI9HlwpVqZLYV*0zLg7VG6Lg3VSSGr3VfCLr24VC4G0*g2VqSS*r7VC4L4*g1VzL4*g1VzG4*g1V*-5C4HcnV*-3C6HcnV*-3C0GcnVL6DSC7D*8C8DZC5D*7fDfzDzC0DfC0DZCD*7*2DH3D*3C6GYVC4SDq*0D*6C7Hr2VC6CD*6C8Hr2VC0*8IslF2OF2*0zLg7F2C5G2*r3F2ZSHlwpF2G6Gy1F3OF4OF5OF6CC0Gg2F6*7ZIr1F6ZfLYF6*2C5LYF6*2C4HYF6CfIr2F6CzS*r24F7ZZIYF7*5fLlwpF7SqS*g2F7*3qLlwpF8SqS*g2F9SqS*g2V0SfLlwpV0SqLg1V1SqLg1V2SqLlwpVI9*3.5*lwlF2ZS*2*lwrF2ZS*0.5*lwrF6*2C5GrlF6ZqGrlF6CC0IrlF6*0f*2*rlF6*6C0GrlF7*6*6Hrl'%5D*%2C'AF0*L1DGy1VE*wXF'~G*0*H*5*I*3*LC*O*0fHg24S*4VF1X1AYwd2Z*9fC1qC2zC3%01zqfZYXVSOLIHGFEDCA*_"
 
 type SavedMapFixture = { hexMap: HexMap; boardPieces: BoardPiece[] }
 
@@ -96,16 +94,14 @@ describe('legacy map origins', () => {
     const expectedTableIDs = hexUtilsGenHexagonGrid(13).map((coords) =>
       genBoardHexID({ ...coords, altitude: 0 }),
     )
-    expect(Object.keys(loaded.boardHexes).sort()).toEqual(
+    expect([...mapTableHexes(loaded.hexMap)].sort()).toEqual(
       expectedTableIDs.sort(),
     )
 
     expect(pieceDetails(loaded.boardPieces)).toEqual(
       translatedPieceDetails(originalPieces),
     )
-    expect(
-      computeConflictedPieceUIDs(loaded.boardPieces),
-    ).toHaveLength(
+    expect(computeConflictedPieceUIDs(loaded.boardPieces)).toHaveLength(
       computeConflictedPieceUIDs(
         buildupJsonFileMap(originalPieces, {
           ...createHexagonMap(),
@@ -206,10 +202,10 @@ describe('legacy map origins', () => {
       r: 0,
       s: 0,
     })
-    expect(Object.keys(loaded.boardHexes).sort()).toEqual(
-      hexUtilsGenRectangleGrid(4, 4).map((coords) =>
-        genBoardHexID({ ...coords, altitude: 0 }),
-      ).sort(),
+    expect([...mapTableHexes(loaded.hexMap)].sort()).toEqual(
+      hexUtilsGenRectangleGrid(4, 4)
+        .map((coords) => genBoardHexID({ ...coords, altitude: 0 }))
+        .sort(),
     )
   })
 
