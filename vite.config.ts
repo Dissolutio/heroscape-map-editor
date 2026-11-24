@@ -1,13 +1,15 @@
 import { sentryVitePlugin } from '@sentry/vite-plugin'
 import react from '@vitejs/plugin-react-swc'
 import { defineConfig } from 'vite'
+import { getBuildReleaseVersion } from './scripts/release-version.mjs'
 
 const host = process.env.TAURI_DEV_HOST
 
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => {
-  // Grab the release version injected by GitHub Actions, default to local-dev
-  const releaseVersion = process.env.VITE_RELEASE_VERSION || 'local-development'
+  // The one place the release version is computed (scripts/release-version.mjs):
+  // the Sentry plugin's release and src/sentry.js both use it.
+  const releaseVersion = getBuildReleaseVersion()
   // Check if we are running in a CI/CD environment or production mode (only netlify and github-action have sentry token)
   const isCI = !!process.env.SENTRY_AUTH_TOKEN
   const isProduction = mode === 'production'
@@ -27,6 +29,9 @@ export default defineConfig(({ mode }) => {
           })
         : null,
     ],
+    define: {
+      'import.meta.env.VITE_RELEASE_VERSION': JSON.stringify(releaseVersion),
+    },
     // prevent vite from obscuring rust errors
     clearScreen: false,
     server: {

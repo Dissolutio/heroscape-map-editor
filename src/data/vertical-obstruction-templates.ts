@@ -1,7 +1,60 @@
 import type { Dictionary } from 'lodash'
 import { Pieces } from '../types'
 
-export const verticalObstructionTemplates: Dictionary<number[]> = {
+/**
+ * One hex of an obstruction template. A number `n` blocks levels 1..n; a range
+ * blocks levels `from`..`to` inclusive. Levels are 1-based from the piece's own
+ * level (level 1 is the hex the piece sits in).
+ */
+export type ObstructionEntry = number | { from: number; to: number }
+
+/** 0-based offsets above the piece's altitude that the entry blocks. */
+export const getObstructedLevelOffsets = (
+  entry: ObstructionEntry,
+): number[] => {
+  const from = typeof entry === 'number' ? 1 : entry.from
+  const to = typeof entry === 'number' ? entry : entry.to
+  const offsets: number[] = []
+  for (let level = from; level <= to; level++) offsets.push(level - 1)
+  return offsets
+}
+
+/** The highest level (1-based) the entry blocks. */
+export const getObstructionTopLevel = (entry: ObstructionEntry): number =>
+  typeof entry === 'number' ? entry : entry.to
+
+/** True when the entry leaves the piece's own level free (e.g. the figurehead). */
+export const isBaseLevelOpen = (entry: ObstructionEntry): boolean =>
+  typeof entry !== 'number' && entry.from > 1
+
+/** The highest level any hex of the piece's template blocks. */
+export const getTemplateTopLevel = (pieceID: string): number =>
+  Math.max(
+    0,
+    ...(verticalObstructionTemplates[pieceID] ?? []).map(
+      getObstructionTopLevel,
+    ),
+  )
+
+/**
+ * Offsets blocked above template hex `index`: the template entry if there is
+ * one, otherwise the full height of the piece.
+ */
+export const getHexObstructionOffsets = (
+  piece: { id: string; height: number },
+  index: number,
+): number[] => {
+  const entry = verticalObstructionTemplates[piece.id]?.[index]
+  return getObstructedLevelOffsets(entry ?? piece.height)
+}
+
+/** True when template hex `index` of the piece leaves its own level free. */
+export const isHexBaseLevelOpen = (pieceID: string, index: number): boolean => {
+  const entry = verticalObstructionTemplates[pieceID]?.[index]
+  return entry !== undefined && isBaseLevelOpen(entry)
+}
+
+export const verticalObstructionTemplates: Dictionary<ObstructionEntry[]> = {
   [Pieces.outcrop3]: [5, 9, 7],
   [Pieces.glacier3]: [5, 9, 7],
   [Pieces.glacier4]: [7, 11, 11, 9],
@@ -12,6 +65,48 @@ export const verticalObstructionTemplates: Dictionary<number[]> = {
    The order really matters here.
    These number arrays' indices must line up with the tileTemplates' indices, as each hex in a terrain model might have a different height.
   */
+  [Pieces.shipBow]: [
+    /* Ruins2, 10 on line 2 is the origin for rotation=0
+    the X's mark Critical support hexes, these must be supported by solid underneath
+              1/
+            10/             /^
+    \12----12/             /^
+     \13--13/             /^
+      \2/13/  rotation-0 /^
+    */
+    // first the basic2
+    13,
+    12,
+    // CUBE_NW, E of CUBE_EAST, NE of CUBE_NW
+    13,
+    10,
+    12,
+    // small same level blocker on far end of long wing
+    1,
+    // figurehead: blocks levels 3-13 only, levels 1 and 2 are open
+    { from: 3, to: 13 },
+    // the two notch hexes (CUBE_NE, then E of that): land fits at level 1
+    // beside the ship, the hull overhangs levels 2-6, and level 7 is the
+    // upper deck where land attaches and stacks up
+    { from: 2, to: 6 },
+    { from: 2, to: 6 },
+  ],
+  [Pieces.shipWall]: [
+    /* Ship Wall at rotation 0, levels blocked per hex (origin is the first 9)
+         [2-2] [2-2]          <- notch hexes, NE of the origin and E of that
+      9     9     9     1     <- 3 main hexes, then the knub
+    */
+    // 3 hexes uniform height (land at level 10 passes over the guardrail),
+    // tiny little knub that blocks 1 hex at same level
+    9,
+    9,
+    9,
+    1,
+    // the two notch hexes (CUBE_NE, then E of that): land fits at level 1
+    // beside the wall, the hull overhangs level 2, land fits again from 3 up
+    { from: 2, to: 2 },
+    { from: 2, to: 2 },
+  ],
   [Pieces.ruins2]: [
     // Played with this in virtualscape, and here's how much I think each hex in the template requires for clearance:
     /* Ruins2, 10 on line 2 is the origin for rotation=0
@@ -95,39 +190,3 @@ export const verticalSupportTemplates: Dictionary<number[]> = {
   ],
   [Pieces.fortifiedWall]: [1, 0, 0, 0, 0, 0, 0, 0],
 }
-
-//  LEGACY interiorHexTemplates: A failed approach which crossed wires with later notions of "auxiliary" hex (which can probably go away later) Was meant to represent the hexes of a ruin that must be supported by land for it to not fall down
-// export const interiorHexTemplates: Dictionary<number[]> = {
-//   /*
-//   THESE ARE BROKEN AND DO NOT SOLVE THE PROBLEM OF PERFECT VALID RUIN PLACEMENT: Edges need to be explored, they are different than hexes
-//   */
-//   [Pieces.ruins2]: [
-//     /* the i's mark the interior hexes
-//     --3--
-//     9--10i--7i---4
-//    --10--10--7--
-//     */
-//     // A value of "2"  means origin, "1" means auxiliary
-//     // first the basic3, which contains both of ruins2's interior hexes
-//     2,
-//     1, 0,
-//     // then the rest are not!
-//     0, 0, 0, 0, 0,
-//   ],
-//   [Pieces.ruins3]: [
-//     /* the i's mark the interior hexes
-//     --3--
-//     9---9i----8i---7i---3
-//     ---9---8---8---7--
-//     */
-//     // A value of "2"  means origin, "1" means auxiliary
-//     // first the basic3, which contains 2 of ruins3's interior hexes
-//     2,
-//     1, 0,
-//     // then the bottom-left, top-right, and bottom-right (top-right is our last interior hex)
-//     0,
-//     1, 0,
-//     // then the rest are not!
-//     0, 0, 0, 0,
-//   ],
-// }

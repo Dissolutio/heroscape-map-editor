@@ -3,10 +3,13 @@ import { FIXTURE_HEX_MAP, FIXTURE_PIECE_IDS } from './fixture-map'
 import {
   clickHex,
   clickPiece,
+  clickShipDeck,
   expect,
   findPieceUid,
   hoverHex,
+  hoverShipDeck,
   mapUrl,
+  pickFromMenu,
   setPen,
   test,
   waitForAppReady,
@@ -20,6 +23,71 @@ const SHIP_LADDER_PIECES = [
   '0~0~1~0~g1',
   '1~0~1~0~g1',
 ]
+
+test('a Ship Wall with no land beside it previews amber (unsupported)', async ({
+  page,
+}) => {
+  await page.goto(mapUrl(SHIP_LADDER_MAP, []))
+  await waitForAppReady(page)
+  await setPen(page, 'sl', 1)
+  await page.mouse.move(0, 0)
+  // 4 hexes long: hover far enough west on the 8-wide map for the wall to fit
+  await hoverHex(page, { q: 2, r: 3, altitude: 0 })
+  await page.waitForFunction(
+    () => window.__TEST__?.snapshot().placementPreview?.unsupported === true,
+  )
+  const preview = await page.evaluate(
+    () => window.__TEST__?.snapshot().placementPreview,
+  )
+  expect(preview).toMatchObject({ status: 'ok', unsupported: true })
+  expect(preview?.reason).toContain(
+    'Ship Wall: 4 of 4 interlocks not connected to solid land',
+  )
+})
+
+// A Ship Wall on the table at (4,3), turned so its notch hexes, (3,4) and
+// (2,4), face the camera. Its deck is level 7 over them: land placed at
+// altitude 6.
+const SHIP_DECK_PIECES = ['0~4~3~3~sl']
+
+test('a land pen on a Ship Wall deck previews ok and places the tile at level 7', async ({
+  page,
+}) => {
+  await page.goto(mapUrl(SHIP_LADDER_MAP, SHIP_DECK_PIECES))
+  await waitForAppReady(page)
+  const wallUID = await findPieceUid(page, { inventoryID: 'sl', q: 4, r: 3 })
+  await setPen(page, 'g', 1)
+  await page.mouse.move(0, 0)
+  await hoverShipDeck(page, wallUID, 'forward')
+  // the deck holds the tile up: the normal preview, no amber
+  await page.waitForFunction(() => {
+    const preview = window.__TEST__?.snapshot().placementPreview
+    return preview?.status === 'ok' && preview.unsupported === false
+  })
+  const preview = await page.evaluate(
+    () => window.__TEST__?.snapshot().placementPreview,
+  )
+  expect(preview).toMatchObject({
+    status: 'ok',
+    unsupported: false,
+    reason: null,
+    footprintCount: 1,
+  })
+
+  await clickShipDeck(page, wallUID, 'forward')
+  await page.waitForFunction(() =>
+    window.__TEST__
+      ?.listPieces()
+      .some((piece) => piece.inventoryID === 'g1' && piece.altitude === 6),
+  )
+  const tile = await page.evaluate(() =>
+    window.__TEST__?.listPieces().find((piece) => piece.inventoryID === 'g1'),
+  )
+  expect(tile).toMatchObject({
+    pieceCoords: { q: 3, r: 4 },
+    altitude: 6,
+  })
+})
 
 test('a solid land pen previews ok over a free hex', async ({ page }) => {
   await setPen(page, 'g', 1)
@@ -73,6 +141,31 @@ test('Ship hotkeys preview all variants and place a rope ladder on a wall', asyn
   await waitForAppReady(page)
   await setPen(page, 'sl', 1)
   await hoverHex(page, { q: 4, r: 3, altitude: 0 })
+
+  await page.keyboard.press('2')
+  await page.waitForFunction(
+    () => window.__TEST__?.snapshot().penPieceID === 'sb',
+  )
+  const penMode = page.getByRole('combobox', { name: 'Pen Mode' })
+  await expect(penMode).toContainText('Ship Bow')
+  await penMode.click()
+  await pickFromMenu(page, /Ship Wall/)
+  await page.waitForFunction(() => {
+    const snapshot = window.__TEST__?.snapshot()
+    return snapshot?.penMode === 'sl' && snapshot.penPieceID === 'sl'
+  })
+  await expect(penMode).toContainText('Ship Wall')
+  await page.mouse.move(0, 0)
+  // The Ship Wall is 4 hexes long (knub included), so hover far enough west
+  // on this 8-wide map for the whole wall to fit.
+  await hoverHex(page, { q: 2, r: 3, altitude: 0 })
+  await page.waitForFunction(
+    () => window.__TEST__?.snapshot().placementPreview !== null,
+  )
+  const selectedWallPreview = await page.evaluate(() =>
+    window.__TEST__?.snapshot(),
+  )
+  expect(selectedWallPreview?.placementPreview).not.toBeNull()
 
   for (const [key, pieceID] of [
     ['1', 'sl'],
@@ -310,4 +403,35 @@ test('Laur add-on previews snap to square and triangle pillar ports', async ({
   )
   expect([0.5, 2.5, 4.5]).toContain(trianglePreview?.rotation)
   expect(trianglePreview?.rotation).not.toBe(1.5)
+})
+
+// A grass floor and one Fortified Wall at (4,4). Another Fortified Wall one
+// hex SE shares three of its template hexes but none of its edges or nodes
+// (see src/data/hexGrid/pieceFootprints.ts).
+const WALL_MAP = { ...FIXTURE_HEX_MAP, width: 10, length: 10 }
+const WALL_PIECES = [
+  ...Array.from({ length: 10 * 10 }, (_, index) => {
+    const r = Math.floor(index / 10)
+    const q = (index % 10) - Math.floor(r / 2)
+    return `0~${q}~${r}~0~g1`
+  }),
+  '1~4~4~0~fw',
+]
+
+test('a Fortified Wall beside another, on different edges, previews ok', async ({
+  page,
+}) => {
+  await page.goto(mapUrl(WALL_MAP, WALL_PIECES))
+  await waitForAppReady(page)
+  // size 0: the Fortified Wall has no size variants
+  await setPen(page, 'fw', 0, 0)
+  await page.mouse.move(0, 0)
+  await hoverHex(page, { q: 4, r: 5, altitude: 1 })
+  await page.waitForFunction(
+    () => window.__TEST__?.snapshot().placementPreview?.status !== undefined,
+  )
+  const preview = await page.evaluate(
+    () => window.__TEST__?.snapshot().placementPreview,
+  )
+  expect(preview).toMatchObject({ status: 'ok', altitude: 1, rotation: 0 })
 })

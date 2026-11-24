@@ -12,10 +12,6 @@ import {
 } from '../pdf-svg-shared/levelLogoLayout'
 import { getLadderOverlayLevels } from '../pdf-svg-shared/ladderStack'
 import { getPdfLegendObjectiveMarkers } from '../pdf-svg-shared/objectiveMarkerExport'
-import {
-  type GlyphExportSettings,
-  makeGlyphCoordinateLookup,
-} from '../pdf-svg-shared/glyphExportOptions'
 import useBoundStore from '../store/store'
 import {
   type BoardHexes,
@@ -68,18 +64,9 @@ export const PdfMapLevels6PerPage = ({
   is2DOverlayLevelEnabled: boolean
   objectiveMarkers: ObjectiveMarker[]
 }>) => {
-  // Not a hook: @react-pdf/renderer's tree has no React dispatcher. The toggle
-  // is part of the document `key` (genericTerrainColorsKey) so changing it
-  // rebuilds the document.
-  const {
-    isShowPdfPieceLegend,
-    isShowPdfLadderOverlay,
-    isHideHeightsOnGlyphs,
-  } = useBoundStore.getState()
-  const glyphExportSettings: GlyphExportSettings = {
-    isHideHeightsOnGlyphs,
-  }
-  const glyphCoordinates = makeGlyphCoordinateLookup(boardHexes)
+  // Not a hook: @react-pdf/renderer's tree has no React dispatcher.
+  const { isShowPdfPieceLegend, isShowPdfLadderOverlay } =
+    useBoundStore.getState()
   const boardHexesArr = Object.values(boardHexes)
   const { width, length } = getBoardHexesSvgMapDimensions(boardHexes)
   const overlayLevel = getOverlayLevel(boardPieces, boardHexes)
@@ -110,7 +97,6 @@ export const PdfMapLevels6PerPage = ({
     <>
       {chunksOf6Levels.map((chunk, i) => (
         <Page
-          // biome-ignore lint/suspicious/noArrayIndexKey: <fine in this case>
           key={i}
           size="LETTER"
           style={{
@@ -129,10 +115,7 @@ export const PdfMapLevels6PerPage = ({
             <HalfPageColumn>
               {chunk.map((group, i) =>
                 i < 3 ? (
-                  <RowWrapper
-                    // biome-ignore lint/suspicious/noArrayIndexKey: <fine in this case>
-                    key={i}
-                  >
+                  <RowWrapper key={i}>
                     <PdfLevelChunkHeading
                       group={group}
                       isShowPdfLevelLogo={isShowPdfLevelLogo}
@@ -158,8 +141,6 @@ export const PdfMapLevels6PerPage = ({
                       useLegacyStartZones={useLegacyStartZones}
                       is2DOverlayLevelEnabled={is2DOverlayLevelEnabled}
                       objectiveMarkers={objectiveMarkers}
-                      glyphCoordinates={glyphCoordinates}
-                      glyphExportSettings={glyphExportSettings}
                     />
                   </RowWrapper>
                 ) : null,
@@ -168,10 +149,7 @@ export const PdfMapLevels6PerPage = ({
             <HalfPageColumn>
               {chunk.map((group, i) =>
                 i >= 3 ? (
-                  <RowWrapper
-                    // biome-ignore lint/suspicious/noArrayIndexKey: <fine in this case>
-                    key={i}
-                  >
+                  <RowWrapper key={i}>
                     <PdfLevelChunkHeading
                       group={group}
                       isShowPdfLevelLogo={isShowPdfLevelLogo}
@@ -197,8 +175,6 @@ export const PdfMapLevels6PerPage = ({
                       useLegacyStartZones={useLegacyStartZones}
                       is2DOverlayLevelEnabled={is2DOverlayLevelEnabled}
                       objectiveMarkers={objectiveMarkers}
-                      glyphCoordinates={glyphCoordinates}
-                      glyphExportSettings={glyphExportSettings}
                     />
                   </RowWrapper>
                 ) : null,

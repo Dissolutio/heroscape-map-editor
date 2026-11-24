@@ -49,6 +49,22 @@ describe('fitMapToPieces', () => {
     },
   )
 
+  it('keeps an already-fitting hexagon with a nonzero origin unchanged', () => {
+    const map = {
+      ...rectangleMap(9, 9),
+      shape: 'hexagon' as const,
+      originQ: 3,
+      originR: -4,
+    }
+    const [anchor] = hexUtilsGenHexagonGrid(8, map.originQ, map.originR)
+    if (!anchor) throw new Error('Expected the hexagon to have an anchor')
+
+    expect(fitMapToPieces(map, [piece('g1', anchor.q, anchor.r)])).toEqual({
+      hexMap: map,
+      changed: false,
+    })
+  })
+
   it.each([
     [1, 1],
     [2, 4],

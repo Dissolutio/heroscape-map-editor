@@ -2,14 +2,22 @@ import { readFileSync } from 'node:fs'
 import JSONCrush from 'jsoncrush'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { getPossibleRotationsForPenMode } from '../controls/getPossibleRotationsForPenMode'
-import { armyCardsDotOrg } from '../data/armyCardsDotOrg'
+import snapshotUnits from '../data/units/heroscapeOrgUnits.json'
+import {
+  OFFICIAL_UNIT_GROUPS,
+  UNIT_NAME_RULES,
+  VC_UNIT_GROUPS,
+} from '../data/units/unitNameRules'
 import { buildupJsonFileMap } from '../data/buildupMap'
 import { fitMapToPieces, mapTableHexes } from '../data/fitMapToPieces'
 import {
   getUrlMapString,
   parseMapDataArrayFromCrushed,
 } from '../data/jsonCrush'
-import { getObjectiveMarkerNameSuggestions } from '../data/objectiveMarkerNameSuggestions'
+import {
+  getObjectiveMarkerNameSuggestions,
+  normalizeObjectiveMarkerUnitNames,
+} from '../data/objectiveMarkerNameSuggestions'
 import { getObjectiveMarkerPlacementStatus } from '../data/objectiveMarkerPlacement'
 import {
   type ObjectiveMarker,
@@ -216,26 +224,136 @@ describe('objective marker data', () => {
     expect(normalizeObjectiveMarkerName('x'.repeat(61))).toBe('x'.repeat(60))
   })
 
-  it('keeps the generated unit-name list in sync with card display names', () => {
+  it('normalizes current and legacy unit-name JSON shapes', () => {
+    expect(
+      normalizeObjectiveMarkerUnitNames({
+        official: ['Agent Carr (RotV)'],
+        vc: ['Hrognak (1.0)'],
+      }),
+    ).toEqual({
+      official: ['Agent Carr (RotV)'],
+      vc: ['Hrognak (1.0)'],
+    })
+    expect(
+      normalizeObjectiveMarkerUnitNames(['10th Regiment of Foot', '', 42]),
+    ).toEqual({
+      official: ['10th Regiment of Foot'],
+      vc: [],
+    })
+    expect(() => normalizeObjectiveMarkerUnitNames(null)).toThrow(
+      'Invalid unit-name data',
+    )
+    expect(() =>
+      normalizeObjectiveMarkerUnitNames({ official: [], vc: 'all' }),
+    ).toThrow('Invalid unit-name data')
+  })
+
+  it('keeps the snapshot and generated names in sync with the heroscape.org source model', () => {
     const generatedFile = readFileSync(
-      new URL('../../public/objective-marker-unit-names.json', import.meta.url),
+      new URL('../data/units/objectiveMarkerUnitNames.json', import.meta.url),
       'utf8',
     )
-    const generatedNames = JSON.parse(generatedFile) as string[]
-    const expectedNames = [
+    const generatedNames = JSON.parse(generatedFile) as {
+      official: string[]
+      vc: string[]
+    }
+    const units = snapshotUnits as Array<{
+      slug: string
+      apiName: string
+      name: string
+      group: string
+      official: boolean
+      sets: Array<{ name: string; date: string }>
+      figures: number | null
+      hexes: number | null
+      rarity: string | null
+      type: string | null
+      size: string | null
+      height: number | null
+    }>
+    const officialNames = [
       ...new Set(
-        armyCardsDotOrg
-          .map(({ SDW }) => SDW)
-          .filter((name): name is string => typeof name === 'string')
-          .map((name) => name.trim())
-          .filter(Boolean),
+        units.filter((unit) => unit.official).map((unit) => unit.name),
+      ),
+    ].sort((first, second) =>
+      first.localeCompare(second, 'en', { sensitivity: 'base' }),
+    )
+    const vcNames = [
+      ...new Set(
+        units.filter((unit) => !unit.official).map((unit) => unit.name),
       ),
     ].sort((first, second) =>
       first.localeCompare(second, 'en', { sensitivity: 'base' }),
     )
 
-    expect(generatedNames).toEqual(expectedNames)
-    expect(generatedFile.length).toBeLessThan(20_000)
+    expect(generatedNames).toEqual({
+      official: officialNames,
+      vc: vcNames,
+    })
+    expect(generatedFile.length).toBeLessThan(25_000)
+  })
+
+  it('applies exact Renegade repeat-unit names and group classifications', () => {
+    expect(UNIT_NAME_RULES['syvarris-10']).toBe('Syvarris (RotV)')
+    expect(UNIT_NAME_RULES['syvarris-20']).toBe('Syvarris (GS)')
+    expect(UNIT_NAME_RULES['agent-carr-20']).toBe('Agent Carr (TT)')
+    expect(OFFICIAL_UNIT_GROUPS.has('Hasbro')).toBe(true)
+    expect(OFFICIAL_UNIT_GROUPS.has('GI Joe')).toBe(true)
+    expect(OFFICIAL_UNIT_GROUPS.has('Prerelease')).toBe(true)
+    expect(VC_UNIT_GROUPS.has('C3V')).toBe(true)
+    expect(VC_UNIT_GROUPS.has('SoV')).toBe(true)
+  })
+
+  it('guards official repeat names and versioned API names', () => {
+    const official = snapshotUnits.filter((unit) => unit.official)
+    expect(
+      official
+        .filter((unit) => /\(\d+\.\d+\)\s*$/.test(unit.name))
+        .map((unit) => unit.slug),
+    ).toEqual([])
+
+    const names = new Map<string, string[]>()
+    for (const unit of official) {
+      const slugs = names.get(unit.name) ?? []
+      slugs.push(unit.slug)
+      names.set(unit.name, slugs)
+    }
+    for (const [displayName, slugs] of names) {
+      if (slugs.length > 1) {
+        expect(
+          slugs.every((slug) => Boolean(UNIT_NAME_RULES[slug])),
+          `missing name rules for duplicate ${displayName}: ${slugs.join(', ')}`,
+        ).toBe(true)
+      }
+    }
+  })
+
+  it('offers Renegade and VC repeat names according to the toggle', () => {
+    const generatedFile = readFileSync(
+      new URL('../data/units/objectiveMarkerUnitNames.json', import.meta.url),
+      'utf8',
+    )
+    const names = JSON.parse(generatedFile) as {
+      official: string[]
+      vc: string[]
+    }
+    expect(
+      getObjectiveMarkerNameSuggestions(names.official, 'Syvarris'),
+    ).toEqual(['Syvarris (GS)', 'Syvarris (RotV)'])
+    expect(
+      getObjectiveMarkerNameSuggestions(names.official, 'Syvarris').some(
+        (name) => /\(\d+\.\d+\)/.test(name),
+      ),
+    ).toBe(false)
+    expect(
+      getObjectiveMarkerNameSuggestions(names.official, 'Hrognak'),
+    ).toEqual([])
+    expect(
+      getObjectiveMarkerNameSuggestions(
+        [...names.official, ...names.vc],
+        'Hrognak',
+      ),
+    ).toEqual(['Hrognak (1.0)', 'Hrognak (2.0)'])
   })
 
   it('orders unit-name suggestions by prefix, then substring, and limits results', () => {

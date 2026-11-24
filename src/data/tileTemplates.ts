@@ -230,6 +230,18 @@ const wallWalk9 = [
 ]
 
 const ruinsCornerExterior = [CUBE_NW, CUBE_WEST]
+// Both ships: the hex NE of the origin and the hex E of that one interlock with
+// the ship. Land sits in them at the ship's own level; the hull overhangs them,
+// and level 7 above them is the ship's deck (see shipDeck.ts).
+export const SHIP_NOTCH_OFFSETS: CubeCoordinate[] = [
+  CUBE_NE,
+  {
+    // E of CUBE_NE
+    q: 2,
+    r: -1,
+    s: -1,
+  },
+]
 const shipBow = [
   ...basic2,
   CUBE_NW,
@@ -245,7 +257,22 @@ const shipBow = [
     r: -2,
     s: 1,
   },
+  // small same level blocker on far end of long wing
+  {
+    // 3x CUBE_EAST
+    q: 3,
+    r: 0,
+    s: -3,
+  },
+  // Figurehead, only obstructs levels 3-13 relative to piece level
+  CUBE_WEST,
+  // the two notch hexes (block space only, levels 2-6): land sits in them at
+  // level 1, the hull overhangs them above that
+  ...SHIP_NOTCH_OFFSETS,
 ]
+// Ship Wall: the 3 main hexes and the knub (as straight4), then the two notch
+// hexes (block space only, level 2)
+const shipWall = [...straight4, ...SHIP_NOTCH_OFFSETS]
 const ruins2 = [...glacier6, ...ruinsCornerExterior]
 const ruins3 = [
   ...glacier6,
@@ -319,7 +346,7 @@ const tileTemplates: Dictionary<CubeCoordinate[]> = {
   [Pieces.glacier6]: glacier6,
   [Pieces.hive]: glacier6,
   [Pieces.shipBow]: shipBow,
-  [Pieces.shipWall]: straight3,
+  [Pieces.shipWall]: shipWall,
   // edge stuff below
   [Pieces.ruins2]: ruins2,
   [Pieces.ruins3]: ruins3,

@@ -8,7 +8,12 @@ import {
   isRotationPivotAtPieceOrigin,
   resolveRotationPivot,
 } from '../data/rotationPivot'
+import {
+  isGlyphBoardPiece,
+  isStartZoneBoardPiece,
+} from '../data/startZoneVisibility'
 import getPieceTemplateCoords from '../data/rotationTransforms'
+import { getHiddenSelectionPieces } from '../selection/selectionMenuActions'
 import { pickPieceAsPenMode } from '../hooks/useMiddleClickPickPenMode'
 import useBoundStore from '../store/store'
 import { isFluidTerrainHex, isSolidTerrainHex } from '../utils/board-utils'
@@ -21,6 +26,7 @@ import {
 } from '../utils/map-utils'
 import { ConvertTerrainQuickSelect } from './ConvertTerrainQuickSelect'
 import DeletePieceButton from './DeletePieceButton'
+import { HexDirectionPad } from './HexDirectionPad'
 import {
   getRotationByListStep,
   hasIntegerRotationSteps,
@@ -164,20 +170,6 @@ function PieceTransformControls({
   onClearPreview: () => void
 }) {
   const isMulti = selectedPieceIDs.length > 1
-  const moveButton = (direction: number, title: string, label: string) => (
-    <Button
-      key={direction}
-      title={title}
-      onClick={() => onMove(direction)}
-      onMouseEnter={() => onPreviewMove(direction)}
-      onMouseLeave={onClearPreview}
-      onFocus={() => onPreviewMove(direction)}
-      onBlur={onClearPreview}
-      sx={{ fontSize: FONT_SIZE }}
-    >
-      {label}
-    </Button>
-  )
   const rotateButton = (direction: 1 | -1, title: string, label: string) => (
     <Button
       key={direction}
@@ -219,16 +211,12 @@ function PieceTransformControls({
       >
         {`Zoom To Selected${selectedPieceIDs.length > 1 ? ' Pieces' : ' Piece'}`}
       </Button>
-      <ButtonGroup aria-label="Move selected piece row 1" size="small">
-        {moveButton(3, 'Move selected piece 1 hex left', '←')}
-        {moveButton(4, 'Move selected piece 1 hex up-left', '↖')}
-        {moveButton(5, 'Move selected piece 1 hex up-right', '↗')}
-      </ButtonGroup>
-      <ButtonGroup aria-label="Move selected piece row 2" size="small">
-        {moveButton(0, 'Move selected piece 1 hex right', '→')}
-        {moveButton(1, 'Move selected piece 1 hex down-right', '↘')}
-        {moveButton(2, 'Move selected piece 1 hex down-left', '↙')}
-      </ButtonGroup>
+      <HexDirectionPad
+        label={`Move selected ${isMulti ? 'pieces' : 'piece'}`}
+        onMove={onMove}
+        onPreviewMove={onPreviewMove}
+        onClearPreview={onClearPreview}
+      />
       <ButtonGroup
         aria-label={
           isMulti
@@ -301,6 +289,9 @@ export function SelectedPieceControls({
   const boardPieces = useBoundStore((s) => s.boardPieces)
   const boardHexes = useBoundStore((s) => s.boardHexes)
   const selectedPieceIDs = useBoundStore((s) => s.selectedPieceIDs)
+  const viewingLevel = useBoundStore((s) => s.viewingLevel)
+  const isShowStartZones = useBoundStore((s) => s.isShowStartZones)
+  const isShowGlyphs = useBoundStore((s) => s.isShowGlyphs)
   const storedRotationPivot = useBoundStore((s) => s.rotationPivot)
   const conflictedPieceUIDs = useBoundStore((s) => s.conflictedPieceUIDs)
   const movePieces = useBoundStore((s) => s.movePieces)
@@ -321,6 +312,24 @@ export function SelectedPieceControls({
   if (!firstBp) return null
 
   const isMulti = selectedBoardPieces.length > 1
+  const hiddenSelectionPieces = getHiddenSelectionPieces(
+    boardPieces,
+    boardHexes,
+    selectedPieceIDs,
+    viewingLevel,
+    isShowStartZones,
+    isShowGlyphs,
+  )
+  const hiddenSelectionMessage =
+    hiddenSelectionPieces.length === 0
+      ? null
+      : isMulti
+        ? `${hiddenSelectionPieces.length} of ${selectedBoardPieces.length} selected are hidden`
+        : !isShowStartZones && isStartZoneBoardPiece(firstBp)
+          ? 'This piece is hidden by a view toggle.'
+          : !isShowGlyphs && isGlyphBoardPiece(firstBp)
+            ? 'This piece is hidden by a view toggle.'
+            : 'This piece is hidden at the current viewing level.'
   const hasNonOriginPivot =
     !isMulti &&
     groupRotationPivot !== undefined &&
@@ -549,6 +558,11 @@ export function SelectedPieceControls({
         partiallyBuried={partiallyBuriedCount}
         subBuried={subBuriedCount}
       />
+      {hiddenSelectionMessage && (
+        <Typography sx={{ fontSize: 10, color: 'text.secondary', mb: 0.5 }}>
+          {hiddenSelectionMessage}
+        </Typography>
+      )}
       {selectedPieceIDs.length === 1 && selectedBoardPieces.length === 1 && (
         <Tooltip title="Use this piece as the pen">
           <Button

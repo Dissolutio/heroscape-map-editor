@@ -54,7 +54,6 @@ const setOverwrittenOrigin = (inventoryID: string) => {
     isShow2DExportBuriedMarks: false,
     isShow2DExportTileLetters: false,
     isShowPdfPieceLegend: false,
-    isHideHeightsOnGlyphs: false,
   })
   Object.assign(useBoundStore.getInitialState(), useBoundStore.getState())
   return { ship, waterHex }
@@ -138,8 +137,6 @@ describe('origin-anchored SVG and PDF symbols', () => {
           useLegacyStartZones: false,
           is2DOverlayLevelEnabled: false,
           objectiveMarkers: [],
-          glyphCoordinates: new Set<string>(),
-          glyphExportSettings: { isHideHeightsOnGlyphs: false },
         }),
       )
 
@@ -212,7 +209,6 @@ describe('origin-anchored SVG and PDF symbols', () => {
       isShow2DExportBuriedMarks: false,
       isShow2DExportTileLetters: false,
       isShowPdfPieceLegend: false,
-      isHideHeightsOnGlyphs: false,
     }
     useBoundStore.setState(state)
     Object.assign(useBoundStore.getInitialState(), state)
@@ -245,8 +241,6 @@ describe('origin-anchored SVG and PDF symbols', () => {
         useLegacyStartZones: false,
         is2DOverlayLevelEnabled: false,
         objectiveMarkers: [],
-        glyphCoordinates: new Set<string>(),
-        glyphExportSettings: { isHideHeightsOnGlyphs: false },
       }),
     )
 
@@ -335,7 +329,6 @@ describe('origin-anchored SVG and PDF symbols', () => {
       isShow2DExportBuriedMarks: false,
       isShow2DExportTileLetters: false,
       isShowPdfPieceLegend: false,
-      isHideHeightsOnGlyphs: false,
     }
     useBoundStore.setState(state)
     Object.assign(useBoundStore.getInitialState(), state)

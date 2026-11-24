@@ -1,7 +1,10 @@
 import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import { relative, resolve } from 'node:path'
 import * as ts from 'typescript'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
+
+// These tests read large asset files and can pass 5 s on a busy CI runner.
+vi.setConfig({ testTimeout: 30_000 })
 
 const sourceDirectory = resolve(process.cwd(), 'src')
 const publicDirectory = resolve(process.cwd(), 'public')

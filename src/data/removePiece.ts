@@ -10,6 +10,8 @@ import {
 } from '../types'
 import { isFluidTerrainHex, isSolidTerrainHex } from '../utils/board-utils'
 import { genBoardHexID } from '../utils/map-utils'
+import { addPiece } from './addPiece'
+import { isEdgeNodePieceID } from './hexGrid/pieceCells'
 import { piecesSoFar } from './pieces'
 
 export type RemovePieceArgs = {
@@ -100,13 +102,55 @@ export function removePiece({
     }
     // remove the hexes
     // Remove all hexes from newBoardHexes that have the given uid
+    const freedHexIDs = new Set<string>()
     for (const hexID of Object.keys(newBoardHexes)) {
       if (newBoardHexes[hexID]?.boardPieceUID === uid) {
         delete newBoardHexes[hexID]
+        freedHexIDs.add(hexID)
       }
     }
+    restoreWallHexes(newBoardHexes, newBoardPieces, freedHexIDs)
     // remove the piece
     // Already filtered above
   }
   return { newBoardHexes, newBoardPieces, error }
+}
+
+/**
+ * A wall (an edges-and-nodes piece) writes its hexes only where they are free,
+ * and any other piece may write over them. When a piece is removed, give each
+ * freed hex back to the first wall, in board order, that would have written
+ * it, so the board matches a fresh replay of the remaining pieces.
+ */
+function restoreWallHexes(
+  boardHexes: BoardHexes,
+  boardPieces: BoardPieces,
+  freedHexIDs: Set<string>,
+) {
+  if (freedHexIDs.size === 0) return
+  for (const wall of boardPieces) {
+    if (!isEdgeNodePieceID(wall.inventoryID)) continue
+    const piece = piecesSoFar[wall.inventoryID]
+    if (!piece) continue
+    // The hexes this wall writes on an empty board: the same hexes, in the
+    // same form, that it writes in a replay.
+    const { newBoardHexes: wallHexes } = addPiece({
+      piece,
+      boardHexes: {},
+      boardPieces: [],
+      pieceCoords: wall.pieceCoords,
+      placementAltitude: wall.altitude,
+      rotation: wall.rotation,
+      isVsTile: false,
+      uid: wall.uid,
+      permissive: true,
+    })
+    for (const [hexID, hex] of Object.entries(wallHexes)) {
+      if (freedHexIDs.has(hexID) && !boardHexes[hexID]) {
+        boardHexes[hexID] = hex
+        freedHexIDs.delete(hexID)
+      }
+    }
+    if (freedHexIDs.size === 0) return
+  }
 }

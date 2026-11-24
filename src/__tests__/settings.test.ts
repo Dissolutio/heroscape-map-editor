@@ -91,7 +91,6 @@ describe('settings persistence', () => {
       isShowPdfBuriedMarks: true,
       isShowPdfPieceLegend: true,
       isShow2DExportBuriedMarks: true,
-      isHideHeightsOnGlyphs: true,
       lightPositions: { key: [1, 2, 3] as [number, number, number] },
       genericSolidCapColor: '#123456',
       genericSolidSideColor: '#234567',
@@ -119,7 +118,6 @@ describe('settings persistence', () => {
         isShowPdfBuriedMarks: true,
         isShowPdfPieceLegend: true,
         isShow2DExportBuriedMarks: true,
-        isHideHeightsOnGlyphs: true,
         lightPositions: { key: [1, 2, 3] },
         genericSolidCapColor: '#123456',
         genericSolidSideColor: '#234567',
@@ -268,17 +266,22 @@ describe('settings persistence', () => {
     expect(loadSettings().isShowPdfLadderOverlay).toBe(true)
   })
 
-  it('ignores the removed SVG color borders setting in saved data', () => {
+  it('ignores removed settings in saved data', () => {
     storage.setItem(
       LS_KEYS.settings,
       JSON.stringify({
         v: 1,
-        values: { isSvgColorBorders: false, isPdfColorBorders: true },
+        values: {
+          isSvgColorBorders: false,
+          isHideHeightsOnGlyphs: true,
+          isPdfColorBorders: true,
+        },
       }),
     )
 
     expect(loadSettings().isPdfColorBorders).toBe(true)
     expect(loadSettings()).not.toHaveProperty('isSvgColorBorders')
+    expect(loadSettings()).not.toHaveProperty('isHideHeightsOnGlyphs')
   })
 
   it('defaults marker text billboarding off and resets the persisted setting', () => {
@@ -299,6 +302,26 @@ describe('settings persistence', () => {
 
     expect(resetSettings()).toBe(true)
     expect(loadSettings().isObjectiveMarkerNumbersFaceCamera).toBe(false)
+  })
+
+  it('defaults Include VC Content off and persists it across reload', () => {
+    expect(SETTINGS_DEFAULTS.includeVCContent).toBe(false)
+    expect(serializeSettings(SETTINGS_DEFAULTS)).toBeNull()
+
+    const changed = {
+      ...SETTINGS_DEFAULTS,
+      includeVCContent: true,
+    }
+    const serialized = serializeSettings(changed)
+    expect(serialized).toEqual({
+      v: 1,
+      values: { includeVCContent: true },
+    })
+    storage.setItem(LS_KEYS.settings, JSON.stringify(serialized))
+    expect(loadSettings().includeVCContent).toBe(true)
+
+    expect(resetSettings()).toBe(true)
+    expect(loadSettings().includeVCContent).toBe(false)
   })
 
   it('ignores a non-boolean PDF ladder overlay value', () => {
@@ -326,7 +349,6 @@ describe('settings persistence', () => {
           graphicsTier: 'fast',
           isShowPdfBuriedMarks: 'yes',
           isShow2DExportBuriedMarks: 1,
-          isHideHeightsOnGlyphs: 1,
           pdfRenderFormat: 'invalid',
           terrainConstraintSource: 'invalid',
           lastPenMode: 5,
@@ -347,7 +369,6 @@ describe('settings persistence', () => {
 
     expect(loadSettings()).toMatchObject({
       isOrthoCam: false,
-      isHideHeightsOnGlyphs: SETTINGS_DEFAULTS.isHideHeightsOnGlyphs,
       pdfRenderFormat: SETTINGS_DEFAULTS.pdfRenderFormat,
       terrainConstraintSource: SETTINGS_DEFAULTS.terrainConstraintSource,
       lastPenMode: SETTINGS_DEFAULTS.lastPenMode,

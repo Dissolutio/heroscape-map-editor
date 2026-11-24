@@ -8,6 +8,8 @@ import {
   FormControl,
   FormControlLabel,
   FormHelperText,
+  IconButton,
+  InputAdornment,
   TextField,
   Tooltip,
   ToggleButton,
@@ -50,6 +52,7 @@ export default function ObjectiveMarkerControls({
   const updateDraft = useBoundStore((state) => state.updateObjectiveMarkerDraft)
   const updateMarker = useBoundStore((state) => state.updateObjectiveMarker)
   const removeMarker = useBoundStore((state) => state.removeObjectiveMarker)
+  const includeVCContent = useBoundStore((state) => state.includeVCContent)
   const { hotkeyLookup } = useHotkeyConfig()
   const tableHexIDs = useMemo(() => mapTableHexes(hexMap), [hexMap])
   const [contentInput, setContentInput] = useState({
@@ -65,7 +68,17 @@ export default function ObjectiveMarkerControls({
     source: marker?.uid ?? 'draft',
     value: marker?.name ?? draft.name ?? '',
   }))
-  const [unitNames, setUnitNames] = useState<string[]>([])
+  const [unitNameData, setUnitNameData] = useState({
+    official: [] as string[],
+    vc: [] as string[],
+  })
+  const unitNames = useMemo(
+    () =>
+      includeVCContent
+        ? [...unitNameData.official, ...unitNameData.vc]
+        : unitNameData.official,
+    [includeVCContent, unitNameData],
+  )
   const current: ObjectiveMarkerDraft | ObjectiveMarker = marker ?? draft
   const nameIdentity = marker?.uid ?? 'draft'
   const content =
@@ -108,8 +121,8 @@ export default function ObjectiveMarkerControls({
 
   const loadUnitNames = () => {
     void loadObjectiveMarkerUnitNames()
-      .then(setUnitNames)
-      .catch(() => setUnitNames([]))
+      .then(setUnitNameData)
+      .catch(() => setUnitNameData({ official: [], vc: [] }))
   }
 
   const updatePlacementField = (
@@ -361,6 +374,7 @@ export default function ObjectiveMarkerControls({
           key={nameSource}
           freeSolo
           openOnFocus
+          clearIcon={null}
           options={unitNames}
           value={current.name ?? null}
           inputValue={nameValue}
@@ -368,12 +382,13 @@ export default function ObjectiveMarkerControls({
             getObjectiveMarkerNameSuggestions(unitNames, state.inputValue)
           }
           onInputChange={(_, value, reason) => {
-            if (reason === 'input') {
+            if (reason === 'input' || reason === 'clear') {
               setNameInput({ source: nameSource, value })
             }
           }}
           onChange={(_, value) => {
             if (typeof value === 'string') saveName(value)
+            else saveName('')
           }}
           onBlur={() => saveName(nameValue)}
           renderInput={(params) => (
@@ -382,6 +397,34 @@ export default function ObjectiveMarkerControls({
               size="small"
               label="Name"
               onFocus={loadUnitNames}
+              InputProps={{
+                ...params.InputProps,
+                endAdornment: (
+                  <>
+                    {nameValue && (
+                      <InputAdornment position="end">
+                        <IconButton
+                          aria-label="Clear objective marker name"
+                          edge="end"
+                          size="small"
+                          onMouseDown={(event) => event.preventDefault()}
+                          onClick={() => {
+                            setNameInput({ source: nameSource, value: '' })
+                            if (marker)
+                              updateMarker(marker.uid, { name: undefined })
+                            else updateDraft({ name: undefined })
+                          }}
+                        >
+                          <span aria-hidden="true" style={{ fontSize: 18 }}>
+                            ×
+                          </span>
+                        </IconButton>
+                      </InputAdornment>
+                    )}
+                    {params.InputProps.endAdornment}
+                  </>
+                ),
+              }}
               inputProps={{
                 ...params.inputProps,
                 'aria-label': 'Objective marker name',

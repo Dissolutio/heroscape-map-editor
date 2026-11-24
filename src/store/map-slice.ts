@@ -6,7 +6,7 @@ import type { StateCreator } from 'zustand'
 import { addPiece } from '../data/addPiece'
 import { getNewPieceSizeForPenMode } from '../data/flatPieceSizes'
 import { getPieceEdgeId } from '../data/hexGrid/pieceFeatures'
-import { getUnsupportedLaurAddonUIDs } from '../data/laurAddonSupport'
+import { getUnsupportedPieceUIDs } from '../data/unsupportedPieces'
 import { type MovePieceArgs, applyPieceMoves } from '../data/movePieces'
 import { filterVisibleObjectiveMarkerUIDs } from '../data/objectiveMarkerVisibility'
 import {
@@ -220,8 +220,9 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
         draft.conflictedPieceUIDs = computeConflictedPieceUIDs(
           draft.boardPieces,
         )
-        draft.unsupportedPieceUIDs = getUnsupportedLaurAddonUIDs({
+        draft.unsupportedPieceUIDs = getUnsupportedPieceUIDs({
           boardPieces: draft.boardPieces,
+          boardHexes: draft.boardHexes,
         })
       }),
     ),
@@ -263,8 +264,9 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
         draft.boardPieces = newBoardPieces
         // Recompute from boardPieces so conflict state stays correct even after load/rehydrate drift.
         draft.conflictedPieceUIDs = computeConflictedPieceUIDs(newBoardPieces)
-        draft.unsupportedPieceUIDs = getUnsupportedLaurAddonUIDs({
+        draft.unsupportedPieceUIDs = getUnsupportedPieceUIDs({
           boardPieces: newBoardPieces,
+          boardHexes: newBoardHexes,
         })
       })
     })
@@ -299,8 +301,9 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
         draft.boardPieces = rebuilt.boardPieces
         draft.savedSelections = pruneDeletedPiece(draft.savedSelections, uid)
         draft.conflictedPieceUIDs = rebuilt.conflictedPieceUIDs
-        draft.unsupportedPieceUIDs = getUnsupportedLaurAddonUIDs({
+        draft.unsupportedPieceUIDs = getUnsupportedPieceUIDs({
           boardPieces: rebuilt.boardPieces,
+          boardHexes: rebuilt.boardHexes,
         })
       })
     })
@@ -434,8 +437,9 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
           draft.boardHexes = rebuilt.boardHexes
           draft.boardPieces = rebuilt.boardPieces
           draft.conflictedPieceUIDs = rebuilt.conflictedPieceUIDs
-          draft.unsupportedPieceUIDs = getUnsupportedLaurAddonUIDs({
+          draft.unsupportedPieceUIDs = getUnsupportedPieceUIDs({
             boardPieces: workingPieces,
+            boardHexes: rebuilt.boardHexes,
           })
         }
       })
@@ -919,8 +923,9 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
         draft.conflictedPieceUIDs = computeConflictedPieceUIDs(
           mapState.boardPieces,
         )
-        draft.unsupportedPieceUIDs = getUnsupportedLaurAddonUIDs({
+        draft.unsupportedPieceUIDs = getUnsupportedPieceUIDs({
           boardPieces: mapState.boardPieces,
+          boardHexes,
         })
         draft.isAutosaveHeld = options.holdAutosave ?? false
         draft.mapLoadRevision += 1

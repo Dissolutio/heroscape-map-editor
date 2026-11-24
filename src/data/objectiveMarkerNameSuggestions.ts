@@ -1,19 +1,44 @@
-let unitNamesPromise: Promise<string[]> | undefined
+export type ObjectiveMarkerUnitNames = {
+  official: string[]
+  vc: string[]
+}
+
+let unitNamesPromise: Promise<ObjectiveMarkerUnitNames> | undefined
+
+export function normalizeObjectiveMarkerUnitNames(
+  data: unknown,
+): ObjectiveMarkerUnitNames {
+  if (Array.isArray(data)) {
+    return {
+      official: data.filter(
+        (name): name is string => typeof name === 'string' && name.length > 0,
+      ),
+      vc: [],
+    }
+  }
+  if (
+    typeof data !== 'object' ||
+    data === null ||
+    !('official' in data) ||
+    !('vc' in data)
+  ) {
+    throw new Error('Invalid unit-name data')
+  }
+  const validateNames = (value: unknown) => {
+    if (!Array.isArray(value)) throw new Error('Invalid unit-name data')
+    return value.filter(
+      (name): name is string => typeof name === 'string' && name.length > 0,
+    )
+  }
+  return {
+    official: validateNames(data.official),
+    vc: validateNames(data.vc),
+  }
+}
 
 export async function loadObjectiveMarkerUnitNames() {
-  unitNamesPromise ??= fetch(
-    `${import.meta.env.BASE_URL}objective-marker-unit-names.json`,
-  )
-    .then((response) => {
-      if (!response.ok) throw new Error('Could not load unit names')
-      return response.json() as Promise<unknown>
-    })
-    .then((data) => {
-      if (!Array.isArray(data)) throw new Error('Invalid unit-name data')
-      return data.filter(
-        (name): name is string => typeof name === 'string' && name.length > 0,
-      )
-    })
+  unitNamesPromise ??= import('./units/objectiveMarkerUnitNames.json')
+    .then((module) => normalizeObjectiveMarkerUnitNames(module.default))
     .catch((error: unknown) => {
       unitNamesPromise = undefined
       throw error

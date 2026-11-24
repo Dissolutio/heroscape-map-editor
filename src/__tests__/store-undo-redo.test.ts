@@ -1,6 +1,7 @@
 import { enqueueSnackbar } from 'notistack'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { buildupJsonFileMap } from '../data/buildupMap'
+import { trimAndNormalizeMap } from '../data/convertMapShape'
 import {
   getUrlMapString,
   parseMapDataArrayFromCrushed,
@@ -640,6 +641,37 @@ describe('real store undo and redo', () => {
     expect(snapshot()).toEqual(afterUnpaint)
   })
 
+  it('deletes a selected group in one undo step and clears selection', async () => {
+    loadWithoutHistory(
+      loadedMap([
+        {
+          uid: 'delete-one',
+          inventoryID: 'g1',
+          altitude: 0,
+          rotation: 0,
+          pieceCoords: { q: 2, r: 2, s: -4 },
+        },
+        {
+          uid: 'delete-two',
+          inventoryID: 'g1',
+          altitude: 0,
+          rotation: 0,
+          pieceCoords: { q: 5, r: 2, s: -7 },
+        },
+      ]),
+    )
+    store.setState({ selectedPieceIDs: ['delete-one', 'delete-two'] })
+
+    const { deleteSelectedPieces } = await import(
+      '../controls/deleteSelectedPieces'
+    )
+    deleteSelectedPieces()
+
+    expect(store.getState().boardPieces).toEqual([])
+    expect(store.getState().selectedPieceIDs).toEqual([])
+    expect(historyLength()).toBe(1)
+  })
+
   it('undoes and redoes moving a piece with exact boardPieces and boardHexes', () => {
     loadWithoutHistory(
       loadedMap([
@@ -797,6 +829,39 @@ describe('real store undo and redo', () => {
     expect(snapshot()).toEqual(before)
     store.temporal.getState().redo()
     expect(snapshot()).toEqual(afterLoad)
+  })
+
+  it('trims the table in one undo step', () => {
+    const piece: BoardPiece = {
+      uid: 'trim-piece',
+      inventoryID: 'g1',
+      altitude: 0,
+      rotation: 0,
+      pieceCoords: { q: 2, r: 2, s: -4 },
+    }
+    loadWithoutHistory(
+      buildupJsonFileMap([piece], {
+        ...hexMap,
+        length: 10,
+        width: 12,
+      }),
+    )
+    const before = snapshot()
+    const result = trimAndNormalizeMap(store.getState().hexMap, [piece])
+    expect(result.ok).toBe(true)
+    if (!result.ok) throw new Error(result.error)
+
+    store
+      .getState()
+      .loadMap(buildupJsonFileMap(result.boardPieces, result.hexMap))
+    expect(store.getState().hexMap.length).toBeLessThan(10)
+    expect(store.getState().hexMap.width).toBeLessThan(12)
+    expect(historyLength()).toBe(1)
+
+    store.temporal.getState().undo()
+    expect(store.getState().hexMap.length).toBe(10)
+    expect(store.getState().hexMap.width).toBe(12)
+    expect(snapshot()).toEqual(before)
   })
 
   it('view, pen, drag, and hover changes never add history or autosave the map', () => {

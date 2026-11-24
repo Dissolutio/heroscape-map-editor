@@ -67,3 +67,20 @@ export const initialE2EGraphicsTier: 'low' | 'medium' | 'high' | null = (() => {
 /** Explicit opt-in to the automatic What's New dialog in an e2e run. */
 export const isWhatsNewE2EOptIn: boolean =
   isBrowser && hasE2EParam() && hasWhatsNewOptIn()
+
+const hasCellsOverlayParam = () => {
+  try {
+    return new URLSearchParams(window.location.search).get('cells') === '1'
+  } catch {
+    return false
+  }
+}
+
+/**
+ * `?cells=1`: draw the edge and node cells of every wall on the map in the
+ * 3D view (src/world/debug/WallCellsOverlay.tsx), to check the derived
+ * footprints against the physical pieces. A debug switch, not an e2e one; it
+ * lives here because this module reads the URL once, before the router can
+ * drop the query string.
+ */
+export const isCellsOverlay: boolean = isBrowser && hasCellsOverlayParam()

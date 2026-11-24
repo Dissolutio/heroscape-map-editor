@@ -66,7 +66,7 @@ export default function EditMapFormDialog() {
     const newMapNotes = formJson[MAP_NOTES_FIELD_NAME]
     const getSetsUsedFormData = () => {
       const newSetsUsed: string[] = []
-      Object.values(terrainSetsByShortID).map((set) => {
+      Object.values(terrainSetsByShortID).forEach((set) => {
         const count = formJson[`${setsUsedInputNameForFormData}${set.id}`]
         for (let i = 0; i < count; i++) {
           newSetsUsed.push(set.id)

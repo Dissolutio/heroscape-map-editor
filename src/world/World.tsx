@@ -27,10 +27,12 @@ import type {
   WebGLRenderer,
 } from 'three'
 import SelectedPieceReadout from '../controls/SelectedPieceReadout'
+import { deleteSelectedPieces } from '../controls/deleteSelectedPieces'
 import { E2EStatus } from '../e2e/E2EStatus'
 import { ReadySignal } from '../e2e/ReadySignal'
 import { TestBridge } from '../e2e/TestBridge'
 import useBoundStore from '../store/store'
+import { pickPieceAsPenMode } from '../hooks/useMiddleClickPickPenMode'
 import { getBoardHexesRectangularMapDimensions } from '../utils/map-utils'
 import Lights from './Lights'
 import LookSettingsApplier from './LookSettingsApplier'
@@ -59,6 +61,7 @@ import {
 import { clearLastPointerWorldPoint } from './hoverWorldPoint'
 import LookSettingsDialog from '../layout/LookSettingsDialog'
 import ActionLog from './ActionLog'
+import { useMuiMediaQuery } from '../layout/useMuiMediaQuery'
 import {
   collectWebGLDiagnostics,
   collectWebGLDiagnosticsFromCanvas,
@@ -67,6 +70,8 @@ import {
   WebGLContextCreationError,
 } from './webglContext'
 import { getDragState } from './drag/dragController'
+
+const NARROW_WORLD_WIDTH_PX = 680
 
 const BILLBOARD_WARMUP_MS = 4000
 const WEBGL_FAILURE_SESSION_KEY = 'webgl-context-failure-reported'
@@ -309,8 +314,18 @@ const World = ({
   const isFrameloopDemand = useBoundStore((s) => s.isFrameloopDemand)
   const isTakingPicture = useBoundStore((s) => s.isTakingPicture)
   const isShowActionLog = useBoundStore((s) => s.isShowActionLog)
+  const selectedObjectiveMarkerUID = useBoundStore(
+    (s) => s.selectedObjectiveMarkerUID,
+  )
   const is2DOpen = useBoundStore((s) => s.is2DOpen)
   const isPdfOpen = useBoundStore((s) => s.isPdfOpen)
+  const { isSmallScreenWidth } = useMuiMediaQuery()
+  const worldContainerRef = useRef<HTMLDivElement>(null)
+  const [isNarrowWorld, setIsNarrowWorld] = useState(
+    typeof window === 'undefined'
+      ? false
+      : window.innerWidth < NARROW_WORLD_WIDTH_PX,
+  )
   const [isTabActive, setIsTabActive] = useState(true)
   const perspectiveCameraRef = useRef<ThreePerspectiveCamera>(null)
   const rightPointerDown = useRef<{ x: number; y: number } | null>(null)
@@ -324,6 +339,8 @@ const World = ({
   const [selectionMenuSeedPieceIDs, setSelectionMenuSeedPieceIDs] = useState<
     string[]
   >([])
+  const [selectionMenuTargetPieceUID, setSelectionMenuTargetPieceUID] =
+    useState('')
   const { width, length } = getBoardHexesRectangularMapDimensions(boardHexes)
   // const isTakingPicture = useBoundStore(s => s.isTakingPicture)
   const toggleHoveredPieceID = useBoundStore((s) => s.toggleHoveredPieceID)
@@ -374,6 +391,7 @@ const World = ({
       ? rightClickPieceID.current
       : ''
     rightClickPieceID.current = ''
+    setSelectionMenuTargetPieceUID(pieceID)
     if (pieceID && !state.selectedPieceIDs.includes(pieceID)) {
       state.setSelectedPieceIDs([pieceID])
     }
@@ -418,6 +436,10 @@ const World = ({
     isShowStartZones,
     isShowGlyphs,
     setSelectedPieceIDs,
+    contextPieceUID: selectionMenuTargetPieceUID,
+    deleteSelectedPieces,
+    pickPieceAsPen: (pieceUID) =>
+      pickPieceAsPenMode(pieceUID, { preserveSelection: true }),
   }
   const handleClickAway = () => {
     toggleHoveredPieceID('')
@@ -431,9 +453,25 @@ const World = ({
       document.removeEventListener('visibilitychange', handleVisibility)
   }, [])
 
+  useEffect(() => {
+    const container = worldContainerRef.current
+    if (!container) return
+    const updateNarrowState = () => {
+      const nextIsNarrow = container.clientWidth < NARROW_WORLD_WIDTH_PX
+      setIsNarrowWorld((current) =>
+        current === nextIsNarrow ? current : nextIsNarrow,
+      )
+    }
+    updateNarrowState()
+    const observer = new ResizeObserver(updateNarrowState)
+    observer.observe(container)
+    return () => observer.disconnect()
+  }, [])
+
   return (
     <ClickAwayListener onClickAway={handleClickAway}>
       <div
+        ref={worldContainerRef}
         onPointerDownCapture={handleContainerPointerDown}
         onPointerUpCapture={handleContainerPointerUp}
         onContextMenuCapture={handleCanvasContextMenu}
@@ -582,7 +620,11 @@ const World = ({
           !isTakingPicture &&
           !is2DOpen &&
           !isPdfOpen &&
-          isShowActionLog && <ActionLog />}
+          isShowActionLog &&
+          !(
+            selectedObjectiveMarkerUID &&
+            (isSmallScreenWidth || isNarrowWorld)
+          ) && <ActionLog />}
         {isPerformanceEnabled && <PerformanceOverlay />}
         <SelectedPieceReadout cameraControlsRef={cameraControlsRef} />
         <LookSettingsDialog />

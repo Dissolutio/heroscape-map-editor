@@ -7,6 +7,9 @@ export type E2ESnapshot = {
   mapName: string
   mapWidth: number
   mapLength: number
+  mapOriginQ: number
+  mapOriginR: number
+  conflictedPieceCount: number
   pieceCount: number
   objectiveMarkerCount: number
   objectiveMarkerDraft: { size: 1 | 2; style: 'black' | 'white' }
@@ -153,6 +156,14 @@ export type E2ETestBridge = {
   cameraQuaternion: () => [number, number, number, number]
   /** Where to click the canvas to hit a placed piece, or null. */
   screenPosOfPiece: (uid: string) => ScreenPoint | null
+  /**
+   * Where to point at a placed ship's deck section (its own mesh, the top of
+   * the notch hex), or null.
+   */
+  screenPosOfShipDeck: (
+    uid: string,
+    section: 'forward' | 'aft',
+  ) => ScreenPoint | null
   /** Where to click the canvas to hit a rendered objective marker, or null. */
   screenPosOfObjectiveMarker: (uid: string) => ScreenPoint | null
   /** Where to click the canvas to hit a hex's top surface, or null. */
@@ -190,5 +201,6 @@ export type E2ETestBridge = {
   ) => boolean
   setLookBackgroundColor: (color: string) => void
   seedActionLog: (count: number) => void
+  deselectObjectiveMarker: () => void
   stats: () => { calls: number; triangles: number; frames: number }
 }

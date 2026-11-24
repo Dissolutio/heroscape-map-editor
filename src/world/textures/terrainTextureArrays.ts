@@ -247,12 +247,12 @@ function createArrayTexture(
     file.layers,
   )
   const pixels = new Uint8Array(decoded.data.length)
-  layers.forEach((layer, index) =>
+  layers.forEach((layer, index) => {
     pixels.set(
       flipTextureLayerRows(layer, file.frameWidth, file.frameHeight),
       index * layer.length,
-    ),
-  )
+    )
+  })
   const texture = new DataArrayTexture(
     pixels,
     file.frameWidth,

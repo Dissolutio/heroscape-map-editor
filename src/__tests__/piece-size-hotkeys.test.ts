@@ -331,10 +331,9 @@ describe('obstacle piece variant hotkeys', () => {
     })
   })
 
-  it('resets to the first variant across families and keeps it within one', () => {
+  it('selects the chosen family variant and resets across families', () => {
     expect(
-      getNewPieceSizeForPenMode(piecesSoFar.tr10.id, piecesSoFar.tr11.id, 2)
-        .newSize,
+      getNewPieceSizeForPenMode(Pieces.shipBow, Pieces.shipWall, 1).newSize,
     ).toBe(2)
     expect(
       getNewPieceSizeForPenMode(piecesSoFar.o1.id, piecesSoFar.tr11.id, 2)

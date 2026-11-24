@@ -75,6 +75,11 @@ export type SelectionMenuContext = {
   isShowStartZones: boolean
   isShowGlyphs: boolean
   setSelectedPieceIDs: (pieceIDs: readonly string[]) => void
+  contextPieceUID?: string
+  convertTerrainDisabledReason?: string
+  openConvertTerrainPicker?: () => void
+  deleteSelectedPieces: () => void
+  pickPieceAsPen: (pieceUID: string) => void
 }
 
 export type SelectionMenuAction = {
@@ -118,6 +123,29 @@ export function getVisibleSelectionPieces(
       : piece.altitude + 1
     return visibleAltitude <= viewingLevel
   })
+}
+
+export function getHiddenSelectionPieces(
+  boardPieces: readonly BoardPiece[],
+  boardHexes: BoardHexes,
+  selectedPieceIDs: readonly string[],
+  viewingLevel: number,
+  isShowStartZones: boolean,
+  isShowGlyphs = true,
+) {
+  const selectedIDs = new Set(selectedPieceIDs)
+  const visibleIDs = new Set(
+    getVisibleSelectionPieces(
+      boardPieces,
+      boardHexes,
+      viewingLevel,
+      isShowStartZones,
+      isShowGlyphs,
+    ).map((piece) => piece.uid),
+  )
+  return boardPieces.filter(
+    (piece) => selectedIDs.has(piece.uid) && !visibleIDs.has(piece.uid),
+  )
 }
 
 function getVisibleSeeds(ctx: SelectionMenuContext) {
@@ -352,6 +380,33 @@ function buildPieceNeighbors(
   return neighbors
 }
 
+function buildSideLandNeighbors(
+  landPieces: readonly BoardPiece[],
+  boardHexes: BoardHexes,
+) {
+  const neighbors = new Map(
+    landPieces.map((piece) => [piece.uid, new Set<string>()]),
+  )
+  const piecesByUID = new Map(landPieces.map((piece) => [piece.uid, piece]))
+
+  for (const hex of Object.values(boardHexes)) {
+    const piece = piecesByUID.get(hex.boardPieceUID ?? '')
+    if (!piece) continue
+
+    for (const direction of Object.values(HEX_DIRECTIONS)) {
+      const neighborCoords = hexUtilsAdd(hex, direction)
+      const adjacent =
+        boardHexes[genBoardHexID({ ...neighborCoords, altitude: hex.altitude })]
+      const neighbor = piecesByUID.get(adjacent?.boardPieceUID ?? '')
+      if (neighbor?.altitude === piece.altitude) {
+        addNeighbor(neighbors, piece.uid, neighbor.uid)
+      }
+    }
+  }
+
+  return neighbors
+}
+
 export function selectConnected(ctx: SelectionMenuContext) {
   const visiblePieces = getVisibleSelectionPieces(
     ctx.boardPieces,
@@ -381,11 +436,73 @@ export function selectConnected(ctx: SelectionMenuContext) {
     .map((piece) => piece.uid)
 }
 
+export function selectConnectedSameLevel(ctx: SelectionMenuContext) {
+  const visibleLandPieces = getVisibleSelectionPieces(
+    ctx.boardPieces,
+    ctx.boardHexes,
+    ctx.viewingLevel,
+    ctx.isShowStartZones,
+    ctx.isShowGlyphs,
+  ).filter((piece) => getConnectionCategory(piece.inventoryID) === 'land')
+  const landByUID = new Map(
+    visibleLandPieces.map((piece) => [piece.uid, piece]),
+  )
+  const neighbors = buildSideLandNeighbors(visibleLandPieces, ctx.boardHexes)
+  const seedsByAltitude = new Map<number, string[]>()
+
+  for (const uid of getVisibleSeeds(ctx)) {
+    const seed = landByUID.get(uid)
+    if (!seed) continue
+    const seeds = seedsByAltitude.get(seed.altitude)
+    if (seeds) seeds.push(uid)
+    else seedsByAltitude.set(seed.altitude, [uid])
+  }
+
+  const connected = new Set<string>()
+  for (const [altitude, seeds] of seedsByAltitude) {
+    const queue = [...seeds]
+    const visited = new Set(queue)
+    for (let index = 0; index < queue.length; index += 1) {
+      const uid = queue[index]
+      connected.add(uid)
+      for (const neighborUID of neighbors.get(uid) ?? []) {
+        if (
+          visited.has(neighborUID) ||
+          landByUID.get(neighborUID)?.altitude !== altitude
+        ) {
+          continue
+        }
+        visited.add(neighborUID)
+        queue.push(neighborUID)
+      }
+    }
+  }
+
+  return [
+    ...new Set([
+      ...ctx.selectedPieceIDs,
+      ...visibleLandPieces
+        .filter((piece) => connected.has(piece.uid))
+        .map((piece) => piece.uid),
+    ]),
+  ]
+}
+
 const hasVisibleSeeds = (ctx: SelectionMenuContext) =>
   getVisibleSeeds(ctx).length > 0
 
 const seedRequired = (ctx: SelectionMenuContext) =>
   hasVisibleSeeds(ctx) ? undefined : 'Select a visible piece first.'
+
+function getUseAsPenPieceUID(ctx: SelectionMenuContext) {
+  const pieceUID = ctx.contextPieceUID || ctx.selectedPieceIDs[0]
+  return ctx.boardPieces.some((piece) => piece.uid === pieceUID)
+    ? pieceUID
+    : undefined
+}
+
+const canUseAsPen = (ctx: SelectionMenuContext) =>
+  ctx.selectedPieceIDs.length === 1 && getUseAsPenPieceUID(ctx) !== undefined
 
 export const selectionMenuActions: SelectionMenuAction[] = [
   {
@@ -409,6 +526,17 @@ export const selectionMenuActions: SelectionMenuAction[] = [
     run: (ctx) => ctx.setSelectedPieceIDs(selectConnected(ctx)),
   },
   {
+    id: 'connected-same-level',
+    label: 'Select connected on same level',
+    group: 'selection',
+    tooltip:
+      'Adds the land touching the selection side by side at the same level. ' +
+      'Run it again from another level to add that level too.',
+    isEnabled: hasVisibleSeeds,
+    disabledReason: seedRequired,
+    run: (ctx) => ctx.setSelectedPieceIDs(selectConnectedSameLevel(ctx)),
+  },
+  {
     id: 'same-level',
     label: 'Select same level',
     group: 'selection',
@@ -417,6 +545,40 @@ export const selectionMenuActions: SelectionMenuAction[] = [
     isEnabled: hasVisibleSeeds,
     disabledReason: seedRequired,
     run: (ctx) => ctx.setSelectedPieceIDs(selectSameLevel(ctx)),
+  },
+  {
+    id: 'convert-terrain',
+    label: 'Convert terrain',
+    group: 'piece-actions',
+    tooltip: 'Choose a terrain to convert the selected pieces to.',
+    isEnabled: (ctx) => ctx.convertTerrainDisabledReason === undefined,
+    disabledReason: (ctx) =>
+      ctx.convertTerrainDisabledReason ?? 'No eligible pieces selected',
+    run: (ctx) => ctx.openConvertTerrainPicker?.(),
+  },
+  {
+    id: 'delete',
+    label: 'Delete',
+    group: 'piece-actions',
+    tooltip: 'Delete the selected pieces.',
+    isEnabled: (ctx) =>
+      ctx.selectedPieceIDs.some((uid) =>
+        ctx.boardPieces.some((piece) => piece.uid === uid),
+      ),
+    disabledReason: () => 'Select a piece to delete.',
+    run: (ctx) => ctx.deleteSelectedPieces(),
+  },
+  {
+    id: 'use-as-pen',
+    label: 'Use as pen',
+    group: 'piece-actions',
+    tooltip: 'Use the selected piece as the pen.',
+    isEnabled: canUseAsPen,
+    disabledReason: () => 'Select one piece to use as pen.',
+    run: (ctx) => {
+      const pieceUID = getUseAsPenPieceUID(ctx)
+      if (pieceUID) ctx.pickPieceAsPen(pieceUID)
+    },
   },
   {
     id: 'invert',

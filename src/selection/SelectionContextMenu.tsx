@@ -1,5 +1,18 @@
-import { Divider, Menu, MenuItem } from '@mui/material'
-import { Fragment, useLayoutEffect, useRef } from 'react'
+import {
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Divider,
+  Menu,
+  MenuItem,
+} from '@mui/material'
+import { Fragment, useLayoutEffect, useRef, useState } from 'react'
+import {
+  ConvertTerrainQuickSelect,
+  useConvertTerrainAvailability,
+} from '../controls/ConvertTerrainQuickSelect'
 import {
   getSelectionMenuItems,
   selectionMenuActions,
@@ -15,7 +28,19 @@ export default function SelectionContextMenu({
   context: SelectionMenuContext
   onClose: () => void
 }) {
-  const items = getSelectionMenuItems(selectionMenuActions, context)
+  const [isConvertTerrainPickerOpen, setConvertTerrainPickerOpen] =
+    useState(false)
+  const terrainAvailability = useConvertTerrainAvailability(
+    context.selectedPieceIDs,
+  )
+  const actionContext: SelectionMenuContext = {
+    ...context,
+    convertTerrainDisabledReason: terrainAvailability.isDisabled
+      ? terrainAvailability.disabledMessage
+      : undefined,
+    openConvertTerrainPicker: () => setConvertTerrainPickerOpen(true),
+  }
+  const items = getSelectionMenuItems(selectionMenuActions, actionContext)
   const onCloseRef = useRef(onClose)
   onCloseRef.current = onClose
 
@@ -66,37 +91,59 @@ export default function SelectionContextMenu({
   }, [anchorPosition])
 
   return (
-    <Menu
-      open={anchorPosition !== null}
-      anchorReference="anchorPosition"
-      anchorPosition={anchorPosition ?? undefined}
-      onClose={onClose}
-      MenuListProps={{
-        'aria-label': 'Piece selection actions',
-        autoFocus: true,
-        autoFocusItem: anchorPosition !== null,
-      }}
-    >
-      {items.map(({ action, enabled, disabledReason }, index) => {
-        const previousGroup = items[index - 1]?.action.group
-        const title = enabled ? action.tooltip : disabledReason
-        return (
-          <Fragment key={action.id}>
-            {index > 0 && action.group !== previousGroup && <Divider />}
-            <MenuItem
-              disabled={!enabled}
-              title={title}
-              onClick={() => {
-                if (!enabled) return
-                action.run(context)
-                onClose()
-              }}
-            >
-              {action.label}
-            </MenuItem>
-          </Fragment>
-        )
-      })}
-    </Menu>
+    <>
+      <Menu
+        open={anchorPosition !== null}
+        anchorReference="anchorPosition"
+        anchorPosition={anchorPosition ?? undefined}
+        onClose={onClose}
+        MenuListProps={{
+          'aria-label': 'Piece selection actions',
+          autoFocus: true,
+          autoFocusItem: anchorPosition !== null,
+        }}
+      >
+        {items.map(({ action, enabled, disabledReason }, index) => {
+          const previousGroup = items[index - 1]?.action.group
+          const title = enabled ? action.tooltip : disabledReason
+          return (
+            <Fragment key={action.id}>
+              {index > 0 && action.group !== previousGroup && <Divider />}
+              <MenuItem
+                disabled={!enabled}
+                title={title}
+                onClick={() => {
+                  if (!enabled) return
+                  action.run(actionContext)
+                  onClose()
+                }}
+              >
+                {action.label}
+              </MenuItem>
+            </Fragment>
+          )
+        })}
+      </Menu>
+      <Dialog
+        open={isConvertTerrainPickerOpen}
+        onClose={() => setConvertTerrainPickerOpen(false)}
+        maxWidth="xs"
+        fullWidth
+      >
+        <DialogTitle>Convert terrain</DialogTitle>
+        <DialogContent dividers>
+          <ConvertTerrainQuickSelect
+            pieceUIDs={[...context.selectedPieceIDs]}
+            alwaysRender
+            onConvert={() => setConvertTerrainPickerOpen(false)}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setConvertTerrainPickerOpen(false)}>
+            Close
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </>
   )
 }

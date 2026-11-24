@@ -72,10 +72,106 @@ export function getMapTableFootprintCoords(
 ): CubeCoordinate[] {
   return [
     ...boardPieces.flatMap(getPieceFootprintCoords),
+    ...boardPieces
+      .filter((boardPiece) => {
+        const piece = piecesSoFar[boardPiece.inventoryID]
+        return piece && rimPieces.has(piece.id)
+      })
+      .map((boardPiece) => boardPiece.pieceCoords),
     ...(hexMap.objectiveMarkers ?? []).flatMap(
       getObjectiveMarkerFootprintCoords,
     ),
   ]
+}
+
+function getHexagonExtentsFit(
+  extents: HexagonExtents,
+  minimumRadius: number,
+  margin: number,
+  maximumRadius: number,
+): { radius: number; originQ: number; originR: number } | null {
+  const minimumFittingRadius = Math.max(
+    minimumRadius,
+    Math.ceil((extents.maxQ - extents.minQ) / 2),
+    Math.ceil((extents.maxR - extents.minR) / 2),
+    Math.ceil((extents.maxS - extents.minS) / 2),
+  )
+  const lastFittingRadius = maximumRadius - margin
+
+  for (
+    let fittingRadius = minimumFittingRadius;
+    fittingRadius <= lastFittingRadius;
+    fittingRadius += 1
+  ) {
+    let bestCenter: { q: number; r: number } | undefined
+    let bestScore = Number.POSITIVE_INFINITY
+    let bestLargestSlack = Number.POSITIVE_INFINITY
+
+    for (
+      let centerQ = extents.maxQ - fittingRadius;
+      centerQ <= extents.minQ + fittingRadius;
+      centerQ += 1
+    ) {
+      for (
+        let centerR = extents.maxR - fittingRadius;
+        centerR <= extents.minR + fittingRadius;
+        centerR += 1
+      ) {
+        const centerS = -centerQ - centerR
+        if (
+          centerS < extents.maxS - fittingRadius ||
+          centerS > extents.minS + fittingRadius
+        ) {
+          continue
+        }
+
+        const qSlackLow = extents.minQ - (centerQ - fittingRadius)
+        const qSlackHigh = centerQ + fittingRadius - extents.maxQ
+        const rSlackLow = extents.minR - (centerR - fittingRadius)
+        const rSlackHigh = centerR + fittingRadius - extents.maxR
+        const sSlackLow = extents.minS - (centerS - fittingRadius)
+        const sSlackHigh = centerS + fittingRadius - extents.maxS
+        const score =
+          Math.abs(qSlackLow - qSlackHigh) +
+          Math.abs(rSlackLow - rSlackHigh) +
+          Math.abs(sSlackLow - sSlackHigh)
+        const largestSlack = Math.max(
+          qSlackLow,
+          qSlackHigh,
+          rSlackLow,
+          rSlackHigh,
+          sSlackLow,
+          sSlackHigh,
+        )
+        if (
+          score < bestScore ||
+          (score === bestScore &&
+            (largestSlack < bestLargestSlack ||
+              (largestSlack === bestLargestSlack &&
+                (!bestCenter ||
+                  centerQ < bestCenter.q ||
+                  (centerQ === bestCenter.q && centerR < bestCenter.r)))))
+        ) {
+          bestCenter = { q: centerQ, r: centerR }
+          bestScore = score
+          bestLargestSlack = largestSlack
+        }
+      }
+    }
+
+    if (bestCenter) {
+      const radius = fittingRadius + margin
+      const offsetQ =
+        radius % 2 === 0 ? radius / 2 : Math.floor(radius / 2 + 0.5)
+      return {
+        radius,
+        originQ: bestCenter.q - offsetQ,
+        originR: bestCenter.r - radius,
+      }
+    }
+  }
+
+  return null
 }
 
 function addHexagonCoordsToExtents(
@@ -92,20 +188,6 @@ function addHexagonCoordsToExtents(
       maxS: Math.max(next.maxS, s),
     }),
     extents,
-  )
-}
-
-function getHexagonFitRadius(extents: HexagonExtents) {
-  const centerQ = Math.floor((extents.minQ + extents.maxQ) / 2)
-  const centerR = Math.floor((extents.minR + extents.maxR) / 2)
-  const centerS = -centerQ - centerR
-  return Math.max(
-    Math.abs(extents.minQ - centerQ),
-    Math.abs(extents.maxQ - centerQ),
-    Math.abs(extents.minR - centerR),
-    Math.abs(extents.maxR - centerR),
-    Math.abs(extents.minS - centerS),
-    Math.abs(extents.maxS - centerS),
   )
 }
 
@@ -135,42 +217,7 @@ export function getHexagonTableFit(
       maxS: Number.NEGATIVE_INFINITY,
     },
   )
-  const centerQ = Math.floor((extents.minQ + extents.maxQ) / 2)
-  const centerR = Math.floor((extents.minR + extents.maxR) / 2)
-  let fittingRadius = Math.max(minimumRadius, getHexagonFitRadius(extents))
-  if (fittingRadius + margin > maximumRadius) return null
-
-  while (true) {
-    const fittingOriginQ =
-      centerQ -
-      (fittingRadius % 2 === 0
-        ? fittingRadius / 2
-        : Math.floor(fittingRadius / 2 + 0.5))
-    const fittingOriginR = centerR - fittingRadius
-    const fittingHexes = new Set(
-      hexUtilsGenHexagonGrid(fittingRadius, fittingOriginQ, fittingOriginR).map(
-        (coords) => genBoardHexID({ ...coords, altitude: 0 }),
-      ),
-    )
-
-    if (
-      coords.every((coord) =>
-        fittingHexes.has(genBoardHexID({ ...coord, altitude: 0 })),
-      )
-    ) {
-      const radius = fittingRadius + margin
-      const originQ =
-        centerQ - (radius % 2 === 0 ? radius / 2 : Math.floor(radius / 2 + 0.5))
-      return {
-        radius,
-        originQ,
-        originR: centerR - radius,
-      }
-    }
-
-    fittingRadius += 1
-    if (fittingRadius + margin > maximumRadius) return null
-  }
+  return getHexagonExtentsFit(extents, minimumRadius, margin, maximumRadius)
 }
 
 function getFittingHexagonFootprints(
@@ -203,7 +250,7 @@ function getFittingHexagonFootprints(
     if (coords.length === 0) continue
 
     const nextExtents = addHexagonCoordsToExtents(extents, coords)
-    if (getHexagonFitRadius(nextExtents) > maxRadius) {
+    if (!getHexagonExtentsFit(nextExtents, radius, 0, maxRadius)) {
       droppedPieces.push(boardPiece)
       continue
     }
@@ -215,7 +262,7 @@ function getFittingHexagonFootprints(
   for (const marker of hexMap.objectiveMarkers ?? []) {
     const coords = getObjectiveMarkerFootprintCoords(marker)
     const nextExtents = addHexagonCoordsToExtents(extents, coords)
-    if (getHexagonFitRadius(nextExtents) > maxRadius) {
+    if (!getHexagonExtentsFit(nextExtents, radius, 0, maxRadius)) {
       droppedObjectiveMarkers.push(marker)
       continue
     }

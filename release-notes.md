@@ -1,3 +1,19 @@
+Nov-24-2026
+TLDR: Ships fit like the real pieces. Fortified Walls and Ruins 2/3 sit between hexes, so no more false conflicts. Trim map button. Convert map shape lands on the axes. More right-click actions. Arrow pad for moving pieces. Unit names from heroscape.org.
+
+- **Ship Wall/Bow conflict rules**: Ship Wall/Bow block exactly the space the real pieces do, including the side blocking knub and the bow figurehead.
+- **Fortified Walls and Ruins 2/3**: They sit on hex edges, we now have a system for this, so their conflicts are tracked much better.
+- **Pen selector**: The piece size families were overriding the pen selector, but not now.
+- **Trim map**: Edit tab: "Trim map" removes blank rows/columns from your map 
+- **Convert map shape bug**: The convert to hexagon shaped map was making off-center maps, now they get centered.
+- **Right-click menu**: Select connected on same level, Convert terrain, Delete, and Use as pen.
+- **Selection**: The selected piece card says how many selected pieces are hidden. Only Delete clears your selection.
+- **Move buttons**: Move all pieces buttons have arrows, and do not say "Up/Down/Left/Right" anymore.
+- **Objective marker names**: Suggestions now come from heroscape.org's unit API, with Renegade-style names for reprints, e.g. Syvarris (RotV) and Syvarris (GS). Can enable VC unit names, see below.
+- **Include VC unit/terrain data**: View tab. Off by default: shows community custom (VC) units. Soon: will include Void & Pylons expansion.
+- **Objective marker dialog**: Moved to the bottom-right, so the action log no longer covers it.
+- **PDF legend**: The top-left "Notice centers" cell is now blank in PDFs. SVG legend keeps it.
+
 Nov-11-2026 Hotfix
 Windows desktop textures and map picture fixed. Map size in inches and cm. Convert map shape.
 

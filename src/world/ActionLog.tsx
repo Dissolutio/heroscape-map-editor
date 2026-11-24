@@ -213,7 +213,8 @@ export default function ActionLog() {
     element.contains(document.activeElement)
 
   return (
-    <div
+    <section
+      aria-label="Action log"
       className={[
         'action-log',
         isExpanded && 'action-log--expanded',
@@ -289,6 +290,6 @@ export default function ActionLog() {
           </button>
         </>
       )}
-    </div>
+    </section>
   )
 }

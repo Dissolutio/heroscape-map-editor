@@ -390,6 +390,9 @@ function TestBridgeInner() {
           mapName: s.hexMap.name,
           mapWidth: s.hexMap.width,
           mapLength: s.hexMap.length,
+          mapOriginQ: s.hexMap.originQ ?? 0,
+          mapOriginR: s.hexMap.originR ?? 0,
+          conflictedPieceCount: s.conflictedPieceUIDs.length,
           pieceCount: s.boardPieces.length,
           objectiveMarkerCount: s.hexMap.objectiveMarkers?.length ?? 0,
           objectiveMarkerDraft: {
@@ -524,6 +527,22 @@ function TestBridgeInner() {
           center.y,
           center.z + offset.y * 0.35,
         )
+      },
+      screenPosOfShipDeck: (uid, section) => {
+        const bounds = new Box3()
+        get().scene.traverse((object) => {
+          if (
+            object instanceof Mesh &&
+            object.userData.shipDeckUID === uid &&
+            object.userData.shipDeckSection === section
+          ) {
+            bounds.union(new Box3().setFromObject(object))
+          }
+        })
+        if (bounds.isEmpty()) return null
+        const center = bounds.getCenter(new Vector3())
+        // the deck's top surface, where a click lands on it from above
+        return project(center.x, bounds.max.y, center.z)
       },
       screenPosOfPiece: (uid) => {
         const { boardPieces, boardHexes } = useBoundStore.getState()
@@ -671,6 +690,8 @@ function TestBridgeInner() {
           })
         }
       },
+      deselectObjectiveMarker: () =>
+        useBoundStore.getState().setSelectedObjectiveMarkerUID(null),
       stats: () => {
         const { calls, triangles, frame: frames } = get().gl.info.render
         return { calls, triangles, frames }

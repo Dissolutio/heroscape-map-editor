@@ -2,10 +2,6 @@ import { Line, Svg } from '@react-pdf/renderer'
 import { piecesSoFar } from '../data/pieces'
 import { getBoardPieceOriginHexes } from '../pdf-svg-shared/boardPieceOriginHexes'
 import type { ObjectiveMarker } from '../data/objectiveMarkers'
-import type {
-  GlyphCoordinateLookup,
-  GlyphExportSettings,
-} from '../pdf-svg-shared/glyphExportOptions'
 import { getPdfVisibleObjectiveMarkers } from '../pdf-svg-shared/objectiveMarkerExport'
 import type { BoardHex, DecodedPieceID, PdfMapAltitudeChunk } from '../types'
 import { SVG_HEX_APOTHEM, SVG_HEX_RADIUS } from '../utils/constants'
@@ -31,8 +27,6 @@ type ReactPdfSvgMapDisplayProps = {
   useLegacyStartZones: boolean
   is2DOverlayLevelEnabled: boolean
   objectiveMarkers: ObjectiveMarker[]
-  glyphCoordinates: GlyphCoordinateLookup
-  glyphExportSettings: GlyphExportSettings
   chunk?: PdfMapAltitudeChunk
 }
 
@@ -52,8 +46,6 @@ export const ReactPdfSvgMapDisplay = ({
   useLegacyStartZones,
   is2DOverlayLevelEnabled,
   objectiveMarkers,
-  glyphCoordinates,
-  glyphExportSettings,
   chunk,
 }: ReactPdfSvgMapDisplayProps) => {
   const emptyHexesArr = boardHexesArr.filter((hex) => hex.terrain === 'empty')
@@ -119,8 +111,6 @@ export const ReactPdfSvgMapDisplay = ({
         isShowPdfBuriedMarks={isShowPdfBuriedMarks}
         buriedMarksByUID={buriedMarksByUID}
         useLegacyStartZones={useLegacyStartZones}
-        glyphCoordinates={glyphCoordinates}
-        glyphExportSettings={glyphExportSettings}
       />
     ))
   const subLevelPiecesEls = subLevelPieces
@@ -147,8 +137,6 @@ export const ReactPdfSvgMapDisplay = ({
       isShowPdfBuriedMarks={isShowPdfBuriedMarks}
       buriedMarksByUID={buriedMarksByUID}
       useLegacyStartZones={useLegacyStartZones}
-      glyphCoordinates={glyphCoordinates}
-      glyphExportSettings={glyphExportSettings}
     />
   ))
   return (
@@ -182,8 +170,6 @@ export const ReactPdfSvgMapDisplay = ({
             isShowPdfBuriedMarks={isShowPdfBuriedMarks}
             buriedMarksByUID={buriedMarksByUID}
             useLegacyStartZones={useLegacyStartZones}
-            glyphCoordinates={glyphCoordinates}
-            glyphExportSettings={glyphExportSettings}
           />
         ))}
       {currentLevelPieces

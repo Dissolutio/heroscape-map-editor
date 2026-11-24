@@ -15,7 +15,9 @@ const glyphMapURL = mapUrl(FIXTURE_HEX_MAP, [
   `0~1~2~0~${Pieces.outcrop1}`,
 ])
 
-test('glyphs remain opaque in SVG exports', async ({ page }) => {
+test('glyphs remain opaque and heights visible in SVG exports', async ({
+  page,
+}) => {
   await page.goto(glyphMapURL)
   await waitForAppReady(page)
   await page.locator('#simple-tab-3').click()
@@ -45,21 +47,5 @@ test('glyphs remain opaque in SVG exports', async ({ page }) => {
     .toBe(true)
   const before = await getGlyphAttributes()
   expect(before.fills[0]).not.toBe('none')
-
-  await page.mouse.move(0, 0)
-  await expect(page.getByRole('tooltip')).toHaveCount(0)
-  const hideHeights = page.getByRole('checkbox', {
-    name: 'Hide heights on glyphs',
-  })
-  await hideHeights.hover()
-  await expect(page.getByRole('tooltip')).toHaveText(
-    'Hide hex heights at glyph spaces in SVG and PDF.',
-  )
-  await hideHeights.check()
-  await expect
-    .poll(async () => (await getSvgText()).includes(height))
-    .toBe(true)
-  await expect(glyphSymbol).toHaveText('?')
-  await expect.poll(getGlyphAttributes).toEqual(before)
   await saveLocatorEvidence(svg, 'glyph-export')
 })

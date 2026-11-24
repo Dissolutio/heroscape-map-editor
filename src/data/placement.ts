@@ -38,8 +38,9 @@ import {
 import { piecesSoFar } from './pieces'
 import getPieceTemplateCoords from './rotationTransforms'
 import { getSmartPlacementAltitude } from './smartPlacement'
-import { verticalObstructionTemplates } from './vertical-obstruction-templates'
+import { getTemplateTopLevel } from './vertical-obstruction-templates'
 import { type HexEdgeId, edgeIdFromHex } from './hexGrid/edgesAndNodes'
+import { getEdgeNodePieceColumns } from './hexGrid/pieceCells'
 
 /** The two pieces of state placement reads. */
 export type PlacementBoard = {
@@ -244,6 +245,9 @@ function resolveByRule(
         })
       ]
     : hex
+  // The hex above a wall or arch cap can be missing (for example at the top
+  // of the map); treat that as no hex instead of crashing the preview.
+  if (!clickedHex) return { blocked: 'notAHex' }
   const coords = { q: clickedHex.q, r: clickedHex.r, s: clickedHex.s }
   const clickedAltitude = clickedHex.altitude
   const at = (
@@ -262,6 +266,7 @@ function resolveByRule(
   const smartAltitude = () =>
     getSmartPlacementAltitude({
       boardHexes,
+      boardPieces,
       piece,
       pieceCoords: coords,
       altitude: clickedAltitude,
@@ -416,10 +421,7 @@ export function evaluatePlacement(
       reason: 'offMap',
     }
   }
-  const clearance = Math.max(
-    piece.height,
-    ...(verticalObstructionTemplates[piece.id] ?? []),
-  )
+  const clearance = Math.max(piece.height, getTemplateTopLevel(piece.id))
   const minimumAltitude = resolution.edgeId ? -1 : 0
   if (
     checkHeightBounds &&
@@ -437,7 +439,17 @@ export function evaluatePlacement(
   const probeClearance = Math.max(1, clearance)
   const ignoredUIDs = toIgnoredPieceUIDSet(ignoreUID)
   const localHexes: BoardHexes = {}
-  for (const hexCoords of footprint) {
+  // A wall's edges and nodes also border hexes outside its template.
+  const probeColumns = [
+    ...footprint,
+    ...getEdgeNodePieceColumns({
+      inventoryID: piece.id,
+      pieceCoords: coords,
+      rotation,
+      altitude,
+    }),
+  ]
+  for (const hexCoords of probeColumns) {
     for (
       let level = altitude;
       level <= altitude + probeClearance + 2;

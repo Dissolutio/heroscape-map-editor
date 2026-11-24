@@ -133,11 +133,7 @@ export const PdfSvgHexDecor = ({
     </>
   )
 }
-const PdfSvgSnowSnowflake = ({
-  isSubLevel,
-}: {
-  isSubLevel?: boolean
-}) => {
+const PdfSvgSnowSnowflake = ({ isSubLevel }: { isSubLevel?: boolean }) => {
   const fillColor = isSubLevel
     ? svgSubLevelColors.snowDecor
     : svgColors.snowDecor
@@ -154,11 +150,7 @@ const PdfSvgSnowSnowflake = ({
     </>
   )
 }
-const PdfSvgIceSnowflake = ({
-  isSubLevel,
-}: {
-  isSubLevel?: boolean
-}) => {
+const PdfSvgIceSnowflake = ({ isSubLevel }: { isSubLevel?: boolean }) => {
   const fillColor = isSubLevel ? svgSubLevelColors.iceDecor : svgColors.iceDecor
   return (
     <>
@@ -173,11 +165,7 @@ const PdfSvgIceSnowflake = ({
     </>
   )
 }
-const PdfSvgWoodMarkings = ({
-  isSubLevel,
-}: {
-  isSubLevel?: boolean
-}) => {
+const PdfSvgWoodMarkings = ({ isSubLevel }: { isSubLevel?: boolean }) => {
   const fillColor = isSubLevel ? svgSubLevelColors.cannon : svgColors.cannon
   return (
     <>
@@ -199,11 +187,7 @@ const PdfSvgWoodMarkings = ({
     </>
   )
 }
-const PdfSvgRoadCobblestone = ({
-  isSubLevel,
-}: {
-  isSubLevel?: boolean
-}) => {
+const PdfSvgRoadCobblestone = ({ isSubLevel }: { isSubLevel?: boolean }) => {
   const roadDecorScale = 11
   const fillColor = isSubLevel
     ? svgSubLevelColors.roadDecor
@@ -388,21 +372,13 @@ const pdfGlyphProps = ({
   )
 }
 
-export const PdfGlyphTreasure = ({
-  isSubLevel,
-}: {
-  isSubLevel?: boolean
-}) =>
+export const PdfGlyphTreasure = ({ isSubLevel }: { isSubLevel?: boolean }) =>
   pdfGlyphProps({
     terrain: HexTerrain.glyphTreasure,
     isSubLevel,
   })
 
-export const PdfGlyphPower = ({
-  isSubLevel,
-}: {
-  isSubLevel?: boolean
-}) =>
+export const PdfGlyphPower = ({ isSubLevel }: { isSubLevel?: boolean }) =>
   pdfGlyphProps({
     terrain: HexTerrain.glyphPower,
     isSubLevel,

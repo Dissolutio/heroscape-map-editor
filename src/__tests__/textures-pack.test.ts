@@ -2,13 +2,16 @@ import { execFileSync } from 'node:child_process'
 import { existsSync, readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { PNG } from 'pngjs'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import {
   capOrmTemplates,
   normalGreenFlipSources,
   sideOrmTemplates,
   terrainTextures,
 } from '../../scripts/textures/terrain-textures.config.mjs'
+
+// These tests read large asset files and can pass 5 s on a busy CI runner.
+vi.setConfig({ testTimeout: 30_000 })
 
 const root = fileURLToPath(new URL('../..', import.meta.url))
 const outputRoot = `${root}/public/textures`

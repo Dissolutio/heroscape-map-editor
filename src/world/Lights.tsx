@@ -10,7 +10,10 @@ import { invalidateShadowMap } from './shadowInvalidation'
 export default function Lights({
   width,
   length,
-}: { width: number; length: number }) {
+}: {
+  width: number
+  length: number
+}) {
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,
   )

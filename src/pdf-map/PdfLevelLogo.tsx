@@ -48,7 +48,6 @@ export const PdfLevelLogo = ({
       <G transform={`translate(0, ${LEVEL_LOGO_NUMBER_BASELINE_Y})`}>
         {digits.map((digit, i) => (
           <Path
-            // biome-ignore lint/suspicious/noArrayIndexKey: digits can repeat
             key={i}
             d={digit.d}
             transform={`translate(${digit.x}, 0)`}
@@ -67,7 +66,6 @@ export const PdfLevelLogo = ({
       <G transform={`translate(0, ${LEVEL_LOGO_NUMBER_BASELINE_Y})`}>
         {digits.map((digit, i) => (
           <Path
-            // biome-ignore lint/suspicious/noArrayIndexKey: digits can repeat
             key={i}
             d={digit.d}
             transform={`translate(${digit.x}, 0)`}

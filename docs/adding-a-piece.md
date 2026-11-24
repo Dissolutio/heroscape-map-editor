@@ -187,6 +187,13 @@ and consumers before changing runtime behavior; see
 Laur footprint altitudes use the `BoardPiece` placement-altitude domain; convert
 the base to `BoardHex` altitude (`altitude + 1`) when checking hex occupants.
 
+Conflicts are checked by cell (hex interior, edge, node) for pieces declared in
+`pieceCellDeclarations`, next to the topology declarations. A piece that stands
+between hexes, like the Fortified Wall and Ruins, gets an edge/node footprint
+derived from its model; a piece whose base stays in the hex center gets
+`hex-center`. See "Adding an edge or node piece" in
+[`src/__tests__/README.md`](../src/__tests__/README.md).
+
 ## 7. Run tests and check the app
 
 Tests are primarily pure-logic tests; read

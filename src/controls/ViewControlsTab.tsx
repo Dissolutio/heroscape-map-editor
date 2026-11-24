@@ -60,8 +60,6 @@ const GENERIC_PIECE_COLORS_TOOLTIP =
   'Cap colors also drive SVG/PDF; 2D sub-level shades are derived automatically. Side colors affect only 3D.'
 const BURIED_MARKS_TOOLTIP =
   '* = the top of this tile will be covered. † = its sides will be covered. Both = fully hidden, so any piece of the same size and kind (solid for solid, fluid for fluid) works.'
-const HIDE_GLYPH_HEIGHTS_TOOLTIP =
-  'Hide hex heights at glyph spaces in SVG and PDF.'
 const PICTURE_CAPTURE_TOOLTIP_COPY = {
   defaults:
     'These saved options are used when you choose Take picture. Other picture actions apply their option only to that capture.',
@@ -472,6 +470,7 @@ export default function ViewControlsTab({
         {is3DOpen && <ViewPreferencesSwitchForm />}
         {isPdfOpen && <PdfPreferencesSwitchForm />}
         {is2DOpen && <SVGPreferencesSwitchForm />}
+        <GeneralContentSettings />
         <GenericTerrainColorsForm />
         <Button
           onClick={handleResetSettings}
@@ -486,25 +485,27 @@ export default function ViewControlsTab({
   )
 }
 
-const GlyphExportOptions = () => {
-  const isHideHeightsOnGlyphs = useBoundStore((s) => s.isHideHeightsOnGlyphs)
-  const toggleIsHideHeightsOnGlyphs = useBoundStore(
-    (s) => s.toggleIsHideHeightsOnGlyphs,
+const GeneralContentSettings = () => {
+  const includeVCContent = useBoundStore((state) => state.includeVCContent)
+  const toggleIncludeVCContent = useBoundStore(
+    (state) => state.toggleIncludeVCContent,
   )
 
   return (
-    <Tooltip title={HIDE_GLYPH_HEIGHTS_TOOLTIP} describeChild>
+    <Tooltip
+      title="Show community custom (VC) units and content."
+      describeChild
+    >
       <FormControlLabel
         control={
           <Switch
+            checked={includeVCContent}
+            onChange={(event) => toggleIncludeVCContent(event.target.checked)}
+            inputProps={{ 'aria-label': 'Include VC unit/terrain data' }}
             size="small"
-            checked={isHideHeightsOnGlyphs}
-            onChange={(event) =>
-              toggleIsHideHeightsOnGlyphs(event.target.checked)
-            }
           />
         }
-        label="Hide heights on glyphs"
+        label="Include VC unit/terrain data"
       />
     </Tooltip>
   )
@@ -1140,7 +1141,6 @@ const PdfPreferencesSwitchForm = () => {
           label="Use Legacy Start Zones"
           title="Enable/disable rendering start zones as circles and with classic colors"
         />
-        <GlyphExportOptions />
         <FormControl size="small" fullWidth sx={{ mt: 1 }}>
           <FormLabel component="legend" sx={{ mb: 0.5, fontSize: '0.875rem' }}>
             PDF Layout Format
@@ -1285,7 +1285,6 @@ const SVGPreferencesSwitchForm = () => {
           label="Use Legacy Start Zones"
           title="Enable/disable rendering start zones as circles and with classic colors"
         />
-        <GlyphExportOptions />
       </FormGroup>
     </FormControl>
   )

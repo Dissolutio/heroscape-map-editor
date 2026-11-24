@@ -430,7 +430,10 @@ export function evaluateDragTarget(
     if (simulated) {
       for (const member of targetMembers) {
         const conflicted = simulated.conflictedPieceUIDs.includes(member.uid)
-        if (isLaurWallAddonPieceID(member.piece.id)) {
+        if (
+          isLaurWallAddonPieceID(member.piece.id) ||
+          member.piece.id === Pieces.shipWall
+        ) {
           member.unsupported = simulated.unsupportedPieceUIDs.includes(
             member.uid,
           )

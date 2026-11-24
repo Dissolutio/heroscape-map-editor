@@ -5,6 +5,48 @@ async function mapPieces(page: import('@playwright/test').Page) {
   return page.evaluate(() => window.__TEST__?.listPieces() ?? [])
 }
 
+async function expectUniformPieceTranslation(
+  page: import('@playwright/test').Page,
+  previousPieces: Awaited<ReturnType<typeof mapPieces>>,
+) {
+  const nextPieces = await mapPieces(page)
+  expect(nextPieces).toHaveLength(previousPieces.length)
+  const previousByUID = new Map(
+    previousPieces.map((piece) => [piece.uid, piece]),
+  )
+  const firstPiece = nextPieces[0]
+  const firstPrevious = firstPiece
+    ? previousByUID.get(firstPiece.uid)
+    : undefined
+  if (!firstPiece || !firstPrevious) {
+    throw new Error('Expected pieces before and after map conversion')
+  }
+  const offset = {
+    q: firstPiece.pieceCoords.q - firstPrevious.pieceCoords.q,
+    r: firstPiece.pieceCoords.r - firstPrevious.pieceCoords.r,
+    s: firstPiece.pieceCoords.s - firstPrevious.pieceCoords.s,
+  }
+
+  for (const piece of nextPieces) {
+    const previous = previousByUID.get(piece.uid)
+    if (!previous) throw new Error(`Missing piece ${piece.uid}`)
+    expect(piece).toMatchObject({
+      inventoryID: previous.inventoryID,
+      altitude: previous.altitude,
+      rotation: previous.rotation,
+      pieceCoords: {
+        q: previous.pieceCoords.q + offset.q,
+        r: previous.pieceCoords.r + offset.r,
+        s: previous.pieceCoords.s + offset.s,
+      },
+    })
+  }
+  const snapshot = await page.evaluate(() => window.__TEST__?.snapshot())
+  expect(snapshot?.mapOriginQ).toBe(0)
+  expect(snapshot?.mapOriginR).toBe(0)
+  return { nextPieces, offset }
+}
+
 async function mapInventoryText(page: import('@playwright/test').Page) {
   await page.getByRole('tab', { name: 'Build' }).click()
   await page.getByRole('button', { name: 'View Map Inventory' }).click()
@@ -24,7 +66,7 @@ async function undoCount(page: import('@playwright/test').Page) {
   return Number(count)
 }
 
-test('converts a hexagon map to a rectangle and back without moving pieces', async ({
+test('normalizes piece coordinates when converting to rectangle and hexagon', async ({
   page,
 }) => {
   await page.goto(mapUrl(FIXTURE_HEXAGON_MAP, FIXTURE_PIECE_IDS))
@@ -53,7 +95,9 @@ test('converts a hexagon map to a rectangle and back without moving pieces', asy
   await waitForAppReady(page)
   await saveEvidence(page, 'convert-map-shape-rectangle')
 
-  expect(await mapPieces(page)).toEqual(originalPieces)
+  const { nextPieces: rectanglePieces, offset } =
+    await expectUniformPieceTranslation(page, originalPieces)
+  expect(offset).toEqual({ q: 1, r: -1, s: 0 })
   await detailsDialog.getByRole('button', { name: 'Cancel' }).click()
   expect(await mapInventoryText(page)).toBe(originalInventory)
   expect(await undoCount(page)).toBe(originalUndoCount + 1)
@@ -74,7 +118,7 @@ test('converts a hexagon map to a rectangle and back without moving pieces', asy
   await waitForAppReady(page)
   await saveEvidence(page, 'convert-map-shape-hexagon')
 
-  expect(await mapPieces(page)).toEqual(originalPieces)
+  await expectUniformPieceTranslation(page, rectanglePieces)
   await rectangleDetailsDialog.getByRole('button', { name: 'Cancel' }).click()
   expect(await mapInventoryText(page)).toBe(originalInventory)
   expect(await undoCount(page)).toBe(originalUndoCount + 2)

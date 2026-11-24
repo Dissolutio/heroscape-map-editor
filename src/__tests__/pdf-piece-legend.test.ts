@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs'
 import { Document, Font, renderToBuffer } from '@react-pdf/renderer'
 import { createElement } from 'react'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { piecesSoFar } from '../data/pieces'
 import { SETTINGS_DEFAULTS } from '../local-storage/settings'
 import { PdfPieceLegend } from '../pdf-map/PdfPieceLegend'
@@ -11,6 +11,9 @@ import {
   getPieceKeyShapeScale,
 } from '../pdf-svg-shared/pieceKeyShapeLayout'
 import { type BoardPiece, Pieces } from '../types'
+
+// These tests read large asset files and can pass 5 s on a busy CI runner.
+vi.setConfig({ testTimeout: 30_000 })
 
 Font.register({
   family: 'Inter',

@@ -37,7 +37,9 @@ export const EventProvider = ({ children }: PropsWithChildren) => {
   const publish = useCallback((eventName: string) => {
     const arr = eventsRef.current?.[eventName] ?? []
     // biome-ignore lint/complexity/noForEach: <explanation>
-    arr.forEach((callback) => callback())
+    arr.forEach((callback) => {
+      callback()
+    })
     return arr.length > 0
   }, [])
 

@@ -8,6 +8,7 @@ import {
   expect,
   findPieceUid,
   mapUrl,
+  pickFromMenu,
   test,
   waitForAppReady,
 } from './fixtures'
@@ -99,11 +100,10 @@ test('suggests unit names lazily and keeps them in saved map files', async ({
 }) => {
   const unitNameRequests: string[] = []
   page.on('request', (request) => {
-    if (request.url().endsWith('/objective-marker-unit-names.json')) {
+    if (request.url().includes('objectiveMarkerUnitNames')) {
       unitNameRequests.push(request.url())
     }
   })
-
   await page.goto(
     mapUrl(
       OBJECTIVE_MARKERS_FIXTURE_HEX_MAP,
@@ -132,7 +132,7 @@ test('suggests unit names lazily and keeps them in saved map files', async ({
   await expect(suggestion).toBeVisible()
   await suggestion.click()
   await expect(nameInput).toHaveValue('10th Regiment of Foot')
-  expect(unitNameRequests).toHaveLength(1)
+  await expect.poll(() => unitNameRequests.length).toBe(1)
 
   await page.getByRole('tab', { name: 'Build' }).click()
   await page.keyboard.press('Control+z')
@@ -156,6 +156,34 @@ test('suggests unit names lazily and keeps them in saved map files', async ({
     .click()
   await expect(nameInput).toHaveValue('10th Regiment of Foot')
 
+  await page
+    .getByRole('button', { name: 'Clear objective marker name', exact: true })
+    .click()
+  await expect(nameInput).toHaveValue('')
+  await nameInput.fill('10th')
+  await page
+    .getByRole('option', { name: '10th Regiment of Foot', exact: true })
+    .click()
+  await expect(nameInput).toHaveValue('10th Regiment of Foot')
+
+  await page.evaluate(() => window.__TEST__?.seedActionLog(12))
+  const nameBounds = await nameInput.boundingBox()
+  const actionLogBounds = await page.locator('.action-log').boundingBox()
+  if (!nameBounds) throw new Error('Objective marker name input is not visible')
+  if (actionLogBounds) {
+    const overlaps =
+      nameBounds.x < actionLogBounds.x + actionLogBounds.width &&
+      nameBounds.x + nameBounds.width > actionLogBounds.x &&
+      nameBounds.y < actionLogBounds.y + actionLogBounds.height &&
+      nameBounds.y + nameBounds.height > actionLogBounds.y
+    expect(overlaps).toBe(false)
+  }
+
+  await page.setViewportSize({ width: 600, height: 800 })
+  await expect(page.getByRole('log')).toHaveCount(0)
+  await page.evaluate(() => window.__TEST__?.deselectObjectiveMarker())
+  await expect(page.getByRole('log')).toBeVisible()
+
   await page.getByRole('tab', { name: 'File' }).click()
   await page.getByRole('button', { name: 'Download Map File' }).click()
   const downloadPromise = page.waitForEvent('download')
@@ -177,6 +205,34 @@ test('suggests unit names lazily and keeps them in saved map files', async ({
   await expect(
     page.getByRole('combobox', { name: 'Objective marker name' }),
   ).toHaveValue('10th Regiment of Foot')
+
+  await nameInput.fill('Hrognak')
+  await expect(
+    page.getByRole('option', { name: 'Hrognak (1.0)', exact: true }),
+  ).toHaveCount(0)
+  await page
+    .getByRole('tab', {
+      name: 'Show controls for taking a map picture, controlling the camera, and editing preferences',
+    })
+    .click()
+  const vcToggle = page.getByRole('checkbox', {
+    name: 'Include VC unit/terrain data',
+  })
+  await expect(vcToggle).not.toBeChecked()
+  await vcToggle.check()
+  await page
+    .getByRole('tab', {
+      name: 'Show controls for editing details of the current map',
+    })
+    .click()
+  await nameInput.fill('Hro')
+  await nameInput.fill('Hrognak')
+  await expect(
+    page.getByRole('option', { name: 'Hrognak (1.0)', exact: true }),
+  ).toBeVisible()
+  await expect(
+    page.getByRole('option', { name: 'Hrognak (2.0)', exact: true }),
+  ).toBeVisible()
 })
 
 test('derives objective marker numbers unless the number is pinned', async ({
@@ -188,7 +244,7 @@ test('derives objective marker numbers unless the number is pinned', async ({
   await page.getByRole('tab', { name: 'Build' }).click()
   const penMode = page.getByRole('combobox', { name: 'Pen Mode' })
   await penMode.click()
-  await page.getByRole('option', { name: 'Objective Marker' }).click()
+  await pickFromMenu(page, 'Objective Marker')
 
   const numberInput = page.getByRole('spinbutton', { name: 'Marker number' })
   const pinNumber = page.getByRole('checkbox', { name: 'Pin value' })
@@ -253,7 +309,7 @@ test('derives objective marker numbers unless the number is pinned', async ({
     .toBe(1)
   await page.getByRole('tab', { name: 'Build' }).click()
   await penMode.click()
-  await page.getByRole('option', { name: 'Objective Marker' }).click()
+  await pickFromMenu(page, 'Objective Marker')
   await expect(numberInput).toHaveValue('2')
   await placeAt(3, 2)
   await expect
@@ -277,7 +333,7 @@ test('derives objective marker numbers unless the number is pinned', async ({
     .toBeNull()
   await page.getByRole('tab', { name: 'Build' }).click()
   await penMode.click()
-  await page.getByRole('option', { name: 'Objective Marker' }).click()
+  await pickFromMenu(page, 'Objective Marker')
   await expect(numberInput).toHaveValue('3')
 
   await pinNumber.check()
@@ -317,7 +373,7 @@ test('derives objective marker numbers unless the number is pinned', async ({
     .toBeNull()
   await page.getByRole('tab', { name: 'Build' }).click()
   await penMode.click()
-  await page.getByRole('option', { name: 'Objective Marker' }).click()
+  await pickFromMenu(page, 'Objective Marker')
   await expect(numberInput).toHaveValue('2')
 
   await page.getByRole('button', { name: 'Text', exact: true }).click()
@@ -342,7 +398,7 @@ test('keeps auto-numbering correct after loading a map and creating a new one', 
   await page.getByRole('tab', { name: 'Build' }).click()
   const penMode = page.getByRole('combobox', { name: 'Pen Mode' })
   await penMode.click()
-  await page.getByRole('option', { name: 'Objective Marker' }).click()
+  await pickFromMenu(page, 'Objective Marker')
   const numberInput = page.getByRole('spinbutton', { name: 'Marker number' })
   await expect(numberInput).toHaveValue('1')
 
@@ -368,7 +424,7 @@ test('keeps auto-numbering correct after loading a map and creating a new one', 
   await waitForAppReady(page)
   await page.getByRole('tab', { name: 'Build' }).click()
   await penMode.click()
-  await page.getByRole('option', { name: 'Objective Marker' }).click()
+  await pickFromMenu(page, 'Objective Marker')
   await expect(numberInput).toHaveValue('2')
 
   await page.getByRole('tab', { name: 'File' }).click()
@@ -384,7 +440,7 @@ test('keeps auto-numbering correct after loading a map and creating a new one', 
 
   await page.getByRole('tab', { name: 'Build' }).click()
   await penMode.click()
-  await page.getByRole('option', { name: 'Objective Marker' }).click()
+  await pickFromMenu(page, 'Objective Marker')
   await expect(numberInput).toHaveValue('1')
 })
 
@@ -397,7 +453,7 @@ test('places, edits, drags, deletes, and undoes an objective marker', async ({
   await page.getByRole('tab', { name: 'Build' }).click()
   const penMode = page.getByRole('combobox', { name: 'Pen Mode' })
   await penMode.click()
-  await page.getByRole('option', { name: 'Objective Marker' }).click()
+  await pickFromMenu(page, 'Objective Marker')
   await page.getByRole('button', { name: '2-hex marker' }).click()
 
   const canvas = page.locator('canvas').first()
@@ -476,6 +532,7 @@ test('places, edits, drags, deletes, and undoes an objective marker', async ({
     r: 3,
   })
   if (!pieceUID) throw new Error('Supporting terrain piece is not on the map')
+  await page.evaluate(() => window.__TEST__?.deselectObjectiveMarker())
   await clickPiece(page, pieceUID)
   await expect
     .poll(() =>
@@ -520,14 +577,14 @@ test('places, edits, drags, deletes, and undoes an objective marker', async ({
     markerUID,
   )
   if (!beforeDrag) throw new Error('Marker position is not available')
-  await dragObjectiveMarker(page, markerUID, { q: 3, r: 3, altitude: 1 })
+  await dragObjectiveMarker(page, markerUID, { q: 1, r: 2, altitude: 0 })
   await waitForAppReady(page)
   const afterDrag = await page.evaluate(
     (uid) => window.__TEST__?.screenPosOfObjectiveMarker(uid) ?? null,
     markerUID,
   )
   expect(afterDrag).not.toEqual(beforeDrag)
-  expect(await markerAnchor()).toEqual({ q: 3, r: 3, s: -6, altitude: 1 })
+  expect(await markerAnchor()).toEqual({ q: 1, r: 2, s: -3, altitude: 0 })
   await page.getByRole('button', { name: 'Delete objective marker' }).click()
   await expect
     .poll(() =>

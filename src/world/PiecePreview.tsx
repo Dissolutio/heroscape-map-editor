@@ -15,6 +15,7 @@ import type { BoardHex } from '../types'
 import { HexTerrain, PiecePrefixes, Pieces } from '../types'
 import {
   isFluidTerrainHex,
+  getShipPlacementAltitude,
   isLaurWallAddonPieceID,
   isSolidTerrainHex,
 } from '../utils/board-utils'
@@ -58,6 +59,7 @@ import { RopeLadder } from './models/RopeLadder'
 import { Ruins2Preview } from './models/Ruins2'
 import { Ruins3Preview } from './models/Ruins3'
 import { ShipBow } from './models/ShipBow'
+import { getShipBowRestOffset } from '../data/shipBowRest'
 import { ShipWall } from './models/ShipWall'
 import Shroudshroom7 from './models/Shroudshroom7'
 import Shroudshroom10 from './models/Shroudshroom10'
@@ -259,6 +261,7 @@ function PiecePreviewModel({
     if (piece.terrain === HexTerrain.laurWallAddon) return hoveredHexForModel
     const altitude = getSmartPlacementAltitude({
       boardHexes,
+      boardPieces,
       piece,
       pieceCoords: hoveredHexForModel,
       altitude: hoveredHexForModel.altitude,
@@ -274,6 +277,7 @@ function PiecePreviewModel({
     }
   }, [
     boardHexes,
+    boardPieces,
     hoveredHexForModel,
     hoveredHexOverride,
     penModeRotation,
@@ -304,6 +308,10 @@ function PiecePreviewModel({
   const mirrorRotation = (penModeRotation + 3) % 6
   const { x, y, z, yWithBase, yBase, yBaseCap, yGlyph, yGlyphFluidUnder } =
     getBoardHex3DCoords(hoveredHexForPreview)
+  const { y: yShip } = getBoardHex3DCoords({
+    ...hoveredHexForPreview,
+    altitude: getShipPlacementAltitude(hoveredHexForPreview.altitude),
+  })
   const isUnderHexFluid = isFluidTerrainHex(hoveredHexForPreview?.terrain)
   const isUnderHexLadder = hoveredPiece?.inventoryID === Pieces.ladder
   const isLadderChainOnFluid = (() => {
@@ -571,15 +579,8 @@ function PiecePreviewModel({
   if (isShipWallHex && isLandOrEmptyBeneath) {
     return (
       <group
-        // either gets moved down to fluid level, or up to solid cap level
-        position={[
-          x,
-          y -
-            (isUnderHexFluid
-              ? HEXGRID_HEX_HEIGHT - HEXGRID_HEXCAP_FLUID_HEIGHT
-              : -HEXGRID_HEXCAP_HEIGHT / 2),
-          z,
-        ]}
+        // ships never drop to a fluid cap: they sit at the full level
+        position={[x, yShip + HEXGRID_HEXCAP_HEIGHT / 2, z]}
         rotation={[0, getObstaclRotation(penModeRotation), 0]}
       >
         <Suspense fallback={<ModelLoader />}>
@@ -589,17 +590,20 @@ function PiecePreviewModel({
     )
   }
   if (isShipBowHex && isLandOrEmptyBeneath) {
+    // The bow sits at the full level, but its model rests on a single fluid
+    // tile (visual only, see data/shipBowRest.ts)
+    const bowRestOffset = getShipBowRestOffset(
+      {
+        inventoryID: pieceID,
+        altitude: hoveredHexForPreview.altitude,
+        rotation: penModeRotation,
+        pieceCoords: hoveredHexForPreview,
+      },
+      boardHexes,
+    )
     return (
       <group
-        // either gets moved down to fluid level, or up to solid cap level
-        position={[
-          x,
-          y -
-            (isUnderHexFluid
-              ? HEXGRID_HEX_HEIGHT - HEXGRID_HEXCAP_FLUID_HEIGHT
-              : -HEXGRID_HEXCAP_HEIGHT / 2),
-          z,
-        ]}
+        position={[x, yShip + HEXGRID_HEXCAP_HEIGHT / 2 + bowRestOffset, z]}
         rotation={[0, getObstaclRotation(penModeRotation), 0]}
       >
         <Suspense fallback={<ModelLoader />}>

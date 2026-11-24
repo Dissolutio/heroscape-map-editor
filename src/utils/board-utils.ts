@@ -110,6 +110,18 @@ export function canPlaceLandTileOnHex(
   return false
 }
 
+/**
+ * Ships are held by a horizontal edge interlock, not by what is underneath, so
+ * they sit at a full level even over a half-level fluid cap (fluid stacked on
+ * fluid): a fluid cap counts as a full level for their altitude. Pass the
+ * placement (support) altitude; the ship's own hex is one level above it.
+ */
+export const getShipPlacementAltitude = (placementAltitude: number): number =>
+  Math.ceil(placementAltitude)
+
+export const isShipPieceID = (pieceID: string): boolean =>
+  pieceID === Pieces.shipWall || pieceID === Pieces.shipBow
+
 export const isLaurWallAddonPieceID = (pieceID: string): boolean => {
   return (
     pieceID === Pieces.laurWallRuin1 ||
