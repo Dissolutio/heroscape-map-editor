@@ -1,5 +1,5 @@
-import type { BoardPiece, HexMap } from '../types'
-import type { CubeCoordinate } from '../types'
+import type { BoardPiece, CubeCoordinate, HexMap } from '../types'
+import { genBoardHexID } from '../utils/map-utils'
 import { hexUtilsAdd } from '../utils/hex-utils'
 import {
   DEFAULT_NEW_HEXAGON_MAP_SIZE,
@@ -11,14 +11,13 @@ import {
 import {
   getHexagonTableFit,
   getMapTableFootprintCoords,
-  getRectangleTableFit,
   mapTableHexes,
 } from './fitMapToPieces'
 
 export type MapShape = 'hexagon' | 'rectangle'
 
 export type ConvertMapShapeResult =
-  | { ok: true; hexMap: HexMap }
+  | { ok: true; hexMap: HexMap; boardPieces: BoardPiece[] }
   | { ok: false; error: 'invalid-margin' | 'too-large' }
 
 export function convertMapShape(
@@ -33,69 +32,53 @@ export function convertMapShape(
   }
 
   const footprintCoords = getMapTableFootprintCoords(hexMap, boardPieces)
-  let length: number
-  let width: number
-  let originQ: number
-  let originR: number
-
   if (!footprintCoords.length) {
-    if (targetShape === 'hexagon') {
-      length = DEFAULT_NEW_HEXAGON_MAP_SIZE
-      width = DEFAULT_NEW_HEXAGON_MAP_SIZE
-    } else {
-      length = DEFAULT_NEW_RECTANGLE_MAP_LENGTH
-      width = DEFAULT_NEW_RECTANGLE_MAP_WIDTH
-    }
-    originQ = 0
-    originR = 0
-  } else if (targetShape === 'hexagon') {
-    const fit = getHexagonTableFit(
-      footprintCoords,
-      0,
-      margin,
-      MAX_HEXAGON_MAP_DIMENSION - 1,
-    )
-    if (!fit) return { ok: false, error: 'too-large' }
-    length = fit.radius + 1
-    width = fit.radius + 1
-    originQ = fit.originQ
-    originR = fit.originR
-    if (length > MAX_HEXAGON_MAP_DIMENSION) {
-      return { ok: false, error: 'too-large' }
-    }
-  } else {
-    const fit = getRectangleTableFit(footprintCoords, { margin })
-    if (!fit) return { ok: false, error: 'too-large' }
-    length = fit.length
-    width = fit.width
-    originQ = fit.originQ
-    originR = fit.originR
-    if (
-      length > MAX_RECTANGLE_MAP_DIMENSION ||
-      width > MAX_RECTANGLE_MAP_DIMENSION
-    ) {
-      return { ok: false, error: 'too-large' }
+    return {
+      ok: true,
+      hexMap: withoutOrigin({
+        ...hexMap,
+        shape: targetShape,
+        length:
+          targetShape === 'hexagon'
+            ? DEFAULT_NEW_HEXAGON_MAP_SIZE
+            : DEFAULT_NEW_RECTANGLE_MAP_LENGTH,
+        width:
+          targetShape === 'hexagon'
+            ? DEFAULT_NEW_HEXAGON_MAP_SIZE
+            : DEFAULT_NEW_RECTANGLE_MAP_WIDTH,
+        originQ: 0,
+        originR: 0,
+        version: 1,
+      }),
+      boardPieces: boardPieces.map((piece) => ({ ...piece })),
     }
   }
 
-  return {
-    ok: true,
-    hexMap: {
-      ...hexMap,
-      shape: targetShape,
-      length,
-      width,
-      originQ,
-      originR,
-      version: 1,
-    },
+  const normalized = normalizeMapContent(
+    hexMap,
+    boardPieces,
+    targetShape,
+    margin,
+  )
+  if (!normalized) return { ok: false, error: 'too-large' }
+  if (
+    targetShape === 'rectangle' &&
+    (normalized.hexMap.length > MAX_RECTANGLE_MAP_DIMENSION ||
+      normalized.hexMap.width > MAX_RECTANGLE_MAP_DIMENSION)
+  ) {
+    return { ok: false, error: 'too-large' }
   }
+  return { ok: true, ...normalized }
 }
+
+type TrimMapResult =
+  | { ok: true; hexMap: HexMap }
+  | { ok: false; error: 'invalid-margin' | 'too-large' }
 
 export function trimMap(
   hexMap: HexMap,
   boardPieces: readonly BoardPiece[],
-): ConvertMapShapeResult {
+): TrimMapResult {
   const result = trimAndNormalizeMap(hexMap, boardPieces)
   return result.ok
     ? { ok: true, hexMap: result.hexMap }
@@ -107,6 +90,7 @@ export type TrimAndNormalizeResult =
       ok: true
       hexMap: HexMap
       boardPieces: BoardPiece[]
+      note?: 'empty' | 'already-trimmed' | 'too-wide' | 'too-long'
     }
   | { ok: false; error: 'too-large' }
 
@@ -114,7 +98,94 @@ function translateCoordinate(
   coordinate: CubeCoordinate,
   offset: CubeCoordinate,
 ): CubeCoordinate {
-  return hexUtilsAdd(coordinate, offset)
+  const translated = hexUtilsAdd(coordinate, offset)
+  return {
+    ...translated,
+    s: translated.s === 0 ? 0 : translated.s,
+  }
+}
+
+export function normalizeLegacyMapOrigin(
+  hexMap: HexMap,
+  boardPieces: BoardPiece[],
+): { hexMap: HexMap; boardPieces: BoardPiece[] } {
+  const originQ = hexMap.originQ ?? 0
+  const originR = hexMap.originR ?? 0
+  if (originQ === 0 && originR === 0) return { hexMap, boardPieces }
+
+  const offset =
+    hexMap.shape === 'hexagon'
+      ? { q: -originQ, r: -originR, s: originQ + originR }
+      : {
+          q: originR / 2 - originQ,
+          r: -originR,
+          s: originQ + originR / 2,
+        }
+
+  if (hexMap.shape === 'rectangle') {
+    if (!Number.isInteger(originR / 2)) return { hexMap, boardPieces }
+    const tableHexes = mapTableHexes(withoutOrigin(hexMap))
+    const footprintCoords = getMapTableFootprintCoords(hexMap, boardPieces)
+    if (
+      !footprintCoords.every((coords) =>
+        tableHexes.has(
+          genBoardHexID({
+            ...translateCoordinate(coords, offset),
+            altitude: 0,
+          }),
+        ),
+      )
+    ) {
+      return { hexMap, boardPieces }
+    }
+  }
+
+  const normalizedHexMap = withoutOrigin({
+    ...hexMap,
+    ...(hexMap.objectiveMarkers
+      ? {
+          objectiveMarkers: hexMap.objectiveMarkers.map((marker) => ({
+            ...marker,
+            anchor: {
+              ...translateCoordinate(marker.anchor, offset),
+              altitude: marker.anchor.altitude,
+            },
+          })),
+        }
+      : {}),
+  })
+  return {
+    hexMap: normalizedHexMap,
+    boardPieces: boardPieces.map((piece) => ({
+      ...piece,
+      pieceCoords: translateCoordinate(piece.pieceCoords, offset),
+    })),
+  }
+}
+
+function haveSameCoordinates(
+  firstPieces: readonly BoardPiece[],
+  secondPieces: readonly BoardPiece[],
+  firstMarkers: NonNullable<HexMap['objectiveMarkers']>,
+  secondMarkers: NonNullable<HexMap['objectiveMarkers']>,
+) {
+  return (
+    firstPieces.length === secondPieces.length &&
+    firstPieces.every(
+      (piece, index) =>
+        piece.pieceCoords.q === secondPieces[index]?.pieceCoords.q &&
+        piece.pieceCoords.r === secondPieces[index]?.pieceCoords.r &&
+        piece.pieceCoords.s === secondPieces[index]?.pieceCoords.s,
+    ) &&
+    firstMarkers.length === secondMarkers.length &&
+    firstMarkers.every(
+      (marker, index) =>
+        marker.anchor.q === secondMarkers[index]?.anchor.q &&
+        marker.anchor.r === secondMarkers[index]?.anchor.r &&
+        marker.anchor.s === secondMarkers[index]?.anchor.s &&
+        marker.anchor.altitude === secondMarkers[index]?.anchor.altitude,
+    )
+  )
 }
 
 function withoutOrigin(hexMap: HexMap): HexMap {
@@ -122,192 +193,211 @@ function withoutOrigin(hexMap: HexMap): HexMap {
   return normalized
 }
 
-export function trimAndNormalizeMap(
+function normalizeMapContent(
   hexMap: HexMap,
   boardPieces: readonly BoardPiece[],
-): TrimAndNormalizeResult {
-  if (hexMap.shape === 'rectangle') {
-    const originalMarkers = hexMap.objectiveMarkers ?? []
-    const originalCoords = getMapTableFootprintCoords(hexMap, boardPieces)
-    if (!originalCoords.length) {
-      return {
-        ok: true,
-        hexMap:
-          hexMap.originQ === undefined && hexMap.originR === undefined
-            ? hexMap
-            : withoutOrigin(hexMap),
-        boardPieces: boardPieces.map((piece) => ({ ...piece })),
-      }
-    }
+  targetShape: MapShape,
+  margin: number,
+): { hexMap: HexMap; boardPieces: BoardPiece[] } | null {
+  const originalMarkers = hexMap.objectiveMarkers ?? []
+  const footprintCoords = getMapTableFootprintCoords(hexMap, boardPieces)
+  if (!footprintCoords.length) return null
 
-    const minOriginalR = Math.min(...originalCoords.map(({ r }) => r))
-    const candidates: Array<{
-      dr: number
-      boardPieces: BoardPiece[]
-      hexMap: HexMap
-      length: number
-      width: number
-    }> = []
-
-    // Always put the top row at row 0, like shifting the pieces north-west
-    // by hand (John, 2026-11-19). Starting at row 1 could save a column on
-    // tall maps, but leaves an empty top row.
-    for (const targetMinR of [0]) {
-      const rowOffset = targetMinR - minOriginalR
-      const shiftedPieces = boardPieces.map((piece) => ({
-        ...piece,
-        pieceCoords: translateCoordinate(piece.pieceCoords, {
+  if (targetShape === 'rectangle') {
+    const minR = Math.min(...footprintCoords.map(({ r }) => r))
+    const rowOffset = margin - minR
+    const shiftedPieces = boardPieces.map((piece) => ({
+      ...piece,
+      pieceCoords: translateCoordinate(piece.pieceCoords, {
+        q: 0,
+        r: rowOffset,
+        s: -rowOffset,
+      }),
+    }))
+    const shiftedMarkers = originalMarkers.map((marker) => ({
+      ...marker,
+      anchor: {
+        ...translateCoordinate(marker.anchor, {
           q: 0,
           r: rowOffset,
           s: -rowOffset,
         }),
-      }))
-      const shiftedMarkers = originalMarkers.map((marker) => ({
-        ...marker,
-        anchor: {
-          ...translateCoordinate(marker.anchor, {
-            q: 0,
-            r: rowOffset,
-            s: -rowOffset,
-          }),
-          altitude: marker.anchor.altitude,
-        },
-      }))
-      const shiftedHexMap = {
-        ...hexMap,
-        objectiveMarkers: shiftedMarkers,
-      }
-      const shiftedCoords = getMapTableFootprintCoords(
-        shiftedHexMap,
-        shiftedPieces,
-      )
-      if (!shiftedCoords.length) continue
-      const minColumn = Math.min(
-        ...shiftedCoords.map(({ q, r }) => q + Math.floor(r / 2)),
-      )
-      const columnOffset = -minColumn
-      const normalizedPieces = shiftedPieces.map((piece) => ({
-        ...piece,
-        pieceCoords: translateCoordinate(piece.pieceCoords, {
+        altitude: marker.anchor.altitude,
+      },
+    }))
+    const shiftedMap = { ...hexMap, objectiveMarkers: shiftedMarkers }
+    const shiftedCoords = getMapTableFootprintCoords(shiftedMap, shiftedPieces)
+    const minColumn = Math.min(
+      ...shiftedCoords.map(({ q, r }) => q + Math.floor(r / 2)),
+    )
+    const columnOffset = margin - minColumn
+    const normalizedPieces = shiftedPieces.map((piece) => ({
+      ...piece,
+      pieceCoords: translateCoordinate(piece.pieceCoords, {
+        q: columnOffset,
+        r: 0,
+        s: -columnOffset,
+      }),
+    }))
+    const normalizedMarkers = shiftedMarkers.map((marker) => ({
+      ...marker,
+      anchor: {
+        ...translateCoordinate(marker.anchor, {
           q: columnOffset,
           r: 0,
           s: -columnOffset,
         }),
-      }))
-      const normalizedMarkers = shiftedMarkers.map((marker) => ({
-        ...marker,
-        anchor: {
-          ...translateCoordinate(marker.anchor, {
-            q: columnOffset,
-            r: 0,
-            s: -columnOffset,
-          }),
-          altitude: marker.anchor.altitude,
-        },
-      }))
-      const normalizedHexMap = {
-        ...hexMap,
-        ...(originalMarkers.length
-          ? { objectiveMarkers: normalizedMarkers }
-          : {}),
-      }
-      const normalizedCoords = getMapTableFootprintCoords(
-        normalizedHexMap,
-        normalizedPieces,
-      )
-      const maxR = Math.max(...normalizedCoords.map(({ r }) => r))
-      const maxCol = Math.max(
-        ...normalizedCoords.map(({ q, r }) => q + Math.floor(r / 2)),
-      )
-      const length = maxR + 1
-      const width = maxCol + 1
-      candidates.push({
-        dr: targetMinR,
-        boardPieces: normalizedPieces,
-        hexMap: withoutOrigin({
-          ...normalizedHexMap,
-          length,
-          width,
-          originQ: 0,
-          originR: 0,
-          version: 1,
-        }),
-        length,
-        width,
-      })
+        altitude: marker.anchor.altitude,
+      },
+    }))
+    const normalizedMap = {
+      ...hexMap,
+      ...(originalMarkers.length
+        ? { objectiveMarkers: normalizedMarkers }
+        : {}),
     }
-
-    candidates.sort((first, second) => {
-      const firstArea = first.length * first.width
-      const secondArea = second.length * second.width
-      if (firstArea !== secondArea) return firstArea - secondArea
-      return first.width - second.width
-    })
-    const candidate = candidates[0]
-    if (!candidate) return { ok: false, error: 'too-large' }
-    if (candidate.length > hexMap.length || candidate.width > hexMap.width) {
-      return {
-        ok: true,
-        hexMap,
-        boardPieces: boardPieces.map((p) => ({ ...p })),
-      }
-    }
+    const normalizedCoords = getMapTableFootprintCoords(
+      normalizedMap,
+      normalizedPieces,
+    )
+    const maxR = Math.max(...normalizedCoords.map(({ r }) => r))
+    const maxColumn = Math.max(
+      ...normalizedCoords.map(({ q, r }) => q + Math.floor(r / 2)),
+    )
     return {
-      ok: true,
-      hexMap: candidate.hexMap,
-      boardPieces: candidate.boardPieces,
+      hexMap: withoutOrigin({
+        ...normalizedMap,
+        shape: targetShape,
+        length: maxR + margin + 1,
+        width: maxColumn + margin + 1,
+        originQ: 0,
+        originR: 0,
+        version: 1,
+      }),
+      boardPieces: normalizedPieces,
     }
   }
 
-  const footprintCoords = getMapTableFootprintCoords(hexMap, boardPieces)
-  if (!footprintCoords.length) {
-    return {
-      ok: true,
-      hexMap: withoutOrigin(hexMap),
-      boardPieces: boardPieces.map((piece) => ({ ...piece })),
-    }
-  }
   const fit = getHexagonTableFit(
     footprintCoords,
     0,
-    0,
+    margin,
     MAX_HEXAGON_MAP_DIMENSION - 1,
   )
-  if (!fit) return { ok: false, error: 'too-large' }
-  const size = fit.radius + 1
+  if (!fit) return null
   const offset = {
     q: -fit.originQ,
     r: -fit.originR,
     s: fit.originQ + fit.originR,
   }
-  const translatedPieces = boardPieces.map((piece) => ({
+  const normalizedPieces = boardPieces.map((piece) => ({
     ...piece,
     pieceCoords: translateCoordinate(piece.pieceCoords, offset),
   }))
-  const translatedMarkers = (hexMap.objectiveMarkers ?? []).map((marker) => ({
+  const normalizedMarkers = originalMarkers.map((marker) => ({
     ...marker,
     anchor: {
       ...translateCoordinate(marker.anchor, offset),
       altitude: marker.anchor.altitude,
     },
   }))
-  const normalizedHexMap = withoutOrigin({
-    ...hexMap,
-    length: size,
-    width: size,
-    originQ: 0,
-    originR: 0,
-    ...(translatedMarkers.length
-      ? { objectiveMarkers: translatedMarkers }
-      : {}),
-    version: 1,
-  })
-  if (size > hexMap.length || size > hexMap.width) {
-    return { ok: true, hexMap, boardPieces: boardPieces.map((p) => ({ ...p })) }
+  return {
+    hexMap: withoutOrigin({
+      ...hexMap,
+      shape: targetShape,
+      length: fit.radius + 1,
+      width: fit.radius + 1,
+      originQ: 0,
+      originR: 0,
+      ...(originalMarkers.length
+        ? { objectiveMarkers: normalizedMarkers }
+        : {}),
+      version: 1,
+    }),
+    boardPieces: normalizedPieces,
+  }
+}
+
+export function trimAndNormalizeMap(
+  hexMap: HexMap,
+  boardPieces: readonly BoardPiece[],
+): TrimAndNormalizeResult {
+  const footprintCoords = getMapTableFootprintCoords(hexMap, boardPieces)
+  if (!footprintCoords.length) {
+    return {
+      ok: true,
+      hexMap:
+        hexMap.originQ === undefined && hexMap.originR === undefined
+          ? hexMap
+          : withoutOrigin(hexMap),
+      boardPieces: boardPieces.map((piece) => ({ ...piece })),
+      note: boardPieces.length === 0 ? 'empty' : 'already-trimmed',
+    }
+  }
+
+  const normalized = normalizeMapContent(
+    hexMap,
+    boardPieces,
+    hexMap.shape === 'hexagon' ? 'hexagon' : 'rectangle',
+    0,
+  )
+  if (!normalized) return { ok: false, error: 'too-large' }
+  const { hexMap: normalizedHexMap, boardPieces: normalizedPieces } = normalized
+
+  if (hexMap.shape === 'rectangle' && normalizedHexMap.length > hexMap.length) {
+    return {
+      ok: true,
+      hexMap,
+      boardPieces: boardPieces.map((piece) => ({ ...piece })),
+      note: 'too-long',
+    }
+  }
+  if (
+    hexMap.shape === 'rectangle' &&
+    normalizedHexMap.width > MAX_RECTANGLE_MAP_DIMENSION
+  ) {
+    return {
+      ok: true,
+      hexMap,
+      boardPieces: boardPieces.map((piece) => ({ ...piece })),
+      note: 'too-wide',
+    }
+  }
+  if (
+    hexMap.shape === 'hexagon' &&
+    (normalizedHexMap.length > hexMap.length ||
+      normalizedHexMap.width > hexMap.width)
+  ) {
+    return {
+      ok: true,
+      hexMap,
+      boardPieces: boardPieces.map((piece) => ({ ...piece })),
+      note: 'already-trimmed',
+    }
+  }
+  if (
+    normalizedHexMap.length === hexMap.length &&
+    normalizedHexMap.width === hexMap.width &&
+    (hexMap.shape === 'hexagon' ||
+      ((hexMap.originQ ?? 0) === 0 && (hexMap.originR ?? 0) === 0)) &&
+    haveSameCoordinates(
+      boardPieces,
+      normalizedPieces,
+      hexMap.objectiveMarkers ?? [],
+      normalizedHexMap.objectiveMarkers ?? [],
+    )
+  ) {
+    return {
+      ok: true,
+      hexMap,
+      boardPieces: boardPieces.map((piece) => ({ ...piece })),
+      note: boardPieces.length === 0 ? 'empty' : 'already-trimmed',
+    }
   }
   return {
     ok: true,
     hexMap: normalizedHexMap,
-    boardPieces: translatedPieces,
+    boardPieces: normalizedPieces,
+    ...(boardPieces.length === 0 ? { note: 'empty' as const } : {}),
   }
 }

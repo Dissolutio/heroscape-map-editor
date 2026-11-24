@@ -43,7 +43,7 @@ async function chooseAction(
     page.getByRole('menu', { name: 'Piece selection actions' }),
   ).toBeVisible()
   await page.mouse.move(0, 0)
-  await page.getByRole('menuitem', { name: label }).click()
+  await page.getByRole('menuitem', { name: label, exact: true }).click()
   await page.locator('.MuiMenu-root').waitFor({ state: 'detached' })
 }
 

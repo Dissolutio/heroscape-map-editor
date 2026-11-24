@@ -641,6 +641,37 @@ describe('real store undo and redo', () => {
     expect(snapshot()).toEqual(afterUnpaint)
   })
 
+  it('deletes a selected group in one undo step and clears selection', async () => {
+    loadWithoutHistory(
+      loadedMap([
+        {
+          uid: 'delete-one',
+          inventoryID: 'g1',
+          altitude: 0,
+          rotation: 0,
+          pieceCoords: { q: 2, r: 2, s: -4 },
+        },
+        {
+          uid: 'delete-two',
+          inventoryID: 'g1',
+          altitude: 0,
+          rotation: 0,
+          pieceCoords: { q: 5, r: 2, s: -7 },
+        },
+      ]),
+    )
+    store.setState({ selectedPieceIDs: ['delete-one', 'delete-two'] })
+
+    const { deleteSelectedPieces } = await import(
+      '../controls/deleteSelectedPieces'
+    )
+    deleteSelectedPieces()
+
+    expect(store.getState().boardPieces).toEqual([])
+    expect(store.getState().selectedPieceIDs).toEqual([])
+    expect(historyLength()).toBe(1)
+  })
+
   it('undoes and redoes moving a piece with exact boardPieces and boardHexes', () => {
     loadWithoutHistory(
       loadedMap([

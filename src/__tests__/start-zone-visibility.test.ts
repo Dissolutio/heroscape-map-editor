@@ -115,7 +115,7 @@ describe('start-zone visibility', () => {
     ).toEqual(['land', 'zone'])
   })
 
-  it('clears hidden zones from selection and resets their pivot', () => {
+  it('keeps hidden zones selected and resets their pivot', () => {
     vi.stubGlobal('localStorage', mockStorage)
     const store = createTestStore()
     store.setState({
@@ -129,12 +129,9 @@ describe('start-zone visibility', () => {
     store.getState().toggleIsShowStartZones(false)
 
     expect(store.getState().isShowStartZones).toBe(false)
-    expect(store.getState().selectedPieceIDs).toEqual(['land'])
+    expect(store.getState().selectedPieceIDs).toEqual(['land', 'zone'])
     expect(store.getState().rotationPivot).toBeNull()
     expect(store.getState().hoveredPieceID).toBe('')
-
-    store.getState().toggleSelectedPieceID('zone', true)
-    expect(store.getState().selectedPieceIDs).toEqual(['land'])
   })
 
   it('does not put a hidden start zone in a draggable selection group', () => {
