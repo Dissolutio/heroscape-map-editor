@@ -1,7 +1,6 @@
 import {
   Box,
   Button,
-  ButtonGroup,
   Card,
   CardContent,
   IconButton,
@@ -17,7 +16,6 @@ import { buildupJsonFileMap } from '../data/buildupMap'
 import { canShrinkMapWithoutDroppingPieces, resizeMap } from '../data/resizeMap'
 import { trimAndNormalizeMap } from '../data/convertMapShape'
 import { DIALOGS } from '../layout/dialogNames'
-import { useMuiMediaQuery } from '../layout/useMuiMediaQuery'
 import useBoundStore from '../store/store'
 import type { BoardPiece, MapFileState } from '../types'
 import {
@@ -32,6 +30,7 @@ import {
   getMapPhysicalSize,
 } from '../utils/mapPhysicalSize'
 import { ControlTabsListItemButton } from './ControlTabsListItemButton'
+import { HexDirectionPad } from './HexDirectionPad'
 
 const shiftInDirectionBoardPieces = (
   direction: number,
@@ -142,12 +141,6 @@ export const EditControlsTab = () => {
   // const conflictedPieceUIDs = useBoundStore((s) => s.conflictedPieceUIDs)
   const loadMap = useBoundStore((s) => s.loadMap)
   const setPiecePreviews = useBoundStore((s) => s.setPiecePreviews)
-  const {
-    // isLargeScreenWidth,
-    isSmallScreenWidth,
-    isMediumScreenWidth,
-  } = useMuiMediaQuery()
-
   const clearPreview = () => setPiecePreviews(null)
 
   const previewAllPiecesMove = (direction: number) => {
@@ -232,29 +225,17 @@ export const EditControlsTab = () => {
     () => trimAndNormalizeMap(hexMap, boardPieces),
     [hexMap, boardPieces],
   )
-  const trimDisabled =
-    boardPieces.length === 0 ||
-    (trimResult.ok &&
-      trimResult.hexMap.length === hexMap.length &&
-      trimResult.hexMap.width === hexMap.width &&
-      (trimResult.hexMap.originQ ?? 0) === 0 &&
-      (trimResult.hexMap.originR ?? 0) === 0 &&
-      (trimResult.hexMap.objectiveMarkers?.length ?? 0) ===
-        (hexMap.objectiveMarkers?.length ?? 0) &&
-      trimResult.boardPieces.every(
-        (piece, index) =>
-          piece.pieceCoords.q === boardPieces[index]?.pieceCoords.q &&
-          piece.pieceCoords.r === boardPieces[index]?.pieceCoords.r &&
-          piece.pieceCoords.s === boardPieces[index]?.pieceCoords.s,
-      ) &&
-      (trimResult.hexMap.objectiveMarkers ?? []).every(
-        (marker, index) =>
-          marker.anchor.q === hexMap.objectiveMarkers?.[index]?.anchor.q &&
-          marker.anchor.r === hexMap.objectiveMarkers?.[index]?.anchor.r &&
-          marker.anchor.s === hexMap.objectiveMarkers?.[index]?.anchor.s &&
-          marker.anchor.altitude ===
-            hexMap.objectiveMarkers?.[index]?.anchor.altitude,
-      ))
+  const trimDisabled = trimResult.ok && trimResult.note !== undefined
+  const trimTooltip =
+    trimResult.ok && trimResult.note === 'empty'
+      ? "There's nothing on the map to trim."
+      : trimResult.ok && trimResult.note === 'too-wide'
+        ? 'Trimming would make the map wider than the maximum.'
+        : trimResult.ok && trimResult.note === 'too-long'
+          ? 'Trimming would make the map longer than its current size.'
+          : trimResult.ok && trimResult.note === 'already-trimmed'
+            ? 'Already trimmed: every row and column has something in it.'
+            : 'This will remove all extra hexes from the edges of a map, potentially reducing its size.'
   const trimMapAction = () => {
     if (trimDisabled || !trimResult.ok) return
     loadMap(buildupJsonFileMap(trimResult.boardPieces, trimResult.hexMap))
@@ -273,18 +254,17 @@ export const EditControlsTab = () => {
   const lengthShrinkTitle = lengthShrinkBlockedByPieces
     ? hexMap.shape === 'hexagon'
       ? 'Cannot remove the outer ring because pieces occupy hexes that would be removed'
-      : 'Cannot remove the bottom row because pieces occupy hexes in it'
+      : 'Cannot remove the south row because pieces occupy hexes in it'
     : hexMap.shape === 'hexagon'
       ? 'Remove one outer ring of hexes'
-      : 'Remove one row of hexes from bottom'
+      : 'Remove one row of hexes from the south side'
   const widthShrinkTitle = widthShrinkBlockedByPieces
     ? hexMap.shape === 'hexagon'
       ? 'Cannot remove the outer ring because pieces occupy hexes that would be removed'
-      : 'Cannot remove the right column because pieces occupy hexes in it'
+      : 'Cannot remove the east column because pieces occupy hexes in it'
     : hexMap.shape === 'hexagon'
       ? 'Remove one outer ring of hexes'
-      : 'Remove one column of hexes from right side'
-  const buttonFontSize = isSmallScreenWidth ? 8 : isMediumScreenWidth ? 8 : 8
+      : 'Remove one column of hexes from the east side'
   return (
     <Box sx={{ p: 0 }}>
       {/* <div style={{ padding: '0px 20px' }}>
@@ -404,9 +384,9 @@ export const EditControlsTab = () => {
                     physicalSize.lengthCm,
                   )}
                   valueTestId="map-size-length-value"
-                  addLabel="Add a row at the bottom"
-                  removeLabel="Remove the bottom row"
-                  addTitle="Add one row of hexes to bottom"
+                  addLabel="Add a row on the south side"
+                  removeLabel="Remove the south row"
+                  addTitle="Add one row of hexes to the south side"
                   removeTitle={lengthShrinkTitle}
                   removeBlocked={lengthShrinkBlockedByPieces}
                   removeBlockedTitle={lengthShrinkTitle}
@@ -425,9 +405,9 @@ export const EditControlsTab = () => {
                     physicalSize.widthCm,
                   )}
                   valueTestId="map-size-width-value"
-                  addLabel="Add a column on the right"
-                  removeLabel="Remove the right column"
-                  addTitle="Add one column of hexes to right side"
+                  addLabel="Add a column on the east side"
+                  removeLabel="Remove the east column"
+                  addTitle="Add one column of hexes to the east side"
                   removeTitle={widthShrinkTitle}
                   removeBlocked={widthShrinkBlockedByPieces}
                   removeBlockedTitle={widthShrinkTitle}
@@ -467,92 +447,13 @@ export const EditControlsTab = () => {
           >
             Shift all pieces in 1 direction
           </Typography>
-          <ButtonGroup aria-label="Shift map button group" size="small">
-            <Button
-              title="Move all pieces 1 hex left"
-              onClick={() => movePieces(3)}
-              onMouseEnter={() => previewAllPiecesMove(3)}
-              onMouseLeave={clearPreview}
-              onFocus={() => previewAllPiecesMove(3)}
-              onBlur={clearPreview}
-              sx={{
-                fontSize: buttonFontSize,
-              }}
-            >
-              Left
-            </Button>
-            <Button
-              title="Move all pieces 1 hex up-left"
-              onClick={() => movePieces(4)}
-              onMouseEnter={() => previewAllPiecesMove(4)}
-              onMouseLeave={clearPreview}
-              onFocus={() => previewAllPiecesMove(4)}
-              onBlur={clearPreview}
-              sx={{
-                fontSize: buttonFontSize,
-              }}
-            >
-              Up Left
-            </Button>
-            <Button
-              title="Move all pieces 1 hex up-right"
-              onClick={() => movePieces(5)}
-              onMouseEnter={() => previewAllPiecesMove(5)}
-              onMouseLeave={clearPreview}
-              onFocus={() => previewAllPiecesMove(5)}
-              onBlur={clearPreview}
-              sx={{
-                fontSize: buttonFontSize,
-              }}
-            >
-              Up Right
-            </Button>
-          </ButtonGroup>
-          <ButtonGroup>
-            <Button
-              title="Move all pieces 1 hex right"
-              onClick={() => movePieces(0)}
-              onMouseEnter={() => previewAllPiecesMove(0)}
-              onMouseLeave={clearPreview}
-              onFocus={() => previewAllPiecesMove(0)}
-              onBlur={clearPreview}
-              sx={{
-                fontSize: buttonFontSize,
-              }}
-            >
-              Right
-            </Button>
-            <Button
-              title="Move all pieces 1 hex down-right"
-              onClick={() => movePieces(1)}
-              onMouseEnter={() => previewAllPiecesMove(1)}
-              onMouseLeave={clearPreview}
-              onFocus={() => previewAllPiecesMove(1)}
-              onBlur={clearPreview}
-              sx={{
-                fontSize: buttonFontSize,
-              }}
-            >
-              Down Right
-            </Button>
-            <Button
-              title="Move all pieces 1 hex down-left"
-              onClick={() => movePieces(2)}
-              onMouseEnter={() => previewAllPiecesMove(2)}
-              onMouseLeave={clearPreview}
-              onFocus={() => previewAllPiecesMove(2)}
-              onBlur={clearPreview}
-              sx={{
-                fontSize: buttonFontSize,
-              }}
-            >
-              Down Left
-            </Button>
-          </ButtonGroup>
-          <Tooltip
-            title="This will remove all extra hexes from the edges of a map, potentially reducing its size."
-            disableHoverListener={!trimDisabled}
-          >
+          <HexDirectionPad
+            label="Move all pieces"
+            onMove={movePieces}
+            onPreviewMove={previewAllPiecesMove}
+            onClearPreview={clearPreview}
+          />
+          <Tooltip title={trimTooltip} disableHoverListener={!trimDisabled}>
             <span>
               <Button
                 aria-label="Trim map"
@@ -560,7 +461,7 @@ export const EditControlsTab = () => {
                 onClick={trimMapAction}
                 size="small"
                 sx={{ ml: 1, verticalAlign: 'middle' }}
-                title="This will remove all extra hexes from the edges of a map, potentially reducing its size."
+                title={trimTooltip}
               >
                 Trim map
               </Button>

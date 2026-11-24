@@ -76,7 +76,7 @@ describe('glyph visibility', () => {
     ).toBe(true)
   })
 
-  it('drops hidden glyphs from selection and rejects click and set-selection', () => {
+  it('keeps hidden glyphs selected while view toggles hide them', () => {
     vi.stubGlobal('localStorage', mockStorage)
     const store = createTestStore()
     store.setState({
@@ -98,21 +98,38 @@ describe('glyph visibility', () => {
 
     store.getState().toggleIsShowGlyphs(false)
 
-    expect(store.getState().selectedPieceIDs).toEqual(['land'])
+    expect(store.getState().selectedPieceIDs).toEqual(['land', 'glyph'])
     expect(store.getState().rotationPivot).toBeNull()
     expect(store.getState().hoveredPieceID).toBe('')
     expect(store.getState().hoveredHex).toBeUndefined()
     expect(store.getState().hoveredWorldPoint).toBeUndefined()
 
-    store.getState().toggleSelectedPieceID('glyph')
     store.getState().setSelectedPieceIDs(['glyph', 'land'])
-    expect(store.getState().selectedPieceIDs).toEqual(['land'])
+    expect(store.getState().selectedPieceIDs).toEqual(['glyph', 'land'])
 
     store.getState().toggleIsShowGlyphs(true)
-    expect(store.getState().selectedPieceIDs).toEqual(['land'])
+    expect(store.getState().selectedPieceIDs).toEqual(['glyph', 'land'])
     expect(store.getState().rotationPivot).toBeNull()
-    store.getState().toggleSelectedPieceID('glyph')
-    expect(store.getState().selectedPieceIDs).toEqual(['glyph'])
+  })
+
+  it('keeps selection when changing levels, leaving 3D, or opening a dialog', () => {
+    vi.stubGlobal('localStorage', mockStorage)
+    const store = createTestStore()
+    store.setState({
+      boardHexes: board.boardHexes,
+      boardPieces: board.boardPieces,
+      selectedPieceIDs: ['floor', 'land'],
+      viewingLevel: 3,
+    })
+
+    store.getState().toggleViewingLevel(0)
+    expect(store.getState().selectedPieceIDs).toEqual(['floor', 'land'])
+
+    store.getState().toggleIs2DOpen(true)
+    expect(store.getState().selectedPieceIDs).toEqual(['floor', 'land'])
+
+    store.getState().toggleIsEditMapDialogOpen(true)
+    expect(store.getState().selectedPieceIDs).toEqual(['floor', 'land'])
   })
 
   it('does not set hover state to a hidden glyph', () => {

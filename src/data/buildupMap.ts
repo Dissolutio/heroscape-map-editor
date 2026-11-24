@@ -20,6 +20,7 @@ import {
   dropUnknownBoardPieces,
 } from '../utils/map-utils'
 import { addPiece } from './addPiece'
+import { normalizeLegacyMapOrigin } from './convertMapShape'
 import { fitMapToPieces } from './fitMapToPieces'
 import { normalizeObjectiveMarkers } from './objectiveMarkers'
 import {
@@ -147,12 +148,17 @@ export function buildupJsonFileMap(
         }
       : migratedHexMap
 
+  const originNormalized = normalizeLegacyMapOrigin(
+    mapWithNormalizedMarkers,
+    boardPieces,
+  )
+
   // For JSON maps, the map dimensions are free, we do not have to compute them
   let initialBoardHexes: BoardHexes = {}
   const { boardPieces: knownBoardPieces, droppedPieces: unknownPieces } =
-    dropUnknownBoardPieces(boardPieces)
+    dropUnknownBoardPieces(originNormalized.boardPieces)
   const droppedPieces = [...droppedMalformedPieces, ...unknownPieces]
-  const fitted = fitMapToPieces(mapWithNormalizedMarkers, knownBoardPieces)
+  const fitted = fitMapToPieces(originNormalized.hexMap, knownBoardPieces)
   const fittedHexMap = fitted.hexMap
   const droppedForFit = new Set(fitted.droppedPieces ?? [])
   const initialBoardPieces = clone(

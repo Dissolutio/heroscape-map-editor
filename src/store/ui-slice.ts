@@ -22,7 +22,6 @@ import {
   shouldSetRotationPivotOnClick,
 } from '../data/rotationPivot'
 import {
-  filterVisiblePieceIDs,
   isGlyphBoardPiece,
   isStartZoneBoardPiece,
 } from '../data/startZoneVisibility'
@@ -40,7 +39,6 @@ import {
   finishPerformanceTiming,
   startPerformanceTiming,
 } from '../performance/performanceTiming'
-import { getVisibleSelectionPieces } from '../selection/selectionMenuActions'
 import {
   type BoardHex,
   type BoardPiece,
@@ -524,20 +522,12 @@ const createUISlice: StateCreator<
   },
   setSelectedPieceIDs: (pieceIDs) => {
     const state = get()
-    const visibleIDs = new Set(
-      getVisibleSelectionPieces(
-        state.boardPieces,
-        state.boardHexes,
-        state.viewingLevel,
-        state.isShowStartZones,
-        state.isShowGlyphs,
-      ).map((piece) => piece.uid),
-    )
+    const boardPieceIDs = new Set(state.boardPieces.map((piece) => piece.uid))
     set(
       produce((s) => {
         s.selectedObjectiveMarkerUID = null
         s.selectedPieceIDs = [...new Set(pieceIDs)].filter((uid) =>
-          visibleIDs.has(uid),
+          boardPieceIDs.has(uid),
         )
         s.rotationPivot = null
       }),
@@ -845,12 +835,6 @@ const createUISlice: StateCreator<
       produce((s) => {
         s.isShowStartZones = b
         if (!b) {
-          s.selectedPieceIDs = filterVisiblePieceIDs(
-            s.selectedPieceIDs,
-            s.boardPieces,
-            false,
-            s.isShowGlyphs,
-          )
           const lastSelectedUID =
             s.selectedPieceIDs[s.selectedPieceIDs.length - 1]
           const pivotPiece = s.boardPieces.find(
@@ -880,12 +864,6 @@ const createUISlice: StateCreator<
       produce((s) => {
         s.isShowGlyphs = show
         if (!show) {
-          s.selectedPieceIDs = filterVisiblePieceIDs(
-            s.selectedPieceIDs,
-            s.boardPieces,
-            s.isShowStartZones,
-            false,
-          )
           const lastSelectedUID =
             s.selectedPieceIDs[s.selectedPieceIDs.length - 1]
           const pivotPiece = s.boardPieces.find(

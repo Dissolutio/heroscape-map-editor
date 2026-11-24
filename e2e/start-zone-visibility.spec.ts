@@ -48,11 +48,13 @@ test('hides placed start zones without affecting selection on show', async ({
   await expect(showStartZones).toBeChecked()
   await showStartZones.click()
   await expect(showStartZones).not.toBeChecked()
+  // Hiding start zones keeps the selection: only Delete drops it (John,
+  // 2026-11-19). The selected card counts it as hidden instead.
   await expect
     .poll(() =>
       page.evaluate(() => window.__TEST__?.snapshot().selectedPieceIDs),
     )
-    .toEqual([])
+    .toEqual([zone])
 
   await page.mouse.move(0, 0)
   await saveEvidence(page, 'start-zones-hidden-3d')
