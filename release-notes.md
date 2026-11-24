@@ -1,3 +1,16 @@
+Nov-24-2026
+TLDR: Trim map button. Convert map shape lands on the axes. More right-click actions. Arrow pad for moving pieces. Unit names from heroscape.org.
+
+- **Trim map**: Edit tab: one click removes every empty row and column and moves the map to the top-left corner. Hexagon maps trim to the smallest centered hexagon.
+- **Convert map shape**: The new map now sits where a brand-new map of that shape would. Old converted maps are moved onto the axes when they load.
+- **Right-click menu**: Select connected on same level, Convert terrain, Delete, and Use as pen.
+- **Selection**: Stays selected when you change the viewing level or hide pieces. The selected card says how many selected pieces are hidden. Only Delete clears it.
+- **Move buttons**: A hex-shaped arrow pad, with north, south, east and west in the tooltips.
+- **Objective marker names**: Suggestions now come from heroscape.org's unit list, with Renegade-style names for reprints, e.g. Syvarris (RotV) and Syvarris (GS).
+- **Include VC unit/terrain data**: View tab. Off by default: shows community custom (VC) units.
+- **Objective marker dialog**: Moved to the bottom-right, so the action log no longer covers it.
+- **PDF legend**: The top-left "Notice centers" cell is now blank in PDFs. SVGs keep it.
+
 Nov-16-2026
 TLDR: Ships fit like the real pieces. Fortified Walls and Ruins 2/3 sit between hexes, so no more false conflicts.
 
