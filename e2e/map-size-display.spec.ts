@@ -62,11 +62,15 @@ test('shows live map size controls and conversion across map dialogs', async ({
     page.getByRole('button', { name: 'Convert to hexagon map' }),
   ).toHaveCount(0)
 
-  await page.getByRole('button', { name: 'Add a row at the bottom' }).click()
+  await page
+    .getByRole('button', { name: 'Add a row on the south side' })
+    .click()
   await waitForAppReady(page)
   await expect(lengthValue).toHaveText('4')
   await expect(widthValue).toHaveText('4')
-  await page.getByRole('button', { name: 'Add a column on the right' }).click()
+  await page
+    .getByRole('button', { name: 'Add a column on the east side' })
+    .click()
   await waitForAppReady(page)
   await expect(lengthValue).toHaveText('4')
   await expect(widthValue).toHaveText('5')

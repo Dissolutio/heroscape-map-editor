@@ -231,16 +231,16 @@ test('map shrink controls are disabled when a piece occupies the removed edge', 
   await page.locator('#simple-tab-2').click()
 
   const removeLength = page.getByRole('button', {
-    name: 'Remove the bottom row',
+    name: 'Remove the south row',
   })
   const removeWidth = page.getByRole('button', {
-    name: 'Remove the right column',
+    name: 'Remove the east column',
   })
   await expect(removeLength).toBeDisabled()
   await expect(removeWidth).toBeDisabled()
 
   await removeLength.locator('xpath=..').hover()
   await expect(page.getByRole('tooltip')).toHaveText(
-    'Cannot remove the bottom row because pieces occupy hexes in it',
+    'Cannot remove the south row because pieces occupy hexes in it',
   )
 })

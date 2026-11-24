@@ -27,10 +27,12 @@ import type {
   WebGLRenderer,
 } from 'three'
 import SelectedPieceReadout from '../controls/SelectedPieceReadout'
+import { deleteSelectedPieces } from '../controls/deleteSelectedPieces'
 import { E2EStatus } from '../e2e/E2EStatus'
 import { ReadySignal } from '../e2e/ReadySignal'
 import { TestBridge } from '../e2e/TestBridge'
 import useBoundStore from '../store/store'
+import { pickPieceAsPenMode } from '../hooks/useMiddleClickPickPenMode'
 import { getBoardHexesRectangularMapDimensions } from '../utils/map-utils'
 import Lights from './Lights'
 import LookSettingsApplier from './LookSettingsApplier'
@@ -337,6 +339,8 @@ const World = ({
   const [selectionMenuSeedPieceIDs, setSelectionMenuSeedPieceIDs] = useState<
     string[]
   >([])
+  const [selectionMenuTargetPieceUID, setSelectionMenuTargetPieceUID] =
+    useState('')
   const { width, length } = getBoardHexesRectangularMapDimensions(boardHexes)
   // const isTakingPicture = useBoundStore(s => s.isTakingPicture)
   const toggleHoveredPieceID = useBoundStore((s) => s.toggleHoveredPieceID)
@@ -387,6 +391,7 @@ const World = ({
       ? rightClickPieceID.current
       : ''
     rightClickPieceID.current = ''
+    setSelectionMenuTargetPieceUID(pieceID)
     if (pieceID && !state.selectedPieceIDs.includes(pieceID)) {
       state.setSelectedPieceIDs([pieceID])
     }
@@ -431,6 +436,10 @@ const World = ({
     isShowStartZones,
     isShowGlyphs,
     setSelectedPieceIDs,
+    contextPieceUID: selectionMenuTargetPieceUID,
+    deleteSelectedPieces,
+    pickPieceAsPen: (pieceUID) =>
+      pickPieceAsPenMode(pieceUID, { preserveSelection: true }),
   }
   const handleClickAway = () => {
     toggleHoveredPieceID('')
