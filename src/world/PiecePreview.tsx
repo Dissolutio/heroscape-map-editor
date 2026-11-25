@@ -200,6 +200,40 @@ export default function PiecePreview() {
           altitude: resolution.altitude,
         })
       : undefined
+  const automaticBaseSupportHex = previewState.automaticBase
+    ? (boardHexes[
+        genBoardHexID({
+          ...previewState.automaticBase.coords,
+          altitude: previewState.automaticBase.altitude,
+        })
+      ] ?? {
+        ...placementPointerHex,
+        ...previewState.automaticBase.coords,
+        altitude: previewState.automaticBase.altitude,
+        terrain: HexTerrain.empty,
+      })
+    : undefined
+  const marvelRuinSupportHex =
+    piece.pieceSizeFamily === 'marvelRuin' && !('blocked' in resolution)
+      ? previewState.automaticBase
+        ? {
+            ...placementPointerHex,
+            ...resolution.coords,
+            altitude: resolution.altitude,
+            terrain: piecesSoFar[Pieces.concrete6].terrain,
+          }
+        : (boardHexes[
+            genBoardHexID({
+              ...resolution.coords,
+              altitude: resolution.altitude,
+            })
+          ] ?? {
+            ...placementPointerHex,
+            ...resolution.coords,
+            altitude: resolution.altitude,
+            terrain: piecesSoFar[Pieces.concrete6].terrain,
+          })
+      : undefined
 
   return (
     <>
@@ -209,9 +243,20 @@ export default function PiecePreview() {
         footprintHexes={evaluation.footprintHexes}
         hoveredHex={hoveredSurfaceHex}
       />
+      {evaluation.status !== 'blocked' &&
+        previewState.automaticBase &&
+        automaticBaseSupportHex && (
+          <LandPieceGhost
+            piece={piecesSoFar[Pieces.concrete6]}
+            supportHex={automaticBaseSupportHex}
+            rotation={previewState.automaticBase.rotation}
+          />
+        )}
       {evaluation.status !== 'blocked' && (
         <PiecePreviewModel
-          hoveredHexOverride={addonPreviewHex ?? castleCapHex}
+          hoveredHexOverride={
+            addonPreviewHex ?? castleCapHex ?? marvelRuinSupportHex
+          }
           unsupported={previewState.unsupported && evaluation.status === 'ok'}
           rotationOverride={
             'blocked' in resolution ? undefined : resolution.rotation

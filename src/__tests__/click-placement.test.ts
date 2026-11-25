@@ -12,6 +12,7 @@ import type { ReactElement } from 'react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { evaluateLaurAddonConflicts } from '../data/laurAddonConflicts'
 import { getLaurAddonHitHex } from '../data/laurAddonStacking'
+import { countPiecesUsedWithLaurStacking } from '../inventory/laurInventoryReconcile'
 import { placementBlockedMessages } from '../data/placement'
 import { OBJECTIVE_MARKERS_HIDDEN_MESSAGE } from '../data/objectiveMarkerVisibility'
 import { OBJECTIVE_MARKER_PEN_MODE } from '../data/objectiveMarkers'
@@ -115,6 +116,86 @@ function clickSnackbarAction(index: number, label: string) {
 }
 
 describe('click placement through the real handler', () => {
+  it.each(Array.from({ length: 6 }, (_, rotation) => rotation))(
+    'places the Marvel Ruin base and ruin together at rotation %s',
+    (rotation) => {
+      const table = withGrassFloor(makeTable(9))
+      const hex = hexAt(table, table.center, 1) as BoardHex
+      const result = clickWithPen({
+        board: table,
+        pieceID: Pieces.marvel,
+        hex,
+        rotation,
+      })
+
+      expect(
+        result.added.map(
+          ({ inventoryID, altitude, rotation, pieceCoords }) => ({
+            inventoryID,
+            altitude,
+            rotation,
+            pieceCoords,
+          }),
+        ),
+      ).toEqual([
+        {
+          inventoryID: Pieces.concrete6,
+          altitude: 1,
+          rotation,
+          pieceCoords: table.center,
+        },
+        {
+          inventoryID: Pieces.marvel,
+          altitude: 2,
+          rotation,
+          pieceCoords: table.center,
+        },
+      ])
+      expect(result.conflictedPieceUIDs).toEqual([])
+      expect(
+        countPiecesUsedWithLaurStacking(result.boardPieces)[Pieces.concrete6],
+      ).toBe(1)
+
+      useBoundStore.temporal.getState().undo()
+      expect(useBoundStore.getState().boardPieces).toEqual(table.boardPieces)
+      expect(useBoundStore.getState().boardHexes).toEqual(table.boardHexes)
+    },
+  )
+
+  it('places a ruin on an empty aligned Concrete-6 without adding another base', () => {
+    const table = withGrassFloor(makeTable(9))
+    const rotation = 4
+    const baseBoard = place({
+      board: cloneBoard(table),
+      pieceID: Pieces.concrete6,
+      at: table.center,
+      altitude: 1,
+      rotation,
+      uid: 'existing-concrete6',
+    }).board
+    const concreteTop = hexAt(baseBoard, table.center, 2) as BoardHex
+    const result = clickWithPen({
+      board: baseBoard,
+      pieceID: Pieces.marvel,
+      hex: concreteTop,
+      rotation,
+    })
+
+    expect(result.added).toHaveLength(1)
+    expect(result.added[0]).toMatchObject({
+      inventoryID: Pieces.marvel,
+      altitude: 2,
+      rotation,
+      pieceCoords: table.center,
+    })
+    expect(
+      result.boardPieces.filter(
+        (boardPiece) => boardPiece.inventoryID === Pieces.concrete6,
+      ),
+    ).toHaveLength(1)
+    expect(result.conflictedPieceUIDs).toEqual([])
+  })
+
   it('notifies when placing an objective marker while markers are hidden', () => {
     const table = makeTable(5)
     const hex = hexAt(table, table.center, 0)

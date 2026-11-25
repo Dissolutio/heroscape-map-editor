@@ -111,6 +111,11 @@ export type PlacementResolution =
   | ResolvedPlacement
   | { blocked: PlacementBlockedReason }
 
+export type PlacementPlan = {
+  resolution: PlacementResolution
+  automaticBase?: ResolvedPlacement
+}
+
 export const isPlacementBlocked = (
   resolution: PlacementResolution,
 ): resolution is { blocked: PlacementBlockedReason } => 'blocked' in resolution
@@ -170,6 +175,98 @@ export function resolvePlacement(
     return { blocked: 'offMap' }
   }
   return resolution
+}
+
+export function resolvePlacementPlan(
+  piece: Piece,
+  pointerHex: BoardHex,
+  rotation: number,
+  board: PlacementBoard,
+  options: {
+    ignoreUID?: IgnoredPieceUIDs
+    deferOffMapCheck?: boolean
+    worldPoint?: { x: number; z: number }
+    edgeId?: HexEdgeId
+  } = {},
+): PlacementPlan {
+  if (piece.pieceSizeFamily !== 'marvelRuin') {
+    return {
+      resolution: resolvePlacement(piece, pointerHex, rotation, board, options),
+    }
+  }
+
+  const existingBase = board.boardPieces.find(
+    (boardPiece) =>
+      boardPiece.uid === pointerHex.boardPieceUID &&
+      boardPiece.inventoryID === Pieces.concrete6 &&
+      pointerHex.altitude === boardPiece.altitude + 1 &&
+      boardPiece.rotation === rotation % 6 &&
+      !hasPieceOnTopOfConcrete6(board, boardPiece),
+  )
+  if (existingBase) {
+    return {
+      resolution: {
+        piece,
+        coords: existingBase.pieceCoords,
+        altitude: existingBase.altitude + 1,
+        rotation,
+        rule: 'default',
+      },
+    }
+  }
+
+  const base = resolvePlacement(
+    piecesSoFar[Pieces.concrete6],
+    pointerHex,
+    rotation,
+    board,
+    options,
+  )
+  if (isPlacementBlocked(base)) return { resolution: base }
+
+  return {
+    resolution: {
+      piece,
+      coords: base.coords,
+      altitude: base.altitude + 1,
+      rotation: base.rotation,
+      rule: 'default',
+    },
+    automaticBase: base,
+  }
+}
+
+function hasPieceOnTopOfConcrete6(
+  board: PlacementBoard,
+  base: BoardPieces[number],
+) {
+  const baseCoords = getPieceTemplateCoords({
+    clickedHex: base.pieceCoords,
+    rotation: base.rotation,
+    template: piecesSoFar[Pieces.concrete6].template,
+    isVsTile: false,
+  })
+  const baseHexIDs = new Set(
+    baseCoords.map((coords) => genBoardHexID({ ...coords, altitude: 0 })),
+  )
+  return board.boardPieces.some((boardPiece) => {
+    if (
+      boardPiece.uid === base.uid ||
+      boardPiece.altitude !== base.altitude + 1
+    ) {
+      return false
+    }
+    const piece = piecesSoFar[boardPiece.inventoryID]
+    if (!piece) return false
+    return getPieceTemplateCoords({
+      clickedHex: boardPiece.pieceCoords,
+      rotation: boardPiece.rotation,
+      template: piece.template,
+      isVsTile: false,
+    }).some((coords) =>
+      baseHexIDs.has(genBoardHexID({ ...coords, altitude: 0 })),
+    )
+  })
 }
 
 /**
@@ -523,4 +620,66 @@ export function evaluatePlacement(
   }
   if (strict.error) return result('conflict', strict.error.message)
   return result('ok')
+}
+
+export function evaluatePlacementPlan(
+  board: PlacementBoard,
+  plan: PlacementPlan,
+): PlacementEvaluation {
+  if (!plan.automaticBase) {
+    return evaluatePlacement(board, plan.resolution)
+  }
+
+  const baseEvaluation = evaluatePlacement(board, plan.automaticBase)
+  const ruinEvaluation = evaluatePlacement(board, plan.resolution)
+  const footprintHexes = [
+    ...baseEvaluation.footprintHexes,
+    ...ruinEvaluation.footprintHexes,
+  ]
+  if (baseEvaluation.status === 'blocked') {
+    return { ...baseEvaluation, footprintHexes }
+  }
+
+  const baseResult = addPiece({
+    piece: plan.automaticBase.piece,
+    boardHexes: board.boardHexes,
+    boardPieces: board.boardPieces,
+    pieceCoords: plan.automaticBase.coords,
+    placementAltitude: plan.automaticBase.altitude,
+    rotation: plan.automaticBase.rotation,
+    isVsTile: false,
+    uid: PROBE_UID,
+    permissive: true,
+  })
+  const placementEvaluation = evaluatePlacement(
+    {
+      boardHexes: baseResult.newBoardHexes,
+      boardPieces: baseResult.newBoardPieces,
+    },
+    plan.resolution,
+  )
+  const displacedUIDs = [
+    ...new Set([
+      ...baseEvaluation.displacedUIDs,
+      ...placementEvaluation.displacedUIDs,
+    ]),
+  ]
+  const status =
+    placementEvaluation.status === 'blocked'
+      ? 'blocked'
+      : baseEvaluation.status === 'conflict' ||
+          placementEvaluation.status === 'conflict' ||
+          baseResult.error !== undefined
+        ? 'conflict'
+        : 'ok'
+
+  return {
+    status,
+    displacedUIDs,
+    footprintHexes,
+    reason:
+      placementEvaluation.reason ??
+      baseResult.error?.message ??
+      baseEvaluation.reason,
+  }
 }

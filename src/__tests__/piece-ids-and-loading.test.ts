@@ -13,7 +13,7 @@
 import { describe, expect, it, vi } from 'vitest'
 import { buildupJsonFileMap } from '../data/buildupMap'
 import { piecesSoFar } from '../data/pieces'
-import type { BoardPiece, HexMap } from '../types'
+import { Pieces, type BoardPiece, type HexMap } from '../types'
 import {
   decodePieceID,
   encodeBoardPiecesToIds,
@@ -561,6 +561,22 @@ describe('buildupJsonFileMap (the load path for files, links and localStorage)',
       terrain: 'empty',
       isCap: false,
     })
+  })
+
+  it('loads a legacy baseless Marvel Ruin without adding a Concrete-6', () => {
+    const map = buildupJsonFileMap(
+      [piece('legacy-ruin', Pieces.marvel, q, r, 0)],
+      rectangleMap(),
+    )
+
+    expect(map.boardPieces).toEqual([
+      piece('legacy-ruin', Pieces.marvel, q, r, 0),
+    ])
+    expect(
+      map.boardPieces.some(
+        (boardPiece) => boardPiece.inventoryID === Pieces.concrete6,
+      ),
+    ).toBe(false)
   })
 
   it('stacks pieces by altitude regardless of the order they are listed in', () => {
