@@ -18,10 +18,12 @@ import { piecesSoFar } from '../data/pieces'
 import {
   type PlacementResolution,
   evaluatePlacement,
+  evaluatePlacementPlan,
   hangsOffMap,
   isPlacementBlocked,
   placementBlockedMessages,
   resolvePlacement,
+  resolvePlacementPlan,
 } from '../data/placement'
 import { getPlacementPreviewState } from '../data/placementPreview'
 import getPieceTemplateCoords from '../data/rotationTransforms'
@@ -82,6 +84,70 @@ function resolve(
     ignoreUID,
   })
 }
+
+describe('Marvel Ruin base placement', () => {
+  it('uses the same Concrete-6 footprint at every rotation', () => {
+    const marvelRuinIDs = [
+      Pieces.marvel,
+      Pieces.marvelBroken,
+      Pieces.marvelNoUpper,
+      Pieces.marvelNoUpperBroken,
+    ]
+
+    for (const pieceID of marvelRuinIDs) {
+      for (let rotation = 0; rotation < 6; rotation++) {
+        expect(
+          getPieceTemplateCoords({
+            clickedHex: c,
+            rotation,
+            template: piecesSoFar[pieceID].template,
+            isVsTile: false,
+          }),
+        ).toEqual(
+          getPieceTemplateCoords({
+            clickedHex: c,
+            rotation,
+            template: piecesSoFar[Pieces.concrete6].template,
+            isVsTile: false,
+          }),
+        )
+      }
+    }
+  })
+
+  it.each(Array.from({ length: 6 }, (_, rotation) => rotation))(
+    'plans and evaluates a base beneath the ruin at rotation %s',
+    (rotation) => {
+      const plan = resolvePlacementPlan(
+        piecesSoFar[Pieces.marvel],
+        topHex(table),
+        rotation,
+        table,
+      )
+
+      expect(plan.automaticBase).toMatchObject({
+        piece: piecesSoFar[Pieces.concrete6],
+        coords: c,
+        altitude: 1,
+        rotation,
+      })
+      expect(plan.resolution).toMatchObject({
+        piece: piecesSoFar[Pieces.marvel],
+        coords: c,
+        altitude: 2,
+        rotation,
+      })
+      expect(evaluatePlacementPlan(table, plan)).toMatchObject({
+        status: 'ok',
+        footprintHexes: expect.arrayContaining([
+          expect.objectContaining({ altitude: 1 }),
+          expect.objectContaining({ altitude: 2 }),
+        ]),
+      })
+      expect(evaluatePlacementPlan(table, plan).footprintHexes).toHaveLength(12)
+    },
+  )
+})
 
 function partialPieceHex(board: Board, uid: string): BoardHex {
   const bp = board.boardPieces.find((piece) => piece.uid === uid)

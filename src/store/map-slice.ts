@@ -171,6 +171,12 @@ type PaintTileArgs = {
   clickedHexCoords: CubeCoordinate
   altitude: number
   rotation: number
+  automaticBase?: {
+    piece: Piece
+    clickedHexCoords: CubeCoordinate
+    altitude: number
+    rotation: number
+  }
 }
 
 type ConvertTerrainArgs = {
@@ -232,23 +238,44 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
     clickedHexCoords,
     altitude,
     rotation,
+    automaticBase,
   }: PaintTileArgs): AddRemovePieceError => {
     let error: AddRemovePieceError
     const uid = nanoid(10)
+    const automaticBaseUID = automaticBase ? nanoid(10) : undefined
     get().pushPendingUndoSelectionRestore({
-      pieceUIDs: [uid],
+      pieceUIDs: automaticBaseUID ? [automaticBaseUID, uid] : [uid],
       objectiveMarkerUID: null,
     })
     set((state) => {
       return produce(state, (draft) => {
+        let boardHexes = draft.boardHexes
+        let boardPieces = draft.boardPieces
+        if (automaticBase && automaticBaseUID) {
+          const baseResult = addPiece({
+            piece: automaticBase.piece,
+            boardHexes,
+            boardPieces,
+            pieceCoords: automaticBase.clickedHexCoords,
+            placementAltitude: automaticBase.altitude,
+            rotation: automaticBase.rotation,
+            isVsTile: false,
+            uid: automaticBaseUID,
+            permissive: true,
+          })
+          error = baseResult.error
+          if (error) return
+          boardHexes = baseResult.newBoardHexes
+          boardPieces = baseResult.newBoardPieces
+        }
         const {
           newBoardHexes,
           newBoardPieces,
           error: addPieceError,
         } = addPiece({
           piece,
-          boardHexes: draft.boardHexes,
-          boardPieces: draft.boardPieces,
+          boardHexes,
+          boardPieces,
           pieceCoords: clickedHexCoords,
           placementAltitude: altitude,
           rotation,
@@ -276,7 +303,9 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
       get().recordActionLog({
         type: 'place',
         pieceName: piece.title,
-        selection: { pieceUIDs: [uid] },
+        selection: {
+          pieceUIDs: automaticBaseUID ? [automaticBaseUID, uid] : [uid],
+        },
       })
     }
     return error

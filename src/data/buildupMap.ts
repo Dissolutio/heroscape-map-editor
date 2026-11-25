@@ -22,14 +22,24 @@ import {
 import { addPiece } from './addPiece'
 import { normalizeLegacyMapOrigin } from './convertMapShape'
 import { fitMapToPieces } from './fitMapToPieces'
-import { normalizeObjectiveMarkers } from './objectiveMarkers'
+import {
+  generateObjectiveMarkerUID,
+  normalizeObjectiveMarkers,
+} from './objectiveMarkers'
 import {
   normalizeSavedSelections,
   pruneSavedSelections,
 } from './selectionUnits'
 import { pieceCodes } from './pieceCodes'
 import { piecesSoFar } from './pieces'
-import { getCodeForVSPersonalTile } from './readVirtualscapeMapFile'
+import {
+  getCodeForVSPersonalTile,
+  getHexoscapeLaurRotation,
+  getHexoscapeRopeLadderAltitude,
+} from './readVirtualscapeMapFile'
+import { isLaurPillarID } from './laurPillarStacking'
+import { isPortAddonPieceID } from './portPieces'
+import { virtualscapeLaurPillarBaseName } from './pieceCodes'
 
 export default function buildupVSFileMap(
   tiles: VirtualScapeTile[],
@@ -38,12 +48,83 @@ export default function buildupVSFileMap(
   const blankMap = getBlankHexoscapeMapForVSTiles(tiles, mapName)
   let { boardPieces } = blankMap
   const { boardHexes, hexMap } = blankMap
-  const mappedTiles = tiles.map((tile) => {
-    const code = getCodeForVSPersonalTile(tile)
-    return {
-      tile,
-      inventoryID: pieceCodes?.[code] ?? String(code ?? tile.type),
+  const isPillarTile = (tile: VirtualScapeTile) =>
+    isLaurPillarID(
+      pieceCodes?.[getCodeForVSPersonalTile(tile)] ??
+        String(getCodeForVSPersonalTile(tile) ?? tile.type),
+    )
+  const pairedPillarBases = new Set<VirtualScapeTile>()
+  const pairedPillars = new Set<VirtualScapeTile>()
+  for (const base of tiles.filter(
+    (tile) => tile.virtualscapeName === virtualscapeLaurPillarBaseName,
+  )) {
+    const pillar = tiles.find(
+      (tile) =>
+        tile.posX === base.posX &&
+        tile.posY === base.posY &&
+        tile.posZ === base.posZ + 1 &&
+        isPillarTile(tile),
+    )
+    if (pillar) {
+      pairedPillarBases.add(base)
+      pairedPillars.add(pillar)
     }
+  }
+  const objectiveMarkers = normalizeObjectiveMarkers(
+    tiles
+      .filter((tile) => tile.type >= 15101 && tile.type <= 15106)
+      .map((tile) => ({
+        uid: generateObjectiveMarkerUID(),
+        anchor: {
+          ...hexUtilsOddRToCube(tile.posX, tile.posY),
+          altitude: tile.posZ,
+        },
+        size: 1,
+        rotation: tile.rotation,
+        style: 'black',
+        content: { kind: 'number', value: tile.type - 15100 },
+        name: tile.startName,
+      })),
+  )
+  if (objectiveMarkers.length) {
+    hexMap.objectiveMarkers = objectiveMarkers
+  }
+  const mappedTiles = tiles.flatMap((tile) => {
+    if (tile.type >= 15101 && tile.type <= 15106) return []
+    if (tile.virtualscapeName === virtualscapeLaurPillarBaseName) {
+      return pairedPillarBases.has(tile)
+        ? []
+        : [{ tile, inventoryID: virtualscapeLaurPillarBaseName }]
+    }
+
+    const code = getCodeForVSPersonalTile(tile)
+    const inventoryID =
+      code === 4002
+        ? Pieces.water1
+        : (pieceCodes?.[code] ?? String(code ?? tile.type))
+    let altitude = tile.posZ
+    if (code === 4002) {
+      return [
+        { tile: { ...tile, posZ: altitude }, inventoryID: Pieces.water1 },
+        { tile: { ...tile, posZ: altitude + 1 }, inventoryID: Pieces.water1 },
+      ]
+    }
+    if (inventoryID === Pieces.ropeLadder) {
+      altitude = getHexoscapeRopeLadderAltitude(altitude)
+    } else if (isLaurPillarID(inventoryID) && pairedPillars.has(tile)) {
+      altitude -= 1
+    } else if (
+      isPortAddonPieceID(inventoryID) &&
+      [...pairedPillars].some(
+        (pillar) =>
+          tile.posX === pillar.posX &&
+          tile.posY === pillar.posY &&
+          tile.posZ === pillar.posZ,
+      )
+    ) {
+      altitude -= 1
+    }
+    return [{ tile: { ...tile, posZ: altitude }, inventoryID }]
   })
   const { boardPieces: knownTiles, droppedPieces } =
     dropUnknownBoardPieces(mappedTiles)
@@ -64,7 +145,7 @@ export default function buildupVSFileMap(
         rotation:
           inventoryID === Pieces.deflectorShield
             ? (tile.rotation + 4.5) % 6 // Virtualscape zero faces Hexoscape 4.5.
-            : tile.rotation,
+            : getHexoscapeLaurRotation(inventoryID, tile.rotation),
         isVsTile: true,
       })
       boardPieces = newBoardPieces

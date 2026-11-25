@@ -1,4 +1,5 @@
 import type { VirtualScapeMap, VirtualScapeTile } from '../types'
+import { Pieces } from '../types'
 import { virtualscapeNamedPieceCodes } from './pieceCodes'
 
 /* 
@@ -357,4 +358,30 @@ export function getCodeForVSPersonalTile(tile: VirtualScapeTile) {
   // }
 
   return tile.type
+}
+
+// Virtualscape stores rope ladders at the bottom, one level below
+// Hexoscape's top attachment level. Export must add this level back.
+export function getHexoscapeRopeLadderAltitude(virtualscapeAltitude: number) {
+  return virtualscapeAltitude - 1
+}
+
+export function getHexoscapeLaurRotation(
+  inventoryID: string,
+  virtualscapeRotation: number,
+) {
+  const rotation = ((virtualscapeRotation % 6) + 6) % 6
+  if (inventoryID === Pieces.laurWallSquarePillar) {
+    return (rotation + 4) % 6
+  }
+  if (inventoryID === Pieces.laurWallTrianglePillar) {
+    return (virtualscapeRotation / 2 + 1.5) % 6
+  }
+  if (inventoryID === Pieces.laurWallLong) {
+    return (virtualscapeRotation / 2) % 6
+  }
+  if (inventoryID === Pieces.laurWallArch) {
+    return (virtualscapeRotation / 2 + 0.5) % 6
+  }
+  return virtualscapeRotation
 }
