@@ -2,11 +2,9 @@ import { Billboard, Text } from '@react-three/drei'
 import type { ThreeEvent } from '@react-three/fiber'
 import { Suspense } from 'react'
 import { Vector3 } from 'three'
-import {
-  hasSupportingLaurPillar,
-  isLaurPillarID,
-} from '../data/laurPillarStacking'
+import { hasSupportingLaurPillar } from '../data/laurPillarStacking'
 import { piecesSoFar } from '../data/pieces'
+import { isPortPillarID } from '../data/portPieces'
 import {
   resolveRotationPivot,
   shouldShowRotationPivotMarker,
@@ -71,6 +69,13 @@ import Shroudshroom10 from './models/Shroudshroom10'
 import Shroudshroom13 from './models/Shroudshroom13'
 import { SnowEvergreenTree } from './models/SnowEvergreenTree'
 import { StartZone3D } from './models/StartZone3D'
+import {
+  DeflectorShieldAddon,
+  VOID_MAT_Y_OFFSET,
+  VoidMat3D,
+  VoidMatFallback,
+  VoidPylon,
+} from './models/VoidAndPylons'
 import JungleBrush from './models/TicallaBrush'
 import TicallaPalm from './models/TicallaPalm'
 import {
@@ -138,7 +143,9 @@ export const MapBoardPiece3D = (props: MapBoardPiece3DProps) => {
   })
   const onPointerMove = (e: ThreeEvent<PointerEvent>) => {
     const { boardHexes } = useBoundStore.getState()
-    const support = isLaurPillarID(props.bp.inventoryID)
+    // A port pillar (Laur pillar, pylon) stands for itself, so an add-on
+    // dragged over it can clip into its ports.
+    const support = isPortPillarID(props.bp.inventoryID)
       ? ({
           ...pieceCoords,
           boardPieceUID: uid,
@@ -146,7 +153,7 @@ export const MapBoardPiece3D = (props: MapBoardPiece3DProps) => {
           inventoryID: props.bp.inventoryID,
           pieceID: '',
           pieceRotation: props.bp.rotation,
-          terrain: HexTerrain.laurWall,
+          terrain: piecesSoFar[props.bp.inventoryID]?.terrain,
         } as BoardHex)
       : boardHexes[genBoardHexID({ ...pieceCoords, altitude })]
     if (support) {
@@ -239,6 +246,7 @@ const MapBoardPiece3DModel = ({
     ? yWithBase - HEXGRID_HEX_HEIGHT + HEXGRID_HEXCAP_FLUID_HEIGHT
     : yWithBase - pillarStackYOffset
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
+  const isSelected = useBoundStore((s) => s.selectedPieceIDs.includes(uid))
   const isVisible = altitude + 1 <= viewingLevel
   const isPowerGlyph = inventoryID === Pieces.glyphPower
   const isTreasureGlyph = inventoryID === Pieces.glyphTreasure
@@ -329,6 +337,50 @@ const MapBoardPiece3DModel = ({
             bp={bp}
             onPointerUpPaintPiece={onPointerUpPaintPiece}
           />
+        </Suspense>
+      </group>
+    )
+  }
+
+  // VOID AND PYLONS (VC). Pylons stand on the support surface like Laur
+  // pillars (dropping onto a fluid cap); the shield spans from its anchor
+  // pylon like a Laur long wall, at the pylons' altitude.
+  const yVoidPiece =
+    yBaseCap -
+    (isUnderHexFluid ? HEXGRID_HEX_HEIGHT - HEXGRID_HEXCAP_FLUID_HEIGHT : 0)
+  if (
+    inventoryID === Pieces.twoWayPylon ||
+    inventoryID === Pieces.threeWayPylon
+  ) {
+    return (
+      <group position={[x, yVoidPiece, z]} rotation={[0, pieceRotation, 0]}>
+        <Suspense fallback={<ModelLoader />}>
+          <VoidPylon bp={bp} onPointerUp={onPointerUpPaintPiece} />
+        </Suspense>
+      </group>
+    )
+  }
+  if (inventoryID === Pieces.deflectorShield) {
+    return (
+      <group position={[x, yVoidPiece, z]} rotation={[0, pieceRotation, 0]}>
+        <Suspense fallback={<ModelLoader />}>
+          <DeflectorShieldAddon
+            bp={bp}
+            onPointerUpPaintPiece={onPointerUpPaintPiece}
+          />
+        </Suspense>
+      </group>
+    )
+  }
+  // The mat lies on the table (level 0) under everything else.
+  if (inventoryID === Pieces.voidMat) {
+    return (
+      <group
+        position={[x, VOID_MAT_Y_OFFSET, z]}
+        rotation={[0, pieceRotation, 0]}
+      >
+        <Suspense fallback={<VoidMatFallback />}>
+          <VoidMat3D isHighlighted={isSelected} />
         </Suspense>
       </group>
     )

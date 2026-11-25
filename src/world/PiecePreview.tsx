@@ -6,6 +6,7 @@ import {
   getLaurPillarStackAltitude,
 } from '../data/laurPillarStacking'
 import { piecesSoFar } from '../data/pieces'
+import { isPortAddonPieceID } from '../data/portPieces'
 import { getPlacementPreviewState } from '../data/placementPreview'
 import { getSmartPlacementAltitude } from '../data/smartPlacement'
 import { isE2E } from '../e2e/isE2E'
@@ -16,7 +17,6 @@ import { HexTerrain, PiecePrefixes, Pieces } from '../types'
 import {
   isFluidTerrainHex,
   getShipPlacementAltitude,
-  isLaurWallAddonPieceID,
   isSolidTerrainHex,
 } from '../utils/board-utils'
 import {
@@ -67,6 +67,12 @@ import Shroudshroom13 from './models/Shroudshroom13'
 import { SnowEvergreenTree } from './models/SnowEvergreenTree'
 import { StartZone3D } from './models/StartZone3D'
 import {
+  VOID_MAT_Y_OFFSET,
+  VoidMat3D,
+  VoidMatFallback,
+  VoidPylonPreview,
+} from './models/VoidAndPylons'
+import {
   LaurBrushPreview,
   SwampBrushPreview,
   TicallaBrushPreview,
@@ -97,7 +103,7 @@ export default function PiecePreview() {
     (boardPiece) =>
       boardPiece.uid === hoveredPieceID &&
       hoveredHex?.boardPieceUID === hoveredPieceID &&
-      isLaurWallAddonPieceID(boardPiece.inventoryID),
+      isPortAddonPieceID(boardPiece.inventoryID),
   )
   const placementPointerHex = useMemo(
     () => (hoveredAddon ? getLaurAddonHitHex(hoveredAddon) : hoveredHex),
@@ -182,7 +188,7 @@ export default function PiecePreview() {
         })
       : undefined
   const addonPreviewHex =
-    !('blocked' in resolution) && piece?.terrain === HexTerrain.laurWallAddon
+    !('blocked' in resolution) && piece && isPortAddonPieceID(piece.id)
       ? (boardHexes[
           genBoardHexID({
             ...resolution.coords,
@@ -258,7 +264,7 @@ function PiecePreviewModel({
   const hoveredHexForPreview = useMemo(() => {
     if (hoveredHexOverride) return hoveredHexOverride
     if (!piece || !hoveredHexForModel) return hoveredHexForModel
-    if (piece.terrain === HexTerrain.laurWallAddon) return hoveredHexForModel
+    if (isPortAddonPieceID(piece.id)) return hoveredHexForModel
     const altitude = getSmartPlacementAltitude({
       boardHexes,
       boardPieces,
@@ -342,7 +348,7 @@ function PiecePreviewModel({
     hoveredHexForPreview.inventoryID === Pieces.castleWallCorner ||
     hoveredHexForPreview.inventoryID === Pieces.castleWallEnd ||
     hoveredHexForPreview.inventoryID === Pieces.castleWallStraight
-  const isLaurWallAddon = piece?.terrain === HexTerrain.laurWallAddon
+  const isLaurWallAddon = isPortAddonPieceID(piece.id)
   const isSolidSubterrain = isSolidTerrainHex(piece?.terrain)
   const isFluidSubterrain = isFluidTerrainHex(piece?.terrain)
   const isLaurSquarePillarHex =
@@ -496,6 +502,44 @@ function PiecePreviewModel({
         rotation={resolvedRotation}
         unsupported={unsupported}
       />
+    )
+  }
+  // VOID AND PYLONS (VC): a pylon on its support like a placed one, and the
+  // mat flat on the table wherever the pointer is.
+  if (
+    (pieceID === Pieces.twoWayPylon || pieceID === Pieces.threeWayPylon) &&
+    isLandOrEmptyBeneath
+  ) {
+    return (
+      <group
+        position={[
+          x,
+          y -
+            (isUnderHexFluid
+              ? HEXGRID_HEX_HEIGHT - HEXGRID_HEXCAP_FLUID_HEIGHT
+              : 0),
+          z,
+        ]}
+        rotation={[0, pieceRotation, 0]}
+      >
+        <Suspense fallback={<ModelLoader />}>
+          <VoidPylonPreview inventoryID={pieceID} />
+        </Suspense>
+      </group>
+    )
+  }
+  if (pieceID === Pieces.voidMat) {
+    return (
+      <group
+        position={[x, VOID_MAT_Y_OFFSET, z]}
+        rotation={[0, pieceRotation, 0]}
+      >
+        <Suspense
+          fallback={<VoidMatFallback opacity={PIECE_PREVIEW_OPACITY} />}
+        >
+          <VoidMat3D opacity={PIECE_PREVIEW_OPACITY} />
+        </Suspense>
+      </group>
     )
   }
   if (isLaurSquarePillarHex && (isLandOrEmptyBeneath || canStackOnPillar)) {

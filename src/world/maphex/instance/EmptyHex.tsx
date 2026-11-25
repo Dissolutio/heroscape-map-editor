@@ -3,7 +3,7 @@ import type { ThreeEvent } from '@react-three/fiber'
 import React from 'react'
 import usePieceHoverState from '../../../hooks/usePieceHoverState'
 import useBoundStore from '../../../store/store'
-import { HexTerrain } from '../../../types'
+import { type BoardHex, HexTerrain } from '../../../types'
 import {
   HEXGRID_EMPTYHEX_HEIGHT,
   INSTANCE_LIMIT,
@@ -34,7 +34,7 @@ const EmptyHexes = ({
   onPointerUp,
   onClick,
 }: DreiCapProps & {
-  onClick: (event: ThreeEvent<MouseEvent>) => void
+  onClick: (event: ThreeEvent<MouseEvent>, boardHex: BoardHex) => void
 }) => {
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,
@@ -74,7 +74,7 @@ function EmptyHex({
   onClick,
   isLightsAndShadowsRender,
 }: BoardHexPieceProps & {
-  onClick: (event: ThreeEvent<MouseEvent>) => void
+  onClick: (event: ThreeEvent<MouseEvent>, boardHex: BoardHex) => void
   isLightsAndShadowsRender: boolean
 }) {
   // biome-ignore lint/suspicious/noExplicitAny: <Type too weird>
@@ -110,7 +110,7 @@ function EmptyHex({
     <Instance
       ref={ref}
       onPointerUp={handleUp}
-      onClick={onClick}
+      onClick={(e: ThreeEvent<MouseEvent>) => onClick(e, boardHex)}
       onPointerEnter={handleEnter}
       onPointerOut={handleOut}
       onPointerMove={(e: ThreeEvent<PointerEvent>) => {

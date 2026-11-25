@@ -16,6 +16,7 @@ import { piecesSoFar } from '../data/pieces'
 import { resolveRotationPivot } from '../data/rotationPivot'
 import useBoundStore from '../store/store'
 import { type BoardHex, type BoardPiece, Pieces } from '../types'
+import { getPortAddonEnds } from '../data/portPieces'
 import { isLaurWallAddonPieceID } from '../utils/board-utils'
 import { HEXGRID_HEXCAP_HEIGHT, HEXGRID_HEX_HEIGHT } from '../utils/constants'
 import { cubeToPixel, hexUtilsGetNeighborForRotation } from '../utils/hex-utils'
@@ -548,6 +549,32 @@ function TestBridgeInner() {
         const { boardPieces, boardHexes } = useBoundStore.getState()
         const bp = boardPieces.find((piece) => piece.uid === uid)
         if (!bp) return null
+        if (bp.inventoryID === Pieces.deflectorShield) {
+          // The middle of its span (the edge between the two hexes it passes
+          // between), halfway up: away from the pylon tabs at its ends.
+          const ends = getPortAddonEnds(bp)
+          if (ends && ends.length === 2) {
+            const from = cubeToPixel(ends[0].coords)
+            const to = cubeToPixel(ends[1].coords)
+            const { yBaseCap } = getBoardHex3DCoords({
+              ...bp.pieceCoords,
+              altitude: bp.altitude + 1,
+            })
+            return project(
+              (from.x + to.x) / 2,
+              yBaseCap + 4 * HEXGRID_HEX_HEIGHT,
+              (from.y + to.y) / 2,
+            )
+          }
+        }
+        if (bp.inventoryID === Pieces.voidMat) {
+          // A mat never takes the pointer: its origin's table hex selects it.
+          const { x, z } = getBoardHex3DCoords({
+            ...bp.pieceCoords,
+            altitude: 0,
+          })
+          return project(x, 0, z)
+        }
         if (isLaurWallAddonPieceID(bp.inventoryID)) {
           const feature = getLaurAddonFeaturePoint(bp.pieceCoords, bp.rotation)
           if (feature) {
