@@ -1,4 +1,5 @@
 import { getVoidMatHexes } from '../data/voidMat'
+import { Pieces } from '../types'
 import type { BoardPiece, Point } from '../types'
 import { SVG_HEX_RADIUS } from '../utils/constants'
 import { hexUtilsHexToPixel } from '../utils/map-utils'
@@ -14,12 +15,15 @@ export function getVoidMatExportGeometry(
   mat: Pick<BoardPiece, 'inventoryID' | 'pieceCoords' | 'rotation'>,
   radius = SVG_HEX_RADIUS,
 ) {
+  const origin = hexUtilsHexToPixel(mat.pieceCoords)
+  const cellCorners = getHexagonSvgPolygonPointsAt00(radius).corners
+  if (mat.inventoryID === Pieces.voidMarker) {
+    return { outline: cellCorners, cells: [] }
+  }
   const outline = VOID_MAT_OUTLINE_AXIAL.map(([q, r]) => {
     const [x, y] = voidMatPoint(q, r)
     return { x: x * radius, y: y * radius }
   })
-  const origin = hexUtilsHexToPixel(mat.pieceCoords)
-  const cellCorners = getHexagonSvgPolygonPointsAt00(radius).corners
   const cells = getVoidMatHexes({ ...mat, rotation: 0 }).map((hex) => {
     const center = hexUtilsHexToPixel(hex)
     return cellCorners.map((corner) => ({

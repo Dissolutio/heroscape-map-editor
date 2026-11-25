@@ -32,7 +32,10 @@ import { hexTerrainColor } from '../maphex/hexColors'
 import { PLACEMENT_UNSUPPORTED_COLOR } from '../placementPreviewStyle'
 import { basicDoubleSideModelMaterial, basicModelMaterial } from './materials'
 import { useDisposableGLTF } from './useDisposableGLTF'
-import { buildVoidMatGeometryArrays } from './voidMatGeometry'
+import {
+  buildVoidMarkerGeometryArrays,
+  buildVoidMatGeometryArrays,
+} from './voidMatGeometry'
 
 const PYLON_GLB: Record<string, string> = {
   [Pieces.twoWayPylon]: '/pylon2.glb',
@@ -218,16 +221,18 @@ export function DeflectorShieldPreview({
 /** Just above the empty table hexes (their top is HEX_HEIGHT / 40). */
 export const VOID_MAT_Y_OFFSET = 0.012
 
-function useVoidMatGeometry() {
+function useVoidMatGeometry(isMarker = false) {
   const geometry = useMemo(() => {
-    const { positions, uvs, indices } = buildVoidMatGeometryArrays()
+    const { positions, uvs, indices } = isMarker
+      ? buildVoidMarkerGeometryArrays()
+      : buildVoidMatGeometryArrays()
     const built = new BufferGeometry()
     built.setAttribute('position', new Float32BufferAttribute(positions, 3))
     built.setAttribute('uv', new Float32BufferAttribute(uvs, 2))
     built.setIndex(indices)
     built.computeVertexNormals()
     return built
-  }, [])
+  }, [isMarker])
   useLayoutEffect(() => () => geometry.dispose(), [geometry])
   return geometry
 }
@@ -240,12 +245,14 @@ function useVoidMatGeometry() {
  */
 export function VoidMat3D({
   isHighlighted = false,
+  isMarker = false,
   opacity,
 }: {
   isHighlighted?: boolean
+  isMarker?: boolean
   opacity?: number
 }) {
-  const geometry = useVoidMatGeometry()
+  const geometry = useVoidMatGeometry(isMarker)
   const texture = useTexture('/textures/void-mat.webp')
   useLayoutEffect(() => {
     texture.colorSpace = SRGBColorSpace
@@ -269,8 +276,14 @@ export function VoidMat3D({
 }
 
 /** Flat stand-in while the texture loads. */
-export function VoidMatFallback({ opacity }: { opacity?: number }) {
-  const geometry = useVoidMatGeometry()
+export function VoidMatFallback({
+  isMarker = false,
+  opacity,
+}: {
+  isMarker?: boolean
+  opacity?: number
+}) {
+  const geometry = useVoidMatGeometry(isMarker)
   return (
     <mesh geometry={geometry} raycast={() => null}>
       <meshBasicMaterial

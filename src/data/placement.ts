@@ -51,7 +51,7 @@ export type PlacementBoard = {
 /** Which of the click rules picked the placement, tried in this order. */
 export type PlacementRule =
   | 'laurAddon' // a port add-on (Laur, Deflector Shield) on any surface
-  | 'voidMat' // a Void Mat: always on the table, level 0
+  | 'voidMat' // a Void Mat or Marker: always on the table, level 0
   | 'castleCap' // a castle wall or wall walk on a castle wall/arch top
   | 'battlement' // the edge toward the pen rotation, one level down
   | 'roadWall' // the edge two steps clockwise of it, one level down
@@ -403,8 +403,8 @@ function resolveByRule(
       resolvedRotation,
     )
   }
-  // Void Mat: printed paper, always flat on the table (level 0) wherever the
-  // pointer is; it fills no cells.
+  // Void Mat and Marker: printed paper, always flat on the table (level 0)
+  // wherever the pointer is; neither fills cells.
   if (piece.terrain === HexTerrain.voidMat) {
     return at('voidMat', 0, rotation, { q: hex.q, r: hex.r, s: hex.s })
   }

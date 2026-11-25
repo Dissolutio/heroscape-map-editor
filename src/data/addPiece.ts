@@ -302,8 +302,8 @@ export function addPiece({
       addPieceError = { message: 'Unable to place laur wall addon', error }
     }
   }
-  // VOID MAT: printed paper on the table. boardPieces only: it fills no
-  // cells, so land, obstacles and pylons go on it as on the bare table.
+  // VOID MAT AND MARKER: boardPieces only. They fill no cells, so land,
+  // obstacles and pylons go on them as on the bare table.
   else if (piece.terrain === HexTerrain.voidMat) {
     addBoardPiece(rotation)
   }

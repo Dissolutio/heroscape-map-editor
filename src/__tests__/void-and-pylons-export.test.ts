@@ -71,7 +71,7 @@ const svgPiece = (
   rotation: number,
   viewingLevel: number,
 ): ReactNode => {
-  if (inventoryID === Pieces.voidMat) {
+  if (inventoryID === Pieces.voidMat || inventoryID === Pieces.voidMarker) {
     return createElement(SvgVoidMatSymbol, {
       piece: makeDecodedPiece(inventoryID, rotation),
       isSubLevel: viewingLevel > 0,
@@ -99,7 +99,7 @@ const pdfPiece = (
   rotation: number,
   viewingLevel: number,
 ): ReactNode => {
-  if (inventoryID === Pieces.voidMat) {
+  if (inventoryID === Pieces.voidMat || inventoryID === Pieces.voidMarker) {
     return createElement(PdfVoidMatSymbol, {
       piece: makeDecodedPiece(inventoryID, rotation),
       isSubLevel: viewingLevel > 0,
@@ -144,6 +144,7 @@ afterEach(() => {
 describe('Void and Pylons exports', () => {
   it.each([
     [Pieces.voidMat, [0, 3], 0, '#19161b', '#8c8b8d'],
+    [Pieces.voidMarker, [0, 3], 0, '#19161b', '#8c8b8d'],
     [Pieces.twoWayPylon, [0, 3], 1, '#000000', '#808080'],
     [Pieces.threeWayPylon, [0, 2], 1, '#000000', '#808080'],
     [Pieces.deflectorShield, [0.5, 1.5], 1, '#6fd3ff', '#b7e9ff'],
@@ -174,6 +175,21 @@ describe('Void and Pylons exports', () => {
     },
   )
 
+  it('draws one ungridded hex for a Void Marker in SVG and PDF', () => {
+    const piece = makeDecodedPiece(Pieces.voidMarker)
+    const svg = renderSvg(
+      createElement(SvgVoidMatSymbol, { piece, isSubLevel: false }),
+    )
+    const pdf = renderPdf(
+      createElement(PdfVoidMatSymbol, { piece, isSubLevel: false }),
+    )
+
+    expect(svg.match(/<polygon\b/g)).toHaveLength(1)
+    expect(pdf.toLowerCase().match(/<polygon\b/g)).toHaveLength(1)
+    expect(svg).toContain('#19161b')
+    expect(pdf).toContain('#19161b')
+  })
+
   it.each([
     [Pieces.twoWayPylon, [1.5, 4.5]],
     [Pieces.threeWayPylon, [0.5, 2.5, 4.5]],
@@ -198,6 +214,8 @@ describe('Void and Pylons exports', () => {
     const cases = [
       [Pieces.voidMat, 0, 0],
       [Pieces.voidMat, 3, 0],
+      [Pieces.voidMarker, 0, 0],
+      [Pieces.voidMarker, 3, 0],
       [Pieces.twoWayPylon, 0, 1],
       [Pieces.twoWayPylon, 3, 1],
       [Pieces.threeWayPylon, 0, 1],
@@ -300,6 +318,7 @@ describe('Void and Pylons exports', () => {
   it('keeps Void and Pylons key entries in one dedicated group', () => {
     const boardPieces: BoardPiece[] = [
       Pieces.voidMat,
+      Pieces.voidMarker,
       Pieces.twoWayPylon,
       Pieces.threeWayPylon,
       Pieces.deflectorShield,
@@ -316,6 +335,7 @@ describe('Void and Pylons exports', () => {
     expect(group?.entries.map(({ inventoryID }) => inventoryID).sort()).toEqual(
       [
         Pieces.voidMat,
+        Pieces.voidMarker,
         Pieces.twoWayPylon,
         Pieces.threeWayPylon,
         Pieces.deflectorShield,
@@ -323,6 +343,7 @@ describe('Void and Pylons exports', () => {
     )
     const voidAndPylonsIDs = new Set([
       Pieces.voidMat,
+      Pieces.voidMarker,
       Pieces.twoWayPylon,
       Pieces.threeWayPylon,
       Pieces.deflectorShield,
@@ -331,6 +352,11 @@ describe('Void and Pylons exports', () => {
       model.specialGroups
         .flatMap(({ entries }) => entries)
         .filter((entry) => voidAndPylonsIDs.has(entry.inventoryID)),
-    ).toHaveLength(4)
+    ).toHaveLength(5)
+    expect(
+      group?.entries.filter(
+        ({ inventoryID }) => inventoryID === Pieces.voidMarker,
+      ),
+    ).toHaveLength(1)
   })
 })

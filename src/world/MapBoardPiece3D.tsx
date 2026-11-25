@@ -373,14 +373,15 @@ const MapBoardPiece3DModel = ({
     )
   }
   // The mat lies on the table (level 0) under everything else.
-  if (inventoryID === Pieces.voidMat) {
+  if (inventoryID === Pieces.voidMat || inventoryID === Pieces.voidMarker) {
+    const isMarker = inventoryID === Pieces.voidMarker
     return (
       <group
         position={[x, VOID_MAT_Y_OFFSET, z]}
         rotation={[0, pieceRotation, 0]}
       >
-        <Suspense fallback={<VoidMatFallback />}>
-          <VoidMat3D isHighlighted={isSelected} />
+        <Suspense fallback={<VoidMatFallback isMarker={isMarker} />}>
+          <VoidMat3D isHighlighted={isSelected} isMarker={isMarker} />
         </Suspense>
       </group>
     )

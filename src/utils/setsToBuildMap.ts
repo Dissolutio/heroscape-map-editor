@@ -98,7 +98,9 @@ const pieceTitle = (inventoryID: string) =>
   piecesSoFar[inventoryID]?.title ?? inventoryID
 
 const isIgnoredPiece = (inventoryID: string) => {
-  if (isGenericPieceID(inventoryID)) return true
+  if (isGenericPieceID(inventoryID) || inventoryID === Pieces.voidMarker) {
+    return true
+  }
   const title = piecesSoFar[inventoryID]?.title.toLowerCase() ?? ''
   return title.includes('start zone') || title.includes('glyph')
 }
@@ -560,7 +562,10 @@ export function getSetsToBuildMapCatalog(
   const ignoredCounts: Record<string, number> = {}
 
   for (const boardPiece of boardPieces) {
-    if (isGenericPieceID(boardPiece.inventoryID)) {
+    if (
+      isGenericPieceID(boardPiece.inventoryID) ||
+      boardPiece.inventoryID === Pieces.voidMarker
+    ) {
       ignoredCounts[boardPiece.inventoryID] =
         (ignoredCounts[boardPiece.inventoryID] ?? 0) + 1
     }

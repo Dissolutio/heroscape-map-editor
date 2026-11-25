@@ -17,6 +17,7 @@ import { pieceCellDeclarations } from '../data/hexGrid/pieceFeatures'
 import { isLaurAddonSupported } from '../data/laurAddonSupport'
 import { getLaurAddonAllowedRotations } from '../data/laurAddonPlacement'
 import { setInventories } from '../data/inventories'
+import { countPiecesUsedWithLaurStacking } from '../inventory/laurInventoryReconcile'
 import { terrainSetsByShortID } from '../data/terrainSets'
 import { pieceGroups } from '../data/pieceGroups'
 import { piecesSoFar } from '../data/pieces'
@@ -55,11 +56,16 @@ import {
   hexUtilsRotateAroundOrigin_000,
 } from '../utils/hex-utils'
 import { normalizeBoardPiecesWithDropped } from '../utils/map-utils'
-import { getSetsToBuildMapCatalog } from '../utils/setsToBuildMap'
+import {
+  getPiecesMissingFromCollection,
+  getSetsToBuildMapCatalog,
+} from '../utils/setsToBuildMap'
+import { blankPieceInventory } from '../inventory/blankInventory'
 import { getTerrainSetsForEra } from '../utils/terrain-set-utils'
 import { getObstacleSubstituteCandidates } from '../utils/adaptToCollection'
 import {
   VOID_MAT_OUTLINE_AXIAL,
+  buildVoidMarkerGeometryArrays,
   buildVoidMatGeometryArrays,
   voidMatPoint,
   voidMatUV,
@@ -68,6 +74,7 @@ import { type Board, hexAt, makeTable, place } from './helpers/board'
 
 const VC_IDS = [
   Pieces.voidMat,
+  Pieces.voidMarker,
   Pieces.twoWayPylon,
   Pieces.threeWayPylon,
   Pieces.deflectorShield,
@@ -131,8 +138,8 @@ const pylonB = bp('pylon-b', Pieces.twoWayPylon, B)
 const shield = bp('shield', Pieces.deflectorShield, A, 1.5)
 
 describe('Void and Pylons registry', () => {
-  it('registers the four pieces with their terrains, heights and templates', () => {
-    expect(VC_IDS).toEqual(['vc1', 'vc2', 'vc3', 'vc4'])
+  it('registers the five pieces with their terrains, heights and templates', () => {
+    expect(VC_IDS).toEqual(['vc1', 'vc5', 'vc2', 'vc3', 'vc4'])
     expect(
       VC_IDS.map((id) => {
         const piece = piecesSoFar[id]
@@ -140,6 +147,7 @@ describe('Void and Pylons registry', () => {
       }),
     ).toEqual([
       ['vc1', 'Void Mat', HexTerrain.voidMat, 0, 14],
+      ['vc5', 'Void Marker', HexTerrain.voidMat, 0, 1],
       ['vc2', 'Two-Way Pylon', HexTerrain.voidPylon, 8, 1],
       ['vc3', 'Three-Way Pylon', HexTerrain.voidPylon, 8, 1],
       ['vc4', 'Deflector Shield', HexTerrain.deflectorShield, 8, 1],
@@ -148,6 +156,11 @@ describe('Void and Pylons registry', () => {
     expect(piecesSoFar[Pieces.threeWayPylon].isObstaclePiece).toBe(true)
     expect(piecesSoFar[Pieces.deflectorShield].isObstaclePiece).toBe(false)
     expect(piecesSoFar[Pieces.voidMat].isObstaclePiece).toBe(false)
+    expect(piecesSoFar[Pieces.voidMarker]).toMatchObject({
+      isObstaclePiece: false,
+      isUninventoried: true,
+      gameHeight: null,
+    })
   })
 
   it('registers the Void and Pylons set, flagged VC, with its counts', () => {
@@ -161,6 +174,8 @@ describe('Void and Pylons registry', () => {
       [Pieces.deflectorShield]: 10,
     })
     expect(set.inventory).toBe(setInventories.voidAndPylonsPieceSet)
+    expect(set.inventory).not.toHaveProperty(Pieces.voidMarker)
+    expect(blankPieceInventory).not.toHaveProperty(Pieces.voidMarker)
     expect(isVCTerrainSetID('FF')).toBe(true)
     expect(
       Object.values(terrainSetsByShortID)
@@ -203,6 +218,9 @@ describe('Void and Pylons registry', () => {
       0.5, 1.5, 2.5, 3.5, 4.5, 5.5,
     ])
     expect(getPossibleRotationsForPenMode(Pieces.voidMat)).toEqual([
+      0, 1, 2, 3, 4, 5,
+    ])
+    expect(getPossibleRotationsForPenMode(Pieces.voidMarker)).toEqual([
       0, 1, 2, 3, 4, 5,
     ])
   })
@@ -286,6 +304,21 @@ describe('VC gating (Include VC unit/terrain data off)', () => {
     ).toBe(true)
   })
 
+  it('does not require a set or collection inventory for the Void Marker', () => {
+    const marker = bp('marker', Pieces.voidMarker, A)
+    const catalog = getSetsToBuildMapCatalog([marker], 50, {
+      includeVCContent: true,
+    })
+    expect(catalog.notInAnySet).toEqual([])
+    expect(catalog.ignored).toContainEqual({
+      inventoryID: Pieces.voidMarker,
+      title: 'Void Marker',
+      count: 1,
+    })
+    expect(countPiecesUsedWithLaurStacking([marker])).toEqual({})
+    expect(getPiecesMissingFromCollection([marker], {})).toEqual([])
+  })
+
   it('never offers a pylon to Adapt as a substitute for another obstacle', () => {
     const candidates = getObstacleSubstituteCandidates(
       Pieces.laurWallSquarePillar,
@@ -297,6 +330,7 @@ describe('VC gating (Include VC unit/terrain data off)', () => {
 
   it('knows when a map uses VC pieces', () => {
     expect(boardPiecesUseVC([pylonA])).toBe(true)
+    expect(boardPiecesUseVC([bp('marker', Pieces.voidMarker, A)])).toBe(true)
     expect(boardPiecesUseVC([bp('grass', Pieces.grass1, A)])).toBe(false)
     expect(VC_MAP_LOADED_MESSAGE).toBe(
       'This map uses community custom (VC) terrain, so Include VC unit/terrain data is now on.',
@@ -640,6 +674,110 @@ describe('Void Mat', () => {
       altitude: 0,
       rotation: 2,
       rule: 'voidMat',
+    })
+  })
+
+  describe('Void Marker', () => {
+    const marker = bp('marker', Pieces.voidMarker, A)
+
+    it('uses the single-hex table footprint at all rotations', () => {
+      for (let rotation = 0; rotation < 6; rotation += 1) {
+        expect(
+          getPieceTemplateCoords({
+            clickedHex: A,
+            rotation,
+            template: Pieces.voidMarker,
+            isVsTile: false,
+          }),
+        ).toEqual([A])
+      }
+
+      const table = withTable()
+      const pointer = hexAt(table, A, 0)
+      if (!pointer) throw new Error('Missing table hex')
+      expect(
+        resolvePlacement(piecesSoFar[Pieces.voidMarker], pointer, 4, table),
+      ).toMatchObject({
+        coords: A,
+        altitude: 0,
+        rotation: 4,
+        rule: 'voidMat',
+      })
+    })
+
+    it('is board-piece only and overlaps mats and other markers without conflict', () => {
+      const mat = bp('mat', Pieces.voidMat, A)
+      const marker2 = bp('marker-2', Pieces.voidMarker, A, 3)
+      const board = placeAll(withTable(), [mat, marker, marker2])
+
+      expect(board.boardPieces).toEqual([mat, marker, marker2])
+      expect(
+        Object.values(board.boardHexes).some(
+          (hex) => hex.boardPieceUID === marker.uid,
+        ),
+      ).toBe(false)
+      expect(pieceCellDeclarations[Pieces.voidMarker]).toBeUndefined()
+      expect(conflictsOnTable([mat, marker, marker2])).toEqual([])
+      expect(getVoidMatHexes(marker)).toEqual([A])
+    })
+
+    it('allows land on top without conflict and selects only on an empty hex', () => {
+      const table = withTable()
+      const markerBoard = placeAll(table, [marker])
+      expect(
+        findVoidMatAtTableHex(
+          markerBoard.boardPieces,
+          markerBoard.boardHexes,
+          A,
+        )?.uid,
+      ).toBe(marker.uid)
+
+      const grass = bp('grass', Pieces.grass1, A)
+      const board = placeAll(table, [marker, grass])
+      expect(conflictsOnTable([marker, grass])).toEqual([])
+      expect(
+        findVoidMatAtTableHex(board.boardPieces, board.boardHexes, A),
+      ).toBeUndefined()
+    })
+
+    it('round-trips through JSON save and load', () => {
+      const hexMap: HexMap = {
+        id: 'marker-save',
+        name: 'Marker save',
+        author: '',
+        version: 1,
+        shape: 'rectangle',
+        width: 15,
+        length: 15,
+      }
+      const saved = JSON.parse(
+        JSON.stringify({ hexMap, boardPieces: [marker] }),
+      )
+      const loaded = buildupJsonFileMap(saved.boardPieces, saved.hexMap)
+
+      expect(loaded.droppedPieces).toEqual([])
+      expect(loaded.boardPieces).toEqual([marker])
+      expect(
+        Object.values(loaded.boardHexes).some(
+          (hex) => hex.boardPieceUID === marker.uid,
+        ),
+      ).toBe(false)
+    })
+
+    it('uses one hex of the Void Mat texture in its 3D geometry', () => {
+      const { positions, uvs, indices } = buildVoidMarkerGeometryArrays()
+
+      expect(positions).toHaveLength(21)
+      expect(uvs.slice(0, 2)).toEqual(voidMatUV(0, 0))
+      expect(indices).toHaveLength(18)
+      expect(positions.slice(0, 3)).toEqual([0, 0, 0])
+      expect(positions[3]).toBeCloseTo(0)
+      expect(positions[5]).toBeCloseTo(-1)
+      expect(positions[6]).toBeCloseTo(Math.sqrt(3) / 2)
+      expect(positions[8]).toBeCloseTo(-0.5)
+      const expectedUV = voidMatUV(1 / 3, -2 / 3)
+      expect(uvs[2]).toBeCloseTo(expectedUV[0])
+      expect(uvs[3]).toBeCloseTo(expectedUV[1])
     })
   })
 

@@ -33,6 +33,13 @@ const pylon: BoardPiece = {
   rotation: 0,
   altitude: 0,
 }
+const marker: BoardPiece = {
+  uid: 'void-marker',
+  inventoryID: Pieces.voidMarker,
+  pieceCoords: { q: 3, r: 4, s: -7 },
+  rotation: 0,
+  altitude: 0,
+}
 const grass: BoardPiece = {
   uid: 'grass',
   inventoryID: Pieces.grass1,
@@ -92,6 +99,13 @@ describe('loading a map with VC pieces', () => {
 
     // Already on: nothing more to say.
     store.getState().loadMap(buildupJsonFileMap([pylon], hexMap))
+    expect(vcSnackbars()).toHaveLength(1)
+  })
+
+  it('turns Include VC on when a map contains only the Void Marker', () => {
+    expect(store.getState().includeVCContent).toBe(false)
+    store.getState().loadMap(buildupJsonFileMap([marker], hexMap))
+    expect(store.getState().includeVCContent).toBe(true)
     expect(vcSnackbars()).toHaveLength(1)
   })
 

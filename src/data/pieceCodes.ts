@@ -164,6 +164,7 @@ export const virtualscapeNamedPieceCodes: Dictionary<string> = {
   'custom.gi_joe_wall': Pieces.fortifiedWall,
   'custom.mature_shroudshroom': Pieces.shroudshroom10,
   'core.void_mat': Pieces.voidMat,
+  'custom.void_1': Pieces.voidMarker,
   'core.sand_24': Pieces.sand24,
   'core.shadow_3': Pieces.shadow3,
   'core.shov_cannon': Pieces.cannon,

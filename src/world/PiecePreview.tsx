@@ -573,16 +573,22 @@ function PiecePreviewModel({
       </group>
     )
   }
-  if (pieceID === Pieces.voidMat) {
+  if (pieceID === Pieces.voidMat || pieceID === Pieces.voidMarker) {
+    const isMarker = pieceID === Pieces.voidMarker
     return (
       <group
         position={[x, VOID_MAT_Y_OFFSET, z]}
         rotation={[0, pieceRotation, 0]}
       >
         <Suspense
-          fallback={<VoidMatFallback opacity={PIECE_PREVIEW_OPACITY} />}
+          fallback={
+            <VoidMatFallback
+              isMarker={isMarker}
+              opacity={PIECE_PREVIEW_OPACITY}
+            />
+          }
         >
-          <VoidMat3D opacity={PIECE_PREVIEW_OPACITY} />
+          <VoidMat3D isMarker={isMarker} opacity={PIECE_PREVIEW_OPACITY} />
         </Suspense>
       </group>
     )

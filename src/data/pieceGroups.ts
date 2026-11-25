@@ -201,6 +201,7 @@ export const pieceGroups = [
     label: 'Void and Pylons',
     pieces: [
       Pieces.voidMat,
+      Pieces.voidMarker,
       Pieces.twoWayPylon,
       Pieces.threeWayPylon,
       Pieces.deflectorShield,

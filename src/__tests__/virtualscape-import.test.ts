@@ -128,6 +128,36 @@ afterEach(() => {
 })
 
 describe('Virtualscape binary import', () => {
+  it('imports the named custom Void Marker', async () => {
+    vi.stubGlobal('FileReader', MemoryFileReader)
+    const virtualscapeMap = await readVirtualscapeMapFile(
+      makeVirtualscapeFile([
+        {
+          type: 28001,
+          rotation: 4,
+          posX: 2,
+          posY: 2,
+          posZ: 0,
+          virtualscapeName: 'custom.void_1',
+        },
+      ]),
+    )
+    const loaded = buildupVSFileMap(virtualscapeMap.tiles, virtualscapeMap.name)
+
+    expect(getCodeForVSPersonalTile(virtualscapeMap.tiles[0])).toBe(
+      Pieces.voidMarker,
+    )
+    expect(loaded.droppedPieces).toEqual([])
+    expect(loaded.boardPieces).toMatchObject([
+      { inventoryID: Pieces.voidMarker, altitude: 0, rotation: 4 },
+    ])
+    expect(
+      Object.values(loaded.boardHexes).some(
+        (hex) => hex.inventoryID === Pieces.voidMarker,
+      ),
+    ).toBe(false)
+  })
+
   it('reads supported codes, preserving positions and rotations with no drops', async () => {
     vi.stubGlobal('FileReader', MemoryFileReader)
     const file = makeVirtualscapeFile([
@@ -204,7 +234,7 @@ describe('Virtualscape binary import', () => {
     ).toBe(61)
     expect(
       loaded.droppedPieces.map(({ inventoryID }) => inventoryID).sort(),
-    ).toEqual(['11008', '11009', '11010', '16403', 'custom.void_1'])
+    ).toEqual(['11008', '11009', '11010', '16403'])
     vi.spyOn(console, 'warn').mockImplementation(() => undefined)
     const enqueueSnackbar = vi.fn()
     warnAboutLoadedMap(enqueueSnackbar, loaded)
@@ -212,7 +242,7 @@ describe('Virtualscape binary import', () => {
     expect(enqueueSnackbar).toHaveBeenCalledWith(
       expect.objectContaining({
         message:
-          'Skipped 5 unknown pieces (11008, 11009, 11010, custom.void_1, 16403). Updating the app may let you load unknown pieces.',
+          'Skipped 4 unknown pieces (11008, 11009, 11010, 16403). Updating the app may let you load unknown pieces.',
         variant: 'warning',
       }),
     )

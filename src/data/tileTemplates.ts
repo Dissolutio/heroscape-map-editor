@@ -407,6 +407,7 @@ const tileTemplates: Dictionary<CubeCoordinate[]> = {
   [Pieces.roadWall]: straight4,
   // Void and Pylons (VC)
   [Pieces.voidMat]: voidMat,
+  [Pieces.voidMarker]: basic1,
   [Pieces.twoWayPylon]: basic1,
   [Pieces.threeWayPylon]: basic1,
   [Pieces.deflectorShield]: basic1,
