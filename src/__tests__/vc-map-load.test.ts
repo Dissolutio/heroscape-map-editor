@@ -5,9 +5,11 @@
  * a map edit (no undo step), and does not write the saved last map for a
  * share link (a held load).
  */
+import { readFileSync } from 'node:fs'
 import { enqueueSnackbar } from 'notistack'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { buildupJsonFileMap } from '../data/buildupMap'
+import buildupVSFileMap, { buildupJsonFileMap } from '../data/buildupMap'
+import { processVirtualScapeArrayBuffer } from '../data/readVirtualscapeMapFile'
 import { VC_MAP_LOADED_MESSAGE } from '../data/vcContent'
 import type { MapSnapshot } from '../local-storage/mapAutosave'
 import { type BoardPiece, type HexMap, Pieces, SELECT_PEN_MODE } from '../types'
@@ -97,6 +99,23 @@ describe('loading a map with VC pieces', () => {
     store.getState().loadMap(buildupJsonFileMap([grass], hexMap))
     expect(store.getState().includeVCContent).toBe(false)
     expect(vcSnackbars()).toHaveLength(0)
+  })
+
+  it('turns Include VC on when loading the named Virtualscape fixture', () => {
+    const bytes = readFileSync(
+      new URL('./fixtures/void-and-pylons-example.hsc', import.meta.url),
+    )
+    const arrayBuffer = Uint8Array.from(bytes).buffer
+    const virtualscapeMap = processVirtualScapeArrayBuffer(arrayBuffer)
+    const loadedMap = buildupVSFileMap(
+      virtualscapeMap.tiles,
+      virtualscapeMap.name,
+    )
+
+    store.getState().loadMap(loadedMap)
+
+    expect(store.getState().includeVCContent).toBe(true)
+    expect(vcSnackbars()).toHaveLength(1)
   })
 
   it('does not count as a map edit', () => {

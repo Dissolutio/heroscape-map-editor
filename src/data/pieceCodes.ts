@@ -128,3 +128,10 @@ export const pieceCodes: Dictionary<string> = {
   // laurWallPillar
   '17101': Pieces.laurWallSquarePillar,
 }
+
+export const virtualscapeNamedPieceCodes: Dictionary<string> = {
+  'core.void_mat': Pieces.voidMat,
+  'custom.pylon_2way': Pieces.twoWayPylon,
+  'custom.pylon_3way': Pieces.threeWayPylon,
+  'custom.energy_wall': Pieces.deflectorShield,
+}
