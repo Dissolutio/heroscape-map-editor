@@ -75,7 +75,7 @@ export function buildVoidMatGeometryArrays() {
 /** One printed hex from the mat, centered on its template origin. */
 export function buildVoidMarkerGeometryArrays() {
   const corners = Array.from({ length: 6 }, (_, index) => {
-    const angle = (index * Math.PI) / 3
+    const angle = -Math.PI / 2 + (index * Math.PI) / 3
     const x = Math.cos(angle)
     const z = Math.sin(angle)
     const q = x / Math.sqrt(3) - z / 3

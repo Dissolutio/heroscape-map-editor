@@ -771,6 +771,13 @@ describe('Void Mat', () => {
       expect(uvs.slice(0, 2)).toEqual(voidMatUV(0, 0))
       expect(indices).toHaveLength(18)
       expect(positions.slice(0, 3)).toEqual([0, 0, 0])
+      expect(positions[3]).toBeCloseTo(0)
+      expect(positions[5]).toBeCloseTo(-1)
+      expect(positions[6]).toBeCloseTo(Math.sqrt(3) / 2)
+      expect(positions[8]).toBeCloseTo(-0.5)
+      const expectedUV = voidMatUV(1 / 3, -2 / 3)
+      expect(uvs[2]).toBeCloseTo(expectedUV[0])
+      expect(uvs[3]).toBeCloseTo(expectedUV[1])
     })
   })
 
