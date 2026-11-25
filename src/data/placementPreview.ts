@@ -9,9 +9,10 @@ import {
 } from './shipWallSupport'
 import {
   type PlacementEvaluation,
+  type ResolvedPlacement,
   type PlacementResolution,
-  evaluatePlacement,
-  resolvePlacement,
+  evaluatePlacementPlan,
+  resolvePlacementPlan,
 } from './placement'
 import type { PlacementBoard } from './placement'
 
@@ -19,6 +20,7 @@ export type PlacementPreviewState = {
   resolution: PlacementResolution
   evaluation: PlacementEvaluation
   unsupported: boolean
+  automaticBase?: ResolvedPlacement
 }
 
 export function getPlacementPreviewState(
@@ -28,11 +30,12 @@ export function getPlacementPreviewState(
   board: PlacementBoard,
   worldPoint?: { x: number; z: number },
 ): PlacementPreviewState {
-  const resolution = resolvePlacement(piece, pointerHex, rotation, board, {
+  const plan = resolvePlacementPlan(piece, pointerHex, rotation, board, {
     deferOffMapCheck: true,
     worldPoint,
   })
-  const evaluation = evaluatePlacement(board, resolution)
+  const { resolution } = plan
+  const evaluation = evaluatePlacementPlan(board, plan)
   let unsupported = false
   if (isPortAddonPieceID(piece.id) && !('blocked' in resolution)) {
     const previewPiece = {
@@ -84,5 +87,6 @@ export function getPlacementPreviewState(
     resolution,
     evaluation,
     unsupported,
+    ...(plan.automaticBase ? { automaticBase: plan.automaticBase } : {}),
   }
 }

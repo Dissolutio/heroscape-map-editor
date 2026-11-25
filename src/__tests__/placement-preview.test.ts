@@ -1,8 +1,10 @@
 import { describe, expect, it } from 'vitest'
 import { piecesSoFar } from '../data/pieces'
+import { evaluatePlacement, evaluatePlacementPlan } from '../data/placement'
 import { getPlacementPreviewState } from '../data/placementPreview'
 import type { PlacementStatus } from '../data/placement'
 import type { BoardHex, CubeCoordinate } from '../types'
+import { Pieces } from '../types'
 import { getPlacementPreviewStyle } from '../world/placementPreviewStyle'
 import {
   type Board,
@@ -26,13 +28,18 @@ function requiredHex(
   return hex
 }
 
-function preview(board: Board, pieceID: string, pointerHex?: BoardHex) {
+function preview(
+  board: Board,
+  pieceID: string,
+  pointerHex?: BoardHex,
+  rotation = 0,
+) {
   const piece = piecesSoFar[pieceID]
   if (!piece) throw new Error(`missing piece ${pieceID}`)
   return getPlacementPreviewState(
     piece,
     pointerHex ?? requiredHex(board, center, 1),
-    0,
+    rotation,
     board,
   )
 }
@@ -44,6 +51,81 @@ describe('placement preview state', () => {
       preview(emptyTable, 'g1', requiredHex(emptyTable, center, 0)).evaluation
         .status,
     ).toBe('ok')
+  })
+
+  it.each(Array.from({ length: 6 }, (_, rotation) => rotation))(
+    'previews the base and ruin together at rotation %s',
+    (rotation) => {
+      const state = preview(table, Pieces.marvel, undefined, rotation)
+
+      expect(state).toMatchObject({
+        resolution: {
+          coords: center,
+          altitude: 2,
+          rotation,
+        },
+        automaticBase: {
+          coords: center,
+          altitude: 1,
+          rotation,
+        },
+        evaluation: {
+          status: 'ok',
+          footprintHexes: expect.arrayContaining([
+            expect.objectContaining({ altitude: 1 }),
+            expect.objectContaining({ altitude: 2 }),
+          ]),
+        },
+      })
+      expect(state.evaluation.footprintHexes).toHaveLength(12)
+    },
+  )
+
+  it('blocks a Marvel Ruin when its Concrete-6 base is not placeable', () => {
+    const waterBoard = place({
+      board: cloneBoard(table),
+      pieceID: Pieces.water1,
+      at: center,
+      altitude: 1,
+    }).board
+    const waterCap = requiredHex(waterBoard, center, 2)
+
+    expect(preview(waterBoard, Pieces.marvel, waterCap, 3)).toMatchObject({
+      resolution: { blocked: 'landTileNotOnHex' },
+      evaluation: { status: 'blocked', reason: 'landTileNotOnHex' },
+    })
+  })
+
+  it('carries a Concrete-6 conflict into the combined preview', () => {
+    const tree = place({
+      board: cloneBoard(table),
+      pieceID: 'tr10',
+      at: center,
+      altitude: 1,
+      uid: 'tree',
+      permissive: true,
+    }).board
+    const automaticBase = {
+      piece: piecesSoFar[Pieces.concrete6],
+      coords: center,
+      altitude: 1,
+      rotation: 0,
+      rule: 'land' as const,
+    }
+    const plan = {
+      automaticBase,
+      resolution: {
+        piece: piecesSoFar[Pieces.marvel],
+        coords: center,
+        altitude: 2,
+        rotation: 0,
+        rule: 'default' as const,
+      },
+    }
+    const baseAlone = evaluatePlacement(tree, automaticBase)
+
+    expect(baseAlone.status).toBe('conflict')
+    expect(evaluatePlacementPlan(tree, plan).status).toBe(baseAlone.status)
   })
 
   it('reports an overlap as conflict', () => {
