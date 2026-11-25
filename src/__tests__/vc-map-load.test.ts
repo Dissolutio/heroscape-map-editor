@@ -118,6 +118,23 @@ describe('loading a map with VC pieces', () => {
     expect(vcSnackbars()).toHaveLength(1)
   })
 
+  it('turns Include VC on when loading the all-tiles Virtualscape fixture', () => {
+    const bytes = readFileSync(
+      new URL('./fixtures/vs-all-tiles.hsc', import.meta.url),
+    )
+    const arrayBuffer = Uint8Array.from(bytes).buffer
+    const virtualscapeMap = processVirtualScapeArrayBuffer(arrayBuffer)
+    const loadedMap = buildupVSFileMap(
+      virtualscapeMap.tiles,
+      virtualscapeMap.name,
+    )
+
+    store.getState().loadMap(loadedMap)
+
+    expect(store.getState().includeVCContent).toBe(true)
+    expect(vcSnackbars()).toHaveLength(1)
+  })
+
   it('does not count as a map edit', () => {
     const temporal = store.temporal.getState()
     temporal.pause()
