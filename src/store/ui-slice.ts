@@ -1,3 +1,4 @@
+import { isVCPieceID } from '../data/vcContent'
 import { produce } from 'immer'
 import { enqueueSnackbar } from 'notistack'
 import type { StateCreator } from 'zustand'
@@ -368,7 +369,13 @@ const createUISlice: StateCreator<
   isShowObjectiveMarkers: true,
   toggleIsObjectiveMarkerNumbersFaceCamera: (show) =>
     set({ isObjectiveMarkerNumbersFaceCamera: show }),
-  toggleIncludeVCContent: (include) => set({ includeVCContent: include }),
+  // Turning VC off also drops a VC pen, so no VC piece stays offered.
+  toggleIncludeVCContent: (include) =>
+    set((state) =>
+      include || !isVCPieceID(state.penMode)
+        ? { includeVCContent: include }
+        : { includeVCContent: include, penMode: SELECT_PEN_MODE },
+    ),
   toggleIsShowObjectiveMarkers: (show) =>
     set(
       produce((s) => {

@@ -21,6 +21,7 @@ import { useCallback, useMemo, useState } from 'react'
 import { MdClose } from 'react-icons/md'
 import { ConvertTerrainQuickSelect } from '../controls/ConvertTerrainQuickSelect'
 import { pieceGroups } from '../data/pieceGroups'
+import { isPieceOfferedForVC } from '../data/vcContent'
 import { piecesSoFar } from '../data/pieces'
 import getPieceTemplateCoords from '../data/rotationTransforms'
 import useBoundStore from '../store/store'
@@ -58,6 +59,7 @@ type Props = {
 export default function PiecesGridDialog({ cameraControlsRef }: Props) {
   const boardHexes = useBoundStore((s) => s.boardHexes)
   const boardPieces = useBoundStore((s) => s.boardPieces)
+  const includeVCContent = useBoundStore((s) => s.includeVCContent)
   const conflictedPieceUIDs = useBoundStore((s) => s.conflictedPieceUIDs)
   const currentDialog = useBoundStore((s) => s.currentDialog)
   const toggleCurrentDialog = useBoundStore((s) => s.toggleCurrentDialog)
@@ -163,6 +165,8 @@ export default function PiecesGridDialog({ cameraControlsRef }: Props) {
   const rows: PieceRow[] = useMemo(
     () =>
       boardPieces
+        // VC pieces are listed only with Include VC unit/terrain data on
+        .filter((bp) => isPieceOfferedForVC(bp.inventoryID, includeVCContent))
         .map((bp) => {
           const piece = piecesSoFar[bp.inventoryID]
           const pieceName = piece?.title ?? 'Unknown Piece'
@@ -234,6 +238,7 @@ export default function PiecesGridDialog({ cameraControlsRef }: Props) {
         }),
     [
       boardPieces,
+      includeVCContent,
       conflictedUIDSet,
       getLandFootprintAtTopAltitude,
       checkBuriedStatus,

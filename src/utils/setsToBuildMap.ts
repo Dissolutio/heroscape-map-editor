@@ -1,3 +1,4 @@
+import { isPieceOfferedForVC, isVCTerrainSet } from '../data/vcContent'
 import { piecesSoFar } from '../data/pieces'
 import { type TerrainSetKind, terrainSetsByShortID } from '../data/terrainSets'
 import {
@@ -89,6 +90,8 @@ type SetCandidate = {
   kind: TerrainSetKind
   era: Era
   inventory: PieceInventory
+  /** Community custom: eligible in every era, never shown with VC off. */
+  isVC: boolean
 }
 
 const pieceTitle = (inventoryID: string) =>
@@ -141,6 +144,7 @@ const allSets: SetCandidate[] = Object.values(terrainSetsByShortID).map(
     kind: set.kind,
     era: set.era as Era,
     inventory: set.inventory,
+    isVC: isVCTerrainSet(set),
   }),
 )
 
@@ -151,7 +155,7 @@ const candidatesFor = (category: 'contemporary' | 'classic' | 'mixed') =>
         !EXCLUDED_SET_IDS.includes(
           candidate.id as (typeof EXCLUDED_SET_IDS)[number],
         ) &&
-        (category === 'mixed' || candidate.era === category),
+        (category === 'mixed' || candidate.era === category || candidate.isVC),
     )
     .filter(
       (candidate) =>
@@ -542,10 +546,16 @@ const solveCategory = (
 }
 
 export function getSetsToBuildMapCatalog(
-  boardPieces: BoardPiece[],
+  allBoardPieces: BoardPiece[],
   timeBudgetMs = DEFAULT_TIME_BUDGET_MS,
+  { includeVCContent = false }: { includeVCContent?: boolean } = {},
 ): SetsToBuildMapCatalog {
   const deadline = Date.now() + Math.max(0, timeBudgetMs)
+  // With Include VC unit/terrain data off, community custom (VC) pieces are
+  // left out entirely, so no VC set is ever needed or shown.
+  const boardPieces = allBoardPieces.filter((piece) =>
+    isPieceOfferedForVC(piece.inventoryID, includeVCContent),
+  )
   const used = countPiecesUsedWithLaurStacking(boardPieces)
   const ignoredCounts: Record<string, number> = {}
 

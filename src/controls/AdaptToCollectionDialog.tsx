@@ -25,6 +25,7 @@ import { useSnackbar } from 'notistack'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { MdInfoOutline } from 'react-icons/md'
 import { piecesSoFar } from '../data/pieces'
+import { isPieceOfferedForVC } from '../data/vcContent'
 import { MapAuthorNotesFields } from '../layout/MapAuthorNotesFields'
 import { MapNameField } from '../layout/MapNameField'
 import useBoundStore from '../store/store'
@@ -110,9 +111,14 @@ export function AdaptToCollectionDialog({
     () => getMissingLandTerrains(analysis, supply),
     [analysis, supply],
   )
+  const includeVCContent = useBoundStore((state) => state.includeVCContent)
+  // Community custom (VC) pylons are offered only with Include VC on
   const obstacleRows = useMemo(
-    () => getMissingObstacles(boardPieces, userPieceInventory),
-    [boardPieces, userPieceInventory],
+    () =>
+      getMissingObstacles(boardPieces, userPieceInventory).filter((row) =>
+        isPieceOfferedForVC(row.inventoryID, includeVCContent),
+      ),
+    [boardPieces, includeVCContent, userPieceInventory],
   )
   const obstacleOptionsByID = useMemo(
     () =>

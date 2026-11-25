@@ -32,9 +32,15 @@ const SetsToBuildMapDialog = () => {
     (state) => state.hexMap.objectiveMarkers?.length ?? 0,
   )
 
+  const includeVCContent = useBoundStore((state) => state.includeVCContent)
   const catalog = React.useMemo(
-    () => (isDialogOpen ? getSetsToBuildMapCatalog(boardPieces) : undefined),
-    [boardPieces, isDialogOpen],
+    () =>
+      isDialogOpen
+        ? getSetsToBuildMapCatalog(boardPieces, undefined, {
+            includeVCContent,
+          })
+        : undefined,
+    [boardPieces, includeVCContent, isDialogOpen],
   )
   const missingFromCollection = React.useMemo(
     () =>

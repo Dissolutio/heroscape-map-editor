@@ -1,4 +1,5 @@
 import { terrainSetsByShortID } from '../data/terrainSets'
+import { isSetOfferedForVC } from '../data/vcContent'
 
 export type TerrainSet =
   (typeof terrainSetsByShortID)[keyof typeof terrainSetsByShortID]
@@ -49,6 +50,13 @@ export const getSortedTerrainSets = (): TerrainSet[] => {
   })
 }
 
-export const getTerrainSetsForEra = (era: TerrainSetEra): TerrainSet[] => {
-  return getSortedTerrainSets().filter((terrainSet) => terrainSet.era === era)
+/** The era's sets; community custom (VC) sets only with includeVCContent. */
+export const getTerrainSetsForEra = (
+  era: TerrainSetEra,
+  includeVCContent = false,
+): TerrainSet[] => {
+  return getSortedTerrainSets().filter(
+    (terrainSet) =>
+      terrainSet.era === era && isSetOfferedForVC(terrainSet, includeVCContent),
+  )
 }

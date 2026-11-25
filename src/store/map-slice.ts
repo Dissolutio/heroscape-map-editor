@@ -1,3 +1,4 @@
+import { VC_MAP_LOADED_MESSAGE, boardPiecesUseVC } from '../data/vcContent'
 import { produce } from 'immer'
 import { isEqual } from 'lodash'
 import { nanoid } from 'nanoid'
@@ -886,6 +887,10 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
     const hexMap = isEqual(current.hexMap, mapState.hexMap)
       ? current.hexMap
       : mapState.hexMap
+    // A map with community custom (VC) pieces turns Include VC unit/terrain
+    // data on. It is a setting, not map state: no undo step, no autosave.
+    const turnsOnVC =
+      !current.includeVCContent && boardPiecesUseVC(mapState.boardPieces)
     const result = set((state) => {
       return produce(state, (draft) => {
         const piecesBeforeLoad = draft.boardPieces
@@ -929,6 +934,7 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
         })
         draft.isAutosaveHeld = options.holdAutosave ?? false
         draft.mapLoadRevision += 1
+        if (turnsOnVC) draft.includeVCContent = true
         const constrainedInventory = getEffectiveTerrainConstraintInventory({
           setsUsed: mapState.hexMap?.setsUsed,
           terrainConstraintSource: draft.terrainConstraintSource,
@@ -951,6 +957,14 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
     })
     get().clearPendingUndoSelectionRestore()
     get().clearActionLog()
+    if (turnsOnVC) {
+      enqueueSnackbar({
+        message: VC_MAP_LOADED_MESSAGE,
+        variant: 'info',
+        key: 'vc-map-loaded',
+        preventDuplicate: true,
+      })
+    }
     if (mapState.dimensionsAdjusted) {
       enqueueSnackbar({
         message: 'Hexoscape has adjusted your map dimensions to fit all pieces',
