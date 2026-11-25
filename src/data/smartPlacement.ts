@@ -35,7 +35,7 @@ export function getSmartPlacementAltitude({
   if (
     piece.isOverlayPiece ||
     isPortAddonPieceID(piece.id) ||
-    // boardPieces-only, always on the table
+    // Void Mat and Marker are boardPieces-only, always on the table
     piece.terrain === HexTerrain.voidMat ||
     (!piece.isObstaclePiece &&
       !isSolidTerrainHex(piece.terrain) &&

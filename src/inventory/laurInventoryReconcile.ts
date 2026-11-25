@@ -99,7 +99,9 @@ export const countPiecesUsedWithLaurStacking = (
 
   for (const boardPiece of boardPieces) {
     const inventoryID = boardPiece.inventoryID
-    if (isGenericPieceID(inventoryID)) continue
+    if (isGenericPieceID(inventoryID) || inventoryID === Pieces.voidMarker) {
+      continue
+    }
     let remappedInventoryID = inventoryID
 
     if (

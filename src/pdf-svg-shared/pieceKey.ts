@@ -235,9 +235,11 @@ const PIECE_KEY_METADATA: {
     {
       id: 'void-and-pylons',
       title: 'Void and Pylons',
-      description: 'dark purple mat, black and gray pylons, cyan shield',
+      description:
+        'dark purple mat and marker, black and gray pylons, cyan shield',
       inventoryIDs: [
         Pieces.voidMat,
+        Pieces.voidMarker,
         Pieces.twoWayPylon,
         Pieces.threeWayPylon,
         Pieces.deflectorShield,

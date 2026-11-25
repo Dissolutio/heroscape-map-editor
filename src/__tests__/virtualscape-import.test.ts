@@ -114,6 +114,36 @@ afterEach(() => {
 })
 
 describe('Virtualscape binary import', () => {
+  it('imports the named custom Void Marker', async () => {
+    vi.stubGlobal('FileReader', MemoryFileReader)
+    const virtualscapeMap = await readVirtualscapeMapFile(
+      makeVirtualscapeFile([
+        {
+          type: 28001,
+          rotation: 4,
+          posX: 2,
+          posY: 2,
+          posZ: 0,
+          virtualscapeName: 'custom.void_1',
+        },
+      ]),
+    )
+    const loaded = buildupVSFileMap(virtualscapeMap.tiles, virtualscapeMap.name)
+
+    expect(getCodeForVSPersonalTile(virtualscapeMap.tiles[0])).toBe(
+      Pieces.voidMarker,
+    )
+    expect(loaded.droppedPieces).toEqual([])
+    expect(loaded.boardPieces).toMatchObject([
+      { inventoryID: Pieces.voidMarker, altitude: 0, rotation: 4 },
+    ])
+    expect(
+      Object.values(loaded.boardHexes).some(
+        (hex) => hex.inventoryID === Pieces.voidMarker,
+      ),
+    ).toBe(false)
+  })
+
   it('reads supported codes, preserving positions and rotations with no drops', async () => {
     vi.stubGlobal('FileReader', MemoryFileReader)
     const file = makeVirtualscapeFile([

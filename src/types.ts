@@ -325,6 +325,7 @@ export const Pieces = {
   twoWayPylon: `${PiecePrefixes.voidAndPylons}2`,
   threeWayPylon: `${PiecePrefixes.voidAndPylons}3`,
   deflectorShield: `${PiecePrefixes.voidAndPylons}4`,
+  voidMarker: `${PiecePrefixes.voidAndPylons}5`,
   // HexObstacles
   snowTree10: `${PiecePrefixes.snowTree}10`,
   snowTree12: `${PiecePrefixes.snowTree}12`,

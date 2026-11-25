@@ -3,11 +3,11 @@
  * Void and Pylons. It is offered only with the Include VC unit/terrain data
  * setting (`includeVCContent`).
  *
- * The one place that says what is VC is the `isVC` flag on a terrain set in
- * terrainSets.ts. A piece is VC when a VC set contains it, so a future VC set
- * only adds data.
+ * The `isVC` flag on a terrain set identifies its pieces. The uninventoried
+ * Void Marker is also VC, but is not part of the set's inventory.
  */
 import type { BoardPieces } from '../types'
+import { Pieces } from '../types'
 import { terrainSetsByShortID } from './terrainSets'
 
 type TerrainSetRecord =
@@ -27,7 +27,8 @@ const vcPieceIDs: ReadonlySet<string> = new Set(
     .flatMap((set) => Object.keys(set.inventory)),
 )
 
-export const isVCPieceID = (inventoryID: string) => vcPieceIDs.has(inventoryID)
+export const isVCPieceID = (inventoryID: string) =>
+  vcPieceIDs.has(inventoryID) || inventoryID === Pieces.voidMarker
 
 /** Whether a piece may be offered, given the Include VC setting. */
 export const isPieceOfferedForVC = (

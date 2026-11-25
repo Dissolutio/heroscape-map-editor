@@ -131,6 +131,7 @@ export const pieceCodes: Dictionary<string> = {
 
 export const virtualscapeNamedPieceCodes: Dictionary<string> = {
   'core.void_mat': Pieces.voidMat,
+  'custom.void_1': Pieces.voidMarker,
   'custom.pylon_2way': Pieces.twoWayPylon,
   'custom.pylon_3way': Pieces.threeWayPylon,
   'custom.energy_wall': Pieces.deflectorShield,

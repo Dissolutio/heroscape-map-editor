@@ -11,7 +11,7 @@ import getPieceTemplateCoords from './rotationTransforms'
 export const isVoidMatPieceID = (inventoryID: string) =>
   piecesSoFar[inventoryID]?.terrain === HexTerrain.voidMat
 
-/** The 14 full hexes a Void Mat covers (its ring of half hexes is drawn only). */
+/** The full hexes a Void Mat or Marker occupies visually on the table. */
 export function getVoidMatHexes(
   mat: Pick<BoardPiece, 'inventoryID' | 'pieceCoords' | 'rotation'>,
 ): CubeCoordinate[] {
@@ -26,9 +26,8 @@ export function getVoidMatHexes(
 }
 
 /**
- * The mat a click on a table hex selects: the topmost (last placed) mat
- * covering it, but only when nothing else is at that spot, so a mat never
- * takes a click from a piece standing on it.
+ * The topmost Void Mat or Marker at a table hex, only when nothing else is
+ * there, so a void piece never takes a click from a piece standing on it.
  */
 export function findVoidMatAtTableHex(
   boardPieces: BoardPieces,
