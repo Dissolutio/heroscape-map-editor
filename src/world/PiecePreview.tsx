@@ -923,7 +923,7 @@ function PiecePreviewModel({
       </group>
     )
   }
-  if (isHiveHex && isSolidOrEmptyBeneath) {
+  if (isHiveHex && isLandOrEmptyBeneath) {
     return (
       <group
         position={[x, yWithBase, z]}

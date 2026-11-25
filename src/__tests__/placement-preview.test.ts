@@ -14,6 +14,7 @@ import {
   place,
   withGrassFloor,
 } from './helpers/board'
+import { makeRectangleScenario } from '../utils/map-gen'
 
 const table = withGrassFloor(makeTable(9))
 const center = table.center
@@ -45,6 +46,48 @@ function preview(
 }
 
 describe('placement preview state', () => {
+  it('previews the Hive and its fluid base at the graphics-tier fixture spot', () => {
+    let fixture: Board = makeRectangleScenario({
+      width: 6,
+      length: 6,
+      mapName: 'e2e-fixture-map',
+    })
+    for (const [pieceID, coords, altitude] of [
+      [Pieces.grass1, { q: 0, r: 2, s: -2 }, 0],
+      [Pieces.grass1, { q: 1, r: 2, s: -3 }, 0],
+      [Pieces.grass1, { q: 2, r: 2, s: -4 }, 0],
+      [Pieces.sand1, { q: 1, r: 3, s: -4 }, 0],
+      [Pieces.rock1, { q: 1, r: 2, s: -3 }, 1],
+    ] as const) {
+      fixture = place({
+        board: fixture,
+        pieceID,
+        at: coords,
+        altitude,
+        permissive: true,
+      }).board
+    }
+
+    const pointerHex = requiredHex(fixture, { q: 1, r: 0, s: -1 }, 0)
+    const state = preview(fixture, Pieces.hive, pointerHex)
+
+    expect(state).toMatchObject({
+      automaticBases: [
+        {
+          piece: { id: Pieces.swampWater6 },
+          coords: { q: 1, r: 0, s: -1 },
+          altitude: 0,
+        },
+      ],
+      resolution: {
+        coords: { q: 1, r: 0, s: -1 },
+        altitude: 1,
+        rotation: 0,
+      },
+      evaluation: { status: 'ok' },
+    })
+  })
+
   it('reports a free land placement as ok', () => {
     const emptyTable = makeTable(9)
     expect(
