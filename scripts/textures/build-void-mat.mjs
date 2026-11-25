@@ -5,7 +5,8 @@
  *
  *   node scripts/textures/build-void-mat.mjs
  *
- * Needs pdftoppm (poppler-utils) and ImageMagick 7 (`magick`) on the PATH.
+ * Needs pdftoppm (poppler-utils) and ImageMagick (`magick` or `convert`) on
+ * the PATH.
  * The page is rendered, then trimmed to the mat outline (the page is white
  * around it). The outline is a hexagon through six ring hex centers, so the
  * trimmed image's edges are those centers; src/world/models/voidMatGeometry.ts
@@ -24,7 +25,14 @@ const pdf = path.join(
 )
 const out = path.join(root, 'public/textures/void-mat.webp')
 const DPI = 200
+const MAX_SIDE = 1024
 const QUALITY = 80
+let imageMagickCommand = 'magick'
+try {
+  execFileSync(imageMagickCommand, ['-version'], { stdio: 'ignore' })
+} catch {
+  imageMagickCommand = 'convert'
+}
 
 const work = fs.mkdtempSync(path.join(os.tmpdir(), 'void-mat-'))
 try {
@@ -42,18 +50,26 @@ try {
   ])
   const page = fs.readdirSync(work).find((name) => name.endsWith('.png'))
   if (!page) throw new Error('pdftoppm wrote no page')
-  execFileSync('magick', [
+  execFileSync(imageMagickCommand, [
     path.join(work, page),
     '-fuzz',
     '8%',
     '-trim',
     '+repage',
+    '-resize',
+    `${MAX_SIDE}x${MAX_SIDE}>`,
     '-strip',
     '-quality',
     `${QUALITY}`,
     out,
   ])
-  const size = execFileSync('magick', ['identify', '-format', '%wx%h', out])
+  const identifyCommand =
+    imageMagickCommand === 'magick' ? 'magick' : 'identify'
+  const identifyArgs =
+    imageMagickCommand === 'magick'
+      ? ['identify', '-format', '%wx%h', out]
+      : ['-format', '%wx%h', out]
+  const size = execFileSync(identifyCommand, identifyArgs)
   console.log(
     `${path.relative(root, out)}: ${size} ${fs.statSync(out).size} bytes`,
   )

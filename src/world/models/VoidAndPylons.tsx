@@ -10,13 +10,7 @@
  */
 import { useTexture } from '@react-three/drei'
 import type { ThreeEvent } from '@react-three/fiber'
-import { useLayoutEffect, useMemo } from 'react'
-import {
-  BufferGeometry,
-  DoubleSide,
-  Float32BufferAttribute,
-  SRGBColorSpace,
-} from 'three'
+import { useLayoutEffect } from 'react'
 import { getLaurAddonHitHex } from '../../data/laurAddonStacking'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
 import useBoundStore from '../../store/store'
@@ -33,9 +27,11 @@ import { PLACEMENT_UNSUPPORTED_COLOR } from '../placementPreviewStyle'
 import { basicDoubleSideModelMaterial, basicModelMaterial } from './materials'
 import { useDisposableGLTF } from './useDisposableGLTF'
 import {
-  buildVoidMarkerGeometryArrays,
-  buildVoidMatGeometryArrays,
-} from './voidMatGeometry'
+  configureVoidMatTexture,
+  getVoidMatFallbackMaterial,
+  getVoidMatGeometry,
+  getVoidMatMaterial,
+} from './voidMatResources'
 
 const PYLON_GLB: Record<string, string> = {
   [Pieces.twoWayPylon]: '/pylon2.glb',
@@ -221,22 +217,6 @@ export function DeflectorShieldPreview({
 /** Just above the empty table hexes (their top is HEX_HEIGHT / 40). */
 export const VOID_MAT_Y_OFFSET = 0.012
 
-function useVoidMatGeometry(isMarker = false) {
-  const geometry = useMemo(() => {
-    const { positions, uvs, indices } = isMarker
-      ? buildVoidMarkerGeometryArrays()
-      : buildVoidMatGeometryArrays()
-    const built = new BufferGeometry()
-    built.setAttribute('position', new Float32BufferAttribute(positions, 3))
-    built.setAttribute('uv', new Float32BufferAttribute(uvs, 2))
-    built.setIndex(indices)
-    built.computeVertexNormals()
-    return built
-  }, [isMarker])
-  useLayoutEffect(() => () => geometry.dispose(), [geometry])
-  return geometry
-}
-
 /**
  * The mat: a flat textured mesh in its outline's shape, under everything
  * else. It never takes the pointer, so clicks and hover reach the table hex
@@ -252,26 +232,18 @@ export function VoidMat3D({
   isMarker?: boolean
   opacity?: number
 }) {
-  const geometry = useVoidMatGeometry(isMarker)
+  const geometry = getVoidMatGeometry(isMarker)
   const texture = useTexture('/textures/void-mat.webp')
   useLayoutEffect(() => {
-    texture.colorSpace = SRGBColorSpace
-    texture.anisotropy = 8
-    texture.needsUpdate = true
+    configureVoidMatTexture(texture)
   }, [texture])
   return (
-    <mesh geometry={geometry} raycast={() => null} renderOrder={-1}>
-      <meshBasicMaterial
-        map={texture}
-        color={isHighlighted ? '#fff59d' : 'white'}
-        side={DoubleSide}
-        transparent={opacity !== undefined}
-        opacity={opacity ?? 1}
-        polygonOffset
-        polygonOffsetFactor={-1}
-        polygonOffsetUnits={-1}
-      />
-    </mesh>
+    <mesh
+      geometry={geometry}
+      material={getVoidMatMaterial(texture, isHighlighted, opacity)}
+      raycast={() => null}
+      renderOrder={-1}
+    />
   )
 }
 
@@ -283,15 +255,15 @@ export function VoidMatFallback({
   isMarker?: boolean
   opacity?: number
 }) {
-  const geometry = useVoidMatGeometry(isMarker)
+  const geometry = getVoidMatGeometry(isMarker)
   return (
-    <mesh geometry={geometry} raycast={() => null}>
-      <meshBasicMaterial
-        color={hexTerrainColor[HexTerrain.voidMat]}
-        side={DoubleSide}
-        transparent={opacity !== undefined}
-        opacity={opacity ?? 1}
-      />
-    </mesh>
+    <mesh
+      geometry={geometry}
+      material={getVoidMatFallbackMaterial(
+        hexTerrainColor[HexTerrain.voidMat],
+        opacity,
+      )}
+      raycast={() => null}
+    />
   )
 }
