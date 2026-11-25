@@ -301,6 +301,54 @@ describe('click placement through the real handler', () => {
     expect(result.conflictedPieceUIDs).toEqual([])
   })
 
+  it('uses the half-level altitude of an existing fluid seat', () => {
+    const table = withGrassFloor(makeTable(9))
+    const waterBoard = place({
+      board: cloneBoard(table),
+      pieceID: Pieces.water1,
+      at: table.center,
+      altitude: 1,
+    }).board
+    const baseBoard = place({
+      board: waterBoard,
+      pieceID: Pieces.lava1,
+      at: table.center,
+      altitude: 2,
+      uid: 'half-level-base',
+    }).board
+    const baseCap = hexAt(baseBoard, table.center, 2.5) as BoardHex
+    const result = clickWithPen({
+      board: baseBoard,
+      pieceID: Pieces.outcrop1,
+      hex: baseCap,
+    })
+
+    expect(result.added).toHaveLength(1)
+    expect(result.added[0]).toMatchObject({
+      inventoryID: Pieces.outcrop1,
+      altitude: 2.5,
+    })
+  })
+
+  it('uses Shadow-3 for Rock Outcrop 3 on a classic-only map', () => {
+    const table = withGrassFloor(makeTable(9))
+    const hex = hexAt(table, table.center, 1) as BoardHex
+    useBoundStore.setState({
+      hexMap: { ...useBoundStore.getState().hexMap, setsUsed: ['S'] },
+    })
+    const result = clickWithPen({
+      board: table,
+      pieceID: Pieces.outcrop3,
+      hex,
+    })
+
+    expect(result.added.map((piece) => piece.inventoryID)).toEqual([
+      Pieces.shadow3,
+      Pieces.outcrop3,
+    ])
+    expect(result.conflictedPieceUIDs).toEqual([])
+  })
+
   it('notifies when placing an objective marker while markers are hidden', () => {
     const table = makeTable(5)
     const hex = hexAt(table, table.center, 0)

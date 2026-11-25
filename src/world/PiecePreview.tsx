@@ -8,6 +8,7 @@ import {
 import { piecesSoFar } from '../data/pieces'
 import { isPortAddonPieceID } from '../data/portPieces'
 import { getPlacementPreviewState } from '../data/placementPreview'
+import { getSeatedObstacleDefinition } from '../data/seatedObstacles'
 import { getSmartPlacementAltitude } from '../data/smartPlacement'
 import { isE2E } from '../e2e/isE2E'
 import { setPlacementPreview } from '../e2e/placementPreviewStore'
@@ -216,26 +217,31 @@ export default function PiecePreview() {
         terrain: HexTerrain.empty,
       },
   )
-  const marvelRuinSupportHex =
-    piece.pieceSizeFamily === 'marvelRuin' && !('blocked' in resolution)
-      ? previewState.automaticBases?.length
-        ? {
-            ...placementPointerHex,
+  const seatedDefinition =
+    piece && getSeatedObstacleDefinition(piece.id, setsUsed)
+  const seatedSupportHex =
+    !('blocked' in resolution) && seatedDefinition
+      ? (() => {
+          const seatedSupportID = genBoardHexID({
             ...resolution.coords,
             altitude: resolution.altitude,
-            terrain: piecesSoFar[Pieces.concrete6].terrain,
-          }
-        : (boardHexes[
-            genBoardHexID({
-              ...resolution.coords,
-              altitude: resolution.altitude,
-            })
-          ] ?? {
-            ...placementPointerHex,
-            ...resolution.coords,
-            altitude: resolution.altitude,
-            terrain: piecesSoFar[Pieces.concrete6].terrain,
           })
+          const supportHex = boardHexes[seatedSupportID]
+          const supportPiece = boardPieces.find(
+            (boardPiece) =>
+              boardPiece.uid === supportHex?.boardPieceUID &&
+              seatedDefinition.allowedBaseIDs.includes(boardPiece.inventoryID),
+          )
+          const supportTerrain = supportPiece
+            ? supportHex?.terrain
+            : piecesSoFar[seatedDefinition.defaultBaseID]?.terrain
+          return {
+            ...(supportHex ?? placementPointerHex),
+            ...resolution.coords,
+            altitude: resolution.altitude,
+            terrain: supportTerrain ?? HexTerrain.empty,
+          }
+        })()
       : undefined
 
   return (
@@ -261,7 +267,7 @@ export default function PiecePreview() {
       {evaluation.status !== 'blocked' && (
         <PiecePreviewModel
           hoveredHexOverride={
-            addonPreviewHex ?? castleCapHex ?? marvelRuinSupportHex
+            addonPreviewHex ?? castleCapHex ?? seatedSupportHex
           }
           unsupported={previewState.unsupported && evaluation.status === 'ok'}
           rotationOverride={

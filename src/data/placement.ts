@@ -684,7 +684,30 @@ export function evaluatePlacement(
     footprintHexes,
     ...(reason ? { reason } : {}),
   })
-  if (painted.error) return result('conflict', painted.error.message)
+  const seatedDefinition = getSeatedObstacleDefinition(piece.id, board.setsUsed)
+  const seatedBases = seatedDefinition
+    ? getExistingSeatedBases(
+        piece.id,
+        coords,
+        rotation,
+        board.boardHexes,
+        board.boardPieces,
+        board.setsUsed,
+      )
+    : []
+  const footprintSize = footprint.length
+  const hasCompleteSeat =
+    Boolean(seatedDefinition) &&
+    seatedBases.length ===
+      (seatedDefinition?.baseFootprint === 'one-per-hex' ? footprintSize : 1) &&
+    seatedBases.every(({ surfaceAltitude }) => surfaceAltitude === altitude)
+  const isMissingSeatSupport =
+    hasCompleteSeat &&
+    (painted.error?.message === 'Obstacle is not supported there' ||
+      strict.error?.message === 'Obstacle is not supported there')
+  if (painted.error && !isMissingSeatSupport) {
+    return result('conflict', painted.error.message)
+  }
   // e.g. a second start zone on the same hex: painting it does nothing
   if (!painted.newBoardPieces.some((bp) => bp.uid === PROBE_UID)) {
     return result('blocked', 'Nothing would be placed')
@@ -692,7 +715,9 @@ export function evaluatePlacement(
   if (displacedUIDs.length > 0) {
     return result('conflict', 'Overlaps other pieces')
   }
-  if (strict.error) return result('conflict', strict.error.message)
+  if (strict.error && !isMissingSeatSupport) {
+    return result('conflict', strict.error.message)
+  }
   return result('ok')
 }
 

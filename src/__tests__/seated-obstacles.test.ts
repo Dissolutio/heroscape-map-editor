@@ -141,6 +141,39 @@ describe('seated obstacle groups', () => {
     expect(snapshot()).toEqual(before)
   })
 
+  it('moves the obstacle with a base selected as the move anchor', () => {
+    load(outcrop3Seat())
+    const before = snapshot()
+    const beforeHistory = store.temporal.getState().pastStates.length
+    store.getState().movePiece({
+      uid: 'base-1',
+      newPieceCoords: at(6, 6),
+    })
+
+    expect(
+      getSeatedGroupUIDs(
+        'outcrop',
+        store.getState().boardHexes,
+        store.getState().boardPieces,
+      ),
+    ).toEqual(['outcrop', 'base-0', 'base-1', 'base-2'])
+    expect(store.temporal.getState().pastStates.length).toBe(beforeHistory + 1)
+    store.temporal.getState().undo()
+    expect(snapshot()).toEqual(before)
+  })
+
+  it('deleting the obstacle removes the whole seat in one undo step', () => {
+    load(outcrop3Seat())
+    const before = snapshot()
+    const beforeHistory = store.temporal.getState().pastStates.length
+    store.getState().unpaintTile('outcrop')
+
+    expect(store.getState().boardPieces).toEqual([])
+    expect(store.temporal.getState().pastStates.length).toBe(beforeHistory + 1)
+    store.temporal.getState().undo()
+    expect(snapshot()).toEqual(before)
+  })
+
   it('deleting a base removes the whole seat in one undo step', () => {
     load(outcrop3Seat())
     const before = snapshot()
@@ -151,6 +184,27 @@ describe('seated obstacle groups', () => {
     expect(store.temporal.getState().pastStates.length).toBe(beforeHistory + 1)
     store.temporal.getState().undo()
     expect(snapshot()).toEqual(before)
+  })
+
+  it('loads an old obstacle-only map without adding a base', () => {
+    const obstacle: BoardPiece = {
+      uid: 'legacy-outcrop',
+      inventoryID: Pieces.outcrop1,
+      altitude: 0,
+      rotation: 0,
+      pieceCoords: center,
+    }
+
+    load([obstacle])
+
+    expect(store.getState().boardPieces).toEqual([obstacle])
+    expect(
+      getSeatedGroupUIDs(
+        obstacle.uid,
+        store.getState().boardHexes,
+        store.getState().boardPieces,
+      ),
+    ).toEqual([obstacle.uid])
   })
 
   it('leaves a plain Shadow 1 independent', () => {

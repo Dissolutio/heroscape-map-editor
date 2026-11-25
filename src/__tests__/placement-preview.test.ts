@@ -83,6 +83,40 @@ describe('placement preview state', () => {
     },
   )
 
+  it('previews all three contemporary bases under a Rock Outcrop 3', () => {
+    const state = preview(table, Pieces.outcrop3, undefined, 2)
+
+    expect(state.automaticBases).toHaveLength(3)
+    expect(state.automaticBases?.map(({ piece }) => piece.id)).toEqual([
+      Pieces.shadow1,
+      Pieces.shadow1,
+      Pieces.shadow1,
+    ])
+    expect(state.evaluation).toMatchObject({
+      status: 'ok',
+      footprintHexes: expect.arrayContaining([
+        expect.objectContaining({ altitude: 1 }),
+        expect.objectContaining({ altitude: 2 }),
+      ]),
+    })
+    expect(state.evaluation.footprintHexes).toHaveLength(6)
+  })
+
+  it('uses the classic Shadow-3 base for Rock Outcrop 3 on classic-only maps', () => {
+    const hex = requiredHex(table, center, 1)
+    const state = getPlacementPreviewState(
+      piecesSoFar[Pieces.outcrop3],
+      hex,
+      0,
+      { ...table, setsUsed: ['S'] },
+    )
+
+    expect(state.automaticBases).toMatchObject([
+      { piece: piecesSoFar[Pieces.shadow3] },
+    ])
+    expect(state.resolution).toMatchObject({ altitude: 2 })
+  })
+
   it('blocks a Marvel Ruin when its Concrete-6 base is not placeable', () => {
     const waterBoard = place({
       board: cloneBoard(table),
