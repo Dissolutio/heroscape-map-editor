@@ -10,6 +10,8 @@
 import { closeSnackbar, enqueueSnackbar } from 'notistack'
 import type { ReactElement } from 'react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { piecesSoFar } from '../data/pieces'
+import getPieceTemplateCoords from '../data/rotationTransforms'
 import { evaluateLaurAddonConflicts } from '../data/laurAddonConflicts'
 import { getLaurAddonHitHex } from '../data/laurAddonStacking'
 import { countPiecesUsedWithLaurStacking } from '../inventory/laurInventoryReconcile'
@@ -20,6 +22,7 @@ import useBoundStore from '../store/store'
 import type { BoardHex } from '../types'
 import { Pieces } from '../types'
 import {
+  type Board,
   cloneBoard,
   hexAt,
   makeTable,
@@ -116,6 +119,53 @@ function clickSnackbarAction(index: number, label: string) {
 }
 
 describe('click placement through the real handler', () => {
+  it.each([0, 1])(
+    'auto-places every seated obstacle base at rotation %s and undoes it once',
+    (rotation) => {
+      const table = withGrassFloor(makeTable(12))
+      const hex = hexAt(table, table.center, 1) as BoardHex
+      const obstacles = [
+        [Pieces.hive, Pieces.swampWater6, 1],
+        [Pieces.marvel, Pieces.concrete6, 1],
+        [Pieces.marvelBroken, Pieces.concrete6, 1],
+        [Pieces.marvelNoUpper, Pieces.concrete6, 1],
+        [Pieces.marvelNoUpperBroken, Pieces.concrete6, 1],
+        [Pieces.glacier1, Pieces.ice1, 1],
+        [Pieces.glacier3, Pieces.ice3, 1],
+        [Pieces.glacier4, Pieces.ice4, 1],
+        [Pieces.glacier6, Pieces.ice6, 1],
+        [Pieces.outcrop1, Pieces.shadow1, 1],
+        [Pieces.outcrop3, Pieces.shadow1, 3],
+        [Pieces.lavaRockOutcrop1, Pieces.lava1, 1],
+        [Pieces.lavaRockOutcrop3, Pieces.lava1, 3],
+        [Pieces.toxicOutcrop1, Pieces.toxicWater1, 1],
+        [Pieces.toxicOutcrop3, Pieces.toxicWater1, 3],
+      ] as const
+
+      for (const [pieceID, baseID, baseCount] of obstacles) {
+        const result = clickWithPen({
+          board: table,
+          pieceID,
+          hex,
+          rotation,
+        })
+
+        expect(result.added).toHaveLength(baseCount + 1)
+        expect(
+          result.added.filter((piece) => piece.inventoryID === baseID),
+        ).toHaveLength(baseCount)
+        expect(
+          result.added.filter((piece) => piece.inventoryID === pieceID),
+        ).toHaveLength(1)
+        expect(result.conflictedPieceUIDs).toEqual([])
+
+        useBoundStore.temporal.getState().undo()
+        expect(useBoundStore.getState().boardPieces).toEqual(table.boardPieces)
+        expect(useBoundStore.getState().boardHexes).toEqual(table.boardHexes)
+      }
+    },
+  )
+
   it.each(Array.from({ length: 6 }, (_, rotation) => rotation))(
     'places the Marvel Ruin base and ruin together at rotation %s',
     (rotation) => {
@@ -193,6 +243,61 @@ describe('click placement through the real handler', () => {
         (boardPiece) => boardPiece.inventoryID === Pieces.concrete6,
       ),
     ).toHaveLength(1)
+    expect(result.conflictedPieceUIDs).toEqual([])
+  })
+
+  it('uses an existing contemporary base under a Rock Outcrop 1', () => {
+    const table = withGrassFloor(makeTable(9))
+    const baseBoard = place({
+      board: cloneBoard(table),
+      pieceID: Pieces.toxicWater1,
+      at: table.center,
+      altitude: 1,
+      uid: 'existing-toxic-base',
+    }).board
+    const baseCap = hexAt(baseBoard, table.center, 2) as BoardHex
+    const result = clickWithPen({
+      board: baseBoard,
+      pieceID: Pieces.outcrop1,
+      hex: baseCap,
+      rotation: 2,
+    })
+
+    expect(result.added.map((piece) => piece.inventoryID)).toEqual([
+      Pieces.outcrop1,
+    ])
+    expect(result.conflictedPieceUIDs).toEqual([])
+  })
+
+  it('adds only missing bases to a partial contemporary Rock Outcrop 3 seat', () => {
+    const table = withGrassFloor(makeTable(9))
+    const outcropCoords = getPieceTemplateCoords({
+      clickedHex: table.center,
+      rotation: 0,
+      template: piecesSoFar[Pieces.outcrop3].template,
+      isVsTile: false,
+    })
+    let baseBoard: Board = cloneBoard(table)
+    for (const [index, coords] of outcropCoords.slice(0, 2).entries()) {
+      baseBoard = place({
+        board: baseBoard,
+        pieceID: index === 0 ? Pieces.lava1 : Pieces.toxicWater1,
+        at: coords,
+        altitude: 1,
+        uid: `existing-base-${index}`,
+      }).board
+    }
+    const baseCap = hexAt(baseBoard, outcropCoords[0], 2) as BoardHex
+    const result = clickWithPen({
+      board: baseBoard,
+      pieceID: Pieces.outcrop3,
+      hex: baseCap,
+    })
+
+    expect(result.added.map((piece) => piece.inventoryID)).toEqual([
+      Pieces.shadow1,
+      Pieces.outcrop3,
+    ])
     expect(result.conflictedPieceUIDs).toEqual([])
   })
 

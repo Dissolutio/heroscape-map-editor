@@ -37,6 +37,11 @@ import {
 import { piecesSoFar } from './pieces'
 import { isPortAddonPieceID } from './portPieces'
 import getPieceTemplateCoords from './rotationTransforms'
+import {
+  getDefaultSeatedBasePlacements,
+  getExistingSeatedBases,
+  getSeatedObstacleDefinition,
+} from './seatedObstacles'
 import { getSmartPlacementAltitude } from './smartPlacement'
 import { getTemplateTopLevel } from './vertical-obstruction-templates'
 import { type HexEdgeId, edgeIdFromHex } from './hexGrid/edgesAndNodes'
@@ -46,6 +51,7 @@ import { getEdgeNodePieceColumns } from './hexGrid/pieceCells'
 export type PlacementBoard = {
   boardHexes: BoardHexes
   boardPieces: BoardPieces
+  setsUsed?: readonly string[]
 }
 
 /** Which of the click rules picked the placement, tried in this order. */
@@ -113,7 +119,7 @@ export type PlacementResolution =
 
 export type PlacementPlan = {
   resolution: PlacementResolution
-  automaticBase?: ResolvedPlacement
+  automaticBases?: ResolvedPlacement[]
 }
 
 export const isPlacementBlocked = (
@@ -189,84 +195,152 @@ export function resolvePlacementPlan(
     edgeId?: HexEdgeId
   } = {},
 ): PlacementPlan {
-  if (piece.pieceSizeFamily !== 'marvelRuin') {
+  const definition = getSeatedObstacleDefinition(piece.id, board.setsUsed)
+  if (!definition) {
     return {
       resolution: resolvePlacement(piece, pointerHex, rotation, board, options),
     }
   }
 
-  const existingBase = board.boardPieces.find(
+  const clickedBase = board.boardPieces.find(
     (boardPiece) =>
       boardPiece.uid === pointerHex.boardPieceUID &&
-      boardPiece.inventoryID === Pieces.concrete6 &&
-      pointerHex.altitude === boardPiece.altitude + 1 &&
-      boardPiece.rotation === rotation % 6 &&
-      !hasPieceOnTopOfConcrete6(board, boardPiece),
+      definition.allowedBaseIDs.includes(boardPiece.inventoryID),
   )
-  if (existingBase) {
-    return {
-      resolution: {
-        piece,
-        coords: existingBase.pieceCoords,
-        altitude: existingBase.altitude + 1,
-        rotation,
-        rule: 'default',
-      },
-    }
-  }
-
-  const base = resolvePlacement(
-    piecesSoFar[Pieces.concrete6],
+  const initialResolution = resolvePlacement(
+    piece,
     pointerHex,
     rotation,
     board,
     options,
   )
-  if (isPlacementBlocked(base)) return { resolution: base }
-
-  return {
-    resolution: {
-      piece,
-      coords: base.coords,
-      altitude: base.altitude + 1,
-      rotation: base.rotation,
-      rule: 'default',
-    },
-    automaticBase: base,
+  if (isPlacementBlocked(initialResolution)) {
+    return { resolution: initialResolution }
   }
-}
-
-function hasPieceOnTopOfConcrete6(
-  board: PlacementBoard,
-  base: BoardPieces[number],
-) {
-  const baseCoords = getPieceTemplateCoords({
-    clickedHex: base.pieceCoords,
-    rotation: base.rotation,
-    template: piecesSoFar[Pieces.concrete6].template,
-    isVsTile: false,
-  })
-  const baseHexIDs = new Set(
-    baseCoords.map((coords) => genBoardHexID({ ...coords, altitude: 0 })),
+  const coords =
+    clickedBase &&
+    (definition.baseFootprint === 'six-hex' ||
+      definition.baseFootprint === 'same-size')
+      ? clickedBase.pieceCoords
+      : initialResolution.coords
+  const layouts = getDefaultSeatedBasePlacements(
+    piece.id,
+    coords,
+    rotation,
+    board.setsUsed,
   )
-  return board.boardPieces.some((boardPiece) => {
-    if (
-      boardPiece.uid === base.uid ||
-      boardPiece.altitude !== base.altitude + 1
-    ) {
-      return false
-    }
-    const piece = piecesSoFar[boardPiece.inventoryID]
-    if (!piece) return false
-    return getPieceTemplateCoords({
-      clickedHex: boardPiece.pieceCoords,
-      rotation: boardPiece.rotation,
-      template: piece.template,
+  const existingBases = getExistingSeatedBases(
+    piece.id,
+    coords,
+    rotation,
+    board.boardHexes,
+    board.boardPieces,
+    board.setsUsed,
+  )
+  const missingLayouts = layouts.filter(
+    (layout) =>
+      !existingBases.some(({ boardPiece }) => {
+        if (!definition.allowedBaseIDs.includes(boardPiece.inventoryID)) {
+          return false
+        }
+        if (definition.baseFootprint === 'one-per-hex') {
+          return (
+            boardPiece.pieceCoords.q === layout.coords.q &&
+            boardPiece.pieceCoords.r === layout.coords.r &&
+            boardPiece.pieceCoords.s === layout.coords.s
+          )
+        }
+        return true
+      }),
+  )
+  const basePiece = layouts[0]?.piece
+  if (!basePiece) return { resolution: initialResolution }
+
+  const baseResolution = resolvePlacement(
+    basePiece,
+    pointerHex,
+    rotation,
+    board,
+    options,
+  )
+  if (isPlacementBlocked(baseResolution) && !existingBases.length) {
+    return { resolution: baseResolution }
+  }
+  const baseAltitude =
+    existingBases[0]?.boardPiece.altitude ??
+    (isPlacementBlocked(baseResolution) ? 0 : baseResolution.altitude)
+  const automaticBases: ResolvedPlacement[] = missingLayouts.map((layout) => ({
+    piece: layout.piece,
+    coords: layout.coords,
+    altitude: baseAltitude,
+    rotation: layout.rotation,
+    rule: 'land',
+  }))
+
+  let resolutionBoard = board
+  let simulatedHexes = board.boardHexes
+  let simulatedPieces = board.boardPieces
+  for (const [index, automaticBase] of automaticBases.entries()) {
+    const baseResult = addPiece({
+      piece: automaticBase.piece,
+      boardHexes: simulatedHexes,
+      boardPieces: simulatedPieces,
+      pieceCoords: automaticBase.coords,
+      placementAltitude: automaticBase.altitude,
+      rotation: automaticBase.rotation,
       isVsTile: false,
-    }).some((coords) =>
-      baseHexIDs.has(genBoardHexID({ ...coords, altitude: 0 })),
+      uid: `${PROBE_UID}-base-${index}`,
+      permissive: true,
+    })
+    simulatedHexes = baseResult.newBoardHexes
+    simulatedPieces = baseResult.newBoardPieces
+  }
+  if (automaticBases.length) {
+    resolutionBoard = {
+      ...board,
+      boardHexes: simulatedHexes,
+      boardPieces: simulatedPieces,
+    }
+  }
+
+  let supportHex: BoardHex | undefined
+  if (existingBases.length) {
+    const existingBase = existingBases[0]
+    const baseHex = existingBase
+      ? Object.values(board.boardHexes).find(
+          (hex) =>
+            hex.boardPieceUID === existingBase.boardPiece.uid &&
+            hex.altitude === existingBase.surfaceAltitude,
+        )
+      : undefined
+    if (baseHex && existingBase) {
+      supportHex = {
+        ...baseHex,
+        ...coords,
+        id: genBoardHexID({
+          ...coords,
+          altitude: existingBase.surfaceAltitude,
+        }),
+      }
+    }
+  }
+  if (!supportHex && automaticBases.length) {
+    supportHex = Object.values(simulatedHexes).find(
+      (hex) =>
+        hex.boardPieceUID === `${PROBE_UID}-base-0` &&
+        hex.q === coords.q &&
+        hex.r === coords.r &&
+        hex.s === coords.s,
     )
-  })
+  }
+
+  const resolution = supportHex
+    ? resolvePlacement(piece, supportHex, rotation, resolutionBoard, options)
+    : initialResolution
+  return {
+    resolution,
+    ...(automaticBases.length ? { automaticBases } : {}),
+  }
 }
 
 /**
@@ -626,60 +700,65 @@ export function evaluatePlacementPlan(
   board: PlacementBoard,
   plan: PlacementPlan,
 ): PlacementEvaluation {
-  if (!plan.automaticBase) {
+  if (!plan.automaticBases?.length) {
     return evaluatePlacement(board, plan.resolution)
   }
 
-  const baseEvaluation = evaluatePlacement(board, plan.automaticBase)
-  const ruinEvaluation = evaluatePlacement(board, plan.resolution)
-  const footprintHexes = [
-    ...baseEvaluation.footprintHexes,
-    ...ruinEvaluation.footprintHexes,
-  ]
-  if (baseEvaluation.status === 'blocked') {
-    return { ...baseEvaluation, footprintHexes }
-  }
-
-  const baseResult = addPiece({
-    piece: plan.automaticBase.piece,
-    boardHexes: board.boardHexes,
-    boardPieces: board.boardPieces,
-    pieceCoords: plan.automaticBase.coords,
-    placementAltitude: plan.automaticBase.altitude,
-    rotation: plan.automaticBase.rotation,
-    isVsTile: false,
-    uid: PROBE_UID,
-    permissive: true,
-  })
-  const placementEvaluation = evaluatePlacement(
-    {
+  let workingBoard = board
+  let hasConflict = false
+  const displacedUIDs = new Set<string>()
+  const footprintHexes: PlacementEvaluation['footprintHexes'] = []
+  let reason: string | undefined
+  for (const [index, automaticBase] of plan.automaticBases.entries()) {
+    const baseEvaluation = evaluatePlacement(workingBoard, automaticBase)
+    footprintHexes.push(...baseEvaluation.footprintHexes)
+    if (baseEvaluation.status === 'blocked') {
+      return {
+        ...baseEvaluation,
+        footprintHexes: [
+          ...footprintHexes,
+          ...evaluatePlacement(board, plan.resolution).footprintHexes,
+        ],
+      }
+    }
+    hasConflict ||= baseEvaluation.status === 'conflict'
+    for (const uid of baseEvaluation.displacedUIDs) displacedUIDs.add(uid)
+    const baseResult = addPiece({
+      piece: automaticBase.piece,
+      boardHexes: workingBoard.boardHexes,
+      boardPieces: workingBoard.boardPieces,
+      pieceCoords: automaticBase.coords,
+      placementAltitude: automaticBase.altitude,
+      rotation: automaticBase.rotation,
+      isVsTile: false,
+      uid: `${PROBE_UID}-base-${index}`,
+      permissive: true,
+    })
+    if (baseResult.error) {
+      hasConflict = true
+      reason ??= baseResult.error.message
+    }
+    workingBoard = {
+      ...workingBoard,
       boardHexes: baseResult.newBoardHexes,
       boardPieces: baseResult.newBoardPieces,
-    },
-    plan.resolution,
-  )
-  const displacedUIDs = [
-    ...new Set([
-      ...baseEvaluation.displacedUIDs,
-      ...placementEvaluation.displacedUIDs,
-    ]),
-  ]
-  const status =
-    placementEvaluation.status === 'blocked'
-      ? 'blocked'
-      : baseEvaluation.status === 'conflict' ||
-          placementEvaluation.status === 'conflict' ||
-          baseResult.error !== undefined
-        ? 'conflict'
-        : 'ok'
-
+    }
+  }
+  const placementEvaluation = evaluatePlacement(workingBoard, plan.resolution)
+  footprintHexes.push(...placementEvaluation.footprintHexes)
+  for (const uid of placementEvaluation.displacedUIDs) displacedUIDs.add(uid)
+  if (placementEvaluation.status === 'blocked') {
+    return {
+      ...placementEvaluation,
+      footprintHexes,
+      displacedUIDs: [...displacedUIDs],
+    }
+  }
+  hasConflict ||= placementEvaluation.status === 'conflict'
   return {
-    status,
-    displacedUIDs,
+    status: hasConflict ? 'conflict' : 'ok',
+    displacedUIDs: [...displacedUIDs],
     footprintHexes,
-    reason:
-      placementEvaluation.reason ??
-      baseResult.error?.message ??
-      baseEvaluation.reason,
+    reason: placementEvaluation.reason ?? reason,
   }
 }

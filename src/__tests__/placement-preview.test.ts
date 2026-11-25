@@ -64,11 +64,13 @@ describe('placement preview state', () => {
           altitude: 2,
           rotation,
         },
-        automaticBase: {
-          coords: center,
-          altitude: 1,
-          rotation,
-        },
+        automaticBases: [
+          {
+            coords: center,
+            altitude: 1,
+            rotation,
+          },
+        ],
         evaluation: {
           status: 'ok',
           footprintHexes: expect.arrayContaining([
@@ -113,7 +115,7 @@ describe('placement preview state', () => {
       rule: 'land' as const,
     }
     const plan = {
-      automaticBase,
+      automaticBases: [automaticBase],
       resolution: {
         piece: piecesSoFar[Pieces.marvel],
         coords: center,

@@ -20,7 +20,7 @@ export type PlacementPreviewState = {
   resolution: PlacementResolution
   evaluation: PlacementEvaluation
   unsupported: boolean
-  automaticBase?: ResolvedPlacement
+  automaticBases?: ResolvedPlacement[]
 }
 
 export function getPlacementPreviewState(
@@ -87,6 +87,6 @@ export function getPlacementPreviewState(
     resolution,
     evaluation,
     unsupported,
-    ...(plan.automaticBase ? { automaticBase: plan.automaticBase } : {}),
+    ...(plan.automaticBases ? { automaticBases: plan.automaticBases } : {}),
   }
 }

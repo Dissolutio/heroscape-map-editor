@@ -93,6 +93,7 @@ export default function PiecePreview() {
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
   const boardHexes = useBoundStore((s) => s.boardHexes)
   const boardPieces = useBoundStore((s) => s.boardPieces)
+  const setsUsed = useBoundStore((s) => s.hexMap.setsUsed)
   const penMode = useBoundStore((s) => s.penMode)
   const penModeSize = useBoundStore((s) => s.pieceSize)
   const penModeRotation = useBoundStore((s) => s.penModeRotation)
@@ -122,12 +123,13 @@ export default function PiecePreview() {
       piece,
       placementPointerHex,
       penModeRotation,
-      { boardHexes, boardPieces },
+      { boardHexes, boardPieces, setsUsed },
       hoveredAddon ? undefined : hoveredWorldPoint,
     )
   }, [
     boardHexes,
     boardPieces,
+    setsUsed,
     hoveredAddon,
     placementPointerHex,
     hoveredWorldPoint,
@@ -200,22 +202,23 @@ export default function PiecePreview() {
           altitude: resolution.altitude,
         })
       : undefined
-  const automaticBaseSupportHex = previewState.automaticBase
-    ? (boardHexes[
+  const automaticBaseSupportHexes = previewState.automaticBases?.map(
+    (automaticBase) =>
+      boardHexes[
         genBoardHexID({
-          ...previewState.automaticBase.coords,
-          altitude: previewState.automaticBase.altitude,
+          ...automaticBase.coords,
+          altitude: automaticBase.altitude,
         })
       ] ?? {
         ...placementPointerHex,
-        ...previewState.automaticBase.coords,
-        altitude: previewState.automaticBase.altitude,
+        ...automaticBase.coords,
+        altitude: automaticBase.altitude,
         terrain: HexTerrain.empty,
-      })
-    : undefined
+      },
+  )
   const marvelRuinSupportHex =
     piece.pieceSizeFamily === 'marvelRuin' && !('blocked' in resolution)
-      ? previewState.automaticBase
+      ? previewState.automaticBases?.length
         ? {
             ...placementPointerHex,
             ...resolution.coords,
@@ -244,14 +247,17 @@ export default function PiecePreview() {
         hoveredHex={hoveredSurfaceHex}
       />
       {evaluation.status !== 'blocked' &&
-        previewState.automaticBase &&
-        automaticBaseSupportHex && (
-          <LandPieceGhost
-            piece={piecesSoFar[Pieces.concrete6]}
-            supportHex={automaticBaseSupportHex}
-            rotation={previewState.automaticBase.rotation}
-          />
-        )}
+        previewState.automaticBases?.map((automaticBase, index) => {
+          const supportHex = automaticBaseSupportHexes?.[index]
+          return supportHex ? (
+            <LandPieceGhost
+              key={`${automaticBase.piece.id}-${index}`}
+              piece={automaticBase.piece}
+              supportHex={supportHex}
+              rotation={automaticBase.rotation}
+            />
+          ) : null
+        })}
       {evaluation.status !== 'blocked' && (
         <PiecePreviewModel
           hoveredHexOverride={
