@@ -6,6 +6,7 @@ const boardPieceRenderedElsewhere = new Set<string>([
   HexTerrain.startZone,
   HexTerrain.ropeLadder,
   HexTerrain.laurWallAddon,
+  HexTerrain.voidMat,
   HexTerrain.battlement,
   HexTerrain.roadWall,
 ])

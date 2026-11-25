@@ -1,4 +1,5 @@
 import type { Dictionary } from 'lodash'
+import { blendColorWithWhite } from '../../pdf-svg-shared/blendColorWithWhite'
 import { HexTerrain, Pieces } from '../../types'
 
 export const virtualscapeTileColors: Dictionary<string> = {
@@ -214,7 +215,37 @@ export const terrainCapColors: { [terrain: string]: string } = {
 }
 const outline3Color = '#020202'
 
-export const svgColors = {
+export const voidAndPylonsExportColors = {
+  voidMat: '#19161b',
+  voidMatGrid: '#a97cc0',
+  voidPylonBlack: '#000000',
+  voidPylonGray: '#bfbfbf',
+  voidPylonLightGray: '#c0c0c0',
+  deflectorShield: '#6fd3ff',
+}
+
+export const voidAndPylonsSublevelExportColors = {
+  voidMat: blendColorWithWhite(voidAndPylonsExportColors.voidMat, 0.5),
+  voidMatGrid: blendColorWithWhite(voidAndPylonsExportColors.voidMatGrid, 0.5),
+  voidPylonBlack: blendColorWithWhite(
+    voidAndPylonsExportColors.voidPylonBlack,
+    0.5,
+  ),
+  voidPylonGray: blendColorWithWhite(
+    voidAndPylonsExportColors.voidPylonGray,
+    0.5,
+  ),
+  voidPylonLightGray: blendColorWithWhite(
+    voidAndPylonsExportColors.voidPylonLightGray,
+    0.5,
+  ),
+  deflectorShield: blendColorWithWhite(
+    voidAndPylonsExportColors.deflectorShield,
+    0.5,
+  ),
+}
+
+export const svgColors: Dictionary<string> = {
   [Pieces.startZone1]: 'rgb(177, 0, 143)',
   [Pieces.startZone2]: 'rgb(8, 87, 37)',
   [Pieces.startZone3]: 'rgb(17, 10, 58)',
@@ -327,10 +358,11 @@ export const svgColors = {
   // [HexTerrain.glyphTreasure]: 'rgb(245, 177, 53)',
   [HexTerrain.glyphPower]: 'rgb(255, 124, 3)',
   [HexTerrain.glyphTreasure]: 'rgb(225, 191, 20)',
+  ...voidAndPylonsExportColors,
 }
 const subLevelOutline3Color = '#DAD0D0'
 
-export const svgSubLevelColors = {
+export const svgSubLevelColors: Dictionary<string> = {
   jungleText: '#C5BCBC',
   glacierText: '#808080', // glacier text & jungle text both black, but sub level they need different colors to be legible
   evergreenText: '#FFFFFF',
@@ -428,6 +460,7 @@ export const svgSubLevelColors = {
   [HexTerrain.glyphTreasure]: 'rgb(240, 223, 138)',
   glyphBorder: '#C5BCBC',
   battlementBorder: '#C5BCBC',
+  ...voidAndPylonsSublevelExportColors,
 }
 
 // const renegadeValkyriePaintColors = {

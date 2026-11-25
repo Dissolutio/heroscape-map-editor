@@ -19,6 +19,7 @@ import {
   PdfRopeLadder,
   PdfStartZone,
 } from './PdfMapShapes'
+import { PdfDeflectorShield, PdfVoidMatSymbol } from './PdfVoidAndPylons'
 
 export const PdfMapBoardPiece = ({
   piece,
@@ -62,6 +63,21 @@ export const PdfMapBoardPiece = ({
   // EARLY RETURN: NOT VISIBLE
   if (!isVisible) {
     return null
+  }
+  if (exportSymbol === 'void-mat') {
+    return isPieceKeyPreview ? (
+      <PdfVoidMatSymbol piece={piece} isSubLevel={false} />
+    ) : null
+  }
+  if (exportSymbol === 'deflector-shield') {
+    return (
+      <G transform={`translate(${pixel.x} ${pixel.y})rotate(${pieceRotation})`}>
+        <PdfDeflectorShield
+          isSubLevel={isSubLevel}
+          isPieceKeyPreview={isPieceKeyPreview}
+        />
+      </G>
+    )
   }
   // Start Zones
   if (exportSymbol === 'start-zone') {

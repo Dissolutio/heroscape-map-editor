@@ -18,6 +18,7 @@ import {
   getShipWallSvgPolygonPoints,
 } from './hexPolygonPoints'
 import { getLaurAddonExportSymbol } from './laurAddonExportSymbol'
+import { getVoidMatExportGeometry } from './voidMatExportGeometry'
 import type {
   PieceKeyEntry,
   PieceKeyModel,
@@ -37,7 +38,24 @@ export const getPieceKeyShapeLayout = (
     const pixel = hexUtilsHexToPixel(hex)
     return { x: pixel.x - origin.x, y: pixel.y - origin.y }
   })
-  const laurSymbol = getLaurAddonExportSymbol(entry.inventoryID)
+  if (entry.inventoryID === Pieces.voidMat) {
+    const points = getVoidMatExportGeometry(entry.piece).outline
+    const minX = Math.min(...points.map(({ x }) => x))
+    const maxX = Math.max(...points.map(({ x }) => x))
+    const minY = Math.min(...points.map(({ y }) => y))
+    const maxY = Math.max(...points.map(({ y }) => y))
+    return {
+      origin,
+      center: { x: (minX + maxX) / 2, y: (minY + maxY) / 2 },
+      minX,
+      minY,
+      width: maxX - minX,
+      height: maxY - minY,
+    }
+  }
+  const laurSymbol =
+    getLaurAddonExportSymbol(entry.inventoryID) ??
+    (entry.inventoryID === Pieces.deflectorShield ? 'long' : undefined)
   const footprintBounds =
     laurSymbol ||
     entry.inventoryID === Pieces.ropeLadder ||

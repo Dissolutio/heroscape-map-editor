@@ -1,18 +1,6 @@
 import type { BoardHexes, BoardPieces } from '../types'
-import { Pieces } from '../types'
 
-/**
- * Pieces the 2D view, SVG and PDF exports (and their piece keys) do not draw
- * yet. Void and Pylons gets its 2D symbols in a later phase (John's SVGs in
- * assets-src/void-and-pylons/); until then these are left out rather than
- * drawn wrongly. Remove an id here when its symbol lands.
- */
-const UNDRAWN_EXPORT_PIECE_IDS: ReadonlySet<string> = new Set([
-  Pieces.voidMat,
-  Pieces.twoWayPylon,
-  Pieces.threeWayPylon,
-  Pieces.deflectorShield,
-])
+const UNDRAWN_EXPORT_PIECE_IDS: ReadonlySet<string> = new Set()
 
 export const isUndrawnExportPieceID = (inventoryID: string) =>
   UNDRAWN_EXPORT_PIECE_IDS.has(inventoryID)

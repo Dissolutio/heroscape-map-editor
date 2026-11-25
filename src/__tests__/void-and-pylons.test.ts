@@ -39,10 +39,7 @@ import {
   isVCTerrainSetID,
 } from '../data/vcContent'
 import { findVoidMatAtTableHex, getVoidMatHexes } from '../data/voidMat'
-import {
-  isUndrawnExportPieceID,
-  withoutUndrawnExportPieces,
-} from '../pdf-svg-shared/undrawnExportPieces'
+import { withoutUndrawnExportPieces } from '../pdf-svg-shared/undrawnExportPieces'
 import {
   type BoardHex,
   type BoardPiece,
@@ -210,8 +207,7 @@ describe('Void and Pylons registry', () => {
     ])
   })
 
-  it('leaves the four pieces out of 2D, SVG and PDF until phase 2', () => {
-    for (const id of VC_IDS) expect(isUndrawnExportPieceID(id)).toBe(true)
+  it('keeps all four pieces in the 2D, SVG and PDF export data', () => {
     const board = placeAll(withTable(), [
       pylonA,
       pylonB,
@@ -223,19 +219,15 @@ describe('Void and Pylons registry', () => {
       board.boardHexes,
       board.boardPieces,
     )
-    expect(drawn.boardPieces.map((piece) => piece.uid)).toEqual(['grass'])
-    expect(
-      Object.values(drawn.boardHexes).some((hex) =>
-        isUndrawnExportPieceID(hex.inventoryID),
-      ),
-    ).toBe(false)
-    // Nothing to leave out: the same objects, so memoized renders hold.
-    const plain = placeAll(withTable(), [
-      bp('grass', Pieces.grass1, { q: 9, r: 9, s: -18 }),
+    expect(drawn.boardPieces).toBe(board.boardPieces)
+    expect(drawn.boardHexes).toBe(board.boardHexes)
+    expect(drawn.boardPieces.map((piece) => piece.uid)).toEqual([
+      pylonA.uid,
+      pylonB.uid,
+      shield.uid,
+      'mat',
+      'grass',
     ])
-    const same = withoutUndrawnExportPieces(plain.boardHexes, plain.boardPieces)
-    expect(same.boardHexes).toBe(plain.boardHexes)
-    expect(same.boardPieces).toBe(plain.boardPieces)
   })
 })
 
