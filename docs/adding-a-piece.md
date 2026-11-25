@@ -176,6 +176,13 @@ to the sweep in `src/__tests__/piece-features.test.ts` if it introduces a new
 family. `edges-and-nodes.test.ts` and `piece-features.test.ts` verify coordinate
 conventions and adapter parity.
 
+Port pillars and the add-ons that clip into them (Laur pillars and walls, the
+Void and Pylons pylons and Deflector Shield) are data in
+[`src/data/portPieces.ts`](../src/data/portPieces.ts): a pillar declares its
+family, port directions and rotations; an add-on its family and span. Support,
+smart hover rotation, pen rotations and placement read that table, so a new
+family adds rows there plus its models.
+
 Laur placement, support, footprints and conflicts use the canonical typed edge
 and node IDs; altitude stays separate from the ID. Other consumers
 (battlements, road walls, ladders, drag and group transforms, rendering,
