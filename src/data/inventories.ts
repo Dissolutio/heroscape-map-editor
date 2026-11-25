@@ -378,3 +378,12 @@ export const tournamentOrganizerTerrainKit2PieceSet: PieceInventory =
     cavernsOfValhalla,
     battleBox1PieceSet,
   )
+
+// Void and Pylons: a community custom (VC) set. Gated by the Include VC
+// unit/terrain data setting; see src/data/vcContent.ts.
+export const voidAndPylonsPieceSet: PieceInventory = {
+  [Pieces.voidMat]: 10,
+  [Pieces.threeWayPylon]: 6,
+  [Pieces.twoWayPylon]: 4,
+  [Pieces.deflectorShield]: 10,
+}

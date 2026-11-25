@@ -1,113 +1,33 @@
 import type { BoardPiece, BoardPieces, CubeCoordinate } from '../types'
-import { Pieces } from '../types'
-import { isLaurWallAddonPieceID } from '../utils/board-utils'
-import { HEX_DIRECTIONS, hexUtilsAdd } from '../utils/hex-utils'
-import {
-  type HexFeatureId,
-  edgeIdFromHex,
-  nodeIdFromHexRotation,
-} from './hexGrid/edgesAndNodes'
+import type { HexFeatureId } from './hexGrid/edgesAndNodes'
 import { getPillarPortFeatures } from './laurPillarPorts'
+import {
+  type PortFamily,
+  getPortAddon,
+  getPortAddonEnds,
+  getPortPillar,
+  isPortAddonPieceID,
+} from './portPieces'
 
+/**
+ * Support for every port add-on (Laur walls and ruins, the Deflector
+ * Shield): each port it needs must be offered, at its altitude, by a pillar
+ * of its own family in the right hex. The ports come from portPieces.ts.
+ */
 export type LaurAddonSupport = 'supported' | 'unsupported'
 export type LaurAddonSupportBoard = { boardPieces: BoardPieces }
 
-type RequiredPort = {
-  coords: CubeCoordinate
-  featureId: HexFeatureId
-}
+type PortProvider = { coords: CubeCoordinate; family: PortFamily }
+type PillarPortIndex = Map<number, Map<HexFeatureId, PortProvider[]>>
 
-type PillarPortIndex = Map<number, Map<HexFeatureId, CubeCoordinate[]>>
-
-const squarePillars = new Set<string>([
-  Pieces.laurWallSquarePillar,
-  Pieces.laurWallPillarStackable,
-])
-const shortBridges = new Set<string>([
-  Pieces.laurWallShort,
-  Pieces.laurWallShortStackable,
-])
-const longBridges = new Set<string>([
-  Pieces.laurWallLong,
-  Pieces.laurWallLongStackable,
-  Pieces.laurWallArch,
-])
-const ruins = new Set<string>([
-  Pieces.laurWallRuin1,
-  Pieces.laurWallRuin2,
-  Pieces.laurWallRuin3,
-])
-
-const mod6 = (rotation: number) => ((rotation % 6) + 6) % 6
-const featureIdForPort = (coords: CubeCoordinate, rotation: number) =>
-  Number.isInteger(rotation)
-    ? edgeIdFromHex(coords, rotation)
-    : nodeIdFromHexRotation(coords, rotation)
 const sameCoords = (first: CubeCoordinate, second: CubeCoordinate) =>
   first.q === second.q && first.r === second.r && first.s === second.s
-
-function getRequiredPorts(addon: BoardPiece): RequiredPort[] | null {
-  const rotation = mod6(addon.rotation)
-  if (!Number.isFinite(rotation) || !Number.isInteger(rotation * 2)) {
-    return null
-  }
-
-  if (shortBridges.has(addon.inventoryID)) {
-    if (!Number.isInteger(rotation)) return null
-    const direction = rotation
-    const farCoords = hexUtilsAdd(addon.pieceCoords, HEX_DIRECTIONS[direction])
-    return [
-      {
-        coords: addon.pieceCoords,
-        featureId: featureIdForPort(addon.pieceCoords, rotation),
-      },
-      {
-        coords: farCoords,
-        featureId: featureIdForPort(farCoords, mod6(direction + 3)),
-      },
-    ]
-  }
-
-  if (longBridges.has(addon.inventoryID)) {
-    if (Number.isInteger(rotation)) return null
-    const direction = Math.floor(rotation)
-    const farCoords = hexUtilsAdd(
-      hexUtilsAdd(addon.pieceCoords, HEX_DIRECTIONS[direction]),
-      HEX_DIRECTIONS[(direction + 1) % 6],
-    )
-    return [
-      {
-        coords: addon.pieceCoords,
-        featureId: featureIdForPort(addon.pieceCoords, rotation),
-      },
-      {
-        coords: farCoords,
-        featureId: featureIdForPort(farCoords, mod6(rotation + 3)),
-      },
-    ]
-  }
-
-  if (ruins.has(addon.inventoryID)) {
-    return [
-      {
-        coords: addon.pieceCoords,
-        featureId: featureIdForPort(addon.pieceCoords, rotation),
-      },
-    ]
-  }
-
-  return null
-}
 
 function buildPillarPortIndex(boardPieces: BoardPieces): PillarPortIndex {
   const portsByAltitude: PillarPortIndex = new Map()
   for (const piece of boardPieces) {
-    if (
-      !squarePillars.has(piece.inventoryID) &&
-      piece.inventoryID !== Pieces.laurWallTrianglePillar
-    ) {
-      continue
-    }
+    const pillar = getPortPillar(piece.inventoryID)
+    if (!pillar) continue
     const ports = getPillarPortFeatures(
       piece.inventoryID,
       piece.pieceCoords,
@@ -116,10 +36,10 @@ function buildPillarPortIndex(boardPieces: BoardPieces): PillarPortIndex {
     if (!ports.length) continue
     const portsAtAltitude =
       portsByAltitude.get(piece.altitude) ??
-      new Map<HexFeatureId, CubeCoordinate[]>()
+      new Map<HexFeatureId, PortProvider[]>()
     for (const { featureId } of ports) {
       const providers = portsAtAltitude.get(featureId) ?? []
-      providers.push(piece.pieceCoords)
+      providers.push({ coords: piece.pieceCoords, family: pillar.family })
       portsAtAltitude.set(featureId, providers)
     }
     portsByAltitude.set(piece.altitude, portsAtAltitude)
@@ -128,13 +48,17 @@ function buildPillarPortIndex(boardPieces: BoardPieces): PillarPortIndex {
 }
 
 function supportedByIndex(addon: BoardPiece, portsByLocation: PillarPortIndex) {
-  const requiredPorts = getRequiredPorts(addon)
-  if (!requiredPorts) return false
+  const family = getPortAddon(addon.inventoryID)?.family
+  const requiredPorts = getPortAddonEnds(addon)
+  if (!family || !requiredPorts) return false
   return requiredPorts.every(({ coords, featureId }) =>
     portsByLocation
       .get(addon.altitude)
       ?.get(featureId)
-      ?.some((providerCoords) => sameCoords(providerCoords, coords)),
+      ?.some(
+        (provider) =>
+          provider.family === family && sameCoords(provider.coords, coords),
+      ),
   )
 }
 
@@ -153,7 +77,7 @@ export function getUnsupportedLaurAddonUIDs(
 ): string[] {
   const portsByLocation = buildPillarPortIndex(board.boardPieces)
   return board.boardPieces
-    .filter((piece) => isLaurWallAddonPieceID(piece.inventoryID))
+    .filter((piece) => isPortAddonPieceID(piece.inventoryID))
     .filter((piece) => !supportedByIndex(piece, portsByLocation))
     .map(({ uid }) => uid)
 }

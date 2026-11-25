@@ -1,3 +1,4 @@
+import { isPortAddonPieceID } from './portPieces'
 import type { BoardHex, BoardPiece, CubeCoordinate, Piece } from '../types'
 import { HexTerrain, Pieces } from '../types'
 import { HEXGRID_HEX_APOTHEM } from '../utils/constants'
@@ -70,10 +71,7 @@ export function normalizeRotationSteps(steps: number) {
 }
 
 export function shouldRotateDragWithWheel(piece: Piece, memberCount: number) {
-  if (
-    piece.id === Pieces.ladder ||
-    piece.terrain === HexTerrain.laurWallAddon
-  ) {
+  if (piece.id === Pieces.ladder || isPortAddonPieceID(piece.id)) {
     return false
   }
   const isEdgePiece =

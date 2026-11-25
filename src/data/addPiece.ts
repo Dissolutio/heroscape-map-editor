@@ -35,6 +35,7 @@ import {
   verticalSupportTemplates,
 } from './vertical-obstruction-templates'
 import { getSupportingLaurPillar, isLaurPillarID } from './laurPillarStacking'
+import { isPortAddonPieceID, isPortPillarID } from './portPieces'
 import { getShipDeckHexIDs } from './shipDeck'
 import {
   findCellConflicts,
@@ -241,9 +242,7 @@ export function addPiece({
     // Ships are held by an edge interlock: no hex needs support from below
     isShipPieceID(piece.id) ||
     // Some obstacles, and glyphs/startzones, can be placed on fluid tiles
-    ((piece.id === Pieces.laurWallSquarePillar ||
-      piece.id === Pieces.laurWallPillarStackable ||
-      piece.id === Pieces.laurWallTrianglePillar ||
+    ((isPortPillarID(piece.id) ||
       piece.id === Pieces.cannon ||
       isGlyphPiece ||
       isStartZonePiece) &&
@@ -293,14 +292,20 @@ export function addPiece({
       addPieceError = { message: 'Unable to place rope ladder', error }
     }
   }
-  // LAUR WALL ADDONS: Autoadd piece id, render from boardPieces
-  else if (piece.terrain === HexTerrain.laurWallAddon) {
+  // PORT ADD-ONS (Laur walls and ruins, the Deflector Shield): Autoadd
+  // piece id, render from boardPieces
+  else if (isPortAddonPieceID(piece.id)) {
     try {
-      // add the new laur addon piece
+      // add the new add-on piece
       addBoardPiece(rotation)
     } catch (error) {
       addPieceError = { message: 'Unable to place laur wall addon', error }
     }
+  }
+  // VOID MAT: printed paper on the table. boardPieces only: it fills no
+  // cells, so land, obstacles and pylons go on it as on the bare table.
+  else if (piece.terrain === HexTerrain.voidMat) {
+    addBoardPiece(rotation)
   }
   // ROADWALLS: Autoadd piece id, render from boardPieces
   else if (isPlacingRoadWall) {

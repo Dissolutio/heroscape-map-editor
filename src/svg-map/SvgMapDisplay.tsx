@@ -1,3 +1,4 @@
+import { withoutUndrawnExportPieces } from '../pdf-svg-shared/undrawnExportPieces'
 import { useEffect, useMemo, useState } from 'react'
 import { piecesSoFar } from '../data/pieces'
 import {
@@ -51,8 +52,13 @@ const SvgMapDisplay = ({
   viewingLevelOverride?: number
   overlayEnabledOverride?: boolean
 }) => {
-  const boardHexes = useBoundStore((state) => state.boardHexes)
-  const boardPieces = useBoundStore((s) => s.boardPieces)
+  const storeBoardHexes = useBoundStore((state) => state.boardHexes)
+  const storeBoardPieces = useBoundStore((s) => s.boardPieces)
+  // Void and Pylons has no 2D symbols yet: left out, not drawn wrongly.
+  const { boardHexes, boardPieces } = useMemo(
+    () => withoutUndrawnExportPieces(storeBoardHexes, storeBoardPieces),
+    [storeBoardHexes, storeBoardPieces],
+  )
   const isShow2DExportTileLetters = useBoundStore(
     (s) => s.isShow2DExportTileLetters,
   )

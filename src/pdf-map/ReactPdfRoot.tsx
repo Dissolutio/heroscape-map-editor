@@ -1,3 +1,4 @@
+import { withoutUndrawnExportPieces } from '../pdf-svg-shared/undrawnExportPieces'
 import { useMediaQuery } from '@mui/material'
 import {
   Document,
@@ -33,8 +34,13 @@ import { registerPdfFonts } from './registerPdfFonts'
 registerPdfFonts()
 
 function ReactPdfRoot() {
-  const boardHexes = useBoundStore((s) => s.boardHexes)
-  const boardPieces = useBoundStore((s) => s.boardPieces)
+  const storeBoardHexes = useBoundStore((s) => s.boardHexes)
+  const storeBoardPieces = useBoundStore((s) => s.boardPieces)
+  // Void and Pylons has no 2D symbols yet: left out, not drawn wrongly.
+  const { boardHexes, boardPieces } = useMemo(
+    () => withoutUndrawnExportPieces(storeBoardHexes, storeBoardPieces),
+    [storeBoardHexes, storeBoardPieces],
+  )
   const hexMap = useBoundStore((s) => s.hexMap)
   const isShowPDFInventory = useBoundStore((s) => s.isShowPDFInventory)
   const isPdfColorBorders = useBoundStore((s) => s.isPdfColorBorders)

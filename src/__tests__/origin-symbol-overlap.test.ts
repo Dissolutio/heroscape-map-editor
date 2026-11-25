@@ -1,3 +1,4 @@
+import { isUndrawnExportPieceID } from '../pdf-svg-shared/undrawnExportPieces'
 import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { afterEach, describe, expect, it } from 'vitest'
@@ -258,6 +259,8 @@ describe('origin-anchored SVG and PDF symbols', () => {
     ])
     const originSymbolPieces = Object.values(piecesSoFar).filter(
       (piece) =>
+        // Void and Pylons is not drawn in 2D until its symbols land (phase 2)
+        !isUndrawnExportPieceID(piece.id) &&
         !boardPieceOnlyTerrains.has(piece.terrain as HexTerrain) &&
         (piece.isObstaclePiece ||
           piece.terrain === HexTerrain.castleBase ||

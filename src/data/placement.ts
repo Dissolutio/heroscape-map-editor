@@ -9,7 +9,6 @@ import { HexTerrain, PiecePrefixes, Pieces } from '../types'
 import {
   canPlaceLandTileOnHex,
   isFluidTerrainHex,
-  isLaurWallAddonPieceID,
   isSolidTerrainHex,
 } from '../utils/board-utils'
 import { HEXGRID_MAX_ALTITUDE } from '../utils/constants'
@@ -36,6 +35,7 @@ import {
   isLaurPillarID,
 } from './laurPillarStacking'
 import { piecesSoFar } from './pieces'
+import { isPortAddonPieceID } from './portPieces'
 import getPieceTemplateCoords from './rotationTransforms'
 import { getSmartPlacementAltitude } from './smartPlacement'
 import { getTemplateTopLevel } from './vertical-obstruction-templates'
@@ -50,7 +50,8 @@ export type PlacementBoard = {
 
 /** Which of the click rules picked the placement, tried in this order. */
 export type PlacementRule =
-  | 'laurAddon' // a Laur add-on on any hovered surface
+  | 'laurAddon' // a port add-on (Laur, Deflector Shield) on any surface
+  | 'voidMat' // a Void Mat: always on the table, level 0
   | 'castleCap' // a castle wall or wall walk on a castle wall/arch top
   | 'battlement' // the edge toward the pen rotation, one level down
   | 'roadWall' // the edge two steps clockwise of it, one level down
@@ -276,7 +277,7 @@ function resolveByRule(
 
   // Laur add-ons may be placed on any hovered surface; support is evaluated
   // separately and the hit surface determines their altitude.
-  if (isLaurWallAddonPieceID(piece.id)) {
+  if (isPortAddonPieceID(piece.id)) {
     const center = cubeToPixel(coords)
     const hoveredAddon = boardPieces.find(
       (boardPiece) => boardPiece.uid === hex.boardPieceUID,
@@ -304,6 +305,11 @@ function resolveByRule(
         : clickedAltitude,
       resolvedRotation,
     )
+  }
+  // Void Mat: printed paper, always flat on the table (level 0) wherever the
+  // pointer is; it fills no cells.
+  if (piece.terrain === HexTerrain.voidMat) {
+    return at('voidMat', 0, rotation, { q: hex.q, r: hex.r, s: hex.s })
   }
   // Castle W/A: use cap coords and altitude
   if (isCastleWallArchClicked) {

@@ -284,6 +284,9 @@ describe('the declarations', () => {
         'rs3:edges-and-nodes',
         'sb:footprint',
         'sl:footprint',
+        'vc2:footprint',
+        'vc3:footprint',
+        'vc4:edges-and-nodes',
         ...glyphIDs.map((id) => `${id}:hex-center`),
       ].sort(),
     )
