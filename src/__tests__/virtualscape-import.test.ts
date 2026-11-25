@@ -314,7 +314,6 @@ describe('Virtualscape binary import', () => {
     expect(new Set([...footprint].map(key))).toEqual(waterHexes)
   })
 
-
   it('drops and warns with the name for an unknown named tile', async () => {
     vi.stubGlobal('FileReader', MemoryFileReader)
     const virtualscapeMap = await readVirtualscapeMapFile(
