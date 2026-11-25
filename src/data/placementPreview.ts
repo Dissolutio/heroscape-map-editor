@@ -2,7 +2,7 @@ import type { BoardHex, Piece } from '../types'
 import { Pieces } from '../types'
 import { evaluateLaurAddonConflicts } from './laurAddonConflicts'
 import { isLaurAddonSupported } from './laurAddonSupport'
-import { isLaurWallAddonPieceID } from '../utils/board-utils'
+import { getPortAddon, isPortAddonPieceID } from './portPieces'
 import {
   evaluateShipWallSupport,
   getShipWallSupportReasons,
@@ -34,7 +34,7 @@ export function getPlacementPreviewState(
   })
   const evaluation = evaluatePlacement(board, resolution)
   let unsupported = false
-  if (isLaurWallAddonPieceID(piece.id) && !('blocked' in resolution)) {
+  if (isPortAddonPieceID(piece.id) && !('blocked' in resolution)) {
     const previewPiece = {
       uid: 'placement-preview-laur-addon',
       inventoryID: piece.id,
@@ -52,7 +52,10 @@ export function getPlacementPreviewState(
       evaluation.reason = 'Conflicts with a Laur add-on'
     }
     if (unsupported) {
-      const supportReason = 'Missing required Laur pillar ports'
+      const supportReason =
+        getPortAddon(piece.id)?.family === 'void'
+          ? 'Missing required pylon ports'
+          : 'Missing required Laur pillar ports'
       evaluation.reason = evaluation.reason
         ? `${evaluation.reason}; ${supportReason}`
         : supportReason

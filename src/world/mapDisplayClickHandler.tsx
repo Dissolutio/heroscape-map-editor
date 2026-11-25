@@ -14,6 +14,7 @@ import {
   getEffectiveObjectiveMarkerNumber,
 } from '../data/objectiveMarkers.ts'
 import { piecesSoFar } from '../data/pieces.ts'
+import { findVoidMatAtTableHex } from '../data/voidMat.ts'
 import {
   LAUR_STACKABLE_VARIANT_UNAVAILABLE_MESSAGE,
   type ResolvedPlacement,
@@ -69,22 +70,33 @@ type EmptyHexClickHandlerDependencies = Pick<
   'penMode' | 'toggleSelectedPieceID'
 >
 
+/**
+ * Select mode, a click on an empty table hex: select the Void Mat lying
+ * there (nothing else is at that spot, or the click would have hit it), or
+ * clear the selection. Shift/Ctrl/Cmd adds the mat to the selection.
+ */
+
 export function createEmptyHexClickHandler({
   penMode,
   toggleSelectedPieceID,
 }: EmptyHexClickHandlerDependencies) {
-  return (event: ThreeEvent<MouseEvent>) => {
+  return (event: ThreeEvent<MouseEvent>, boardHex?: BoardHex) => {
     event.stopPropagation()
     if (event.intersections[0]?.eventObject !== event.eventObject) return
-    if (
-      event.button !== 0 ||
-      penMode !== SELECT_PEN_MODE ||
-      event.shiftKey ||
-      event.ctrlKey ||
-      event.metaKey
-    ) {
+    if (event.button !== 0 || penMode !== SELECT_PEN_MODE) return
+    const isMultiSelect = event.shiftKey || event.ctrlKey || event.metaKey
+    const { boardPieces, boardHexes } = useBoundStore.getState()
+    const mat = boardHex
+      ? findVoidMatAtTableHex(boardPieces, boardHexes, boardHex)
+      : undefined
+    if (mat) {
+      toggleSelectedPieceID(mat.uid, isMultiSelect, {
+        x: event.point.x,
+        z: event.point.z,
+      })
       return
     }
+    if (isMultiSelect) return
     toggleSelectedPieceID('')
   }
 }

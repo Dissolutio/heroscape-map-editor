@@ -1,7 +1,7 @@
 import type { BoardHex, BoardPiece, CubeCoordinate, Piece } from '../types'
 import { isGlyphBoardPiece, isStartZoneBoardPiece } from './startZoneVisibility'
 import { HexTerrain, Pieces } from '../types'
-import { isLaurWallAddonPieceID } from '../utils/board-utils'
+import { isPortAddonPieceID } from './portPieces'
 import { CLICK_DRAG_TOLERANCE_PX, HEXGRID_HEX_RADIUS } from '../utils/constants'
 import { cubeToPixel } from '../utils/hex-utils'
 import { genBoardHexID } from '../utils/map-utils'
@@ -151,7 +151,7 @@ export function getGrabOffset(
 ): CubeCoordinate {
   // Attachment pieces follow the edge or port resolved directly under the
   // pointer; their BoardPiece anchor is not the clicked support hex.
-  if (piece.terrain === HexTerrain.laurWallAddon || isEdgeDragPiece(piece)) {
+  if (isPortAddonPieceID(piece.id) || isEdgeDragPiece(piece)) {
     return { q: 0, r: 0, s: 0 }
   }
   const footprint = getPieceTemplateCoords({
@@ -396,7 +396,7 @@ export function evaluateDragTarget(
   }
 
   const hasLaurWallAddon = members.some((member) =>
-    isLaurWallAddonPieceID(member.inventoryID),
+    isPortAddonPieceID(member.inventoryID),
   )
   const hasMovingLadderStack = targetMembers.some((member) =>
     hasMovingLadderSupport(member, targetMembers),
@@ -431,7 +431,7 @@ export function evaluateDragTarget(
       for (const member of targetMembers) {
         const conflicted = simulated.conflictedPieceUIDs.includes(member.uid)
         if (
-          isLaurWallAddonPieceID(member.piece.id) ||
+          isPortAddonPieceID(member.piece.id) ||
           member.piece.id === Pieces.shipWall
         ) {
           member.unsupported = simulated.unsupportedPieceUIDs.includes(
@@ -901,7 +901,7 @@ export function getDragTargetKey(
   )
   if (edgeTarget) return `${hex.id}:edge:${edgeTarget.edgeId}`
   if (isGroupDrag && isEdgeDragPiece(piece)) return hex.id
-  if (piece.terrain === HexTerrain.laurWallAddon && worldPoint) {
+  if (isPortAddonPieceID(piece.id) && worldPoint) {
     return `${hex.id}:${worldPoint.x}:${worldPoint.z}`
   }
   return hex.id

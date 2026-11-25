@@ -53,13 +53,14 @@ export function InputSetsUsedCard({ isCreateNewMap }: Props) {
   const { enqueueSnackbar } = useSnackbar()
   // Reuse the shared terrain set ordering so this dialog stays in sync with
   // the inventory screen.
+  const includeVCContent = useBoundStore((state) => state.includeVCContent)
   const contemporaryTerrainSets = React.useMemo(
-    () => getTerrainSetsForEra('contemporary'),
-    [],
+    () => getTerrainSetsForEra('contemporary', includeVCContent),
+    [includeVCContent],
   )
   const classicTerrainSets = React.useMemo(
-    () => getTerrainSetsForEra('classic'),
-    [],
+    () => getTerrainSetsForEra('classic', includeVCContent),
+    [includeVCContent],
   )
   const toggleIsSetsUsedOpen = () => {
     setIsSetUsedOpen(!isSetUsedOpen)

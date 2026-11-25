@@ -13,6 +13,7 @@ import { LaurWallLongPreview } from './models/LaurWallLongModel'
 import { LaurWallRuinPreview } from './models/LaurWallRuinModel'
 import { LaurWallShortPreview } from './models/LaurWallShortModel'
 import ModelLoader from './models/ModelLoader'
+import { DeflectorShieldPreview } from './models/VoidAndPylons'
 
 const ignoreRaycast = () => undefined
 
@@ -62,9 +63,24 @@ export function LaurAddonPreview({
   } else if (piece.id === Pieces.laurWallArch) {
     preview = <LaurWallArchPreview unsupported={unsupported} />
   }
+  const { x, y, z, yWithBase } = getBoardHex3DCoords({ ...coords, altitude })
+  // The Deflector Shield (Void and Pylons) spans like a Laur long wall but
+  // stands on the pylons' support surface, as placed (MapBoardPiece3D).
+  if (piece.id === Pieces.deflectorShield) {
+    return (
+      <group
+        ref={groupRef}
+        position={[x, y, z]}
+        rotation={[0, (rotation * -Math.PI) / 3, 0]}
+      >
+        <Suspense fallback={<ModelLoader />}>
+          <DeflectorShieldPreview unsupported={unsupported} />
+        </Suspense>
+      </group>
+    )
+  }
   if (!preview) return null
 
-  const { x, z, yWithBase } = getBoardHex3DCoords({ ...coords, altitude })
   return (
     <group
       ref={groupRef}

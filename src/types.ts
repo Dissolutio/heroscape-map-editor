@@ -123,6 +123,10 @@ export enum HexTerrain {
   shipBow = 'shipBow',
   cannon = 'cannon',
   ropeLadder = 'ropeLadder',
+  // Void and Pylons (community custom, VC)
+  voidMat = 'voidMat', // flat printed mat on the table, boardPieces only
+  voidPylon = 'voidPylon', // port pillar, like a Laur pillar
+  deflectorShield = 'deflectorShield', // port add-on, like a Laur long wall
 
   // other
   glyphPower = 'glyphPower',
@@ -205,6 +209,7 @@ export enum PiecePrefixes {
   laurWall = 'lw',
   castleArch = 'ca',
   glyph = 'y',
+  voidAndPylons = 'vc',
 }
 export const Pieces = {
   startZone1: `${PiecePrefixes.startZone}1`,
@@ -314,6 +319,12 @@ export const Pieces = {
   laurWallRuin1: `${PiecePrefixes.laurWall}r`, // most damaged
   laurWallRuin2: `${PiecePrefixes.laurWall}r2`, // 2nd most damaged
   laurWallRuin3: `${PiecePrefixes.laurWall}r3`, // 3rd most damaged
+  // Void and Pylons (community custom, VC): the mat and the shield are
+  // rendered from BoardPieces, the pylons from BoardHexes like Laur pillars
+  voidMat: `${PiecePrefixes.voidAndPylons}1`,
+  twoWayPylon: `${PiecePrefixes.voidAndPylons}2`,
+  threeWayPylon: `${PiecePrefixes.voidAndPylons}3`,
+  deflectorShield: `${PiecePrefixes.voidAndPylons}4`,
   // HexObstacles
   snowTree10: `${PiecePrefixes.snowTree}10`,
   snowTree12: `${PiecePrefixes.snowTree}12`,

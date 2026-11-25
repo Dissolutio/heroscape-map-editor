@@ -1,14 +1,17 @@
 import { getPossibleRotationsForPenMode } from '../controls/getPossibleRotationsForPenMode'
 import type { BoardHex, CubeCoordinate } from '../types'
-import { isLaurWallAddonPieceID } from '../utils/board-utils'
 import { HEX_DIRECTIONS, cubeToPixel, hexUtilsAdd } from '../utils/hex-utils'
 import {
   type HexFeatureId,
   edgeIdFromHex,
   nodeIdFromHexRotation,
 } from './hexGrid/edgesAndNodes'
-import { getPillarPorts } from './laurPillarPorts'
-import { isLaurPillarID } from './laurPillarStacking'
+import {
+  getPillarPorts,
+  isPortAddonPieceID,
+  isPortPillarID,
+  isSamePortFamily,
+} from './portPieces'
 
 export type LaurAddonPoint = { x: number; z: number }
 
@@ -23,7 +26,10 @@ export function getLaurAddonPortRotations(
   pillarInventoryID: string,
   pillarRotation: number,
 ) {
-  if (!isLaurWallAddonPieceID(pieceID) || !isLaurPillarID(pillarInventoryID)) {
+  if (
+    !isPortAddonPieceID(pieceID) ||
+    !isSamePortFamily(pieceID, pillarInventoryID)
+  ) {
     return []
   }
   const ports = getPillarPorts(pillarInventoryID, pillarRotation)
@@ -37,7 +43,11 @@ export function getLaurAddonAllowedRotations(
   pointerHex?: Pick<BoardHex, 'inventoryID' | 'pieceRotation'>,
 ) {
   const possibleRotations = getPossibleRotationsForPenMode(pieceID)
-  if (!pointerHex || !isLaurPillarID(pointerHex.inventoryID)) {
+  if (
+    !pointerHex ||
+    !isPortPillarID(pointerHex.inventoryID) ||
+    !isSamePortFamily(pieceID, pointerHex.inventoryID)
+  ) {
     return possibleRotations
   }
   const portRotations = getLaurAddonPortRotations(

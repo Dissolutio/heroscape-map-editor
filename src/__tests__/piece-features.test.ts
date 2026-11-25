@@ -32,6 +32,8 @@ const topologyTerrains = new Set<string>([
   HexTerrain.battlement,
   HexTerrain.roadWall,
   HexTerrain.ropeLadder,
+  HexTerrain.voidPylon,
+  HexTerrain.deflectorShield,
 ])
 const topologyPieces = Object.values(piecesSoFar).filter((piece) =>
   topologyTerrains.has(piece.terrain),
@@ -133,7 +135,7 @@ describe('piece topology declarations and adapters', () => {
     expect([...Object.keys(pieceTopologyDeclarations)].sort()).toEqual(
       [...topologyPieceIDs].sort(),
     )
-    expect(topologyPieces).toHaveLength(14)
+    expect(topologyPieces).toHaveLength(17)
 
     for (const piece of topologyPieces) {
       const declaration =
@@ -212,7 +214,17 @@ describe('piece topology declarations and adapters', () => {
             altitude: legacyFootprint?.altitude,
             heightInLevels: legacyFootprint?.heightInLevels,
           })
-        } else if (piece.terrain === HexTerrain.laurWall) {
+        } else if (piece.terrain === HexTerrain.deflectorShield) {
+          // Its anchor's port vertex; it has no Laur blocked-hex footprint
+          // (its conflicts are cells, see edge-node-cells and void-and-pylons).
+          expect(result.featureIds).toEqual([
+            nodeIdFromHexRotation(anchor, rotation),
+          ])
+          expect(result.footprint).toBeNull()
+        } else if (
+          piece.terrain === HexTerrain.laurWall ||
+          piece.terrain === HexTerrain.voidPylon
+        ) {
           const legacyPorts = getPillarPorts(pieceID, rotation)
           expect(result.featureIds).toEqual(
             legacyPorts.map((port) =>

@@ -39,6 +39,11 @@ import {
 } from '../../utils/board-utils'
 import { hexUtilsRotateAroundOrigin_000 } from '../../utils/hex-utils'
 import {
+  getPillarPorts,
+  getPortAddonEnds,
+  isSamePortFamily,
+} from '../portPieces'
+import {
   getObstructedLevelOffsets,
   type ObstructionEntry,
 } from '../vertical-obstruction-templates'
@@ -175,7 +180,13 @@ export function getPieceFootprintCells(piece: CellPiece): FilledCell[] {
   const cached = cellsByPiece.get(piece)
   if (cached?.signature === signature) return cached.cells
   const footprints = getRotatedFootprints(piece.inventoryID)
-  const rotation = ((piece.rotation % 6) + 6) % 6
+  // A half-step piece declares its footprint at rotation 0.5.
+  const declaration = pieceCellDeclarations[piece.inventoryID]
+  const rotationOffset =
+    declaration?.fills === 'edges-and-nodes'
+      ? (declaration.rotationOffset ?? 0)
+      : 0
+  const rotation = (((piece.rotation - rotationOffset) % 6) + 6) % 6
   if (!footprints || !Number.isInteger(rotation)) return []
   const { q, r, s } = piece.pieceCoords
   // Ships sit on the full level even over a half-level fluid cap.
@@ -247,6 +258,40 @@ type IndexedCell = FilledCell & {
   uid: string
   /** An edges-and-nodes piece (a wall), not a footprint piece. */
   isWall: boolean
+  piece: CellPiece
+}
+
+/**
+ * A port add-on (the Deflector Shield) shares its end vertex with the pillar
+ * (a pylon) it clips into: that is support, not a conflict. Exempt exactly
+ * that: same family and altitude, the cell is one of the pillar's ports, and
+ * an end of the add-on clips into that port of that pillar.
+ */
+function isPluggedPort(first: CellPiece, second: CellPiece, cell: string) {
+  const [addon, pillar] = isSamePortFamily(
+    first.inventoryID,
+    second.inventoryID,
+  )
+    ? [first, second]
+    : [second, first]
+  if (
+    !isSamePortFamily(addon.inventoryID, pillar.inventoryID) ||
+    addon.altitude !== pillar.altitude
+  ) {
+    return false
+  }
+  const { q, r, s } = pillar.pieceCoords
+  const pillarPorts = getPillarPorts(pillar.inventoryID, pillar.rotation)
+  return (
+    getPortAddonEnds(addon)?.some(
+      (end) =>
+        end.featureId === cell &&
+        end.coords.q === q &&
+        end.coords.r === r &&
+        end.coords.s === s &&
+        pillarPorts.includes(end.rotation),
+    ) ?? false
+  )
 }
 
 const columnKey = ({ q, r }: CubeCoordinate) => `${q},${r}`
@@ -279,7 +324,12 @@ function getIndexedCells(piece: BoardPiece) {
     return { cells: cached.indexed, columns: cached.columns }
   }
   const isWall = isEdgeNodePieceID(piece.inventoryID)
-  const indexed = cells.map((cell) => ({ ...cell, uid: piece.uid, isWall }))
+  const indexed = cells.map((cell) => ({
+    ...cell,
+    uid: piece.uid,
+    isWall,
+    piece,
+  }))
   const columns = [
     ...new Set(cells.flatMap((cell) => cell.hexes.map(columnKey))),
   ]
@@ -374,7 +424,8 @@ export function findCellConflicts({
         if (
           wall.isWall &&
           wall.uid !== uid &&
-          overlaps(cell.bottom, cell.top, wall)
+          overlaps(cell.bottom, cell.top, wall) &&
+          !isPluggedPort(piece, wall.piece, cell.cell)
         ) {
           conflicts.add(wall.uid)
         }
@@ -392,7 +443,11 @@ export function findCellConflicts({
     >()
     for (const cell of cells) {
       for (const other of others.get(cell.cell) ?? []) {
-        if (other.uid !== uid && overlaps(cell.bottom, cell.top, other)) {
+        if (
+          other.uid !== uid &&
+          overlaps(cell.bottom, cell.top, other) &&
+          !isPluggedPort(piece, other.piece, cell.cell)
+        ) {
           conflicts.add(other.uid)
         }
       }
