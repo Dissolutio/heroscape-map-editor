@@ -12,7 +12,9 @@ export const isVoidMatPieceID = (inventoryID: string) =>
   piecesSoFar[inventoryID]?.terrain === HexTerrain.voidMat
 
 /** The 14 full hexes a Void Mat covers (its ring of half hexes is drawn only). */
-export function getVoidMatHexes(mat: BoardPiece): CubeCoordinate[] {
+export function getVoidMatHexes(
+  mat: Pick<BoardPiece, 'inventoryID' | 'pieceCoords' | 'rotation'>,
+): CubeCoordinate[] {
   const piece = piecesSoFar[mat.inventoryID]
   if (!piece) return []
   return getPieceTemplateCoords({

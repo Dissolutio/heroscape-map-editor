@@ -8,6 +8,7 @@ import {
   getSvgVisibleObjectiveMarkers,
 } from '../pdf-svg-shared/objectiveMarkerExport'
 import { getBoardPieceOriginHexes } from '../pdf-svg-shared/boardPieceOriginHexes'
+import { isVoidMatPieceID } from '../data/voidMat'
 import {
   type PieceKeyModel,
   getPieceKeyModel,
@@ -30,6 +31,7 @@ import {
 } from './SvgMapShapes'
 import { SvgMapBoardPiece } from './SvgMapBoardPiece'
 import { SvgMapHex } from './SvgMapHex'
+import { SvgVoidMatSymbol } from './SvgVoidAndPylons'
 import {
   SvgObjectiveMarkerLegend,
   SvgObjectiveMarkerOverlay,
@@ -54,7 +56,6 @@ const SvgMapDisplay = ({
 }) => {
   const storeBoardHexes = useBoundStore((state) => state.boardHexes)
   const storeBoardPieces = useBoundStore((s) => s.boardPieces)
-  // Void and Pylons has no 2D symbols yet: left out, not drawn wrongly.
   const { boardHexes, boardPieces } = useMemo(
     () => withoutUndrawnExportPieces(storeBoardHexes, storeBoardPieces),
     [storeBoardHexes, storeBoardPieces],
@@ -253,6 +254,19 @@ const SvgMapDisplay = ({
           )
         ) : (
           <g>
+            {decodedBoardPiecesArr
+              .filter(
+                (piece) =>
+                  isVoidMatPieceID(piece.inventoryID) &&
+                  piece.altitude <= viewingLevel,
+              )
+              .map((piece) => (
+                <SvgVoidMatSymbol
+                  key={`void-mat-${piece.boardPieceID}`}
+                  piece={piece}
+                  isSubLevel={piece.altitude < viewingLevel}
+                />
+              ))}
             {boardHexesArr.map((hex) => {
               const originHex = pieceOriginBySourceID.get(hex.id) ?? hex
               return (

@@ -233,6 +233,17 @@ const PIECE_KEY_METADATA: {
       terrains: [HexTerrain.shipBow, HexTerrain.shipWall],
     },
     {
+      id: 'void-and-pylons',
+      title: 'Void and Pylons',
+      description: 'dark purple mat, black and gray pylons, cyan shield',
+      inventoryIDs: [
+        Pieces.voidMat,
+        Pieces.twoWayPylon,
+        Pieces.threeWayPylon,
+        Pieces.deflectorShield,
+      ],
+    },
+    {
       id: 'glyph',
       title: 'Glyphs',
       description: 'glyphs used on this map',

@@ -36,7 +36,6 @@ registerPdfFonts()
 function ReactPdfRoot() {
   const storeBoardHexes = useBoundStore((s) => s.boardHexes)
   const storeBoardPieces = useBoundStore((s) => s.boardPieces)
-  // Void and Pylons has no 2D symbols yet: left out, not drawn wrongly.
   const { boardHexes, boardPieces } = useMemo(
     () => withoutUndrawnExportPieces(storeBoardHexes, storeBoardPieces),
     [storeBoardHexes, storeBoardPieces],

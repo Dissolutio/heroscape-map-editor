@@ -76,6 +76,7 @@ import {
   PdfSvgTree415,
 } from './PdfMapShapes'
 import { getPdfBuriedMarkOffset } from './pdfBuriedMarkPosition'
+import { PdfVoidPylonSymbol } from './PdfVoidAndPylons'
 
 const glyphTextProps = () => ({
   style: {
@@ -223,6 +224,13 @@ export const PdfMapHex = ({
   // EARLY RETURN: NOT VISIBLE
   if (!isVisible || isAuxiliaryNotRenderedIn2D) {
     return null
+  }
+  if (exportSymbol === 'void-pylon' && hex.isObstacleOrigin) {
+    return (
+      <G transform={`translate(${pixel.x} ${pixel.y})rotate(${pieceRotation})`}>
+        <PdfVoidPylonSymbol inventoryID={inventoryID} isSubLevel={isSubLevel} />
+      </G>
+    )
   }
   // Empty Hexes
   if (hex.terrain === HexTerrain.empty) {
