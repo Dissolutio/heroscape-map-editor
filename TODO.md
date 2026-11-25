@@ -5,12 +5,11 @@ One bullet per item, 80 characters or less. Same text as the Project doc
 
 ## In progress
 
-- 👤 Release: push `dev` to `main` (Nov-16 and Nov-24 notes are waiting)
+- 👤 Smoke-test v1.0.35 on the Windows desktop app (Tauri 2.12.6)
 
 ## Next
 
-- Check Sentry after deploy: web release version, Sentry 11 events
-- Check the Windows installer after deploy (Tauri 2.12.6)
+- Sentry: confirm the first web error reports `hexoscape@1.0.35`
 - ❓ Confirm cells for obstacles still marked "full hex" (list in #404)
 - 👤 Check Ruins 2/3 cells with `?cells=1` (some may be 1 level off)
 - Laur add-ons on edge/node cells (no false flags next to walls)
