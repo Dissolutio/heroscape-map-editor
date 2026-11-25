@@ -61,7 +61,10 @@ export default function buildupVSFileMap(
         boardPieces,
         pieceCoords: tileCoords,
         placementAltitude: tile.posZ, // z is altitude is virtualscape, y is altitude in our app
-        rotation: tile.rotation,
+        rotation:
+          inventoryID === Pieces.deflectorShield
+            ? (tile.rotation + 4.5) % 6 // Virtualscape zero faces Hexoscape 4.5.
+            : tile.rotation,
         isVsTile: true,
       })
       boardPieces = newBoardPieces

@@ -1,7 +1,15 @@
+import { readFileSync } from 'node:fs'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import buildupVSFileMap from '../data/buildupMap'
 import { pieceCodes } from '../data/pieceCodes'
-import { readVirtualscapeMapFile } from '../data/readVirtualscapeMapFile'
+import {
+  getCodeForVSPersonalTile,
+  readVirtualscapeMapFile,
+} from '../data/readVirtualscapeMapFile'
+import { getUnsupportedPieceUIDs } from '../data/unsupportedPieces'
+import { getVoidMatHexes } from '../data/voidMat'
+import { isLaurAddonSupported } from '../data/laurAddonSupport'
+import { rebuildBoardStateFromPieces } from '../data/rebuildBoardState'
 import { Pieces } from '../types'
 import { hexUtilsOddRToCube } from '../utils/hex-utils'
 import { warnAboutLoadedMap } from '../utils/warnAboutLoadedMap'
@@ -12,6 +20,7 @@ type VirtualscapeTileInput = {
   posX: number
   posY: number
   posZ: number
+  virtualscapeName?: string
 }
 
 function makeVirtualscapeFile(
@@ -20,7 +29,15 @@ function makeVirtualscapeFile(
 ) {
   const tileLength = 4 + 8 + 16 + 1 + 4 + 4 + 4
   const buffer = new ArrayBuffer(
-    45 + name.length * 2 + tiles.length * tileLength,
+    45 +
+      name.length * 2 +
+      tiles.reduce(
+        (length, tile) =>
+          length +
+          tileLength +
+          (tile.virtualscapeName ? 1 + tile.virtualscapeName.length * 2 : 0),
+        0,
+      ),
   )
   const view = new DataView(buffer)
   let offset = 0
@@ -72,6 +89,7 @@ function makeVirtualscapeFile(
     view.setUint8(offset++, 0)
     view.setUint8(offset++, 0)
     view.setUint8(offset++, 0)
+    if (tile.virtualscapeName) setCString(tile.virtualscapeName)
   }
   return new File([buffer], 'sample.hsc')
 }
@@ -150,6 +168,184 @@ describe('Virtualscape binary import', () => {
         pieceCoords: hexUtilsOddRToCube(6, 4),
       },
     ])
+  })
+
+  it('imports the named Void and Pylons fixture with supported shields', async () => {
+    vi.stubGlobal('FileReader', MemoryFileReader)
+    const file = new File(
+      [
+        readFileSync(
+          new URL('./fixtures/void-and-pylons-example.hsc', import.meta.url),
+        ),
+      ],
+      'void-and-pylons-example.hsc',
+    )
+    const virtualscapeMap = await readVirtualscapeMapFile(file)
+    const loaded = buildupVSFileMap(virtualscapeMap.tiles, virtualscapeMap.name)
+    const count = (inventoryID: string) =>
+      loaded.boardPieces.filter((piece) => piece.inventoryID === inventoryID)
+        .length
+
+    expect(virtualscapeMap).toMatchObject({
+      version: 0.0007,
+      tileCount: 33,
+    })
+    expect(
+      virtualscapeMap.tiles.slice(0, 10).map((tile) => tile.virtualscapeName),
+    ).toEqual(Array(10).fill('core.void_mat'))
+    expect(virtualscapeMap.tiles[12].virtualscapeName).toBe('custom.pylon_2way')
+    expect(getCodeForVSPersonalTile(virtualscapeMap.tiles[12])).toBe(
+      Pieces.twoWayPylon,
+    )
+    expect({
+      grass24: count(Pieces.grass24),
+      voidMats: count(Pieces.voidMat),
+      twoWayPylons: count(Pieces.twoWayPylon),
+      threeWayPylons: count(Pieces.threeWayPylon),
+      shields: count(Pieces.deflectorShield),
+    }).toEqual({
+      grass24: 2,
+      voidMats: 10,
+      twoWayPylons: 5,
+      threeWayPylons: 7,
+      shields: 9,
+    })
+    expect(loaded.droppedPieces).toEqual([])
+
+    for (const [name, inventoryID] of [
+      ['custom.pylon_2way', Pieces.twoWayPylon],
+      ['custom.pylon_3way', Pieces.threeWayPylon],
+    ] as const) {
+      expect(
+        loaded.boardPieces
+          .filter((piece) => piece.inventoryID === inventoryID)
+          .map((piece) => piece.rotation)
+          .sort((a, b) => a - b),
+      ).toEqual(
+        virtualscapeMap.tiles
+          .filter((tile) => tile.virtualscapeName === name)
+          .map((tile) => tile.rotation)
+          .sort((a, b) => a - b),
+      )
+    }
+
+    const shields = loaded.boardPieces.filter(
+      (piece) => piece.inventoryID === Pieces.deflectorShield,
+    )
+    expect(shields.map((piece) => piece.rotation)).toEqual([
+      5.5, 5.5, 4.5, 0.5, 1.5, 4.5, 0.5, 2.5, 4.5,
+    ])
+    for (const shield of shields) {
+      expect(
+        isLaurAddonSupported({ boardPieces: loaded.boardPieces }, shield),
+      ).toBe('supported')
+    }
+    expect(
+      getUnsupportedPieceUIDs({
+        boardPieces: loaded.boardPieces,
+        boardHexes: loaded.boardHexes,
+      }),
+    ).toEqual([])
+    expect(
+      rebuildBoardStateFromPieces(loaded.boardPieces).conflictedPieceUIDs,
+    ).toEqual([])
+  })
+
+  it('anchors Void Mats at the top-left hex of their ring', async () => {
+    vi.stubGlobal('FileReader', MemoryFileReader)
+    const file = new File(
+      [
+        readFileSync(
+          new URL('./fixtures/void-and-pylons-example.hsc', import.meta.url),
+        ),
+      ],
+      'void-and-pylons-example.hsc',
+    )
+    const virtualscapeMap = await readVirtualscapeMapFile(file)
+    const loaded = buildupVSFileMap(virtualscapeMap.tiles, virtualscapeMap.name)
+    const mats = loaded.boardPieces.filter(
+      (piece) => piece.inventoryID === Pieces.voidMat,
+    )
+
+    expect(
+      mats.slice(0, 6).map(({ pieceCoords, rotation }) => ({
+        pieceCoords,
+        rotation,
+      })),
+    ).toEqual([
+      { pieceCoords: { q: 8, r: 5, s: -13 }, rotation: 0 },
+      { pieceCoords: { q: 15, r: 5, s: -20 }, rotation: 1 },
+      { pieceCoords: { q: 22, r: 7, s: -29 }, rotation: 2 },
+      { pieceCoords: { q: 27, r: 9, s: -36 }, rotation: 3 },
+      { pieceCoords: { q: 32, r: 8, s: -40 }, rotation: 4 },
+      { pieceCoords: { q: 39, r: 6, s: -45 }, rotation: 5 },
+    ])
+  })
+
+  it('puts each Void Mat on the hexes John marked', async () => {
+    // John's VoidMatTemplates.hsc: one mat at each Virtualscape rotation
+    // (0, 1, 2), lava on the hex he clicked, water on the 14 full hexes and
+    // Wellspring Water on the ring of half hexes.
+    vi.stubGlobal('FileReader', MemoryFileReader)
+    const file = new File(
+      [
+        readFileSync(
+          new URL('./fixtures/void-mat-templates.hsc', import.meta.url),
+        ),
+      ],
+      'void-mat-templates.hsc',
+    )
+    const virtualscapeMap = await readVirtualscapeMapFile(file)
+    const key = ({ q, r }: { q: number; r: number }) => `${q},${r}`
+    const waterHexes = new Set(
+      virtualscapeMap.tiles
+        .filter((tile) => tile.type === 4001)
+        .map((tile) => key(hexUtilsOddRToCube(tile.posX, tile.posY))),
+    )
+    expect(waterHexes.size).toBe(42)
+
+    const loaded = buildupVSFileMap(virtualscapeMap.tiles, virtualscapeMap.name)
+    const mats = loaded.boardPieces.filter(
+      (piece) => piece.inventoryID === Pieces.voidMat,
+    )
+    const rotations = [...new Set(mats.map((mat) => mat.rotation))].sort()
+    expect(rotations).toEqual([0, 1, 2])
+    const footprint = new Set(mats.flatMap((mat) => getVoidMatHexes(mat)))
+    expect(new Set([...footprint].map(key))).toEqual(waterHexes)
+  })
+
+  it('drops and warns with the name for an unknown named tile', async () => {
+    vi.stubGlobal('FileReader', MemoryFileReader)
+    const virtualscapeMap = await readVirtualscapeMapFile(
+      makeVirtualscapeFile([
+        {
+          type: 28091,
+          rotation: 0,
+          posX: 2,
+          posY: 2,
+          posZ: 0,
+          virtualscapeName: 'custom.unknown_tile',
+        },
+      ]),
+    )
+    const loaded = buildupVSFileMap(virtualscapeMap.tiles, virtualscapeMap.name)
+
+    expect(loaded.boardPieces).toEqual([])
+    expect(loaded.droppedPieces).toEqual([
+      { inventoryID: 'custom.unknown_tile', reason: 'unknown' },
+    ])
+
+    vi.spyOn(console, 'warn').mockImplementation(() => undefined)
+    const enqueueSnackbar = vi.fn()
+    warnAboutLoadedMap(enqueueSnackbar, loaded)
+    expect(enqueueSnackbar).toHaveBeenCalledOnce()
+    expect(enqueueSnackbar).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message:
+          'Skipped 1 unknown piece (custom.unknown_tile). Updating the app may let you load unknown pieces.',
+        variant: 'warning',
+      }),
+    )
   })
 
   it('drops and warns for unknown Virtualscape codes without crashing', async () => {

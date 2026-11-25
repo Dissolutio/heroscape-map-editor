@@ -1,4 +1,5 @@
 import type { VirtualScapeMap, VirtualScapeTile } from '../types'
+import { virtualscapeNamedPieceCodes } from './pieceCodes'
 
 /* 
 This function reads a specific binary file format used by VirtualScape.
@@ -58,6 +59,7 @@ export function processVirtualScapeArrayBuffer(arrayBuffer: ArrayBuffer) {
       glyphName: '',
       startName: '',
       colorf: '',
+      virtualscapeName: '',
       // isFigureTile: false,
       figure: {
         name: '',
@@ -94,6 +96,10 @@ export function processVirtualScapeArrayBuffer(arrayBuffer: ArrayBuffer) {
     const blue = getUint8(dataView)
     const alpha = getUint8(dataView)
     tile.colorf = `rgba(${red},${green},${blue},${alpha})`
+
+    if (Math.floor(tile.type / 1000) === 28) {
+      tile.virtualscapeName = readCString(dataView)
+    }
 
     if (Math.floor(tile.type / 1000) === 17) {
       // "personal" tiles have additional data
@@ -227,6 +233,13 @@ export function getCodeForVSPersonalTile(tile: VirtualScapeTile) {
   // transforms personal tiles created in Virtualscape
   // (the specs on those personal tiles were published here: https://www.heroscapers.com/threads/v-s-personal-tiles.11185/)
   // or just return the original pieceCode
+
+  if (tile.virtualscapeName) {
+    return (
+      virtualscapeNamedPieceCodes[tile.virtualscapeName] ??
+      tile.virtualscapeName
+    )
+  }
 
   // GLYPHS
   if (
