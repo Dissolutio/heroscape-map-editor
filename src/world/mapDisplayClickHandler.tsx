@@ -21,6 +21,7 @@ import {
   isPlacementBlocked,
   placementBlockedMessages,
   resolvePlacement,
+  resolvePlacementPlan,
 } from '../data/placement.ts'
 import getPieceTemplateCoords from '../data/rotationTransforms.ts'
 import {
@@ -276,7 +277,7 @@ export function createMapClickHandler({
     if (!piece) {
       return
     }
-    const placement = resolvePlacement(
+    const placementPlan = resolvePlacementPlan(
       piece,
       hex,
       penModeRotation,
@@ -290,6 +291,7 @@ export function createMapClickHandler({
           : undefined,
       },
     )
+    const placement = placementPlan.resolution
     if (isPlacementBlocked(placement)) {
       const message = placementBlockedMessages[placement.blocked]
       if (message) {
@@ -368,6 +370,14 @@ export function createMapClickHandler({
       clickedHexCoords: coords,
       altitude,
       rotation,
+      automaticBase: placementPlan.automaticBase
+        ? {
+            piece: placementPlan.automaticBase.piece,
+            clickedHexCoords: placementPlan.automaticBase.coords,
+            altitude: placementPlan.automaticBase.altitude,
+            rotation: placementPlan.automaticBase.rotation,
+          }
+        : undefined,
     })
     // A fluid tile stacked on fluid tops out half a level up; warn when that
     // makes a straight run taller than the real tiles line up.
