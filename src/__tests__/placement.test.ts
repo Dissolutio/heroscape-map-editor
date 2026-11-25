@@ -125,7 +125,7 @@ describe('Marvel Ruin base placement', () => {
         table,
       )
 
-      expect(plan.automaticBase).toMatchObject({
+      expect(plan.automaticBases?.[0]).toMatchObject({
         piece: piecesSoFar[Pieces.concrete6],
         coords: c,
         altitude: 1,

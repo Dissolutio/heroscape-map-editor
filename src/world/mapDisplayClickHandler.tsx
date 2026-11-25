@@ -284,6 +284,7 @@ export function createMapClickHandler({
       {
         boardHexes,
         boardPieces,
+        setsUsed: useBoundStore.getState().hexMap.setsUsed,
       },
       {
         worldPoint: event.point
@@ -370,14 +371,14 @@ export function createMapClickHandler({
       clickedHexCoords: coords,
       altitude,
       rotation,
-      automaticBase: placementPlan.automaticBase
-        ? {
-            piece: placementPlan.automaticBase.piece,
-            clickedHexCoords: placementPlan.automaticBase.coords,
-            altitude: placementPlan.automaticBase.altitude,
-            rotation: placementPlan.automaticBase.rotation,
-          }
-        : undefined,
+      automaticBases: placementPlan.automaticBases?.map(
+        ({ piece, coords, altitude, rotation }) => ({
+          piece,
+          clickedHexCoords: coords,
+          altitude,
+          rotation,
+        }),
+      ),
     })
     // A fluid tile stacked on fluid tops out half a level up; warn when that
     // makes a straight run taller than the real tiles line up.

@@ -130,6 +130,8 @@ export const pieceCodes: Dictionary<string> = {
 }
 
 export const virtualscapeNamedPieceCodes: Dictionary<string> = {
+  // TODO: export should skip hive/Marvel bases Virtualscape draws itself;
+  // import should add those bases back.
   'custom.ancient_land_1': Pieces.ancientTerrain1,
   'custom.ancient_land_2': Pieces.ancientTerrain2,
   'custom.ancient_land_24': Pieces.ancientTerrain24,

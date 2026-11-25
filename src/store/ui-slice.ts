@@ -7,6 +7,7 @@ import {
   getNewPieceSizeForPenMode,
   getPieceIDForPenMode,
 } from '../data/flatPieceSizes'
+import { getSeatedGroupUIDs } from '../data/seatedObstacles'
 import { type LookSettings, sanitizeLookSettings } from '../data/lookSettings'
 import { canSelectObjectiveMarker } from '../data/objectiveMarkerVisibility'
 import type {
@@ -485,37 +486,51 @@ const createUISlice: StateCreator<
           }
         }
 
+        const groupUIDs = pieceID
+          ? getSeatedGroupUIDs(
+              pieceID,
+              state.boardHexes,
+              state.boardPieces,
+              state.hexMap.setsUsed,
+            )
+          : []
         const wasSelected = state.selectedPieceIDs.includes(pieceID)
+        const wasGroupSelected = groupUIDs.every((uid) =>
+          state.selectedPieceIDs.includes(uid),
+        )
         state.rotationPivot = null
         if (!pieceID) {
           state.selectedPieceIDs = []
         } else if (multiSelect) {
-          const idx = state.selectedPieceIDs.indexOf(pieceID)
-          if (idx === -1) {
-            state.selectedPieceIDs.push(pieceID)
+          if (wasGroupSelected) {
+            state.selectedPieceIDs = state.selectedPieceIDs.filter(
+              (uid: string) => !groupUIDs.includes(uid),
+            )
+            for (const uid of groupUIDs) {
+              if (state.hoveredPieceID === uid) state.hoveredPieceID = ''
+            }
           } else {
-            state.selectedPieceIDs.splice(idx, 1)
-            // Clear hover highlight so the deselected piece stops being yellow
-            if (state.hoveredPieceID === pieceID) {
-              state.hoveredPieceID = ''
+            for (const uid of groupUIDs) {
+              if (!state.selectedPieceIDs.includes(uid)) {
+                state.selectedPieceIDs.push(uid)
+              }
             }
           }
         } else {
           if (
-            state.selectedPieceIDs.length === 1 &&
-            state.selectedPieceIDs[0] === pieceID
+            wasGroupSelected &&
+            state.selectedPieceIDs.length === groupUIDs.length
           ) {
             state.selectedPieceIDs = []
           } else {
-            state.selectedPieceIDs = [pieceID]
+            state.selectedPieceIDs = groupUIDs
           }
         }
 
         if (
           pieceID &&
           !wasSelected &&
-          state.selectedPieceIDs[state.selectedPieceIDs.length - 1] ===
-            pieceID &&
+          state.selectedPieceIDs.includes(pieceID) &&
           hitHex
         ) {
           const piece = state.boardPieces.find(

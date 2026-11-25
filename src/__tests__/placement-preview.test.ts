@@ -14,6 +14,7 @@ import {
   place,
   withGrassFloor,
 } from './helpers/board'
+import { makeRectangleScenario } from '../utils/map-gen'
 
 const table = withGrassFloor(makeTable(9))
 const center = table.center
@@ -45,6 +46,48 @@ function preview(
 }
 
 describe('placement preview state', () => {
+  it('previews the Hive and its fluid base at the graphics-tier fixture spot', () => {
+    let fixture: Board = makeRectangleScenario({
+      width: 6,
+      length: 6,
+      mapName: 'e2e-fixture-map',
+    })
+    for (const [pieceID, coords, altitude] of [
+      [Pieces.grass1, { q: 0, r: 2, s: -2 }, 0],
+      [Pieces.grass1, { q: 1, r: 2, s: -3 }, 0],
+      [Pieces.grass1, { q: 2, r: 2, s: -4 }, 0],
+      [Pieces.sand1, { q: 1, r: 3, s: -4 }, 0],
+      [Pieces.rock1, { q: 1, r: 2, s: -3 }, 1],
+    ] as const) {
+      fixture = place({
+        board: fixture,
+        pieceID,
+        at: coords,
+        altitude,
+        permissive: true,
+      }).board
+    }
+
+    const pointerHex = requiredHex(fixture, { q: 1, r: 0, s: -1 }, 0)
+    const state = preview(fixture, Pieces.hive, pointerHex)
+
+    expect(state).toMatchObject({
+      automaticBases: [
+        {
+          piece: { id: Pieces.swampWater6 },
+          coords: { q: 1, r: 0, s: -1 },
+          altitude: 0,
+        },
+      ],
+      resolution: {
+        coords: { q: 1, r: 0, s: -1 },
+        altitude: 1,
+        rotation: 0,
+      },
+      evaluation: { status: 'ok' },
+    })
+  })
+
   it('reports a free land placement as ok', () => {
     const emptyTable = makeTable(9)
     expect(
@@ -64,11 +107,13 @@ describe('placement preview state', () => {
           altitude: 2,
           rotation,
         },
-        automaticBase: {
-          coords: center,
-          altitude: 1,
-          rotation,
-        },
+        automaticBases: [
+          {
+            coords: center,
+            altitude: 1,
+            rotation,
+          },
+        ],
         evaluation: {
           status: 'ok',
           footprintHexes: expect.arrayContaining([
@@ -80,6 +125,40 @@ describe('placement preview state', () => {
       expect(state.evaluation.footprintHexes).toHaveLength(12)
     },
   )
+
+  it('previews all three contemporary bases under a Rock Outcrop 3', () => {
+    const state = preview(table, Pieces.outcrop3, undefined, 2)
+
+    expect(state.automaticBases).toHaveLength(3)
+    expect(state.automaticBases?.map(({ piece }) => piece.id)).toEqual([
+      Pieces.shadow1,
+      Pieces.shadow1,
+      Pieces.shadow1,
+    ])
+    expect(state.evaluation).toMatchObject({
+      status: 'ok',
+      footprintHexes: expect.arrayContaining([
+        expect.objectContaining({ altitude: 1 }),
+        expect.objectContaining({ altitude: 2 }),
+      ]),
+    })
+    expect(state.evaluation.footprintHexes).toHaveLength(6)
+  })
+
+  it('uses the classic Shadow-3 base for Rock Outcrop 3 on classic-only maps', () => {
+    const hex = requiredHex(table, center, 1)
+    const state = getPlacementPreviewState(
+      piecesSoFar[Pieces.outcrop3],
+      hex,
+      0,
+      { ...table, setsUsed: ['S'] },
+    )
+
+    expect(state.automaticBases).toMatchObject([
+      { piece: piecesSoFar[Pieces.shadow3] },
+    ])
+    expect(state.resolution).toMatchObject({ altitude: 2 })
+  })
 
   it('blocks a Marvel Ruin when its Concrete-6 base is not placeable', () => {
     const waterBoard = place({
@@ -113,7 +192,7 @@ describe('placement preview state', () => {
       rule: 'land' as const,
     }
     const plan = {
-      automaticBase,
+      automaticBases: [automaticBase],
       resolution: {
         piece: piecesSoFar[Pieces.marvel],
         coords: center,

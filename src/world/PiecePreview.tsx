@@ -8,6 +8,7 @@ import {
 import { piecesSoFar } from '../data/pieces'
 import { isPortAddonPieceID } from '../data/portPieces'
 import { getPlacementPreviewState } from '../data/placementPreview'
+import { getSeatedObstacleDefinition } from '../data/seatedObstacles'
 import { getSmartPlacementAltitude } from '../data/smartPlacement'
 import { isE2E } from '../e2e/isE2E'
 import { setPlacementPreview } from '../e2e/placementPreviewStore'
@@ -93,6 +94,7 @@ export default function PiecePreview() {
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
   const boardHexes = useBoundStore((s) => s.boardHexes)
   const boardPieces = useBoundStore((s) => s.boardPieces)
+  const setsUsed = useBoundStore((s) => s.hexMap.setsUsed)
   const penMode = useBoundStore((s) => s.penMode)
   const penModeSize = useBoundStore((s) => s.pieceSize)
   const penModeRotation = useBoundStore((s) => s.penModeRotation)
@@ -122,12 +124,13 @@ export default function PiecePreview() {
       piece,
       placementPointerHex,
       penModeRotation,
-      { boardHexes, boardPieces },
+      { boardHexes, boardPieces, setsUsed },
       hoveredAddon ? undefined : hoveredWorldPoint,
     )
   }, [
     boardHexes,
     boardPieces,
+    setsUsed,
     hoveredAddon,
     placementPointerHex,
     hoveredWorldPoint,
@@ -200,39 +203,45 @@ export default function PiecePreview() {
           altitude: resolution.altitude,
         })
       : undefined
-  const automaticBaseSupportHex = previewState.automaticBase
-    ? (boardHexes[
+  const automaticBaseSupportHexes = previewState.automaticBases?.map(
+    (automaticBase) =>
+      boardHexes[
         genBoardHexID({
-          ...previewState.automaticBase.coords,
-          altitude: previewState.automaticBase.altitude,
+          ...automaticBase.coords,
+          altitude: automaticBase.altitude,
         })
       ] ?? {
         ...placementPointerHex,
-        ...previewState.automaticBase.coords,
-        altitude: previewState.automaticBase.altitude,
+        ...automaticBase.coords,
+        altitude: automaticBase.altitude,
         terrain: HexTerrain.empty,
-      })
-    : undefined
-  const marvelRuinSupportHex =
-    piece.pieceSizeFamily === 'marvelRuin' && !('blocked' in resolution)
-      ? previewState.automaticBase
-        ? {
-            ...placementPointerHex,
+      },
+  )
+  const seatedDefinition =
+    piece && getSeatedObstacleDefinition(piece.id, setsUsed)
+  const seatedSupportHex =
+    !('blocked' in resolution) && seatedDefinition
+      ? (() => {
+          const seatedSupportID = genBoardHexID({
             ...resolution.coords,
             altitude: resolution.altitude,
-            terrain: piecesSoFar[Pieces.concrete6].terrain,
-          }
-        : (boardHexes[
-            genBoardHexID({
-              ...resolution.coords,
-              altitude: resolution.altitude,
-            })
-          ] ?? {
-            ...placementPointerHex,
-            ...resolution.coords,
-            altitude: resolution.altitude,
-            terrain: piecesSoFar[Pieces.concrete6].terrain,
           })
+          const supportHex = boardHexes[seatedSupportID]
+          const supportPiece = boardPieces.find(
+            (boardPiece) =>
+              boardPiece.uid === supportHex?.boardPieceUID &&
+              seatedDefinition.allowedBaseIDs.includes(boardPiece.inventoryID),
+          )
+          const supportTerrain = supportPiece
+            ? supportHex?.terrain
+            : piecesSoFar[seatedDefinition.defaultBaseID]?.terrain
+          return {
+            ...(supportHex ?? placementPointerHex),
+            ...resolution.coords,
+            altitude: resolution.altitude,
+            terrain: supportTerrain ?? HexTerrain.empty,
+          }
+        })()
       : undefined
 
   return (
@@ -244,18 +253,21 @@ export default function PiecePreview() {
         hoveredHex={hoveredSurfaceHex}
       />
       {evaluation.status !== 'blocked' &&
-        previewState.automaticBase &&
-        automaticBaseSupportHex && (
-          <LandPieceGhost
-            piece={piecesSoFar[Pieces.concrete6]}
-            supportHex={automaticBaseSupportHex}
-            rotation={previewState.automaticBase.rotation}
-          />
-        )}
+        previewState.automaticBases?.map((automaticBase, index) => {
+          const supportHex = automaticBaseSupportHexes?.[index]
+          return supportHex ? (
+            <LandPieceGhost
+              key={`${automaticBase.piece.id}-${index}`}
+              piece={automaticBase.piece}
+              supportHex={supportHex}
+              rotation={automaticBase.rotation}
+            />
+          ) : null
+        })}
       {evaluation.status !== 'blocked' && (
         <PiecePreviewModel
           hoveredHexOverride={
-            addonPreviewHex ?? castleCapHex ?? marvelRuinSupportHex
+            addonPreviewHex ?? castleCapHex ?? seatedSupportHex
           }
           unsupported={previewState.unsupported && evaluation.status === 'ok'}
           rotationOverride={
@@ -911,7 +923,7 @@ function PiecePreviewModel({
       </group>
     )
   }
-  if (isHiveHex && isSolidOrEmptyBeneath) {
+  if (isHiveHex && isLandOrEmptyBeneath) {
     return (
       <group
         position={[x, yWithBase, z]}
