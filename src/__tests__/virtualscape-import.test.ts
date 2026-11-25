@@ -7,6 +7,7 @@ import {
   readVirtualscapeMapFile,
 } from '../data/readVirtualscapeMapFile'
 import { getUnsupportedPieceUIDs } from '../data/unsupportedPieces'
+import { getVoidMatHexes } from '../data/voidMat'
 import { isLaurAddonSupported } from '../data/laurAddonSupport'
 import { rebuildBoardStateFromPieces } from '../data/rebuildBoardState'
 import { Pieces } from '../types'
@@ -250,7 +251,7 @@ describe('Virtualscape binary import', () => {
     ).toEqual([])
   })
 
-  it('converts Void Mat anchors from the top-left Virtualscape hex', async () => {
+  it('anchors Void Mats at the top-left hex of their ring', async () => {
     vi.stubGlobal('FileReader', MemoryFileReader)
     const file = new File(
       [
@@ -272,14 +273,47 @@ describe('Virtualscape binary import', () => {
         rotation,
       })),
     ).toEqual([
-      { pieceCoords: { q: 8, r: 4, s: -12 }, rotation: 0 },
-      { pieceCoords: { q: 15, r: 4, s: -19 }, rotation: 1 },
-      { pieceCoords: { q: 22, r: 6, s: -28 }, rotation: 2 },
-      { pieceCoords: { q: 27, r: 8, s: -35 }, rotation: 3 },
-      { pieceCoords: { q: 32, r: 7, s: -39 }, rotation: 4 },
-      { pieceCoords: { q: 39, r: 5, s: -44 }, rotation: 5 },
+      { pieceCoords: { q: 8, r: 5, s: -13 }, rotation: 0 },
+      { pieceCoords: { q: 15, r: 5, s: -20 }, rotation: 1 },
+      { pieceCoords: { q: 22, r: 7, s: -29 }, rotation: 2 },
+      { pieceCoords: { q: 27, r: 9, s: -36 }, rotation: 3 },
+      { pieceCoords: { q: 32, r: 8, s: -40 }, rotation: 4 },
+      { pieceCoords: { q: 39, r: 6, s: -45 }, rotation: 5 },
     ])
   })
+
+  it('puts each Void Mat on the hexes John marked', async () => {
+    // John's VoidMatTemplates.hsc: one mat at each Virtualscape rotation
+    // (0, 1, 2), lava on the hex he clicked, water on the 14 full hexes and
+    // Wellspring Water on the ring of half hexes.
+    vi.stubGlobal('FileReader', MemoryFileReader)
+    const file = new File(
+      [
+        readFileSync(
+          new URL('./fixtures/void-mat-templates.hsc', import.meta.url),
+        ),
+      ],
+      'void-mat-templates.hsc',
+    )
+    const virtualscapeMap = await readVirtualscapeMapFile(file)
+    const key = ({ q, r }: { q: number; r: number }) => `${q},${r}`
+    const waterHexes = new Set(
+      virtualscapeMap.tiles
+        .filter((tile) => tile.type === 4001)
+        .map((tile) => key(hexUtilsOddRToCube(tile.posX, tile.posY))),
+    )
+    expect(waterHexes.size).toBe(42)
+
+    const loaded = buildupVSFileMap(virtualscapeMap.tiles, virtualscapeMap.name)
+    const mats = loaded.boardPieces.filter(
+      (piece) => piece.inventoryID === Pieces.voidMat,
+    )
+    const rotations = [...new Set(mats.map((mat) => mat.rotation))].sort()
+    expect(rotations).toEqual([0, 1, 2])
+    const footprint = new Set(mats.flatMap((mat) => getVoidMatHexes(mat)))
+    expect(new Set([...footprint].map(key))).toEqual(waterHexes)
+  })
+
 
   it('drops and warns with the name for an unknown named tile', async () => {
     vi.stubGlobal('FileReader', MemoryFileReader)

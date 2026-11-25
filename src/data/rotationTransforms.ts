@@ -144,15 +144,17 @@ const marvel6 = [
   { q: -1, r: 3, s: -2 },
   { q: -3, r: 2, s: 1 },
 ]
-// Virtualscape anchors multi-hex pieces at the leftmost hex in the top row.
-// Shift the template origin so that anchor stays at the recorded position.
+// Virtualscape anchors the Void Mat at the leftmost hex of the top row of its
+// printed ring of half hexes, one row above the top row of its 14 full hexes.
+// Measured from John's VoidMatTemplates.hsc (lava on each anchor, water on
+// the full hexes): this shifts the recorded hex to our template origin.
 const voidMatOrigins = [
-  ORIGIN_000,
-  { q: 2, r: 0, s: -2 },
-  { q: 2, r: 2, s: -4 },
-  { q: -1, r: 4, s: -3 },
-  { q: -2, r: 3, s: -1 },
-  { q: -1, r: 1, s: 0 },
+  { q: 0, r: 1, s: -1 },
+  { q: 2, r: 1, s: -3 },
+  { q: 2, r: 3, s: -5 },
+  { q: -1, r: 5, s: -4 },
+  { q: -2, r: 4, s: -2 },
+  { q: -1, r: 2, s: -1 },
 ]
 const rotationTransforms: Dictionary<CubeCoordinate[]> = {
   // land tiles (solid and fluid) will use their size to lookup their rotations
