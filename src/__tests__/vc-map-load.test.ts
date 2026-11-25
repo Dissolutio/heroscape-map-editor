@@ -33,6 +33,13 @@ const pylon: BoardPiece = {
   rotation: 0,
   altitude: 0,
 }
+const marker: BoardPiece = {
+  uid: 'void-marker',
+  inventoryID: Pieces.voidMarker,
+  pieceCoords: { q: 3, r: 4, s: -7 },
+  rotation: 0,
+  altitude: 0,
+}
 const grass: BoardPiece = {
   uid: 'grass',
   inventoryID: Pieces.grass1,
@@ -95,6 +102,13 @@ describe('loading a map with VC pieces', () => {
     expect(vcSnackbars()).toHaveLength(1)
   })
 
+  it('turns Include VC on when a map contains only the Void Marker', () => {
+    expect(store.getState().includeVCContent).toBe(false)
+    store.getState().loadMap(buildupJsonFileMap([marker], hexMap))
+    expect(store.getState().includeVCContent).toBe(true)
+    expect(vcSnackbars()).toHaveLength(1)
+  })
+
   it('leaves the setting alone for a map without VC pieces', () => {
     store.getState().loadMap(buildupJsonFileMap([grass], hexMap))
     expect(store.getState().includeVCContent).toBe(false)
@@ -104,6 +118,23 @@ describe('loading a map with VC pieces', () => {
   it('turns Include VC on when loading the named Virtualscape fixture', () => {
     const bytes = readFileSync(
       new URL('./fixtures/void-and-pylons-example.hsc', import.meta.url),
+    )
+    const arrayBuffer = Uint8Array.from(bytes).buffer
+    const virtualscapeMap = processVirtualScapeArrayBuffer(arrayBuffer)
+    const loadedMap = buildupVSFileMap(
+      virtualscapeMap.tiles,
+      virtualscapeMap.name,
+    )
+
+    store.getState().loadMap(loadedMap)
+
+    expect(store.getState().includeVCContent).toBe(true)
+    expect(vcSnackbars()).toHaveLength(1)
+  })
+
+  it('turns Include VC on when loading the all-tiles Virtualscape fixture', () => {
+    const bytes = readFileSync(
+      new URL('./fixtures/vs-all-tiles.hsc', import.meta.url),
     )
     const arrayBuffer = Uint8Array.from(bytes).buffer
     const virtualscapeMap = processVirtualScapeArrayBuffer(arrayBuffer)

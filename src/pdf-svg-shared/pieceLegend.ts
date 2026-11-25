@@ -22,7 +22,9 @@ export const getPieceExportSymbol = (
   const piece = piecesSoFar[inventoryID]
   if (!piece) return undefined
 
-  if (inventoryID === Pieces.voidMat) return 'void-mat'
+  if (inventoryID === Pieces.voidMat || inventoryID === Pieces.voidMarker) {
+    return 'void-mat'
+  }
   if (
     inventoryID === Pieces.twoWayPylon ||
     inventoryID === Pieces.threeWayPylon

@@ -1,9 +1,17 @@
 import { readFileSync } from 'node:fs'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import buildupVSFileMap from '../data/buildupMap'
-import { pieceCodes } from '../data/pieceCodes'
+import {
+  pieceCodes,
+  virtualscapeLaurPillarBaseName,
+  virtualscapeNamedPieceCodes,
+  virtualscapeNamedPieceNames,
+  virtualscapePieceCodesByID,
+} from '../data/pieceCodes'
 import {
   getCodeForVSPersonalTile,
+  getHexoscapeLaurRotation,
+  getHexoscapeRopeLadderAltitude,
   readVirtualscapeMapFile,
 } from '../data/readVirtualscapeMapFile'
 import { getUnsupportedPieceUIDs } from '../data/unsupportedPieces'
@@ -108,12 +116,48 @@ class MemoryFileReader {
   }
 }
 
+async function importVirtualscapeTiles(tiles: VirtualscapeTileInput[]) {
+  vi.stubGlobal('FileReader', MemoryFileReader)
+  const map = await readVirtualscapeMapFile(makeVirtualscapeFile(tiles))
+  return buildupVSFileMap(map.tiles, map.name)
+}
+
 afterEach(() => {
   vi.restoreAllMocks()
   vi.unstubAllGlobals()
 })
 
 describe('Virtualscape binary import', () => {
+  it('imports the named custom Void Marker', async () => {
+    vi.stubGlobal('FileReader', MemoryFileReader)
+    const virtualscapeMap = await readVirtualscapeMapFile(
+      makeVirtualscapeFile([
+        {
+          type: 28001,
+          rotation: 4,
+          posX: 2,
+          posY: 2,
+          posZ: 0,
+          virtualscapeName: 'custom.void_1',
+        },
+      ]),
+    )
+    const loaded = buildupVSFileMap(virtualscapeMap.tiles, virtualscapeMap.name)
+
+    expect(getCodeForVSPersonalTile(virtualscapeMap.tiles[0])).toBe(
+      Pieces.voidMarker,
+    )
+    expect(loaded.droppedPieces).toEqual([])
+    expect(loaded.boardPieces).toMatchObject([
+      { inventoryID: Pieces.voidMarker, altitude: 0, rotation: 4 },
+    ])
+    expect(
+      Object.values(loaded.boardHexes).some(
+        (hex) => hex.inventoryID === Pieces.voidMarker,
+      ),
+    ).toBe(false)
+  })
+
   it('reads supported codes, preserving positions and rotations with no drops', async () => {
     vi.stubGlobal('FileReader', MemoryFileReader)
     const file = makeVirtualscapeFile([
@@ -168,6 +212,264 @@ describe('Virtualscape binary import', () => {
         pieceCoords: hexUtilsOddRToCube(6, 4),
       },
     ])
+  })
+
+  it('imports the complete Virtualscape tile catalogue with an exact drop list', async () => {
+    vi.stubGlobal('FileReader', MemoryFileReader)
+    const file = new File(
+      [readFileSync(new URL('./fixtures/vs-all-tiles.hsc', import.meta.url))],
+      'vs-all-tiles.hsc',
+    )
+    const map = await readVirtualscapeMapFile(file)
+    const loaded = buildupVSFileMap(map.tiles, map.name)
+
+    expect(map.tileCount).toBe(211)
+    expect(map.tiles.filter((tile) => tile.virtualscapeName)).toHaveLength(75)
+    expect(
+      new Set(
+        map.tiles
+          .filter((tile) => tile.virtualscapeName)
+          .map((tile) => tile.virtualscapeName),
+      ).size,
+    ).toBe(61)
+    expect(
+      loaded.droppedPieces.map(({ inventoryID }) => inventoryID).sort(),
+    ).toEqual(['11008', '11009', '11010', '16403'])
+    vi.spyOn(console, 'warn').mockImplementation(() => undefined)
+    const enqueueSnackbar = vi.fn()
+    warnAboutLoadedMap(enqueueSnackbar, loaded)
+    expect(enqueueSnackbar).toHaveBeenCalledOnce()
+    expect(enqueueSnackbar).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message:
+          'Skipped 4 unknown pieces (11008, 11009, 11010, 16403). Updating the app may let you load unknown pieces.',
+        variant: 'warning',
+      }),
+    )
+    for (const name of new Set(
+      map.tiles
+        .filter((tile) => tile.virtualscapeName)
+        .map((tile) => tile.virtualscapeName),
+    )) {
+      expect(
+        virtualscapeNamedPieceCodes[name] ||
+          name === virtualscapeLaurPillarBaseName ||
+          loaded.droppedPieces.some((piece) => piece.inventoryID === name),
+      ).toBeTruthy()
+    }
+
+    const markers = loaded.hexMap.objectiveMarkers ?? []
+    expect(
+      markers.map((marker) => ({
+        number: marker.content.kind === 'number' ? marker.content.value : null,
+        name: marker.name,
+      })),
+    ).toEqual(
+      Array.from({ length: 6 }, (_, index) => ({
+        number: index + 1,
+        name: `Objective ${index + 1}`,
+      })),
+    )
+
+    const conflicts = rebuildBoardStateFromPieces(loaded.boardPieces)
+      .conflictedPieceUIDs.map(
+        (uid) =>
+          loaded.boardPieces.find((piece) => piece.uid === uid)?.inventoryID,
+      )
+      .sort()
+    const unsupported = getUnsupportedPieceUIDs({
+      boardPieces: loaded.boardPieces,
+      boardHexes: loaded.boardHexes,
+    })
+      .map(
+        (uid) =>
+          loaded.boardPieces.find((piece) => piece.uid === uid)?.inventoryID,
+      )
+      .sort()
+    // Expected overlaps: three castle base/wall pairs, two Fortified Wall
+    // samples, and several Laur add-on samples sharing one pillar.
+    expect(conflicts).toEqual([
+      'cbc',
+      'cbe',
+      'cbs',
+      'cwc',
+      'cwe',
+      'cws',
+      'fw',
+      'fw',
+      'lwp',
+      'lwr',
+      'lwr2',
+      'lws',
+      'lws',
+    ])
+    // One short wall and the ship wall lack their second/supporting hex.
+    expect(unsupported).toEqual(['lws', 'sl'])
+  })
+
+  it('keeps forward and reverse Virtualscape piece mappings together', () => {
+    expect(virtualscapeNamedPieceCodes['core.sand_24']).toBe(Pieces.sand24)
+    expect(virtualscapeNamedPieceNames[Pieces.sand24]).toBe('core.sand_24')
+    expect(virtualscapePieceCodesByID[Pieces.water1]).toBe('4001')
+  })
+
+  it('converts Laur tile rotations to Hexoscape port orientations', () => {
+    expect(getHexoscapeLaurRotation(Pieces.laurWallSquarePillar, 1)).toBe(5)
+    expect(getHexoscapeLaurRotation(Pieces.laurWallTrianglePillar, 10)).toBe(
+      0.5,
+    )
+    expect(getHexoscapeLaurRotation(Pieces.laurWallLong, 1)).toBe(0.5)
+    expect(getHexoscapeLaurRotation(Pieces.laurWallArch, 2)).toBe(1.5)
+  })
+
+  it('imports Water 2 as two Water 1 pieces', async () => {
+    const loaded = await importVirtualscapeTiles([
+      { type: 1001, rotation: 0, posX: 2, posY: 2, posZ: 0 },
+      { type: 4002, rotation: 0, posX: 2, posY: 2, posZ: 1 },
+    ])
+
+    const waterPieces = loaded.boardPieces.filter(
+      (piece) => piece.inventoryID === Pieces.water1,
+    )
+    expect(waterPieces).toHaveLength(2)
+    expect(waterPieces[0].pieceCoords).toEqual(waterPieces[1].pieceCoords)
+  })
+
+  it('normalizes Laur pillar bases and keeps supported add-ons at pillar level', async () => {
+    const shared = { rotation: 0, posX: 2, posY: 2 }
+    const grass = { type: 1001, ...shared, posZ: 0 }
+    const addon = {
+      type: 28010,
+      ...shared,
+      rotation: 4,
+      posZ: 2,
+      virtualscapeName: 'custom.aoa_ruined_wall',
+    }
+    const withBase = await importVirtualscapeTiles([
+      grass,
+      {
+        type: 28009,
+        ...shared,
+        posZ: 1,
+        virtualscapeName: virtualscapeLaurPillarBaseName,
+      },
+      {
+        type: 28008,
+        ...shared,
+        posZ: 2,
+        virtualscapeName: 'custom.aoa_pillar',
+      },
+      addon,
+    ])
+    const pairedPillar = withBase.boardPieces.find(
+      (piece) => piece.inventoryID === Pieces.laurWallSquarePillar,
+    )
+    const pairedAddon = withBase.boardPieces.find(
+      (piece) => piece.inventoryID === Pieces.laurWallRuin1,
+    )
+    expect(pairedPillar?.altitude).toBe(1)
+    expect(pairedAddon?.altitude).toBe(1)
+    expect(withBase.droppedPieces).toEqual([])
+    expect(
+      pairedAddon &&
+        isLaurAddonSupported(
+          { boardPieces: withBase.boardPieces },
+          pairedAddon,
+        ),
+    ).toBe('supported')
+
+    const withoutBase = await importVirtualscapeTiles([
+      grass,
+      {
+        type: 28008,
+        ...shared,
+        posZ: 1,
+        virtualscapeName: 'custom.aoa_pillar',
+      },
+      {
+        ...addon,
+        posZ: 1,
+      },
+    ])
+    const standalonePillar = withoutBase.boardPieces.find(
+      (piece) => piece.inventoryID === Pieces.laurWallSquarePillar,
+    )
+    const standaloneAddon = withoutBase.boardPieces.find(
+      (piece) => piece.inventoryID === Pieces.laurWallRuin1,
+    )
+    expect(standalonePillar?.altitude).toBe(1)
+    expect(standaloneAddon?.altitude).toBe(1)
+    expect(
+      standaloneAddon &&
+        isLaurAddonSupported(
+          { boardPieces: withoutBase.boardPieces },
+          standaloneAddon,
+        ),
+    ).toBe('supported')
+
+    const baseAlone = await importVirtualscapeTiles([
+      grass,
+      {
+        type: 28009,
+        ...shared,
+        posZ: 1,
+        virtualscapeName: virtualscapeLaurPillarBaseName,
+      },
+    ])
+    expect(baseAlone.boardPieces).toHaveLength(1)
+    expect(baseAlone.droppedPieces).toEqual([
+      { inventoryID: virtualscapeLaurPillarBaseName, reason: 'unknown' },
+    ])
+  })
+
+  it('converts rope ladder altitude from Virtualscape bottom to Hexoscape top', async () => {
+    expect(getHexoscapeRopeLadderAltitude(2)).toBe(1)
+    const loaded = await importVirtualscapeTiles([
+      { type: 1001, rotation: 0, posX: 2, posY: 2, posZ: 0 },
+      {
+        type: 28063,
+        rotation: 0,
+        posX: 2,
+        posY: 2,
+        posZ: 2,
+        virtualscapeName: 'core.shov_rope_ladder',
+      },
+    ])
+
+    expect(
+      loaded.boardPieces.find(
+        (piece) => piece.inventoryID === Pieces.ropeLadder,
+      )?.altitude,
+    ).toBe(1)
+  })
+
+  it('imports castle walls at the same height with or without a base', async () => {
+    const shared = { rotation: 0, posX: 2, posY: 2 }
+    const grass = { type: 1001, ...shared, posZ: 0 }
+    const withBase = await importVirtualscapeTiles([
+      grass,
+      { type: 16101, ...shared, posZ: 1 },
+      { type: 16202, ...shared, posZ: 2 },
+    ])
+    const withoutBase = await importVirtualscapeTiles([
+      grass,
+      { type: 16202, ...shared, posZ: 1 },
+    ])
+    const wallOrigin = (loaded: typeof withBase) => {
+      const wall = loaded.boardPieces.find(
+        (piece) => piece.inventoryID === Pieces.castleWallStraight,
+      )
+      return Object.values(loaded.boardHexes).find(
+        (hex) => hex.boardPieceUID === wall?.uid && hex.isObstacleOrigin,
+      )
+    }
+
+    expect(wallOrigin(withBase)?.altitude).toBe(
+      wallOrigin(withoutBase)?.altitude,
+    )
+    expect(wallOrigin(withBase)?.obstacleHeight).toBe(
+      wallOrigin(withoutBase)?.obstacleHeight,
+    )
   })
 
   it('imports the named Void and Pylons fixture with supported shields', async () => {

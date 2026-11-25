@@ -38,7 +38,10 @@ export const getPieceKeyShapeLayout = (
     const pixel = hexUtilsHexToPixel(hex)
     return { x: pixel.x - origin.x, y: pixel.y - origin.y }
   })
-  if (entry.inventoryID === Pieces.voidMat) {
+  if (
+    entry.inventoryID === Pieces.voidMat ||
+    entry.inventoryID === Pieces.voidMarker
+  ) {
     const points = getVoidMatExportGeometry(entry.piece).outline
     const minX = Math.min(...points.map(({ x }) => x))
     const maxX = Math.max(...points.map(({ x }) => x))

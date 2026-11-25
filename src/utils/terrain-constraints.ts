@@ -69,7 +69,11 @@ export function isInventoryPieceAvailable(
   hasConstraints: boolean,
   aliases: string[] = [],
 ) {
-  if (!hasConstraints || (constrainedInventory[pieceID] ?? 0) > 0) {
+  if (
+    pieceID === Pieces.voidMarker ||
+    !hasConstraints ||
+    (constrainedInventory[pieceID] ?? 0) > 0
+  ) {
     return true
   }
   return aliases.some((alias) => (constrainedInventory[alias] ?? 0) > 0)

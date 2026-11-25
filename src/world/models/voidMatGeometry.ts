@@ -71,3 +71,27 @@ export function buildVoidMatGeometryArrays() {
   }
   return { positions, uvs, indices }
 }
+
+/** One printed hex from the mat, centered on its template origin. */
+export function buildVoidMarkerGeometryArrays() {
+  const corners = Array.from({ length: 6 }, (_, index) => {
+    const angle = -Math.PI / 2 + (index * Math.PI) / 3
+    const x = Math.cos(angle)
+    const z = Math.sin(angle)
+    const q = x / Math.sqrt(3) - z / 3
+    const r = (2 * z) / 3
+    return [q, r] as const
+  })
+  const points = [[0, 0] as const, ...corners]
+  const positions = points.flatMap(([q, r]) => {
+    const [x, z] = voidMatPoint(q, r)
+    return [x, 0, z]
+  })
+  const uvs = points.flatMap(([q, r]) => voidMatUV(q, r))
+  const indices: number[] = []
+  for (let i = 1; i <= corners.length; i += 1) {
+    const next = i === corners.length ? 1 : i + 1
+    indices.push(0, next, i)
+  }
+  return { positions, uvs, indices }
+}

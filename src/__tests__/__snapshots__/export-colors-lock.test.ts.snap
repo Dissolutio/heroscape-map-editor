@@ -284,6 +284,7 @@ exports[`SVG/PDF export color lock > keeps publication colors and registered pie
   "piece.vc2={"fill":{"top":"transparent","subLevel":"transparent"},"borders":{"top":{"terrain":"black","default":"#000000"},"subLevel":{"terrain":"black","default":"#808080"}}}",
   "piece.vc3={"fill":{"top":"transparent","subLevel":"transparent"},"borders":{"top":{"terrain":"black","default":"#000000"},"subLevel":{"terrain":"black","default":"#808080"}}}",
   "piece.vc4={"fill":{"top":"transparent","subLevel":"transparent"},"borders":{"top":{"terrain":"black","default":"#000000"},"subLevel":{"terrain":"black","default":"#808080"}}}",
+  "piece.vc5={"fill":{"top":"transparent","subLevel":"transparent"},"borders":{"top":{"terrain":"black","default":"#000000"},"subLevel":{"terrain":"black","default":"#808080"}}}",
   "piece.w1={"fill":{"top":"#25A8B0","subLevel":"#A6D5D8"},"borders":{"top":{"terrain":"#132E8E","default":"#000000"},"subLevel":{"terrain":"#BBC3E1","default":"#808080"}}}",
   "piece.w3={"fill":{"top":"#25A8B0","subLevel":"#A6D5D8"},"borders":{"top":{"terrain":"#132E8E","default":"#000000"},"subLevel":{"terrain":"#BBC3E1","default":"#808080"}}}",
   "piece.wd2={"fill":{"top":"#9E5424","subLevel":"#BC9074"},"borders":{"top":{"terrain":"#E67421","default":"#000000"},"subLevel":{"terrain":"#F3DCCB","default":"#808080"}}}",

@@ -1266,6 +1266,18 @@ export const piecesSoFar: Dictionary<Piece> = {
     height: 0, // flat: fills no cells and obstructs nothing
     gameHeight: null,
   },
+  [Pieces.voidMarker]: {
+    id: Pieces.voidMarker,
+    title: 'Void Marker',
+    terrain: HexTerrain.voidMat,
+    isHexTerrainPiece: false,
+    isObstaclePiece: false,
+    isUninventoried: true,
+    size: 1,
+    template: '1',
+    height: 0,
+    gameHeight: null,
+  },
   [Pieces.twoWayPylon]: {
     id: Pieces.twoWayPylon,
     title: 'Two-Way Pylon',
