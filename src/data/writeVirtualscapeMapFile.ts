@@ -81,12 +81,8 @@ function getExportRotation(piece: BoardPiece) {
   return getVirtualscapeLaurRotation(piece.inventoryID, piece.rotation)
 }
 
-function getVirtualscapeCoordinate(
-  piece: BoardPiece,
-  rotation: number,
-  template: string,
-) {
-  const anchorOffset = getVirtualscapeAnchorOffset(template, rotation)
+function getVirtualscapeCoordinate(piece: BoardPiece, template: string) {
+  const anchorOffset = getVirtualscapeAnchorOffset(template, piece.rotation)
   return {
     q: piece.pieceCoords.q - anchorOffset.q,
     r: piece.pieceCoords.r - anchorOffset.r,
@@ -109,7 +105,6 @@ function createTile(
   const rotation = options.rotation ?? getExportRotation(piece)
   const virtualscapeCoordinate = getVirtualscapeCoordinate(
     piece,
-    rotation,
     piecesSoFar[piece.inventoryID]?.template ?? '1',
   )
   const { x, y } = hexUtilsCubeToOddR(virtualscapeCoordinate)

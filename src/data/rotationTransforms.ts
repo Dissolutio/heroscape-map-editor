@@ -170,6 +170,34 @@ const voidMatOrigins = [
   { q: -2, r: 4, s: -2 },
   { q: -1, r: 2, s: -1 },
 ]
+const fortifiedWallOrigins = [
+  { q: -1, r: 1, s: 0 },
+  { q: 1, r: 0, s: -1 },
+  { q: 0, r: 1, s: -1 },
+  { q: -1, r: 1, s: 0 },
+  { q: 0, r: 1, s: -1 },
+  { q: 0, r: 1, s: -1 },
+]
+// Import rotations are offset from Virtualscape by +2; entries are indexed by
+// the resulting Hexoscape rotation.
+const shipBowOrigins = [
+  { q: -1, r: 2, s: -1 },
+  { q: -1, r: 1, s: 0 },
+  { q: 0, r: 0, s: 0 },
+  { q: 2, r: 0, s: -2 },
+  { q: 0, r: 2, s: -2 },
+  { q: -2, r: 2, s: 0 },
+]
+// Import rotations are offset from Virtualscape by +3; entries are indexed by
+// the resulting Hexoscape rotation.
+const shipWallOrigins = [
+  { q: 0, r: 0, s: 0 },
+  { q: 0, r: 0, s: 0 },
+  { q: 0, r: 0, s: 0 },
+  { q: 2, r: 0, s: -2 },
+  { q: 0, r: 2, s: -2 },
+  { q: -2, r: 2, s: 0 },
+]
 const rotationTransforms: Dictionary<CubeCoordinate[]> = {
   // land tiles (solid and fluid) will use their size to lookup their rotations
   '1': t1,
@@ -204,6 +232,9 @@ const rotationTransforms: Dictionary<CubeCoordinate[]> = {
   [Pieces.marvel]: marvel6,
   [Pieces.concrete6]: marvel6,
   [Pieces.marvelBroken]: marvel6,
+  [Pieces.fortifiedWall]: fortifiedWallOrigins,
+  [Pieces.shipBow]: shipBowOrigins,
+  [Pieces.shipWall]: shipWallOrigins,
   // ADDONS
   [Pieces.roadWall]: straight4,
   [Pieces.voidMat]: voidMatOrigins,

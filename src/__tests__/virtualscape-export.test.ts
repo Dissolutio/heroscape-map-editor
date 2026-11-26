@@ -17,11 +17,12 @@ import {
 } from '../data/readVirtualscapeMapFile'
 import { getVirtualscapeAnchorOffset } from '../data/rotationTransforms'
 import { piecesSoFar } from '../data/pieces'
+import getPieceTemplateCoords from '../data/rotationTransforms'
 import { virtualscapeTileMetadata } from '../data/virtualscapeTileMetadata'
 import { writeVirtualscapeMap } from '../data/writeVirtualscapeMapFile'
 import type { BoardPiece, HexMap, MapFileState } from '../types'
 import { Pieces } from '../types'
-import { hexUtilsOddRToCube } from '../utils/hex-utils'
+import { hexUtilsCubeToOddR, hexUtilsOddRToCube } from '../utils/hex-utils'
 
 const map: HexMap = {
   id: 'vs-export-test',
@@ -119,6 +120,26 @@ describe('Virtualscape binary export', () => {
   })
 
   it('inverts all import rotations and ladder altitude conversion', () => {
+    const mappedRotations = [
+      [Pieces.fortifiedWall, (rotation: number) => rotation],
+      [Pieces.shipBow, (rotation: number) => (rotation + 2) % 6],
+      [Pieces.shipWall, (rotation: number) => (rotation + 3) % 6],
+    ] as const
+
+    for (const [inventoryID, toHexoscapeRotation] of mappedRotations) {
+      for (let rotation = 0; rotation < 6; rotation += 1) {
+        const hexoscapeRotation = toHexoscapeRotation(rotation)
+        expect(
+          getHexoscapeLaurRotation(inventoryID, rotation),
+          `${inventoryID} VS rotation ${rotation}`,
+        ).toBe(hexoscapeRotation)
+        expect(
+          getVirtualscapeLaurRotation(inventoryID, hexoscapeRotation),
+          `${inventoryID} Hexoscape rotation ${hexoscapeRotation}`,
+        ).toBe(rotation)
+      }
+    }
+
     for (let rotation = 0; rotation < 6; rotation += 1) {
       expect(
         getHexoscapeLaurRotation(
@@ -164,6 +185,254 @@ describe('Virtualscape binary export', () => {
       )
     }
     expect(getHexoscapeLaurRotation(Pieces.laurWallRuin2, 8)).toBe(2)
+  })
+
+  it('exports anchored wall and ship records using their Hexoscape rotations', () => {
+    const expectedOrigins = [
+      {
+        inventoryID: Pieces.fortifiedWall,
+        rotations: [0, 1, 2, 3, 4, 5],
+        offsets: [
+          [-1, 1, 0],
+          [1, 0, -1],
+          [0, 1, -1],
+          [-1, 1, 0],
+          [0, 1, -1],
+          [0, 1, -1],
+        ],
+      },
+      {
+        inventoryID: Pieces.shipBow,
+        rotations: [2, 3, 4, 5, 0, 1],
+        offsets: [
+          [-1, 2, -1],
+          [-1, 1, 0],
+          [0, 0, 0],
+          [2, 0, -2],
+          [0, 2, -2],
+          [-2, 2, 0],
+        ],
+      },
+      {
+        inventoryID: Pieces.shipWall,
+        rotations: [3, 4, 5, 0, 1, 2],
+        offsets: [
+          [0, 0, 0],
+          [0, 0, 0],
+          [0, 0, 0],
+          [2, 0, -2],
+          [0, 2, -2],
+          [-2, 2, 0],
+        ],
+      },
+    ] as const
+
+    for (const { inventoryID, rotations, offsets } of expectedOrigins) {
+      for (
+        let virtualscapeRotation = 0;
+        virtualscapeRotation < 6;
+        virtualscapeRotation += 1
+      ) {
+        const rotation = rotations[virtualscapeRotation]
+        const [q, r, s] = offsets[rotation]
+        const origin = {
+          q: 20 + virtualscapeRotation * 10,
+          r: 12,
+          s: -32 - virtualscapeRotation * 10,
+        }
+        const recordedHex = {
+          q: origin.q - q,
+          r: origin.r - r,
+          s: origin.s - s,
+        }
+        const piece = makePiece(
+          inventoryID,
+          origin,
+          1,
+          rotation,
+          `${inventoryID}-${virtualscapeRotation}`,
+        )
+        const { parsed, loaded, skipped } = importWrittenMap(map, [piece])
+        const tile = parsed.tiles[0]
+        const expectedPosition = hexUtilsCubeToOddR(recordedHex)
+
+        expect(skipped, inventoryID).toEqual([])
+        expect(tile).toMatchObject({
+          rotation: virtualscapeRotation,
+          posX: expectedPosition.x,
+          posY: expectedPosition.y,
+        })
+        expect(pieceValues(loaded.boardPieces)).toEqual(pieceValues([piece]))
+      }
+    }
+  })
+
+  it('imports all rotation-template footprints on their marked hexes', () => {
+    const source = processVirtualScapeArrayBuffer(
+      fixtureBytes('vs-rotation-templates.hsc'),
+    )
+    const loaded = buildupVSFileMap(
+      source.tiles,
+      source.name,
+      source.author,
+      source.scenario,
+    )
+    const namesByID = {
+      [Pieces.fortifiedWall]: 'custom.gi_joe_wall',
+      [Pieces.shipBow]: 'core.shov_ship_bow',
+      [Pieces.shipWall]: 'core.shov_ship_wall',
+      [Pieces.voidMat]: 'core.void_mat',
+    }
+    const targetIDs = Object.keys(namesByID)
+    const targetTiles = source.tiles.filter((tile) =>
+      Object.values(namesByID).includes(tile.virtualscapeName),
+    )
+    const targetPieces = loaded.boardPieces.filter((piece) =>
+      targetIDs.includes(piece.inventoryID),
+    )
+    const markedNonMatHexes: string[] = []
+    const fullMatHexes: string[] = []
+
+    expect(targetTiles).toHaveLength(24)
+    expect(targetPieces).toHaveLength(24)
+    expect(loaded.droppedPieces).toEqual([])
+
+    for (const tile of targetTiles) {
+      const inventoryID = targetIDs.find(
+        (id) =>
+          namesByID[id as keyof typeof namesByID] === tile.virtualscapeName,
+      )
+      expect(inventoryID).toBeDefined()
+      if (!inventoryID) continue
+
+      const rotation = getHexoscapeLaurRotation(inventoryID, tile.rotation)
+      const clickedHex = hexUtilsOddRToCube(tile.posX, tile.posY)
+      const footprint = getPieceTemplateCoords({
+        clickedHex,
+        rotation,
+        template: inventoryID,
+        isVsTile: true,
+      })
+      const piece = targetPieces.find(
+        (candidate) =>
+          candidate.inventoryID === inventoryID &&
+          candidate.rotation === rotation &&
+          candidate.pieceCoords.q === footprint[0].q &&
+          candidate.pieceCoords.r === footprint[0].r &&
+          candidate.pieceCoords.s === footprint[0].s,
+      )
+
+      expect(piece, `${inventoryID} VS rotation ${tile.rotation}`).toBeDefined()
+
+      const markedFootprint =
+        inventoryID === Pieces.fortifiedWall
+          ? footprint
+          : inventoryID === Pieces.shipBow
+            ? footprint.slice(0, 5)
+            : inventoryID === Pieces.shipWall
+              ? footprint.slice(0, 3)
+              : footprint
+      const destination =
+        inventoryID === Pieces.voidMat ? fullMatHexes : markedNonMatHexes
+      destination.push(
+        ...markedFootprint.map(({ q, r }) => {
+          const { x, y } = hexUtilsCubeToOddR({ q, r, s: -q - r })
+          return `${x},${y}`
+        }),
+      )
+    }
+
+    const markerHexes = (posZ: number) =>
+      source.tiles
+        .filter(
+          (tile) => tile.posZ === posZ && [4001, 6001].includes(tile.type),
+        )
+        .map(({ posX, posY }) => `${posX},${posY}`)
+        .sort()
+    const expectedNonMatHexes = markedNonMatHexes.sort()
+    const expectedFullMatHexes = fullMatHexes.sort()
+    const nonMatMarkers = markerHexes(1)
+    const matMarkers = new Set(markerHexes(0))
+
+    expect(expectedNonMatHexes).toHaveLength(96)
+    expect(nonMatMarkers).toEqual(expectedNonMatHexes)
+    expect(expectedFullMatHexes).toHaveLength(84)
+    for (const hex of expectedFullMatHexes) {
+      expect(matMarkers, `Void Mat full hex ${hex}`).toContain(hex)
+    }
+  })
+
+  it('exports fixture target and marker records at their original coordinates', () => {
+    const source = processVirtualScapeArrayBuffer(
+      fixtureBytes('vs-rotation-templates.hsc'),
+    )
+    const loaded = buildupVSFileMap(
+      source.tiles,
+      source.name,
+      source.author,
+      source.scenario,
+    )
+    const { buffer, skipped } = writeVirtualscapeMap(
+      loaded.hexMap,
+      loaded.boardPieces,
+    )
+    const output = processVirtualScapeArrayBuffer(buffer)
+    const targetNames = new Set([
+      'custom.gi_joe_wall',
+      'core.shov_ship_bow',
+      'core.shov_ship_wall',
+      'core.void_mat',
+    ])
+    const records = (tiles: typeof source.tiles) =>
+      tiles
+        .filter(
+          (tile) =>
+            targetNames.has(tile.virtualscapeName) ||
+            tile.type === 4001 ||
+            tile.type === 6001,
+        )
+        .map((tile) => ({
+          type: tile.type,
+          name: tile.virtualscapeName,
+          posX: tile.posX,
+          posY: tile.posY,
+          posZ: tile.posZ,
+          rotation:
+            tile.virtualscapeName === 'core.void_mat'
+              ? tile.rotation % 3
+              : tile.rotation,
+        }))
+        .sort((a, b) => JSON.stringify(a).localeCompare(JSON.stringify(b)))
+
+    expect(skipped).toEqual([])
+    expect(records(source.tiles)).toHaveLength(300)
+    expect(records(output.tiles)).toEqual(records(source.tiles))
+  })
+
+  it('round-trips each new Virtualscape piece at every rotation', () => {
+    for (const inventoryID of [
+      Pieces.fortifiedWall,
+      Pieces.shipBow,
+      Pieces.shipWall,
+      Pieces.voidMat,
+    ]) {
+      for (let rotation = 0; rotation < 6; rotation += 1) {
+        const piece = makePiece(
+          inventoryID,
+          { q: 20 + rotation * 4, r: 12, s: -32 - rotation * 4 },
+          0,
+          rotation,
+          `${inventoryID}-${rotation}`,
+        )
+        const { loaded, skipped } = importWrittenMap(map, [piece])
+
+        expect(skipped, `${inventoryID} rotation ${rotation}`).toEqual([])
+        expect(
+          pieceValues(loaded.boardPieces),
+          `${inventoryID} rotation ${rotation}`,
+        ).toEqual(pieceValues([piece]))
+      }
+    }
   })
 
   it('uses the exact tile metadata from the fixture', () => {
