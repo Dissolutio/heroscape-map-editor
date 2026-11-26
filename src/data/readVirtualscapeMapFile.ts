@@ -378,11 +378,19 @@ export function getHexoscapeLaurRotation(
   if (inventoryID === Pieces.laurWallTrianglePillar) {
     return (virtualscapeRotation / 2 + 1.5) % 6
   }
-  if (inventoryID === Pieces.laurWallLong) {
-    return (virtualscapeRotation / 2) % 6
+  if (
+    inventoryID === Pieces.laurWallRuin1 ||
+    inventoryID === Pieces.laurWallRuin2 ||
+    inventoryID === Pieces.laurWallRuin3 ||
+    inventoryID === Pieces.laurWallShort
+  ) {
+    return (4 + virtualscapeRotation / 2) % 6
   }
-  if (inventoryID === Pieces.laurWallArch) {
-    return (virtualscapeRotation / 2 + 0.5) % 6
+  if (
+    inventoryID === Pieces.laurWallLong ||
+    inventoryID === Pieces.laurWallArch
+  ) {
+    return (5.5 + virtualscapeRotation / 2) % 6
   }
   return virtualscapeRotation
 }
@@ -398,11 +406,19 @@ export function getVirtualscapeLaurRotation(
   if (inventoryID === Pieces.laurWallTrianglePillar) {
     return ((((rotation - 1.5) * 2) % 12) + 12) % 12
   }
-  if (inventoryID === Pieces.laurWallLong) {
-    return (((rotation * 2) % 12) + 12) % 12
+  if (
+    inventoryID === Pieces.laurWallRuin1 ||
+    inventoryID === Pieces.laurWallRuin2 ||
+    inventoryID === Pieces.laurWallRuin3 ||
+    inventoryID === Pieces.laurWallShort
+  ) {
+    return ((((rotation - 4) * 2) % 12) + 12) % 12
   }
-  if (inventoryID === Pieces.laurWallArch) {
-    return ((((rotation - 0.5) * 2) % 12) + 12) % 12
+  if (
+    inventoryID === Pieces.laurWallLong ||
+    inventoryID === Pieces.laurWallArch
+  ) {
+    return ((((rotation - 5.5) * 2) % 12) + 12) % 12
   }
   return hexoscapeRotation
 }

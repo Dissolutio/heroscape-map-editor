@@ -2,7 +2,10 @@ import type { ChangeEvent } from 'react'
 import { type SnackbarAction, type SnackbarKey, useSnackbar } from 'notistack'
 import { useLocation } from 'wouter'
 import { ROUTES } from '../ROUTES'
-import buildupVSFileMap, { buildupJsonFileMap } from '../data/buildupMap'
+import buildupVSFileMap, {
+  buildupJsonFileMap,
+  trimVirtualscapeMap,
+} from '../data/buildupMap'
 import { readVirtualscapeMapFile } from '../data/readVirtualscapeMapFile'
 import useBoundStore from '../store/store'
 import type { MapFileState } from '../types'
@@ -140,11 +143,13 @@ export const LoadFileHiddenInputs = () => {
         })
         return
       }
-      const loadedMap = buildupVSFileMap(
-        vsMap.tiles,
-        vsMap.name || file.name,
-        vsMap.author,
-        vsMap.scenario,
+      const loadedMap = trimVirtualscapeMap(
+        buildupVSFileMap(
+          vsMap.tiles,
+          vsMap.name || file.name,
+          vsMap.author,
+          vsMap.scenario,
+        ),
       )
       loadMap(loadedMap)
       enqueueSnackbar({

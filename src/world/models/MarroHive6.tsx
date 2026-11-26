@@ -46,6 +46,7 @@ export default function MarroHive6({ pid }: { pid?: string }) {
   return (
     <mesh
       userData={{ marroHiveUID: pid ?? null }}
+      rotation={[0, Math.PI, 0]}
       receiveShadow={isLightsAndShadowsRender}
       castShadow={isLightsAndShadowsRender}
       geometry={mesh.geometry}
