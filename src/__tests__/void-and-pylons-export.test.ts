@@ -296,19 +296,27 @@ describe('Void and Pylons exports', () => {
     const grassHex = Object.values(board.boardHexes).find(
       (hex) => hex.inventoryID === Pieces.grass1,
     )
+    const emptyHex = Object.values(board.boardHexes).find(
+      (hex) => hex.terrain === HexTerrain.empty,
+    )
     if (!grassHex) throw new Error('Expected placed grass hex')
+    if (!emptyHex) throw new Error('Expected an empty table hex')
     const grassPixel = hexUtilsHexToPixel(grassHex)
+    const emptyPixel = hexUtilsHexToPixel(emptyHex)
     const grassTransform = `translate(${grassPixel.x}, ${grassPixel.y})`
+    const emptyTransform = `translate(${emptyPixel.x}, ${emptyPixel.y})`
     const matColorIndex = (markup: string) =>
       markup.toLowerCase().indexOf('fill="#19161b"')
 
     expect(
       board.boardPieces.some((piece) => isVoidMatPieceID(piece.inventoryID)),
     ).toBe(true)
+    expect(svg.indexOf(emptyTransform)).toBeLessThan(matColorIndex(svg))
     expect(matColorIndex(svg)).toBeGreaterThanOrEqual(0)
     expect(svg.indexOf(grassTransform, matColorIndex(svg))).toBeGreaterThan(
       matColorIndex(svg),
     )
+    expect(pdf.indexOf(emptyTransform)).toBeLessThan(matColorIndex(pdf))
     expect(matColorIndex(pdf)).toBeGreaterThanOrEqual(0)
     expect(pdf.indexOf(grassTransform, matColorIndex(pdf))).toBeGreaterThan(
       matColorIndex(pdf),
