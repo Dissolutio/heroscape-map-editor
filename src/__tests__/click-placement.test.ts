@@ -167,50 +167,53 @@ describe('click placement through the real handler', () => {
     Pieces.lavaRockOutcrop3,
     Pieces.toxicOutcrop1,
     Pieces.toxicOutcrop3,
-  ])('places built-in-base %s at its original land and table altitude', (pieceID) => {
-    const table = makeTable(12)
-    const landBoard = withGrassFloor(table)
-    const piece = piecesSoFar[pieceID]
-    if (!piece) throw new Error('test setup: obstacle is unavailable')
+  ])(
+    'places built-in-base %s at its original land and table altitude',
+    (pieceID) => {
+      const table = makeTable(12)
+      const landBoard = withGrassFloor(table)
+      const piece = piecesSoFar[pieceID]
+      if (!piece) throw new Error('test setup: obstacle is unavailable')
 
-    for (const [board, supportAltitude] of [
-      [landBoard, 1],
-      [table, 0],
-    ] as const) {
-      const pointer = hexAt(board, table.center, supportAltitude) as BoardHex
-      const result = clickWithPen({
-        board,
-        pieceID,
-        hex: pointer,
-      })
-      const obstacle = result.added.find(
-        (boardPiece) => boardPiece.inventoryID === pieceID,
-      )
-
-      expect(result.added).toHaveLength(1)
-      expect(obstacle?.altitude).toBe(supportAltitude)
-      if (!obstacle) throw new Error('test setup: obstacle was not placed')
-
-      const expectedCoords = getPieceTemplateCoords({
-        clickedHex: obstacle.pieceCoords,
-        rotation: obstacle.rotation,
-        template: piece.template,
-        isVsTile: false,
-      })
-      const occupiedHexes = Object.values(result.board.boardHexes)
-        .filter(
-          (hex) =>
-            hex.boardPieceUID === obstacle.uid && !hex.isVerticalClearanceHex,
+      for (const [board, supportAltitude] of [
+        [landBoard, 1],
+        [table, 0],
+      ] as const) {
+        const pointer = hexAt(board, table.center, supportAltitude) as BoardHex
+        const result = clickWithPen({
+          board,
+          pieceID,
+          hex: pointer,
+        })
+        const obstacle = result.added.find(
+          (boardPiece) => boardPiece.inventoryID === pieceID,
         )
-        .map(({ q, r, s }) => `${q},${r},${s}`)
-        .sort()
 
-      expect(occupiedHexes).toEqual(
-        expectedCoords.map(({ q, r, s }) => `${q},${r},${s}`).sort(),
-      )
-      useBoundStore.temporal.getState().undo()
-    }
-  })
+        expect(result.added).toHaveLength(1)
+        expect(obstacle?.altitude).toBe(supportAltitude)
+        if (!obstacle) throw new Error('test setup: obstacle was not placed')
+
+        const expectedCoords = getPieceTemplateCoords({
+          clickedHex: obstacle.pieceCoords,
+          rotation: obstacle.rotation,
+          template: piece.template,
+          isVsTile: false,
+        })
+        const occupiedHexes = Object.values(result.board.boardHexes)
+          .filter(
+            (hex) =>
+              hex.boardPieceUID === obstacle.uid && !hex.isVerticalClearanceHex,
+          )
+          .map(({ q, r, s }) => `${q},${r},${s}`)
+          .sort()
+
+        expect(occupiedHexes).toEqual(
+          expectedCoords.map(({ q, r, s }) => `${q},${r},${s}`).sort(),
+        )
+        useBoundStore.temporal.getState().undo()
+      }
+    },
+  )
 
   it.each(Array.from({ length: 6 }, (_, rotation) => rotation))(
     'places the Marvel Ruin base and ruin together at rotation %s',

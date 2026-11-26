@@ -122,7 +122,10 @@ describe('seated obstacle groups', () => {
     })
 
     const after = store.getState()
-    expect(after.boardPieces.map((piece) => piece.uid)).toEqual(['base', 'marvel'])
+    expect(after.boardPieces.map((piece) => piece.uid)).toEqual([
+      'base',
+      'marvel',
+    ])
     expect(
       getSeatedGroupUIDs('marvel', after.boardHexes, after.boardPieces),
     ).toEqual(['marvel', 'base'])
@@ -251,9 +254,7 @@ describe('seated obstacle groups', () => {
     store.getState().loadMap(sharedMap, { holdAutosave: true })
     vi.advanceTimersByTime(1000)
 
-    expect(store.getState().boardPieces).toEqual([
-      { ...obstacle, altitude: 0 },
-    ])
+    expect(store.getState().boardPieces).toEqual([{ ...obstacle, altitude: 0 }])
     expect(storageValues.get(LS_KEYS.lastMap)).toBe('saved-last-map')
     expect(
       localStorageMock.setItem.mock.calls.filter(

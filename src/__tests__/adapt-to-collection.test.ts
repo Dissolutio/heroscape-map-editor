@@ -65,11 +65,9 @@ describe('collection land supply and suggestions', () => {
       piece('glacier-4', Pieces.glacier4, 5, 1),
       piece('hive', Pieces.hive, 7, 1),
     ]
-    const contemporary = getRemainingLandShortfalls(
-      contemporaryPieces,
-      {},
-      ['C'],
-    )
+    const contemporary = getRemainingLandShortfalls(contemporaryPieces, {}, [
+      'C',
+    ])
     const classic = getRemainingLandShortfalls(
       [piece('classic-outcrop-3', Pieces.outcrop3, 1, 1)],
       {},
@@ -83,9 +81,7 @@ describe('collection land supply and suggestions', () => {
         { inventoryID: Pieces.swampWater6, shortfall: 1 },
       ]),
     )
-    expect(classic).toEqual([
-      { inventoryID: Pieces.shadow3, shortfall: 1 },
-    ])
+    expect(classic).toEqual([{ inventoryID: Pieces.shadow3, shortfall: 1 }])
   })
 
   it('only lists owned land terrain and never suggests Generic', () => {

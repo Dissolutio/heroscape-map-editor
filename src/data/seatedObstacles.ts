@@ -192,11 +192,7 @@ export function getExistingSeatedBases(
 ): ExistingSeatedBase[] {
   const obstaclePiece = piecesSoFar[pieceID]
   const definition = getSeatedObstacleDefinition(pieceID, setsUsed)
-  if (
-    !obstaclePiece ||
-    !definition ||
-    definition.baseMode !== 'separate'
-  ) {
+  if (!obstaclePiece || !definition || definition.baseMode !== 'separate') {
     return []
   }
   const obstacleCoords = getPieceTemplateCoords({
@@ -263,11 +259,7 @@ function getSeatedBaseUIDs(
 ) {
   const obstaclePiece = piecesSoFar[obstacle.inventoryID]
   const definition = getSeatedObstacleDefinition(obstacle.inventoryID, setsUsed)
-  if (
-    !obstaclePiece ||
-    !definition ||
-    definition.baseMode !== 'separate'
-  ) {
+  if (!obstaclePiece || !definition || definition.baseMode !== 'separate') {
     return []
   }
   const obstacleCoords = getFootprintCoords(obstaclePiece, obstacle)
@@ -351,10 +343,7 @@ export function getBuiltInSeatedBaseMerges(
       setsUsed,
     )
     const obstaclePiece = piecesSoFar[obstacle.inventoryID]
-    if (
-      !obstaclePiece ||
-      definition?.baseMode !== 'built-in'
-    ) {
+    if (!obstaclePiece || definition?.baseMode !== 'built-in') {
       continue
     }
 
@@ -381,9 +370,7 @@ export function getBuiltInSeatedBaseMerges(
               obstacleHexIDs.has(genBoardHexID({ ...coords, altitude: 0 })),
             )
         : baseCoords.length === 1 &&
-            obstacleHexIDs.has(
-              genBoardHexID({ ...baseCoords[0], altitude: 0 }),
-            )
+            obstacleHexIDs.has(genBoardHexID({ ...baseCoords[0], altitude: 0 }))
     })
 
     let matchingBases: BoardPieces
@@ -461,7 +448,7 @@ export function getBuiltInSeatedBaseMerges(
     }
 
     loweredObstacleUIDs.add(obstacle.uid)
-    matchingBases.forEach((base) => removedBaseUIDs.add(base.uid))
+    for (const base of matchingBases) removedBaseUIDs.add(base.uid)
   }
 
   return { loweredObstacleUIDs, removedBaseUIDs }
