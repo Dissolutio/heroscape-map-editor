@@ -120,6 +120,47 @@ const SvgMapDisplay = ({
     () => Object.values(boardHexes).sort((a, b) => a.altitude - b.altitude),
     [boardHexes],
   )
+  const visibleVoidMatPieces = decodedBoardPiecesArr.filter(
+    (piece) =>
+      isVoidMatPieceID(piece.inventoryID) && piece.altitude <= viewingLevel,
+  )
+  const emptyTableHexesArr = boardHexesArr.filter(
+    (hex) => (pieceOriginBySourceID.get(hex.id) ?? hex).terrain === 'empty',
+  )
+  const nonEmptyBoardHexesArr = boardHexesArr.filter(
+    (hex) => (pieceOriginBySourceID.get(hex.id) ?? hex).terrain !== 'empty',
+  )
+  const visibleVoidMatSymbols = visibleVoidMatPieces.map((piece) => (
+    <SvgVoidMatSymbol
+      key={`void-mat-${piece.boardPieceID}`}
+      piece={piece}
+      isSubLevel={piece.altitude < viewingLevel}
+    />
+  ))
+  const renderBoardHex = (hex: (typeof boardHexesArr)[number]) => {
+    const originHex = pieceOriginBySourceID.get(hex.id) ?? hex
+    return (
+      <SvgMapHex
+        key={hex.id}
+        hex={originHex}
+        buriedMarksByUID={buriedMarksByUID}
+        viewingLevel={
+          isShow2DExportBuriedMarks || isShow2DExportTileLetters
+            ? viewingLevel
+            : 0
+        }
+        overlayLevel={overlayLevel}
+        isVisible={originHex.altitude <= viewingLevel}
+        isSubLevel={originHex.altitude < viewingLevel}
+        isOverlayViewing={
+          is2DOverlayLevelEnabled && viewingLevel === overlayLevel
+        }
+        is2DOverlayLevelEnabled={is2DOverlayLevelEnabled}
+        isShow2DExportTileLetters={isShow2DExportTileLetters}
+        isShow2DExportBuriedMarks={isShow2DExportBuriedMarks}
+      />
+    )
+  }
   const buriedMarkLevels = useMemo(
     () =>
       new Set(
@@ -254,43 +295,18 @@ const SvgMapDisplay = ({
           )
         ) : (
           <g>
-            {decodedBoardPiecesArr
-              .filter(
-                (piece) =>
-                  isVoidMatPieceID(piece.inventoryID) &&
-                  piece.altitude <= viewingLevel,
-              )
-              .map((piece) => (
-                <SvgVoidMatSymbol
-                  key={`void-mat-${piece.boardPieceID}`}
-                  piece={piece}
-                  isSubLevel={piece.altitude < viewingLevel}
-                />
-              ))}
-            {boardHexesArr.map((hex) => {
-              const originHex = pieceOriginBySourceID.get(hex.id) ?? hex
-              return (
-                <SvgMapHex
-                  key={hex.id}
-                  hex={originHex}
-                  buriedMarksByUID={buriedMarksByUID}
-                  viewingLevel={
-                    isShow2DExportBuriedMarks || isShow2DExportTileLetters
-                      ? viewingLevel
-                      : 0
-                  }
-                  overlayLevel={overlayLevel}
-                  isVisible={originHex.altitude <= viewingLevel}
-                  isSubLevel={originHex.altitude < viewingLevel}
-                  isOverlayViewing={
-                    is2DOverlayLevelEnabled && viewingLevel === overlayLevel
-                  }
-                  is2DOverlayLevelEnabled={is2DOverlayLevelEnabled}
-                  isShow2DExportTileLetters={isShow2DExportTileLetters}
-                  isShow2DExportBuriedMarks={isShow2DExportBuriedMarks}
-                />
-              )
-            })}
+            {visibleVoidMatPieces.length > 0 ? (
+              <>
+                {emptyTableHexesArr.map(renderBoardHex)}
+                {visibleVoidMatSymbols}
+                {nonEmptyBoardHexesArr.map(renderBoardHex)}
+              </>
+            ) : (
+              <>
+                {visibleVoidMatSymbols}
+                {boardHexesArr.map(renderBoardHex)}
+              </>
+            )}
             {pieceOriginHexes
               .filter((origin) => !origin.sourceHexID)
               .map(({ hex }) =>

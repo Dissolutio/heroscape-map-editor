@@ -1,6 +1,7 @@
 import { Page, Text, View } from '@react-pdf/renderer'
 import { groupBy, keyBy, uniq } from 'lodash'
 import type { PropsWithChildren } from 'react'
+import { isVoidMatPieceID } from '../data/voidMat'
 import type { ObjectiveMarker } from '../data/objectiveMarkers'
 import {
   LEVEL_LOGO_OUTLIER_LABEL_MARGIN,
@@ -244,6 +245,13 @@ const get6LevelChunk = (
     hexes: groupedHexesByAltitude[altitude] || [],
     pieces: groupedPiecesByAltitude[altitude] || [],
   }))
+
+  if (
+    boardPieces.some((piece) => isVoidMatPieceID(piece.inventoryID)) &&
+    !combinedGroups.some((group) => group.altitude === 0)
+  ) {
+    combinedGroups.push({ altitude: 0, hexes: [], pieces: [] })
+  }
 
   // Sort combined groups by altitude
   combinedGroups.sort((a, b) => a.altitude - b.altitude)

@@ -262,6 +262,84 @@ describe('Void and Pylons exports', () => {
       ...useBoundStore.getState(),
       boardHexes: board.boardHexes,
       boardPieces: board.boardPieces,
+      viewingLevel: 1,
+      isShowPdfPieceLegend: false,
+      is2DOverlayLevelEnabled: false,
+      isShow2DExportBuriedMarks: false,
+      isShow2DExportTileLetters: false,
+    }
+    useBoundStore.setState(state)
+    Object.assign(useBoundStore.getInitialState(), state)
+
+    const svg = renderToStaticMarkup(createElement(SvgMapDisplay))
+    const pdf = renderToStaticMarkup(
+      createElement(ReactPdfSvgMapDisplay, {
+        width: SVG_HEX_RADIUS * 4,
+        length: SVG_HEX_RADIUS * 4,
+        boardHexesArr: Object.values(board.boardHexes),
+        boardPiecesArr: board.boardPieces
+          .map(boardPieceToDecodedPieceID)
+          .filter(Boolean) as DecodedPieceID[],
+        viewingLevel: 1,
+        overlayLevel: 2,
+        isPdfColorBorders: false,
+        isShowPdfOverlayOnPlacedLevel: false,
+        isShowGridLinesOverSublevels: false,
+        isShowPdfTileLetters: false,
+        isShowPdfBuriedMarks: false,
+        buriedMarksByUID: buriedMarksByUID,
+        useLegacyStartZones: false,
+        is2DOverlayLevelEnabled: false,
+        objectiveMarkers: [],
+      }),
+    )
+    const grassHex = Object.values(board.boardHexes).find(
+      (hex) => hex.inventoryID === Pieces.grass1,
+    )
+    const emptyHex = Object.values(board.boardHexes).find(
+      (hex) => hex.terrain === HexTerrain.empty,
+    )
+    if (!grassHex) throw new Error('Expected placed grass hex')
+    if (!emptyHex) throw new Error('Expected an empty table hex')
+    const grassPixel = hexUtilsHexToPixel(grassHex)
+    const emptyPixel = hexUtilsHexToPixel(emptyHex)
+    const grassTransform = `translate(${grassPixel.x}, ${grassPixel.y})`
+    const emptyTransform = `translate(${emptyPixel.x}, ${emptyPixel.y})`
+    const matColorIndex = (markup: string) => {
+      const lower = markup.toLowerCase()
+      const mainColor = lower.indexOf('fill="#19161b"')
+      return mainColor >= 0 ? mainColor : lower.indexOf('fill="#8c8b8d"')
+    }
+
+    expect(
+      board.boardPieces.some((piece) => isVoidMatPieceID(piece.inventoryID)),
+    ).toBe(true)
+    expect(svg.indexOf(emptyTransform)).toBeLessThan(matColorIndex(svg))
+    expect(matColorIndex(svg)).toBeGreaterThanOrEqual(0)
+    expect(svg.indexOf(grassTransform, matColorIndex(svg))).toBeGreaterThan(
+      matColorIndex(svg),
+    )
+    expect(pdf.indexOf(emptyTransform)).toBeLessThan(matColorIndex(pdf))
+    expect(matColorIndex(pdf)).toBeGreaterThanOrEqual(0)
+    expect(pdf.indexOf(grassTransform, matColorIndex(pdf))).toBeGreaterThan(
+      matColorIndex(pdf),
+    )
+  })
+
+  it('draws Void Mats over empty table hexes at level zero', () => {
+    const table = makeTable(9)
+    const board = place({
+      board: table,
+      pieceID: Pieces.voidMat,
+      at: table.center,
+      altitude: 0,
+      uid: 'void-mat',
+      permissive: true,
+    }).board
+    const state = {
+      ...useBoundStore.getState(),
+      boardHexes: board.boardHexes,
+      boardPieces: board.boardPieces,
       viewingLevel: 0,
       isShowPdfPieceLegend: false,
       is2DOverlayLevelEnabled: false,
@@ -287,40 +365,28 @@ describe('Void and Pylons exports', () => {
         isShowGridLinesOverSublevels: false,
         isShowPdfTileLetters: false,
         isShowPdfBuriedMarks: false,
-        buriedMarksByUID: buriedMarksByUID,
+        buriedMarksByUID,
         useLegacyStartZones: false,
         is2DOverlayLevelEnabled: false,
         objectiveMarkers: [],
       }),
     )
-    const grassHex = Object.values(board.boardHexes).find(
-      (hex) => hex.inventoryID === Pieces.grass1,
-    )
     const emptyHex = Object.values(board.boardHexes).find(
-      (hex) => hex.terrain === HexTerrain.empty,
+      (hex) =>
+        hex.terrain === HexTerrain.empty &&
+        hex.q === table.center.q &&
+        hex.r === table.center.r,
     )
-    if (!grassHex) throw new Error('Expected placed grass hex')
     if (!emptyHex) throw new Error('Expected an empty table hex')
-    const grassPixel = hexUtilsHexToPixel(grassHex)
-    const emptyPixel = hexUtilsHexToPixel(emptyHex)
-    const grassTransform = `translate(${grassPixel.x}, ${grassPixel.y})`
-    const emptyTransform = `translate(${emptyPixel.x}, ${emptyPixel.y})`
+    const pixel = hexUtilsHexToPixel(emptyHex)
+    const emptyTransform = `translate(${pixel.x}, ${pixel.y})`
     const matColorIndex = (markup: string) =>
       markup.toLowerCase().indexOf('fill="#19161b"')
 
-    expect(
-      board.boardPieces.some((piece) => isVoidMatPieceID(piece.inventoryID)),
-    ).toBe(true)
     expect(svg.indexOf(emptyTransform)).toBeLessThan(matColorIndex(svg))
     expect(matColorIndex(svg)).toBeGreaterThanOrEqual(0)
-    expect(svg.indexOf(grassTransform, matColorIndex(svg))).toBeGreaterThan(
-      matColorIndex(svg),
-    )
     expect(pdf.indexOf(emptyTransform)).toBeLessThan(matColorIndex(pdf))
     expect(matColorIndex(pdf)).toBeGreaterThanOrEqual(0)
-    expect(pdf.indexOf(grassTransform, matColorIndex(pdf))).toBeGreaterThan(
-      matColorIndex(pdf),
-    )
   })
 
   it('keeps Void and Pylons key entries in one dedicated group', () => {

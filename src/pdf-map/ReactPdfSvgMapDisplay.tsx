@@ -141,34 +141,44 @@ export const ReactPdfSvgMapDisplay = ({
       useLegacyStartZones={useLegacyStartZones}
     />
   ))
+  const visibleVoidMatPieces = boardPiecesArr.filter(
+    (piece) =>
+      isVoidMatPieceID(piece.inventoryID) && piece.altitude <= viewingLevel,
+  )
+  const visibleVoidMatSymbols = visibleVoidMatPieces.map((piece) => (
+    <PdfVoidMatSymbol
+      key={`void-mat-${piece.boardPieceID}`}
+      piece={piece}
+      isSubLevel={piece.altitude < viewingLevel}
+    />
+  ))
   return (
     <Svg viewBox={viewBoxStr}>
       {/* <PdfSvgXYHelperLines length={length} width={width} /> */}
-      {boardPiecesArr
-        .filter(
-          (piece) =>
-            isVoidMatPieceID(piece.inventoryID) &&
-            piece.altitude <= viewingLevel,
-        )
-        .map((piece) => (
-          <PdfVoidMatSymbol
-            key={`void-mat-${piece.boardPieceID}`}
-            piece={piece}
-            isSubLevel={piece.altitude < viewingLevel}
-          />
-        ))}
-      {/* rendering the empty hexes AFTER the sublevel hexes/pieces renders grid-lines over the sublevels */}
-      {isShowGridLinesOverSublevels ? (
+      {visibleVoidMatPieces.length > 0 ? (
         <>
+          {emptyHexesEls}
+          {visibleVoidMatSymbols}
           {subLevelHexesEls}
           {subLevelPiecesEls}
-          {emptyHexesEls}
         </>
       ) : (
         <>
-          {emptyHexesEls}
-          {subLevelHexesEls}
-          {subLevelPiecesEls}
+          {visibleVoidMatSymbols}
+          {/* rendering the empty hexes AFTER the sublevel hexes/pieces renders grid-lines over the sublevels */}
+          {isShowGridLinesOverSublevels ? (
+            <>
+              {subLevelHexesEls}
+              {subLevelPiecesEls}
+              {emptyHexesEls}
+            </>
+          ) : (
+            <>
+              {emptyHexesEls}
+              {subLevelHexesEls}
+              {subLevelPiecesEls}
+            </>
+          )}
         </>
       )}
       {renderHexes
