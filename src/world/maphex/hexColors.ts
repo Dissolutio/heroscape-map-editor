@@ -122,7 +122,7 @@ export const hexTerrainColor = {
   [HexTerrain.laurWall]: '#999999',
   laurModelColor2: '#909090',
   // Void and Pylons (VC), 3D only until its 2D symbols land
-  [HexTerrain.voidPylon]: '#9a9ca3', // pylon body, light gray like the print
+  [HexTerrain.voidPylon]: '#3E3E3E', // pylon body, dark gray (John, 2026-11-25)
   [HexTerrain.deflectorShield]: '#6fd3ff', // translucent energy shield
   [HexTerrain.voidMat]: '#17131f', // mat edge color while its texture loads
   [HexTerrain.swampWater]: '#7a6c35',

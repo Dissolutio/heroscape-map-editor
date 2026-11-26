@@ -109,7 +109,7 @@ exports[`SVG/PDF export color lock > keeps publication colors and registered pie
   "hexTerrainColor.tree=#355A44",
   "hexTerrainColor.treeBase=#A34C00",
   "hexTerrainColor.voidMat=#17131f",
-  "hexTerrainColor.voidPylon=#9a9ca3",
+  "hexTerrainColor.voidPylon=#3E3E3E",
   "hexTerrainColor.wallWalk=#a8a597",
   "hexTerrainColor.water=#028bc4",
   "hexTerrainColor.wellspringWater=#F5EDF3",
