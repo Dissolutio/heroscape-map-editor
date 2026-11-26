@@ -140,7 +140,12 @@ export const LoadFileHiddenInputs = () => {
         })
         return
       }
-      const loadedMap = buildupVSFileMap(vsMap.tiles, vsMap.name || file.name)
+      const loadedMap = buildupVSFileMap(
+        vsMap.tiles,
+        vsMap.name || file.name,
+        vsMap.author,
+        vsMap.scenario,
+      )
       loadMap(loadedMap)
       enqueueSnackbar({
         message: `Loaded map: ${loadedMap.hexMap.name}`,

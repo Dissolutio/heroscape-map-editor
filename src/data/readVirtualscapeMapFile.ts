@@ -35,11 +35,11 @@ export function processVirtualScapeArrayBuffer(arrayBuffer: ArrayBuffer) {
   virtualScapeMap.author = readCString(dataView)
   virtualScapeMap.playerNumber = readCString(dataView)
   const scenarioLength = getInt32(dataView)
-  let scenarioRichText = ''
+  const scenarioBytes = new Uint8Array(scenarioLength)
   for (let i = 0; i < scenarioLength; i++) {
-    scenarioRichText += String.fromCharCode(getUint8(dataView))
+    scenarioBytes[i] = getUint8(dataView)
   }
-  virtualScapeMap.scenario = rtfToText(scenarioRichText)
+  virtualScapeMap.scenario = rtfToText(new TextDecoder().decode(scenarioBytes))
   virtualScapeMap.levelPerPage = getInt32(dataView)
   virtualScapeMap.printingTransparency = getInt32(dataView)
   virtualScapeMap.printingGrid = getInt32(dataView) !== 0
@@ -142,11 +142,6 @@ function getUint32(dataView: DataView): number {
   offset += 4
   return val
 }
-function getInt16(dataView: DataView): number {
-  const val = dataView.getInt16(offset, isLittleEndian)
-  offset += 2
-  return val
-}
 function getUint16(dataView: DataView): number {
   const val = dataView.getUint16(offset, isLittleEndian)
   offset += 2
@@ -158,14 +153,19 @@ function getUint8(dataView: DataView): number {
   return val
 }
 function readCString(dataView: DataView): string {
-  const length = readCStringLength(dataView)
+  const { length, isUnicode } = readCStringLength(dataView)
   let value = ''
   for (let i = 0; i < length; i++) {
-    value += String.fromCodePoint(getInt16(dataView))
+    value += String.fromCharCode(
+      isUnicode ? getUint16(dataView) : getUint8(dataView),
+    )
   }
   return value
 }
-function readCStringLength(dataView: DataView): number {
+function readCStringLength(
+  dataView: DataView,
+  isUnicode = false,
+): { length: number; isUnicode: boolean } {
   let length = 0
   const byte = getUint8(dataView)
   if (byte !== 0xff) {
@@ -176,9 +176,9 @@ function readCStringLength(dataView: DataView): number {
     const short = getUint16(dataView)
 
     if (short === 0xfffe) {
-      // Case 2a: If the 16-bit value is 0xFFFE, recursively call `readCStringLength`.
-      // This indicates that the length is encoded in a more complex way.
-      return readCStringLength(dataView)
+      // Case 2a: FF FE FF is MFC's UTF-16 marker; the length follows.
+      // Without it, the characters are single bytes.
+      return readCStringLength(dataView, true)
     }
     if (short === 0xffff) {
       // Case 2b: If the 16-bit value is 0xFFFF, read the next 4 bytes as a 32-bit unsigned integer.
@@ -189,9 +189,10 @@ function readCStringLength(dataView: DataView): number {
       length = short
     }
   }
-  return length
+  return { length, isUnicode }
 }
 function rtfToText(rtf: string) {
+  if (!rtf.startsWith('{\\rtf')) return rtf
   // https://stackoverflow.com/questions/29922771/convert-rtf-to-and-from-plain-text
   return rtf
     .replace(/\\par[d]?/g, '')
@@ -384,4 +385,38 @@ export function getHexoscapeLaurRotation(
     return (virtualscapeRotation / 2 + 0.5) % 6
   }
   return virtualscapeRotation
+}
+
+export function getVirtualscapeLaurRotation(
+  inventoryID: string,
+  hexoscapeRotation: number,
+) {
+  const rotation = ((hexoscapeRotation % 6) + 6) % 6
+  if (inventoryID === Pieces.laurWallSquarePillar) {
+    return (rotation + 2) % 6
+  }
+  if (inventoryID === Pieces.laurWallTrianglePillar) {
+    return ((((rotation - 1.5) * 2) % 12) + 12) % 12
+  }
+  if (inventoryID === Pieces.laurWallLong) {
+    return (((rotation * 2) % 12) + 12) % 12
+  }
+  if (inventoryID === Pieces.laurWallArch) {
+    return ((((rotation - 0.5) * 2) % 12) + 12) % 12
+  }
+  return hexoscapeRotation
+}
+
+export function getVirtualscapeRopeLadderAltitude(hexoscapeAltitude: number) {
+  return hexoscapeAltitude + 1
+}
+
+export function getVirtualscapeLadderBattlementRotation(
+  hexoscapeRotation: number,
+) {
+  return (hexoscapeRotation + 1) % 6
+}
+
+export function getVirtualscapeShieldRotation(hexoscapeRotation: number) {
+  return (((hexoscapeRotation - 4.5) % 6) + 6) % 6
 }

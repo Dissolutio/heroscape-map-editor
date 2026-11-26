@@ -33,6 +33,20 @@ export default function getPieceTemplateCoords({
     )
 }
 
+export function getVirtualscapeAnchorOffset(
+  template: string,
+  rotation: number,
+): CubeCoordinate {
+  return (
+    getPieceTemplateCoords({
+      clickedHex: ORIGIN_000,
+      rotation,
+      template,
+      isVsTile: true,
+    })[0] ?? ORIGIN_000
+  )
+}
+
 const t1 = [
   ORIGIN_000,
   ORIGIN_000,
