@@ -1,3 +1,4 @@
+import { isPortAddonPieceID } from './portPieces'
 import type { BoardHexes, BoardPieces, CubeCoordinate, Piece } from '../types'
 import { HexTerrain } from '../types'
 import { isFluidTerrainHex, isSolidTerrainHex } from '../utils/board-utils'
@@ -33,7 +34,9 @@ export function getSmartPlacementAltitude({
 }): number {
   if (
     piece.isOverlayPiece ||
-    piece.terrain === HexTerrain.laurWallAddon ||
+    isPortAddonPieceID(piece.id) ||
+    // Void Mat and Marker are boardPieces-only, always on the table
+    piece.terrain === HexTerrain.voidMat ||
     (!piece.isObstaclePiece &&
       !isSolidTerrainHex(piece.terrain) &&
       !isFluidTerrainHex(piece.terrain)) ||

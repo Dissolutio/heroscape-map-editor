@@ -5,12 +5,18 @@ One bullet per item, 80 characters or less. Same text as the Project doc
 
 ## In progress
 
-- 👤 Release: push `dev` to `main` (Nov-16 and Nov-24 notes are waiting)
+- 👤 Smoke-test v1.0.35 on the Windows desktop app (Tauri 2.12.6)
+- 👤 #453 Trim after a .hsc import keeps every Void Mat (click Merge)
+- #457 Void Mats show in 3D again (restore depth writes)
+- #459 Void Mats at level 0 in the SVG view, SVG export and PDF (cloud)
 
 ## Next
 
-- Check Sentry after deploy: web release version, Sentry 11 events
-- Check the Windows installer after deploy (Tauri 2.12.6)
+- 👤 Ask Caps if he wants a Virtualscape compatibility doc
+- Fortress Banner piece: 7 tall, on a battlement, striped in SVG/PDF
+- Fortress wall, arch, ladder, battlement models from Virtualscape files
+- Convert void mats to void markers and back
+- Sentry: confirm the first web error reports `hexoscape@1.0.35`
 - ❓ Confirm cells for obstacles still marked "full hex" (list in #404)
 - 👤 Check Ruins 2/3 cells with `?cells=1` (some may be 1 level off)
 - Laur add-ons on edge/node cells (no false flags next to walls)
@@ -24,7 +30,6 @@ One bullet per item, 80 characters or less. Same text as the Project doc
 - Edges and nodes step 5: 3D picking and previews on edges
 - Edges and nodes step 6: SVG and PDF geometry on edges
 - Edges and nodes step 7: occupancy and saving on edges
-- Outcrop bases count in inventory
 - ❓ Snow trees texture plan (no Virtualscape model)
 - 👤 Laur Ruin 1 redo
 - Refresh the developer guide (`docs/adding-a-piece.md`)
@@ -41,6 +46,8 @@ One bullet per item, 80 characters or less. Same text as the Project doc
 
 ## Later
 
+- Arena of the Planeswalker sets (official; John's map coming)
+- Freeform mat (Virtualscape's custom hex grid mats)
 - 👤 UI layout rework: fewer clicks, no tabs on the left
 - Map inventory always visible
 - Tray of unused pieces by terrain set, drag and drop from it
@@ -59,6 +66,7 @@ One bullet per item, 80 characters or less. Same text as the Project doc
 - Community custom terrain set, behind Include VC Content
 - Arena of the Planeswalker terrain
 - Custom colors, textures and models
-- Virtualscape export and figure-piece import (needs the mappings)
+- Virtualscape figure-piece import (needs the mappings)
+- Pylon energy beam glow effect
 - Glow-in-the-dark toxic tiles and Shroudshroom
 - Palm fronds modeled from photos

@@ -52,6 +52,9 @@ export default function ObjectiveMarkerControls({
   const updateDraft = useBoundStore((state) => state.updateObjectiveMarkerDraft)
   const updateMarker = useBoundStore((state) => state.updateObjectiveMarker)
   const removeMarker = useBoundStore((state) => state.removeObjectiveMarker)
+  const pickMarkerAsPen = useBoundStore(
+    (state) => state.pickObjectiveMarkerAsPen,
+  )
   const includeVCContent = useBoundStore((state) => state.includeVCContent)
   const { hotkeyLookup } = useHotkeyConfig()
   const tableHexIDs = useMemo(() => mapTableHexes(hexMap), [hexMap])
@@ -467,14 +470,23 @@ export default function ObjectiveMarkerControls({
           </Typography>
         )}
         {marker && (
-          <Button
-            size="small"
-            color="error"
-            onClick={() => removeMarker(marker.uid)}
-            aria-label="Delete objective marker"
-          >
-            Delete Marker
-          </Button>
+          <Box sx={{ display: 'flex', gap: 0.5 }}>
+            <Button
+              size="small"
+              onClick={() => pickMarkerAsPen(marker.uid)}
+              aria-label="Use as pen"
+            >
+              Use as pen
+            </Button>
+            <Button
+              size="small"
+              color="error"
+              onClick={() => removeMarker(marker.uid)}
+              aria-label="Delete objective marker"
+            >
+              Delete Marker
+            </Button>
+          </Box>
         )}
       </CardContent>
     </Card>

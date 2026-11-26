@@ -310,6 +310,13 @@ describe('drag rotation transforms', () => {
     expect(shouldRotateDragWithWheel(piecesSoFar.bt, 2)).toBe(true)
   })
 
+  it('allows wheel rotation for Void Mats and Markers', () => {
+    expect(shouldRotateDragWithWheel(piecesSoFar[Pieces.voidMat], 1)).toBe(true)
+    expect(shouldRotateDragWithWheel(piecesSoFar[Pieces.voidMarker], 1)).toBe(
+      true,
+    )
+  })
+
   it.each([
     ['land tile', piecesSoFar.g1, 1],
     ['multi-hex tile', piecesSoFar.g2, 1],

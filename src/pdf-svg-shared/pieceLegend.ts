@@ -12,12 +12,26 @@ export type PdfPieceLegendSymbol =
   | 'laur-arch'
   | 'laur-short'
   | 'laur-ruin'
+  | 'void-mat'
+  | 'void-pylon'
+  | 'deflector-shield'
 
 export const getPieceExportSymbol = (
   inventoryID: string,
 ): PdfPieceLegendSymbol | undefined => {
   const piece = piecesSoFar[inventoryID]
   if (!piece) return undefined
+
+  if (inventoryID === Pieces.voidMat || inventoryID === Pieces.voidMarker) {
+    return 'void-mat'
+  }
+  if (
+    inventoryID === Pieces.twoWayPylon ||
+    inventoryID === Pieces.threeWayPylon
+  ) {
+    return 'void-pylon'
+  }
+  if (inventoryID === Pieces.deflectorShield) return 'deflector-shield'
 
   if (
     piece.landPrefix ||

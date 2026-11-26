@@ -20,34 +20,159 @@ import {
   dropUnknownBoardPieces,
 } from '../utils/map-utils'
 import { addPiece } from './addPiece'
-import { normalizeLegacyMapOrigin } from './convertMapShape'
-import { fitMapToPieces } from './fitMapToPieces'
-import { normalizeObjectiveMarkers } from './objectiveMarkers'
+import {
+  normalizeLegacyMapOrigin,
+  trimAndNormalizeMap,
+} from './convertMapShape'
+import {
+  fitMapToPieces,
+  getMapTableFootprintCoords,
+  getRectangleTableFit,
+} from './fitMapToPieces'
+import { getBuiltInSeatedBaseMerges } from './seatedObstacles'
+import {
+  generateObjectiveMarkerUID,
+  normalizeObjectiveMarkers,
+} from './objectiveMarkers'
 import {
   normalizeSavedSelections,
   pruneSavedSelections,
 } from './selectionUnits'
 import { pieceCodes } from './pieceCodes'
 import { piecesSoFar } from './pieces'
-import { getCodeForVSPersonalTile } from './readVirtualscapeMapFile'
+import {
+  getCodeForVSPersonalTile,
+  getHexoscapeLaurRotation,
+  getHexoscapeRopeLadderAltitude,
+  readVirtualscapeMapFile,
+} from './readVirtualscapeMapFile'
+import { isLaurPillarID } from './laurPillarStacking'
+import { isPortAddonPieceID } from './portPieces'
+import { virtualscapeLaurPillarBaseName } from './pieceCodes'
+
+function addMissingMarvelBases(tiles: VirtualScapeTile[]) {
+  const hasConcreteBase = (marvel: VirtualScapeTile) =>
+    tiles.some((tile) => {
+      if (tile.posX !== marvel.posX || tile.posY !== marvel.posY) return false
+      if (tile.posZ !== marvel.posZ - 1 || tile.rotation !== marvel.rotation) {
+        return false
+      }
+      const code = getCodeForVSPersonalTile(tile)
+      const inventoryID = pieceCodes[code] ?? String(code ?? tile.type)
+      return inventoryID === Pieces.concrete6
+    })
+
+  return tiles.flatMap((tile) => {
+    const code = getCodeForVSPersonalTile(tile)
+    const inventoryID = pieceCodes[code] ?? String(code ?? tile.type)
+    if (
+      (inventoryID !== Pieces.marvel &&
+        inventoryID !== Pieces.marvelBroken &&
+        inventoryID !== Pieces.marvelNoUpper &&
+        inventoryID !== Pieces.marvelNoUpperBroken) ||
+      hasConcreteBase(tile)
+    ) {
+      return [tile]
+    }
+    return [
+      { ...tile, type: 21006, virtualscapeName: '', posZ: tile.posZ - 1 },
+      tile,
+    ]
+  })
+}
 
 export default function buildupVSFileMap(
   tiles: VirtualScapeTile[],
   mapName: string,
+  mapAuthor = '',
+  mapNotes = '',
 ): VirtualScapeMapLoadResult {
   const blankMap = getBlankHexoscapeMapForVSTiles(tiles, mapName)
   let { boardPieces } = blankMap
   const { boardHexes, hexMap } = blankMap
-  const mappedTiles = tiles.map((tile) => {
-    const code = getCodeForVSPersonalTile(tile)
-    return {
-      tile,
-      inventoryID: pieceCodes?.[code] ?? String(code ?? tile.type),
+  hexMap.author = mapAuthor
+  hexMap.mapNotes = mapNotes
+  const isPillarTile = (tile: VirtualScapeTile) =>
+    isLaurPillarID(
+      pieceCodes?.[getCodeForVSPersonalTile(tile)] ??
+        String(getCodeForVSPersonalTile(tile) ?? tile.type),
+    )
+  const pairedPillarBases = new Set<VirtualScapeTile>()
+  const pairedPillars = new Set<VirtualScapeTile>()
+  for (const base of tiles.filter(
+    (tile) => tile.virtualscapeName === virtualscapeLaurPillarBaseName,
+  )) {
+    const pillar = tiles.find(
+      (tile) =>
+        tile.posX === base.posX &&
+        tile.posY === base.posY &&
+        tile.posZ === base.posZ + 1 &&
+        isPillarTile(tile),
+    )
+    if (pillar) {
+      pairedPillarBases.add(base)
+      pairedPillars.add(pillar)
     }
+  }
+  const objectiveMarkers = normalizeObjectiveMarkers(
+    tiles
+      .filter((tile) => tile.type >= 15101 && tile.type <= 15106)
+      .map((tile) => ({
+        uid: generateObjectiveMarkerUID(),
+        anchor: {
+          ...hexUtilsOddRToCube(tile.posX, tile.posY),
+          altitude: tile.posZ,
+        },
+        size: 1,
+        rotation: tile.rotation,
+        style: 'black',
+        content: { kind: 'number', value: tile.type - 15100 },
+        name: tile.startName,
+      })),
+  )
+  if (objectiveMarkers.length) {
+    hexMap.objectiveMarkers = objectiveMarkers
+  }
+  const tilesWithMarvelBases = addMissingMarvelBases(tiles)
+  const mappedTiles = tilesWithMarvelBases.flatMap((tile) => {
+    if (tile.type >= 15101 && tile.type <= 15106) return []
+    if (tile.virtualscapeName === virtualscapeLaurPillarBaseName) {
+      return pairedPillarBases.has(tile)
+        ? []
+        : [{ tile, inventoryID: virtualscapeLaurPillarBaseName }]
+    }
+    const code = getCodeForVSPersonalTile(tile)
+    const inventoryID =
+      code === 4002
+        ? Pieces.water1
+        : (pieceCodes?.[code] ?? String(code ?? tile.type))
+    let altitude = tile.posZ
+    if (code === 4002) {
+      return [
+        { tile: { ...tile, posZ: altitude }, inventoryID: Pieces.water1 },
+        { tile: { ...tile, posZ: altitude + 1 }, inventoryID: Pieces.water1 },
+      ]
+    }
+    if (inventoryID === Pieces.ropeLadder) {
+      altitude = getHexoscapeRopeLadderAltitude(altitude)
+    } else if (isLaurPillarID(inventoryID) && pairedPillars.has(tile)) {
+      altitude -= 1
+    } else if (
+      isPortAddonPieceID(inventoryID) &&
+      [...pairedPillars].some(
+        (pillar) =>
+          tile.posX === pillar.posX &&
+          tile.posY === pillar.posY &&
+          tile.posZ === pillar.posZ,
+      )
+    ) {
+      altitude -= 1
+    }
+    return [{ tile: { ...tile, posZ: altitude }, inventoryID }]
   })
   const { boardPieces: knownTiles, droppedPieces } =
     dropUnknownBoardPieces(mappedTiles)
-  const newBoardHexes = knownTiles.reduce(
+  let newBoardHexes = knownTiles.reduce(
     (boardHexes: BoardHexes, { tile, inventoryID }) => {
       const tileCoords = hexUtilsOddRToCube(tile.posX, tile.posY)
       const piece = piecesSoFar[inventoryID]
@@ -55,26 +180,63 @@ export default function buildupVSFileMap(
         return boardHexes
       }
       // get the new board hexes and new board pieces
-      const { newBoardHexes, newBoardPieces } = addPiece({
+      let result = addPiece({
         piece,
         boardHexes,
         boardPieces,
         pieceCoords: tileCoords,
         placementAltitude: tile.posZ, // z is altitude is virtualscape, y is altitude in our app
-        rotation: tile.rotation,
+        rotation:
+          inventoryID === Pieces.deflectorShield
+            ? (tile.rotation + 4.5) % 6 // Virtualscape zero faces Hexoscape 4.5.
+            : getHexoscapeLaurRotation(inventoryID, tile.rotation),
         isVsTile: true,
       })
-      boardPieces = newBoardPieces
-      return newBoardHexes
+      if (result.error) {
+        result = addPiece({
+          piece,
+          boardHexes,
+          boardPieces,
+          pieceCoords: tileCoords,
+          placementAltitude: tile.posZ,
+          rotation:
+            inventoryID === Pieces.deflectorShield
+              ? (tile.rotation + 4.5) % 6
+              : getHexoscapeLaurRotation(inventoryID, tile.rotation),
+          isVsTile: true,
+          permissive: true,
+        })
+      }
+      boardPieces = result.newBoardPieces
+      return result.newBoardHexes
     },
     boardHexes,
   )
+  const merges = getBuiltInSeatedBaseMerges(
+    newBoardHexes,
+    boardPieces,
+    hexMap.setsUsed,
+  )
+  const mergedSeatedBaseCount = merges.removedBaseUIDs.size
+  if (mergedSeatedBaseCount) {
+    const adjustedPieces = boardPieces
+      .filter((piece) => !merges.removedBaseUIDs.has(piece.uid))
+      .map((piece) =>
+        merges.loweredObstacleUIDs.has(piece.uid)
+          ? { ...piece, altitude: piece.altitude - 1 }
+          : piece,
+      )
+    const replayed = replayBoardPieces(adjustedPieces, boardHexes)
+    newBoardHexes = replayed.newBoardHexes
+    boardPieces = replayed.finalBoardPieces
+  }
   return {
     boardHexes: newBoardHexes,
     hexMap: hexMap,
     boardPieces,
     savedSelections: [],
     droppedPieces,
+    mergedSeatedBaseCount,
   }
 }
 // Replay support-dependent placements last. Ladders write boardHexes and need
@@ -108,15 +270,47 @@ function sortBoardPiecesForLoad(arr: BoardPiece[]) {
       a.altitude - b.altitude,
   )
 }
+
+function replayBoardPieces(
+  boardPieces: BoardPiece[],
+  initialBoardHexes: BoardHexes,
+) {
+  let finalBoardPieces: BoardPieces = []
+  const newBoardHexes = boardPieces.reduce(
+    (prev: BoardHexes, curr): BoardHexes => {
+      const piece = piecesSoFar[curr.inventoryID]
+      if (!piece) return prev
+      const result = addPiece({
+        piece,
+        boardHexes: prev,
+        boardPieces: finalBoardPieces,
+        pieceCoords: curr.pieceCoords,
+        placementAltitude: curr.altitude,
+        rotation: curr.rotation,
+        isVsTile: false,
+        uid: curr.uid,
+        permissive: true,
+      })
+      finalBoardPieces = result.newBoardPieces
+      return result.newBoardHexes
+    },
+    initialBoardHexes,
+  )
+
+  return { newBoardHexes, finalBoardPieces }
+}
+
 export type JsonMapLoadResult = MapState & {
   /** Pieces omitted because they are malformed, unknown, or too far away. */
   droppedPieces: DroppedBoardPiece[]
   droppedObjectiveMarkers?: NonNullable<HexMap['objectiveMarkers']>
   dimensionsAdjusted?: boolean
+  mergedSeatedBaseCount: number
 }
 export type VirtualScapeMapLoadResult = MapState & {
   /** Tiles omitted because their Virtualscape code is not recognized. */
   droppedPieces: DroppedBoardPiece[]
+  mergedSeatedBaseCount: number
 }
 export function buildupJsonFileMap(
   boardPieces: BoardPiece[],
@@ -171,7 +365,6 @@ export function buildupJsonFileMap(
       reason: 'too-far' as const,
     })),
   )
-  let finalBoardPieces: BoardPieces = []
   if (fittedHexMap.shape === 'rectangle') {
     initialBoardHexes = generateRectangle(
       fittedHexMap.length,
@@ -186,31 +379,29 @@ export function buildupJsonFileMap(
       fittedHexMap.originR ?? 0,
     )
   }
-  const piecesArray = sortBoardPiecesForLoad(initialBoardPieces)
-  const newBoardHexes = piecesArray.reduce(
-    (prev: BoardHexes, curr): BoardHexes => {
-      const piece = piecesSoFar[curr.inventoryID]
-      if (!piece) {
-        return prev // unreachable: unknown pieces were dropped above
-      }
-
-      // get the new board hexes and new board pieces
-      const { newBoardHexes, newBoardPieces } = addPiece({
-        piece,
-        boardHexes: prev,
-        boardPieces: finalBoardPieces,
-        pieceCoords: curr.pieceCoords,
-        placementAltitude: curr.altitude,
-        rotation: curr.rotation,
-        isVsTile: false,
-        uid: curr.uid,
-        permissive: true,
-      })
-      finalBoardPieces = newBoardPieces
-      return newBoardHexes
-    },
+  let { newBoardHexes, finalBoardPieces } = replayBoardPieces(
+    sortBoardPiecesForLoad(initialBoardPieces),
     initialBoardHexes,
   )
+  const merges = getBuiltInSeatedBaseMerges(
+    newBoardHexes,
+    finalBoardPieces,
+    fittedHexMap.setsUsed,
+  )
+  const mergedSeatedBaseCount = merges.removedBaseUIDs.size
+  if (mergedSeatedBaseCount) {
+    const adjustedPieces = finalBoardPieces
+      .filter((piece) => !merges.removedBaseUIDs.has(piece.uid))
+      .map((piece) =>
+        merges.loweredObstacleUIDs.has(piece.uid)
+          ? { ...piece, altitude: piece.altitude - 1 }
+          : piece,
+      )
+    ;({ newBoardHexes, finalBoardPieces } = replayBoardPieces(
+      sortBoardPiecesForLoad(adjustedPieces),
+      initialBoardHexes,
+    ))
+  }
 
   return {
     boardHexes: newBoardHexes,
@@ -224,6 +415,7 @@ export function buildupJsonFileMap(
       ),
     ),
     droppedPieces,
+    mergedSeatedBaseCount,
     ...(fitted.droppedObjectiveMarkers
       ? { droppedObjectiveMarkers: fitted.droppedObjectiveMarkers }
       : {}),
@@ -231,36 +423,85 @@ export function buildupJsonFileMap(
   }
 }
 
+export function trimVirtualscapeMap(
+  loadedMap: VirtualScapeMapLoadResult,
+): JsonMapLoadResult {
+  const trimmed = trimAndNormalizeMap(loadedMap.hexMap, loadedMap.boardPieces)
+  if (!trimmed.ok) return loadedMap
+
+  let hexMap = trimmed.hexMap
+  if (trimmed.note && hexMap.shape === 'rectangle') {
+    const fit = getRectangleTableFit(
+      getMapTableFootprintCoords(hexMap, trimmed.boardPieces),
+      { existingMap: hexMap },
+    )
+    if (!fit) return loadedMap
+    hexMap = {
+      ...hexMap,
+      width: fit.width,
+      length: fit.length,
+      ...(fit.originQ !== 0 || hexMap.originQ !== undefined
+        ? { originQ: fit.originQ }
+        : {}),
+      ...(fit.originR !== 0 || hexMap.originR !== undefined
+        ? { originR: fit.originR }
+        : {}),
+    }
+  }
+
+  const rebuilt = buildupJsonFileMap(
+    trimmed.boardPieces,
+    hexMap,
+    loadedMap.droppedPieces,
+  )
+  return {
+    ...rebuilt,
+    mergedSeatedBaseCount: loadedMap.mergedSeatedBaseCount,
+  }
+}
+
+export async function loadVirtualscapeFile(file: File) {
+  const virtualscapeMap = await readVirtualscapeMapFile(file)
+  if (virtualscapeMap.version.toString() !== '0.0007') {
+    return { ok: false as const, virtualscapeMap }
+  }
+
+  return {
+    ok: true as const,
+    virtualscapeMap,
+    loadedMap: trimVirtualscapeMap(
+      buildupVSFileMap(
+        virtualscapeMap.tiles,
+        virtualscapeMap.name || file.name,
+        virtualscapeMap.author,
+        virtualscapeMap.scenario,
+      ),
+    ),
+  }
+}
+
 function getBlankHexoscapeMapForVSTiles(
   tiles: VirtualScapeTile[],
   mapName: string,
 ): MapState {
-  // cushions have to be an even number because of the coordinate system used in virtualscape
-  const cushionToPadY = 8 // 24-hexer's max Y displacement in vscape
-  const cushionToPadX = 6 // 24-hexer's max X displacement in vscape
-  const xMin = Math.min(...(tiles.map((t) => t.posX - cushionToPadX) ?? 0))
-  const yMin = Math.min(...(tiles.map((t) => t.posY - cushionToPadY) ?? 0))
-  // remove as many empty hexes as possible from the empty grid we are going to generate
-  const xIncrementsWorthEmpty = Math.floor(xMin / 2)
-  const yIncrementsWorthEmpty = Math.floor(yMin / 2)
-  // MUTATE TILES TO MAKE MAP SMALL AS POSSIBLE
-  if (xIncrementsWorthEmpty > 0) {
-    for (const t of tiles) {
-      t.posX -= xIncrementsWorthEmpty * 2
-    }
-  }
-  if (yIncrementsWorthEmpty > 0) {
-    for (const t of tiles) {
-      t.posY -= yIncrementsWorthEmpty * 2
-    }
-  }
-  // these are the dimensions of the empty map to generate
-  const length = Math.max(...(tiles.map((t) => t.posY + cushionToPadY) ?? 0))
-  const width = Math.max(...(tiles.map((t) => t.posX + cushionToPadX) ?? 0))
+  if (!tiles.length) return makeRectangleScenario({ mapName })
+
+  const cushionToPadY = 8
+  const cushionToPadX = 6
+  const minX = Math.min(...tiles.map((tile) => tile.posX))
+  const maxX = Math.max(...tiles.map((tile) => tile.posX))
+  const minY = Math.min(...tiles.map((tile) => tile.posY))
+  const maxY = Math.max(...tiles.map((tile) => tile.posY))
+  const originQ = minX - cushionToPadX
+  const originR = minY - cushionToPadY
+  const length = maxY - minY + cushionToPadY * 2 + 1
+  const width = maxX - minX + cushionToPadX * 2 + 1
 
   return makeRectangleScenario({
     length,
     width,
+    originQ,
+    originR,
     mapName,
   })
 }

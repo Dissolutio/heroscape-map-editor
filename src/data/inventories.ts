@@ -177,7 +177,7 @@ export const lavaFieldsPieceSet: PieceInventory = {
   [Pieces.lavaField24]: 2,
   [Pieces.lavaRockOutcrop1]: 3,
   [Pieces.lavaRockOutcrop3]: 1,
-  [Pieces.lava1]: 20,
+  [Pieces.lava1]: 26, // 20 regular, 6 with holes for holding the 3 outcrop-1 pieces and 1 outcrop-3 piece
   [Pieces.lava3]: 3,
 }
 export const roadsOfValhallaPieceSet: PieceInventory = {
@@ -237,7 +237,7 @@ export const marvelPieceSet: PieceInventory = {
   [Pieces.grass2]: 8,
   [Pieces.grass1]: 2,
   [Pieces.marvel]: 1,
-  [Pieces.concrete6]: 1,
+  [Pieces.concrete6]: 1, // holds the marvel ruin piece
 }
 export const thaelenkPieceSet: PieceInventory = {
   [Pieces.glacier1]: 3,
@@ -246,10 +246,10 @@ export const thaelenkPieceSet: PieceInventory = {
   [Pieces.glacier6]: 1,
   [Pieces.snow1]: 12,
   [Pieces.snow2]: 12,
-  [Pieces.ice1]: 21,
-  [Pieces.ice3]: 1,
-  [Pieces.ice4]: 1,
-  [Pieces.ice6]: 1,
+  [Pieces.ice1]: 21, // 20 regular, 1 with holes to hold glacier-1
+  [Pieces.ice3]: 1, // with holes to hold glacier-3
+  [Pieces.ice4]: 1, // with holes to hold glacier-4
+  [Pieces.ice6]: 1, // with holes to hold glacier-6
 }
 export const volcarrenPieceSet: PieceInventory = {
   [Pieces.lava1]: 11,
@@ -294,8 +294,8 @@ export const ms1PieceSet: PieceInventory = {
 export const ms2PieceSet: PieceInventory = {
   [Pieces.water1]: 8,
   [Pieces.swampWater1]: 34,
-  [Pieces.swampWater6]: 1,
-  [Pieces.hive]: 1,
+  [Pieces.swampWater6]: 1, // with holes for the hive
+  [Pieces.hive]: 1, // 6-hex, fits on the swampWater6
   [Pieces.swamp1]: 2,
   [Pieces.swamp2]: 2,
   [Pieces.swamp3]: 2,
@@ -318,7 +318,7 @@ export const cavernsOfValhalla: PieceInventory = {
   [Pieces.dungeon3]: 2,
   [Pieces.dungeon7]: 5,
   [Pieces.dungeon24]: 2,
-  [Pieces.shadow1]: 14, // 8, but 6 "modified" shadows for putting the outcrops on
+  [Pieces.shadow1]: 14, // 8 regular, but 6 "modified" shadows with holes for putting the outcrops on
   [Pieces.outcrop1]: 3,
   [Pieces.outcrop3]: 1,
 }
@@ -353,8 +353,8 @@ export const underdarkPieceSet: PieceInventory = {
   [Pieces.sand3]: 0,
   [Pieces.sand7]: 3,
   [Pieces.water1]: 12,
-  [Pieces.shadow1]: 11,
-  [Pieces.shadow3]: 1,
+  [Pieces.shadow1]: 11, // 8 regular, 3 with holes
+  [Pieces.shadow3]: 1, // with holes
   [Pieces.outcrop1]: 3,
   [Pieces.outcrop3]: 1,
 }
@@ -378,3 +378,12 @@ export const tournamentOrganizerTerrainKit2PieceSet: PieceInventory =
     cavernsOfValhalla,
     battleBox1PieceSet,
   )
+
+// Void and Pylons: a community custom (VC) set. Gated by the Include VC
+// unit/terrain data setting; see src/data/vcContent.ts.
+export const voidAndPylonsPieceSet: PieceInventory = {
+  [Pieces.voidMat]: 10,
+  [Pieces.threeWayPylon]: 6,
+  [Pieces.twoWayPylon]: 4,
+  [Pieces.deflectorShield]: 10,
+}

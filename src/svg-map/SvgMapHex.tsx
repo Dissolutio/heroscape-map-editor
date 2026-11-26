@@ -71,6 +71,7 @@ import {
   SvgTree415,
 } from './SvgMapShapes'
 import { SvgMapShapeSettingsContext } from './SvgMapShapes'
+import { SvgVoidPylonSymbol } from './SvgVoidAndPylons'
 import { hexTextStyle, singleHexObstacleHeightTextProps } from './svgText'
 
 const OPACITY_SUBLEVEL = 0.3
@@ -211,6 +212,15 @@ const SvgMapHexComponent = ({
   // EARLY RETURN: NOT VISIBLE
   if (!isVisible || isAuxiliaryNotRenderedIn2D) {
     return null
+  }
+  if (exportSymbol === 'void-pylon' && hex.isObstacleOrigin) {
+    return (
+      <g
+        transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
+      >
+        <SvgVoidPylonSymbol inventoryID={inventoryID} isSubLevel={isSubLevel} />
+      </g>
+    )
   }
   // Empty Hexes
   if (hex.terrain === HexTerrain.empty) {

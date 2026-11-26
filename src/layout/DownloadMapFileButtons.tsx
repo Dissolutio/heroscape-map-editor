@@ -1,13 +1,16 @@
 import { MdFolderZip } from 'react-icons/md'
+import { useSnackbar } from 'notistack'
 import useBoundStore from '../store/store'
 import type { MapFileState } from '../types'
 import { genRandomMapName } from '../utils/genRandomMapName'
 import { encodeFilename } from '../utils/map-utils'
 import { ControlTabsListItemButton } from '../controls/ControlTabsListItemButton'
+import { writeVirtualscapeMap } from '../data/writeVirtualscapeMapFile'
 
 const DownloadMapFileButtons = () => {
   const hexMap = useBoundStore((state) => state.hexMap)
   const boardPieces = useBoundStore((state) => state.boardPieces)
+  const { enqueueSnackbar } = useSnackbar()
   const fileName = `${encodeFilename(hexMap.name) || genRandomMapName()}${hexMap.author ? `_by_${encodeFilename(hexMap.author)}` : ''}`
   const handleClickExportGzip = async () => {
     const filename = `${fileName}.gz`
@@ -58,8 +61,32 @@ const DownloadMapFileButtons = () => {
     element.click()
     // element.remove()
   }
+  const handleClickExportVirtualscape = () => {
+    const { buffer, skipped } = writeVirtualscapeMap(hexMap, boardPieces)
+    const element = document.createElement('a')
+    element.href = window.URL.createObjectURL(
+      new Blob([buffer], { type: 'application/octet-stream' }),
+    )
+    element.setAttribute('download', `${fileName}.hsc`)
+    element.style.display = 'none'
+    element.click()
+    if (skipped.length) {
+      enqueueSnackbar(
+        `Left out ${skipped.length} pieces Virtualscape doesn't have: ${skipped
+          .map(({ title }) => title)
+          .join(', ')}`,
+        { variant: 'warning' },
+      )
+    }
+  }
   return (
     <>
+      <ControlTabsListItemButton
+        title="Download the map in Virtualscape format"
+        primary="Download Virtualscape file (.hsc)"
+        onClick={handleClickExportVirtualscape}
+        icon={<MdFolderZip />}
+      />
       <ControlTabsListItemButton
         title="Download the map file without the map portrait image, and compressed with GZip (extremely small file size)"
         primary="Download file (.gz)"

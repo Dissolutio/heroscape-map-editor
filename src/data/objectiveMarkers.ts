@@ -30,6 +30,7 @@ export type ObjectiveMarkerDraft = Pick<
   'size' | 'style' | 'content' | 'name'
 > & {
   pinNumber: boolean
+  pickedNumberOnce: boolean
 }
 
 export type ObjectiveMarkerHotkeyAction = {

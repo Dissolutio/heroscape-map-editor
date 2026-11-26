@@ -13,6 +13,7 @@ import { yellow } from '@mui/material/colors'
 import { Box } from '@mui/system'
 import React from 'react'
 import { piecesSoFar } from '../data/pieces'
+import { isPieceOfferedForVC } from '../data/vcContent'
 import { DIALOGS } from '../layout/dialogNames'
 import useBoundStore from '../store/store'
 import {
@@ -22,7 +23,7 @@ import {
 } from '../utils/terrain-constraints'
 import {
   type LaurReconcileDetail,
-  countPiecesUsedWithLaurStacking,
+  countPiecesUsedOnMap,
   reconcileLaurLegacyToStackableUsage,
 } from './laurInventoryReconcile'
 
@@ -38,6 +39,7 @@ const ViewMapInventoryDialog = () => {
 
   const hexMap = useBoundStore((state) => state.hexMap)
   const boardPieces = useBoundStore((state) => state.boardPieces)
+  const includeVCContent = useBoundStore((state) => state.includeVCContent)
   const terrainConstraintSource = useBoundStore(
     (state) => state.terrainConstraintSource,
   )
@@ -56,7 +58,10 @@ const ViewMapInventoryDialog = () => {
     customConstraintInventory,
     userPieceInventory,
   })
-  const piecesUsedBeforeReconcile = countPiecesUsedWithLaurStacking(boardPieces)
+  const piecesUsedBeforeReconcile = countPiecesUsedOnMap(
+    boardPieces,
+    hexMap?.setsUsed,
+  )
   const hasConstraints = hasActiveTerrainConstraints({
     setsUsed: hexMap?.setsUsed ?? [],
     terrainConstraintSource,
@@ -76,9 +81,10 @@ const ViewMapInventoryDialog = () => {
   const piecesUsed = reconciledUsedInventory
 
   // Merge all pieceIDs from combinedInventory and piecesUsed
+  // VC pieces are listed only with Include VC unit/terrain data on
   const allPieceIDs = Array.from(
     new Set([...Object.keys(combinedInventory), ...Object.keys(piecesUsed)]),
-  )
+  ).filter((pieceID) => isPieceOfferedForVC(pieceID, includeVCContent))
 
   // Helper: check if piece is a Start Zone or Glyph
   function isStartZoneOrGlyph(pieceID: string) {

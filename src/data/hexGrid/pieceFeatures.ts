@@ -3,6 +3,7 @@ import { HexTerrain, Pieces } from '../../types'
 import { HEX_DIRECTIONS, hexUtilsAdd } from '../../utils/hex-utils'
 import { getLaurAddonFootprint } from '../laurAddonFootprints'
 import { getPillarPortFeatures } from '../laurPillarPorts'
+import { getPillarPorts, getPortAddonEnds, portFeatureId } from '../portPieces'
 import { piecesSoFar } from '../pieces'
 import {
   type HexFeatureId,
@@ -121,6 +122,24 @@ export const pieceTopologyDeclarations = {
     rotation: 'whole-step',
     source: 'attachment',
   },
+  [Pieces.twoWayPylon]: {
+    portKinds: ['node'],
+    anchor: 'pillar-center',
+    rotation: 'whole-step',
+    source: 'port-provider',
+  },
+  [Pieces.threeWayPylon]: {
+    portKinds: ['node'],
+    anchor: 'pillar-center',
+    rotation: 'whole-step',
+    source: 'port-provider',
+  },
+  [Pieces.deflectorShield]: {
+    featureKinds: ['node'],
+    anchor: 'piece-origin',
+    rotation: 'half-step',
+    source: 'attachment',
+  },
 } as const satisfies Record<string, PieceTopologyDeclaration>
 
 /**
@@ -144,11 +163,74 @@ export const pieceTopologyDeclarations = {
  *
  * To add one, derive its footprint table (scripts/derive-cell-footprints.mjs
  * writes pieceFootprints.ts) and add one entry here. No other code changes.
+ * Port pillars and add-ons (Void and Pylons) derive theirs from their ports
+ * in portPieces.ts instead; see portPillarFootprint and longAddonFootprint.
+ *
+ * `rotationOffset: 0.5` declares the footprint at rotation 0.5, for a piece
+ * that only takes half-step rotations (the Deflector Shield).
  */
 export type PieceCellDeclaration =
   | { fills: 'hex-center' }
-  | { fills: 'edges-and-nodes'; footprint: CellFootprint }
+  | {
+      fills: 'edges-and-nodes'
+      footprint: CellFootprint
+      rotationOffset?: 0 | 0.5
+    }
   | { fills: 'footprint'; footprint: CellFootprint }
+
+const ORIGIN = { q: 0, r: 0, s: 0 }
+
+/**
+ * A port pillar's cells at rotation 0: its hex center and the feature each
+ * port faces, over its whole height.
+ *
+ *   Two-Way Pylon          Three-Way Pylon
+ *         N                      N
+ *       /   \                  /   \
+ *     +       +              +       +
+ *     |   O   |              |   O   |
+ *     +       +             SW       SE
+ *       \   /                  \   /
+ *         S                      +
+ */
+function portPillarFootprint(pieceID: string): CellFootprint {
+  const height = piecesSoFar[pieceID]?.height ?? 0
+  return Object.fromEntries([
+    ['hex:0,0,0', height],
+    ...getPillarPorts(pieceID, 0).map((port) => [
+      portFeatureId(ORIGIN, port),
+      height,
+    ]),
+  ])
+}
+
+/**
+ * A long add-on's cells at rotation 0.5, over its whole height: the port
+ * vertex of its anchor pillar (A), the edge between the two hexes it passes
+ * between, and the facing port vertex of the far pillar (B).
+ *
+ *       A
+ *        *         * vertex (node) cell
+ *    1,0  =  0,1   = edge cell, between hexes 1,0,-1 and 0,1,-1
+ *          *
+ *           B (1,1,-2)
+ */
+function longAddonFootprint(pieceID: string): CellFootprint {
+  const height = piecesSoFar[pieceID]?.height ?? 0
+  const ends =
+    getPortAddonEnds({
+      inventoryID: pieceID,
+      pieceCoords: ORIGIN,
+      rotation: 0.5,
+    }) ?? []
+  // The hexes east (direction 0) and south-east (direction 1) of the anchor
+  // share the edge the add-on runs along.
+  const middleEdge = edgeIdFromHex(HEX_DIRECTIONS[0], 2)
+  return Object.fromEntries([
+    ...ends.map((end) => [end.featureId, height]),
+    [middleEdge, height],
+  ])
+}
 
 const isGlyphTerrain = (terrain: string) =>
   terrain === HexTerrain.glyphPower || terrain === HexTerrain.glyphTreasure
@@ -182,6 +264,22 @@ export const pieceCellDeclarations: Readonly<
   [Pieces.shipBow]: {
     fills: 'footprint',
     footprint: pieceFootprints[Pieces.shipBow],
+  },
+  // Pylons own their hex like any obstacle; against an edges-and-nodes piece
+  // they fill their hex center and the vertices their ports face.
+  [Pieces.twoWayPylon]: {
+    fills: 'footprint',
+    footprint: portPillarFootprint(Pieces.twoWayPylon),
+  },
+  [Pieces.threeWayPylon]: {
+    fills: 'footprint',
+    footprint: portPillarFootprint(Pieces.threeWayPylon),
+  },
+  // The shield stands between hexes, from one pylon port to another.
+  [Pieces.deflectorShield]: {
+    fills: 'edges-and-nodes',
+    footprint: longAddonFootprint(Pieces.deflectorShield),
+    rotationOffset: 0.5,
   },
 }
 

@@ -344,4 +344,19 @@ export const terrainSetsByShortID = {
     releaseDate: '02/2027',
     era: 'contemporary',
   },
+  FF: {
+    name: 'Void and Pylons',
+    abbreviation: 'VaP',
+    kind: 'expansion',
+    inventory: setInventories.voidAndPylonsPieceSet,
+    setType: 'Terrain Expansion',
+    id: 'FF',
+    // hsOrgId omitted: a community custom set.
+    releaseDate: '12/2023',
+    era: 'community',
+    // Community custom (VC) content, shown only with the Include VC
+    // unit/terrain data setting. The one place that says a set, and so its
+    // pieces, are VC (src/data/vcContent.ts).
+    isVC: true,
+  },
 } as const

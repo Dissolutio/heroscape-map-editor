@@ -196,6 +196,17 @@ export const pieceGroups = [
       Pieces.castleArchNoDoor,
     ],
   },
+  // Community custom (VC): shown only with Include VC unit/terrain data on
+  {
+    label: 'Void and Pylons',
+    pieces: [
+      Pieces.voidMat,
+      Pieces.voidMarker,
+      Pieces.twoWayPylon,
+      Pieces.threeWayPylon,
+      Pieces.deflectorShield,
+    ],
+  },
   // {
   //   label: 'Glyphs & Start Zones',
   //   pieces: [

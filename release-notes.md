@@ -1,3 +1,16 @@
+Nov-26-2026
+TLDR: Void & Pylons (VC) set. Export maps to Virtualscape. Import every Virtualscape tile. Outcrops, glaciers and the Marro Hive count their bases. Drag selected pieces in any pen mode.
+
+- **Void & Pylons (VC)**: Void Mat, Void Marker (1 hex), 2- and 3-way Pylons with gluestick energy beam, and the Deflector Shield. Enable "Include VC unit/terrain data" in the View tab!
+- **Void Mats**: Select and drag them on the table; everything above fades while you drag.
+- **Virtualscape export**: File tab: download your map as a .hsc file that opens in the latest version of Virtualscape (v1.1.0.10).
+- **Virtualscape import**: All tiles except AotP tiles should import correctly. Imported maps are auto-trimmed now.
+- **Marvel Ruins**: Place the Concrete-6 base for you, and moves and deletes with it.
+- **Outcrops, glaciers, Marro Hive**: Their bases count in the inventory, now. Some inventories were updated.
+- **Marro Hive**: 3D model faces the same way as in Virtualscape.
+- **Objective markers**: Middle-click one, or "Use as pen", to place more like it.
+- **Dragging**: Drag a selected piece in any pen mode, not only Select.
+
 Nov-24-2026
 TLDR: Ships fit like the real pieces. Fortified Walls and Ruins 2/3 sit between hexes, so no more false conflicts. Trim map button. Convert map shape lands on the axes. More right-click actions. Arrow pad for moving pieces. Unit names from heroscape.org.
 

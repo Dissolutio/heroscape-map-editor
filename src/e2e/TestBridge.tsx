@@ -14,13 +14,15 @@ import { getPieceIDForPenMode } from '../data/flatPieceSizes'
 import { getLaurAddonFeaturePoint } from '../data/laurAddonPlacement'
 import { piecesSoFar } from '../data/pieces'
 import { resolveRotationPivot } from '../data/rotationPivot'
+import { isVoidMatPieceID } from '../data/voidMat'
 import useBoundStore from '../store/store'
 import { type BoardHex, type BoardPiece, Pieces } from '../types'
+import { getPortAddonEnds } from '../data/portPieces'
 import { isLaurWallAddonPieceID } from '../utils/board-utils'
 import { HEXGRID_HEXCAP_HEIGHT, HEXGRID_HEX_HEIGHT } from '../utils/constants'
 import { cubeToPixel, hexUtilsGetNeighborForRotation } from '../utils/hex-utils'
 import { getBoardHex3DCoords } from '../utils/map-utils'
-import { getDragState } from '../world/drag/dragController'
+import { getDragState, isVoidMatDragging } from '../world/drag/dragController'
 import { getLandRendererMode } from '../world/landRendererTier'
 import { getLandSubterrainInstanceData } from '../world/models/LandSubterrainInstanced'
 import { buildLandHexInstanceData } from '../world/models/landHexInstances'
@@ -398,10 +400,26 @@ function TestBridgeInner() {
           objectiveMarkerDraft: {
             size: s.objectiveMarkerDraft.size,
             style: s.objectiveMarkerDraft.style,
+            content: { ...s.objectiveMarkerDraft.content },
+            pinNumber: s.objectiveMarkerDraft.pinNumber,
           },
+          objectiveMarkers: (s.hexMap.objectiveMarkers ?? []).map((marker) => ({
+            ...marker,
+            anchor: { ...marker.anchor },
+            content: { ...marker.content },
+          })),
           objectiveMarkerAnchors: (s.hexMap.objectiveMarkers ?? []).map(
             ({ uid, anchor }) => ({ uid, anchor: { ...anchor } }),
           ),
+          voidPieces: s.boardPieces
+            .filter((piece) => isVoidMatPieceID(piece.inventoryID))
+            .map((piece) => ({
+              uid: piece.uid,
+              inventoryID: piece.inventoryID,
+              pieceCoords: { ...piece.pieceCoords },
+              altitude: piece.altitude,
+              rotation: piece.rotation,
+            })),
           selectedObjectiveMarkerUID: s.selectedObjectiveMarkerUID,
           hexCount: Object.keys(s.boardHexes).length,
           landInstanceCounts: landInstances.reduce(
@@ -435,6 +453,7 @@ function TestBridgeInner() {
           cameraFov: camera instanceof PerspectiveCamera ? camera.fov : null,
           placementPreview: getPlacementPreview(),
           drag: getDragSnapshot(),
+          ghostingOtherLevels: isVoidMatDragging(),
         }
       },
       listPieces: () =>
@@ -548,6 +567,35 @@ function TestBridgeInner() {
         const { boardPieces, boardHexes } = useBoundStore.getState()
         const bp = boardPieces.find((piece) => piece.uid === uid)
         if (!bp) return null
+        if (bp.inventoryID === Pieces.deflectorShield) {
+          // The middle of its span (the edge between the two hexes it passes
+          // between), halfway up: away from the pylon tabs at its ends.
+          const ends = getPortAddonEnds(bp)
+          if (ends && ends.length === 2) {
+            const from = cubeToPixel(ends[0].coords)
+            const to = cubeToPixel(ends[1].coords)
+            const { yBaseCap } = getBoardHex3DCoords({
+              ...bp.pieceCoords,
+              altitude: bp.altitude + 1,
+            })
+            return project(
+              (from.x + to.x) / 2,
+              yBaseCap + 4 * HEXGRID_HEX_HEIGHT,
+              (from.y + to.y) / 2,
+            )
+          }
+        }
+        if (
+          bp.inventoryID === Pieces.voidMat ||
+          bp.inventoryID === Pieces.voidMarker
+        ) {
+          // The origin's exposed table hex represents either void piece.
+          const { x, z } = getBoardHex3DCoords({
+            ...bp.pieceCoords,
+            altitude: 0,
+          })
+          return project(x, 0, z)
+        }
         if (isLaurWallAddonPieceID(bp.inventoryID)) {
           const feature = getLaurAddonFeaturePoint(bp.pieceCoords, bp.rotation)
           if (feature) {
@@ -657,9 +705,9 @@ function TestBridgeInner() {
           zoom: round4(camera.zoom),
         }
       },
-      setPen: (penMode, size, rotation) => {
+      setPen: (penMode, size, rotation, preserveSelection) => {
         const store = useBoundStore.getState()
-        store.togglePenMode(penMode)
+        store.togglePenMode(penMode, { preserveSelection })
         store.togglePieceSize(size)
         if (rotation !== undefined) {
           store.togglePenModeRotation(rotation)

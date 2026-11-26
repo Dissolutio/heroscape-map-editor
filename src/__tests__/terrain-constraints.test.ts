@@ -210,6 +210,11 @@ describe('set-based constraints', () => {
 })
 
 describe('what an inventory makes available', () => {
+  it('does not constrain the uninventoried Void Marker', () => {
+    expect(isInventoryPieceAvailable(Pieces.voidMarker, {}, true)).toBe(true)
+    expect(isPenModePieceAvailable(Pieces.voidMarker, {}, true)).toBe(true)
+  })
+
   it('uses the same aliases for pen-mode availability as the selector', () => {
     expect(
       isPenModePieceAvailable(

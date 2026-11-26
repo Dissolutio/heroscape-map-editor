@@ -8,7 +8,7 @@ import {
   type BoardPiece,
   type PieceInventory,
 } from '../types'
-import { countPiecesUsedWithLaurStacking } from '../inventory/laurInventoryReconcile'
+import { countPiecesUsedOnMap } from '../inventory/laurInventoryReconcile'
 import { isFluidTerrainHex, isSolidTerrainHex } from './board-utils'
 import { makeBuriedStatusChecker } from './buriedStatus'
 
@@ -278,8 +278,9 @@ export function getObstacleSubstituteCandidates(
 export function getMissingObstacles(
   boardPieces: BoardPiece[],
   inventory: PieceInventory,
+  setsUsed: readonly string[] = [],
 ): { inventoryID: string; count: number }[] {
-  const usedByID = countPiecesUsedWithLaurStacking(boardPieces)
+  const usedByID = countPiecesUsedOnMap(boardPieces, setsUsed)
   return Object.entries(usedByID)
     .flatMap(([inventoryID, used]) => {
       const piece = piecesSoFar[inventoryID]
@@ -384,6 +385,7 @@ export function suggestBuriedFillTerrain(
 export function buildCollectionAdaptationPlan({
   boardHexes,
   boardPieces,
+  setsUsed = [],
   supply,
   choices,
   buriedFillByKind,
@@ -391,6 +393,7 @@ export function buildCollectionAdaptationPlan({
 }: {
   boardHexes: BoardHexes
   boardPieces: BoardPiece[]
+  setsUsed?: readonly string[]
   supply: CollectionLandSupply
   choices: Record<string, TerrainAdaptChoice>
   buriedFillByKind: { solid: string; fluid: string }
@@ -420,7 +423,11 @@ export function buildCollectionAdaptationPlan({
   const obstacleInventory = Object.fromEntries(
     supply.obstacleQuantityByInventoryID,
   )
-  const missingObstacles = getMissingObstacles(boardPieces, obstacleInventory)
+  const missingObstacles = getMissingObstacles(
+    boardPieces,
+    obstacleInventory,
+    setsUsed,
+  )
   const obstacleCandidatesByID = new Map(
     missingObstacles.map(({ inventoryID }) => [
       inventoryID,
@@ -448,7 +455,7 @@ export function buildCollectionAdaptationPlan({
   )
   const remaining = new Map(supply.quantityByInventoryID)
   for (const [inventoryID, used] of Object.entries(
-    countPiecesUsedWithLaurStacking(boardPieces),
+    countPiecesUsedOnMap(boardPieces, setsUsed),
   )) {
     remaining.set(
       inventoryID,
@@ -510,7 +517,7 @@ export function buildCollectionAdaptationPlan({
 
   const remainingObstacles = new Map(supply.obstacleQuantityByInventoryID)
   for (const [inventoryID, used] of Object.entries(
-    countPiecesUsedWithLaurStacking(boardPieces),
+    countPiecesUsedOnMap(boardPieces, setsUsed),
   )) {
     remainingObstacles.set(
       inventoryID,
@@ -630,8 +637,9 @@ export function buildCollectionAdaptationMapping(
 export function getRemainingLandShortfalls(
   boardPieces: BoardPiece[],
   inventory: PieceInventory,
+  setsUsed: readonly string[] = [],
 ) {
-  const usedByID = countPiecesUsedWithLaurStacking(boardPieces)
+  const usedByID = countPiecesUsedOnMap(boardPieces, setsUsed)
   return Object.entries(usedByID)
     .flatMap(([inventoryID, used]) => {
       const piece = piecesSoFar[inventoryID]

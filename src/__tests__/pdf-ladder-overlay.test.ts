@@ -169,7 +169,11 @@ const setState = (
     isShowPdfLadderOverlay: options.isShowPdfLadderOverlay,
   })
 
-const renderPdfMap = (board: Board, isShowPdfOverlayLayer = true) =>
+const renderPdfMap = (
+  board: Board,
+  isShowPdfOverlayLayer = true,
+  isShowPdfLevelLogo = true,
+) =>
   PdfMapLevels6PerPage({
     boardHexes: board.boardHexes,
     boardPieces: board.boardPieces,
@@ -177,7 +181,7 @@ const renderPdfMap = (board: Board, isShowPdfOverlayLayer = true) =>
     isShowPdfOverlayLayer,
     isShowPdfOverlayOnPlacedLevel: false,
     isShowPdfGridLinesOverSublevels: true,
-    isShowPdfLevelLogo: true,
+    isShowPdfLevelLogo,
     isShowPdfTileLetters: false,
     isShowPdfBuriedMarks: false,
     buriedMarksByUID: {} as BuriedMarksByUID,
@@ -194,10 +198,18 @@ const pageLabels = (board: Board, isShowPdfOverlayLayer = true) =>
 // In document order, one entry per level cell: the heading text before the
 // level's SVG (a plain label only for overlay levels), the count texts drawn in
 // it and how many white-with-black-border overlay hexes it holds.
-const pageLevels = (board: Board) => {
-  const levels: { label: string; counts: string[]; overlayHexes: number }[] = []
+const pageLevels = (board: Board, isShowPdfLevelLogo = true) => {
+  const levels: {
+    label: string
+    counts: string[]
+    overlayHexes: number
+    voidMatPolygons: number
+  }[] = []
   let label = ''
-  for (const page of collect(renderPdfMap(board), 'PAGE')) {
+  for (const page of collect(
+    renderPdfMap(board, true, isShowPdfLevelLogo),
+    'PAGE',
+  )) {
     walk(page, (element) => {
       if (element.type === 'TEXT') {
         const text = textOf(element.props.children)
@@ -212,6 +224,9 @@ const pageLevels = (board: Board) => {
             polygon.props.fill === 'white' &&
             polygon.props.stroke === 'black' &&
             polygon.props.strokeWidth === PDF_BORDER_WIDTH,
+        ).length,
+        voidMatPolygons: collect(element, 'POLYGON').filter(
+          (polygon) => polygon.props.fill === '#19161b',
         ).length,
       })
       label = ''
@@ -232,6 +247,40 @@ afterEach(() => {
 })
 
 describe('PDF ladder overlay: no "x N" summary', () => {
+  it.each([Pieces.voidMat, Pieces.voidMarker])(
+    'adds a level-0 view for %s but not for a map without it',
+    (inventoryID) => {
+      const table = makeTable(6)
+      const floor = place({
+        board: table,
+        pieceID: 'g1',
+        at: table.center,
+        altitude: 0,
+        uid: 'floor',
+        permissive: true,
+      }).board
+      setState(floor, { isShowPdfLadderOverlay: false })
+      expect(
+        pageLevels(floor, false).some((level) => level.label === 'Level: 0'),
+      ).toBe(false)
+
+      const withVoidPiece = place({
+        board: floor,
+        pieceID: inventoryID,
+        at: table.center,
+        altitude: 0,
+        uid: 'void-piece',
+        permissive: true,
+      }).board
+      setState(withVoidPiece, { isShowPdfLadderOverlay: false })
+      const levelZero = pageLevels(withVoidPiece, false).find(
+        (level) => level.label === 'Level: 0',
+      )
+
+      expect(levelZero).toBeDefined()
+      expect(levelZero?.voidMatPolygons).toBeGreaterThan(0)
+    },
+  )
   const stackHex = (piece: BoardPiece): BoardHex => ({
     id: `${piece.altitude + 1}~${piece.pieceCoords.q}~${piece.pieceCoords.r}`,
     ...piece.pieceCoords,

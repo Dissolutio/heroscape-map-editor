@@ -14,7 +14,12 @@ import { addPiece } from '../data/addPiece'
 import { buildupJsonFileMap } from '../data/buildupMap'
 import { decideDrop, evaluateDragTarget } from '../data/dragMove'
 import { getGroupRotationBlockedReason } from '../data/evaluateGroupRotation'
-import { getPillarPorts } from '../data/laurPillarPorts'
+import {
+  getPillarPorts,
+  getPortAddon,
+  getPortAddonEnds,
+  isPortAddonPieceID,
+} from '../data/portPieces'
 import { piecesSoFar } from '../data/pieces'
 import { computeConflictedPieceUIDs } from '../data/rebuildBoardState'
 import {
@@ -92,8 +97,6 @@ type Fixture = {
   mapSize: number
 }
 
-const mod6 = (rotation: number) => ((rotation % 6) + 6) % 6
-
 function cubeDistance(a: CubeCoordinate, b: CubeCoordinate) {
   return (Math.abs(a.q - b.q) + Math.abs(a.r - b.r) + Math.abs(a.s - b.s)) / 2
 }
@@ -167,48 +170,38 @@ function candidateCaps(board: Board, origin: CubeCoordinate) {
     .sort((a, b) => cubeDistance(a, origin) - cubeDistance(b, origin))
 }
 
+// The far pillars an add-on needs besides the one it was placed on (port
+// data in data/portPieces.ts).
 function requiredAddonSupports(
   pieceID: string,
   anchor: CubeCoordinate,
   rotation: number,
 ) {
-  if (
-    pieceID === Pieces.laurWallShort ||
-    pieceID === Pieces.laurWallShortStackable
-  ) {
-    return [
-      {
-        coords: hexUtilsAdd(anchor, HEX_DIRECTIONS[mod6(rotation)]),
-        port: mod6(rotation + 3),
-      },
-    ]
-  }
-  if (
-    pieceID === Pieces.laurWallLong ||
-    pieceID === Pieces.laurWallLongStackable ||
-    pieceID === Pieces.laurWallArch
-  ) {
-    const direction = Math.floor(mod6(rotation))
-    return [
-      {
-        coords: hexUtilsAdd(
-          hexUtilsAdd(anchor, HEX_DIRECTIONS[direction]),
-          HEX_DIRECTIONS[(direction + 1) % 6],
-        ),
-        port: mod6(rotation + 3),
-      },
-    ]
-  }
-  return []
+  return (
+    getPortAddonEnds({
+      inventoryID: pieceID,
+      pieceCoords: anchor,
+      rotation,
+    }) ?? []
+  )
+    .slice(1)
+    .map((end) => ({ coords: end.coords, port: end.rotation }))
 }
 
-function pillarRotationForPort(port: number) {
+// The pillar each add-on family clips into: a square Laur pillar, or a
+// Two-Way Pylon for Void and Pylons.
+function pillarIDFor(addonID: string) {
+  return getPortAddon(addonID)?.family === 'void'
+    ? Pieces.twoWayPylon
+    : Pieces.laurWallSquarePillar
+}
+
+function pillarRotationForPort(port: number, pillarID: string) {
   const rotation = Array.from({ length: 6 }, (_, index) => index).find(
-    (candidate) =>
-      getPillarPorts(Pieces.laurWallSquarePillar, candidate).includes(port),
+    (candidate) => getPillarPorts(pillarID, candidate).includes(port),
   )
   if (rotation === undefined) {
-    throw new Error(`No square pillar rotation supports port ${port}`)
+    throw new Error(`No ${pillarID} rotation supports port ${port}`)
   }
   return rotation
 }
@@ -218,10 +211,11 @@ function placePillar(
   uid: string,
   coords: CubeCoordinate,
   rotation: number,
+  pillarID: string = Pieces.laurWallSquarePillar,
 ) {
   const placed = place({
     board,
-    pieceID: Pieces.laurWallSquarePillar,
+    pieceID: pillarID,
     at: coords,
     altitude: 0,
     rotation,
@@ -232,34 +226,37 @@ function placePillar(
 }
 
 function makeFixture(piece: Piece): Fixture {
+  const isPortAddon = isPortAddonPieceID(piece.id)
+  const pillarID = pillarIDFor(piece.id)
   const mapSize =
-    piece.size >= 24
+    piece.size >= 14
       ? 15
-      : piece.size >= 8 || piece.terrain === HexTerrain.laurWallAddon
+      : piece.size >= 8 || isPortAddon
         ? 10
         : piece.size >= 4
           ? 9
           : 8
-  const blankTable =
-    piece.terrain === HexTerrain.laurWallAddon
-      ? makeTable(mapSize)
-      : mapSize === 8
-        ? FLOOR_8
-        : mapSize === 9
-          ? FLOOR_9
-          : mapSize === 10
-            ? FLOOR_10
-            : FLOOR_15
+  // Port add-ons stand on pillars. A Void Mat lies under the grass floor, on
+  // the table, which the floor does not touch.
+  const blankTable = isPortAddon
+    ? makeTable(mapSize)
+    : mapSize === 8
+      ? FLOOR_8
+      : mapSize === 9
+        ? FLOOR_9
+        : mapSize === 10
+          ? FLOOR_10
+          : FLOOR_15
   let board: Board = cloneBoard(blankTable)
   const sourceCoords = blankTable.center
   const rotation = getPossibleRotationsForPenMode(piece.id)[0] ?? 0
   let pointerHex: BoardHex | undefined
   let targetAddonHex: BoardHex | undefined
 
-  if (piece.terrain === HexTerrain.laurWallAddon) {
+  if (isPortAddon) {
     // Add-ons are boardPieces-only; the shared placement helper supplies the
     // same partial pillar hit used by the real click handler.
-    board = placePillar(board, 'source-pillar', sourceCoords, 2)
+    board = placePillar(board, 'source-pillar', sourceCoords, 2, pillarID)
     pointerHex = pillarPartialHex(board, 'source-pillar')
 
     const sourceResolution = requireResolution(
@@ -275,7 +272,8 @@ function makeFixture(piece: Piece): Fixture {
         board,
         `source-support-${index}`,
         support.coords,
-        pillarRotationForPort(support.port),
+        pillarRotationForPort(support.port, pillarID),
+        pillarID,
       )
     }
 
@@ -286,7 +284,7 @@ function makeFixture(piece: Piece): Fixture {
         (a, b) => cubeDistance(a, sourceCoords) - cubeDistance(b, sourceCoords),
       )[0]
     if (!targetCoords) throw new Error('Missing destination for Laur add-on')
-    board = placePillar(board, 'target-pillar', targetCoords, 2)
+    board = placePillar(board, 'target-pillar', targetCoords, 2, pillarID)
     const targetPillarHex = pillarPartialHex(board, 'target-pillar')
     const targetResolution = requireResolution(
       resolvePlacement(piece, targetPillarHex, rotation, board),
@@ -301,7 +299,8 @@ function makeFixture(piece: Piece): Fixture {
         board,
         `target-support-${index}`,
         support.coords,
-        pillarRotationForPort(support.port),
+        pillarRotationForPort(support.port, pillarID),
+        pillarID,
       )
     }
     targetAddonHex = pillarPartialHex(board, 'target-pillar')
@@ -342,7 +341,7 @@ function fixtureFor(pieceID: string) {
 
 function findDragTarget(fixture: Fixture) {
   const { piece, subject, pointerHex } = fixture
-  if (piece.terrain === HexTerrain.laurWallAddon) {
+  if (isPortAddonPieceID(piece.id)) {
     const target = evaluateDragTarget(
       fixture.pieceBoard,
       piece,

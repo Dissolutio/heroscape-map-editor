@@ -1,15 +1,19 @@
 import { Instance, Instances } from '@react-three/drei'
 import type { ThreeEvent } from '@react-three/fiber'
 import React from 'react'
+import { findVoidMatAtTableHex } from '../../../data/voidMat'
 import usePieceHoverState from '../../../hooks/usePieceHoverState'
 import useBoundStore from '../../../store/store'
-import { HexTerrain } from '../../../types'
+import { type BoardHex, HexTerrain } from '../../../types'
 import {
   HEXGRID_EMPTYHEX_HEIGHT,
   INSTANCE_LIMIT,
 } from '../../../utils/constants'
 import { getBoardHex3DCoords } from '../../../utils/map-utils'
-import { reportDragTargetHex } from '../../drag/dragController'
+import {
+  pressPieceForDrag,
+  reportDragTargetHex,
+} from '../../drag/dragController'
 import { hexTerrainColor } from '../hexColors'
 import type {
   BoardHexPieceProps,
@@ -34,35 +38,37 @@ const EmptyHexes = ({
   onPointerUp,
   onClick,
 }: DreiCapProps & {
-  onClick: (event: ThreeEvent<MouseEvent>) => void
+  onClick: (event: ThreeEvent<MouseEvent>, boardHex: BoardHex) => void
 }) => {
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,
   )
   if (boardHexArr.length === 0) return null
   return (
-    <Instances
-      range={boardHexArr.length}
-      limit={INSTANCE_LIMIT}
-      frustumCulled={false} // BUG: otherwise they disappear from view at unexpected angless
-      receiveShadow={isLightsAndShadowsRender}
-    >
-      <cylinderGeometry args={baseEmptyCapCylinderArgs} />
-      {isLightsAndShadowsRender ? (
-        <meshStandardMaterial transparent opacity={0.5} />
-      ) : (
-        <meshLambertMaterial transparent opacity={0.5} />
-      )}
-      {boardHexArr.map((hex, i) => (
-        <EmptyHex
-          key={`${hex.id + i}empty`}
-          boardHex={hex}
-          onPointerUp={onPointerUp}
-          onClick={onClick}
-          isLightsAndShadowsRender={isLightsAndShadowsRender}
-        />
-      ))}
-    </Instances>
+    <group userData={{ voidMatDragTable: true }}>
+      <Instances
+        range={boardHexArr.length}
+        limit={INSTANCE_LIMIT}
+        frustumCulled={false} // BUG: otherwise they disappear from view at unexpected angless
+        receiveShadow={isLightsAndShadowsRender}
+      >
+        <cylinderGeometry args={baseEmptyCapCylinderArgs} />
+        {isLightsAndShadowsRender ? (
+          <meshStandardMaterial transparent opacity={0.5} />
+        ) : (
+          <meshLambertMaterial transparent opacity={0.5} />
+        )}
+        {boardHexArr.map((hex, i) => (
+          <EmptyHex
+            key={`${hex.id + i}empty`}
+            boardHex={hex}
+            onPointerUp={onPointerUp}
+            onClick={onClick}
+            isLightsAndShadowsRender={isLightsAndShadowsRender}
+          />
+        ))}
+      </Instances>
+    </group>
   )
 }
 
@@ -74,12 +80,17 @@ function EmptyHex({
   onClick,
   isLightsAndShadowsRender,
 }: BoardHexPieceProps & {
-  onClick: (event: ThreeEvent<MouseEvent>) => void
+  onClick: (event: ThreeEvent<MouseEvent>, boardHex: BoardHex) => void
   isLightsAndShadowsRender: boolean
 }) {
   // biome-ignore lint/suspicious/noExplicitAny: <Type too weird>
   const ref = React.useRef<any>(null)
-  const { onPointerEnter, onPointerOut, onPointerMove } = usePieceHoverState()
+  const { onPointerEnter, onPointerEnterPID, onPointerOut, onPointerMove } =
+    usePieceHoverState()
+  const voidMatAtHex = () => {
+    const { boardPieces, boardHexes } = useBoundStore.getState()
+    return findVoidMatAtTableHex(boardPieces, boardHexes, boardHex)
+  }
 
   // Effect: Initial color/position
   React.useLayoutEffect(() => {
@@ -93,12 +104,20 @@ function EmptyHex({
 
   const handleEnter = (e: ThreeEvent<PointerEvent>) => {
     e.stopPropagation() // prevent this hover from passing through and affecting behind
-    onPointerEnter(e, boardHex)
+    const mat = voidMatAtHex()
+    if (mat) {
+      onPointerEnterPID(e, mat.uid)
+    } else {
+      onPointerEnter(e, boardHex)
+    }
     ref?.current?.color?.set?.('yellow')
   }
   const handleOut = (e: ThreeEvent<PointerEvent>) => {
     if (ref.current) {
       ref.current?.color?.set?.(emptyHexColor)
+    }
+    if (voidMatAtHex()) {
+      useBoundStore.getState().toggleHoveredPieceID('')
     }
     onPointerOut(e)
   }
@@ -109,8 +128,12 @@ function EmptyHex({
   return (
     <Instance
       ref={ref}
+      onPointerDown={(e: ThreeEvent<PointerEvent>) => {
+        const mat = voidMatAtHex()
+        if (mat) pressPieceForDrag(e, mat.uid)
+      }}
       onPointerUp={handleUp}
-      onClick={onClick}
+      onClick={(e: ThreeEvent<MouseEvent>) => onClick(e, boardHex)}
       onPointerEnter={handleEnter}
       onPointerOut={handleOut}
       onPointerMove={(e: ThreeEvent<PointerEvent>) => {

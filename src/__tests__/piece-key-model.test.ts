@@ -232,6 +232,32 @@ describe('piece key model', () => {
     }
   })
 
+  it('groups each Void and Pylons piece together exactly once', () => {
+    const inventoryIDs = [
+      Pieces.voidMat,
+      Pieces.twoWayPylon,
+      Pieces.threeWayPylon,
+      Pieces.deflectorShield,
+    ]
+    const model = getPieceKeyModel(
+      inventoryIDs.map((inventoryID, index) => makePiece(inventoryID, index)),
+      {},
+      true,
+    )
+    const group = model.specialGroups.find(({ id }) => id === 'void-and-pylons')
+    const allIDs = model.specialGroups.flatMap(({ entries }) =>
+      entries.map(({ inventoryID }) => inventoryID),
+    )
+
+    expect(group?.title).toBe('Void and Pylons')
+    expect(group?.entries.map(({ inventoryID }) => inventoryID).sort()).toEqual(
+      [...inventoryIDs].sort(),
+    )
+    expect(
+      allIDs.filter((inventoryID) => inventoryIDs.includes(inventoryID)),
+    ).toHaveLength(4)
+  })
+
   it('labels Toxic terrain as Toxic Land', () => {
     const model = getPieceKeyModel([makePiece(Pieces.toxic1, 0)], {}, true)
 

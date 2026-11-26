@@ -63,6 +63,7 @@ import {
 } from '../data/glyphs'
 import { OBJECTIVE_MARKER_PEN_MODE } from '../data/objectiveMarkers'
 import { piecesSoFar } from '../data/pieces'
+import { isPieceOfferedForVC } from '../data/vcContent'
 import useBoundStore from '../store/store'
 import {
   HexTerrain,
@@ -161,6 +162,7 @@ export default function PenModeControls() {
     (state) => state.customConstraintInventoryFileName,
   )
   const userPieceInventory = useBoundStore((state) => state.userPieceInventory)
+  const includeVCContent = useBoundStore((state) => state.includeVCContent)
   const togglePenMode = useBoundStore((state) => state.togglePenMode)
   const toggleIsEditMapDialogOpen = useBoundStore(
     (state) => state.toggleIsEditMapDialogOpen,
@@ -267,6 +269,14 @@ export default function PenModeControls() {
     return availableLandPrefixes.has(prefix)
   }
   const shouldShowMenuValue = (value: unknown) => {
+    // Community custom (VC) pieces only with Include VC unit/terrain data on
+    if (
+      typeof value === 'string' &&
+      value !== penMode &&
+      !isPieceOfferedForVC(value, includeVCContent)
+    ) {
+      return false
+    }
     if (!hasSetConstraints) {
       return true
     }
@@ -583,6 +593,38 @@ export default function PenModeControls() {
             <span>{piecesSoFar[Pieces.laurWallArch].title}</span>
           </MenuItem>
           <Divider />
+
+          {/* VOID AND PYLONS (community custom, VC) */}
+          {includeVCContent && [
+            <MenuItem key={Pieces.voidMat} value={Pieces.voidMat}>
+              <ListItemIcon>
+                <TbHexagons color={hexTerrainColor.voidMat} />
+              </ListItemIcon>
+              <span>{piecesSoFar[Pieces.voidMat].title}</span>
+            </MenuItem>,
+            <MenuItem key={Pieces.twoWayPylon} value={Pieces.twoWayPylon}>
+              <ListItemIcon>
+                <GiWhiteTower color={hexTerrainColor.voidPylon} />
+              </ListItemIcon>
+              <span>{piecesSoFar[Pieces.twoWayPylon].title}</span>
+            </MenuItem>,
+            <MenuItem key={Pieces.threeWayPylon} value={Pieces.threeWayPylon}>
+              <ListItemIcon>
+                <GiWhiteTower color={hexTerrainColor.voidPylon} />
+              </ListItemIcon>
+              <span>{piecesSoFar[Pieces.threeWayPylon].title}</span>
+            </MenuItem>,
+            <MenuItem
+              key={Pieces.deflectorShield}
+              value={Pieces.deflectorShield}
+            >
+              <ListItemIcon>
+                <GiCrenulatedShield color={hexTerrainColor.deflectorShield} />
+              </ListItemIcon>
+              <span>{piecesSoFar[Pieces.deflectorShield].title}</span>
+            </MenuItem>,
+            <Divider key="void-and-pylons-divider" />,
+          ]}
 
           {/* RUINS */}
           <MenuItem value={Pieces.ruins2}>

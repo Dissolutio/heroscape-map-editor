@@ -1,6 +1,7 @@
 import { Line, Svg } from '@react-pdf/renderer'
 import { piecesSoFar } from '../data/pieces'
 import { getBoardPieceOriginHexes } from '../pdf-svg-shared/boardPieceOriginHexes'
+import { isVoidMatPieceID } from '../data/voidMat'
 import type { ObjectiveMarker } from '../data/objectiveMarkers'
 import { getPdfVisibleObjectiveMarkers } from '../pdf-svg-shared/objectiveMarkerExport'
 import type { BoardHex, DecodedPieceID, PdfMapAltitudeChunk } from '../types'
@@ -10,6 +11,7 @@ import { PdfObjectiveMarkerOverlay } from './PdfObjectiveMarkers'
 import { PdfLadderOverlayStack } from './PdfLadderOverlay'
 import { PdfMapBoardPiece } from './PdfMapBoardPiece'
 import { PdfMapHex } from './PdfMapHex'
+import { PdfVoidMatSymbol } from './PdfVoidAndPylons'
 
 type ReactPdfSvgMapDisplayProps = {
   width: number
@@ -139,21 +141,44 @@ export const ReactPdfSvgMapDisplay = ({
       useLegacyStartZones={useLegacyStartZones}
     />
   ))
+  const visibleVoidMatPieces = boardPiecesArr.filter(
+    (piece) =>
+      isVoidMatPieceID(piece.inventoryID) && piece.altitude <= viewingLevel,
+  )
+  const visibleVoidMatSymbols = visibleVoidMatPieces.map((piece) => (
+    <PdfVoidMatSymbol
+      key={`void-mat-${piece.boardPieceID}`}
+      piece={piece}
+      isSubLevel={piece.altitude < viewingLevel}
+    />
+  ))
   return (
     <Svg viewBox={viewBoxStr}>
       {/* <PdfSvgXYHelperLines length={length} width={width} /> */}
-      {/* rendering the empty hexes AFTER the sublevel hexes/pieces renders grid-lines over the sublevels */}
-      {isShowGridLinesOverSublevels ? (
+      {visibleVoidMatPieces.length > 0 ? (
         <>
+          {emptyHexesEls}
+          {visibleVoidMatSymbols}
           {subLevelHexesEls}
           {subLevelPiecesEls}
-          {emptyHexesEls}
         </>
       ) : (
         <>
-          {emptyHexesEls}
-          {subLevelHexesEls}
-          {subLevelPiecesEls}
+          {visibleVoidMatSymbols}
+          {/* rendering the empty hexes AFTER the sublevel hexes/pieces renders grid-lines over the sublevels */}
+          {isShowGridLinesOverSublevels ? (
+            <>
+              {subLevelHexesEls}
+              {subLevelPiecesEls}
+              {emptyHexesEls}
+            </>
+          ) : (
+            <>
+              {emptyHexesEls}
+              {subLevelHexesEls}
+              {subLevelPiecesEls}
+            </>
+          )}
         </>
       )}
       {renderHexes

@@ -22,7 +22,10 @@ import { useSnackbar } from 'notistack'
 import useBoundStore from '../store/store'
 import { FcExpand } from 'react-icons/fc'
 import { countStringInArrayLoop, getSetsUsedText } from '../utils/map-utils'
-import { getTerrainSetsForEra } from '../utils/terrain-set-utils.ts'
+import {
+  getTerrainSetsForEra,
+  type TerrainSet,
+} from '../utils/terrain-set-utils.ts'
 import type { TerrainConstraintSource } from '../types'
 import { parsePieceInventoryFile } from '../utils/piece-inventory'
 
@@ -53,13 +56,18 @@ export function InputSetsUsedCard({ isCreateNewMap }: Props) {
   const { enqueueSnackbar } = useSnackbar()
   // Reuse the shared terrain set ordering so this dialog stays in sync with
   // the inventory screen.
+  const includeVCContent = useBoundStore((state) => state.includeVCContent)
   const contemporaryTerrainSets = React.useMemo(
-    () => getTerrainSetsForEra('contemporary'),
-    [],
+    () => getTerrainSetsForEra('contemporary', includeVCContent),
+    [includeVCContent],
   )
   const classicTerrainSets = React.useMemo(
-    () => getTerrainSetsForEra('classic'),
-    [],
+    () => getTerrainSetsForEra('classic', includeVCContent),
+    [includeVCContent],
+  )
+  const communityTerrainSets = React.useMemo(
+    () => getTerrainSetsForEra('community', includeVCContent),
+    [includeVCContent],
   )
   const toggleIsSetsUsedOpen = () => {
     setIsSetUsedOpen(!isSetUsedOpen)
@@ -110,7 +118,31 @@ export function InputSetsUsedCard({ isCreateNewMap }: Props) {
     event.target.value = ''
   }
 
-  const officialSetSourceActive = terrainConstraintSource === 'setsUsed'
+  const setSourceActive = terrainConstraintSource === 'setsUsed'
+  const renderTerrainSetInput = (set: TerrainSet) => (
+    <TextField
+      key={set.id}
+      variant="outlined"
+      margin="dense"
+      defaultValue={
+        isCreateNewMap ? 0 : countStringInArrayLoop(setsUsed, set.id)
+      }
+      slotProps={{
+        htmlInput: { min: 0 },
+      }}
+      color={
+        !isCreateNewMap && countStringInArrayLoop(setsUsed, set.id) > 0
+          ? 'success'
+          : undefined
+      }
+      focused
+      disabled={!setSourceActive}
+      name={`${setsUsedInputNameForFormData}${set.id}`}
+      label={`${set.name} - ${set.setType}`}
+      title={`${set.name} - ${set.setType}`}
+      type="number"
+    />
+  )
   const constraintSummaryText =
     terrainConstraintSource === 'personalInventory'
       ? 'Personal inventory constraints active'
@@ -176,7 +208,7 @@ export function InputSetsUsedCard({ isCreateNewMap }: Props) {
               <FormControlLabel
                 value="setsUsed"
                 control={<Radio />}
-                label="Use official terrain sets"
+                label="Use terrain sets"
               />
               <FormControlLabel
                 value="personalInventory"
@@ -194,7 +226,7 @@ export function InputSetsUsedCard({ isCreateNewMap }: Props) {
           {terrainConstraintSource === 'personalInventory' && (
             <Alert severity="info" sx={{ mt: 1 }}>
               Terrain limits will follow your saved personal inventory and will
-              not be added to the map&apos;s official set list.
+              not be added to the map&apos;s terrain set list.
             </Alert>
           )}
 
@@ -223,68 +255,30 @@ export function InputSetsUsedCard({ isCreateNewMap }: Props) {
               </Alert>
             )}
 
-          {!officialSetSourceActive && (
+          {!setSourceActive && (
             <Alert severity="info" sx={{ mt: 2 }}>
-              Official terrain set counts are ignored while inventory-based
-              constraints are active.
+              Terrain set counts are ignored while inventory-based constraints
+              are active.
             </Alert>
           )}
 
           <Typography variant="subtitle2" sx={{ mt: 1 }}>
             Contemporary
           </Typography>
-          {contemporaryTerrainSets.map((set) => (
-            <TextField
-              key={set.id}
-              variant="outlined"
-              margin="dense"
-              defaultValue={
-                isCreateNewMap ? 0 : countStringInArrayLoop(setsUsed, set.id)
-              }
-              slotProps={{
-                htmlInput: { min: 0 },
-              }}
-              color={
-                !isCreateNewMap && countStringInArrayLoop(setsUsed, set.id) > 0
-                  ? 'success'
-                  : undefined
-              }
-              focused
-              disabled={!officialSetSourceActive}
-              name={`${setsUsedInputNameForFormData}${set.id}`}
-              label={`${set.name} - ${set.setType}`}
-              title={`${set.name} - ${set.setType}`}
-              type="number"
-            />
-          ))}
+          {contemporaryTerrainSets.map(renderTerrainSetInput)}
 
           <Typography variant="subtitle2" sx={{ mt: 2 }}>
             Classic
           </Typography>
-          {classicTerrainSets.map((set) => (
-            <TextField
-              key={set.id}
-              variant="outlined"
-              margin="dense"
-              defaultValue={
-                isCreateNewMap ? 0 : countStringInArrayLoop(setsUsed, set.id)
-              }
-              slotProps={{
-                htmlInput: { min: 0 },
-              }}
-              color={
-                !isCreateNewMap && countStringInArrayLoop(setsUsed, set.id) > 0
-                  ? 'success'
-                  : undefined
-              }
-              focused
-              disabled={!officialSetSourceActive}
-              name={`${setsUsedInputNameForFormData}${set.id}`}
-              label={`${set.name} - ${set.setType}`}
-              title={`${set.name} - ${set.setType}`}
-              type="number"
-            />
-          ))}
+          {classicTerrainSets.map(renderTerrainSetInput)}
+          {includeVCContent && (
+            <>
+              <Typography variant="subtitle2" sx={{ mt: 2 }}>
+                Community
+              </Typography>
+              {communityTerrainSets.map(renderTerrainSetInput)}
+            </>
+          )}
         </Collapse>
       </CardContent>
       <CardActions disableSpacing>

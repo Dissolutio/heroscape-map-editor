@@ -2,16 +2,17 @@ import type { BoardHex, Piece } from '../types'
 import { Pieces } from '../types'
 import { evaluateLaurAddonConflicts } from './laurAddonConflicts'
 import { isLaurAddonSupported } from './laurAddonSupport'
-import { isLaurWallAddonPieceID } from '../utils/board-utils'
+import { getPortAddon, isPortAddonPieceID } from './portPieces'
 import {
   evaluateShipWallSupport,
   getShipWallSupportReasons,
 } from './shipWallSupport'
 import {
   type PlacementEvaluation,
+  type ResolvedPlacement,
   type PlacementResolution,
-  evaluatePlacement,
-  resolvePlacement,
+  evaluatePlacementPlan,
+  resolvePlacementPlan,
 } from './placement'
 import type { PlacementBoard } from './placement'
 
@@ -19,6 +20,7 @@ export type PlacementPreviewState = {
   resolution: PlacementResolution
   evaluation: PlacementEvaluation
   unsupported: boolean
+  automaticBases?: ResolvedPlacement[]
 }
 
 export function getPlacementPreviewState(
@@ -28,13 +30,14 @@ export function getPlacementPreviewState(
   board: PlacementBoard,
   worldPoint?: { x: number; z: number },
 ): PlacementPreviewState {
-  const resolution = resolvePlacement(piece, pointerHex, rotation, board, {
+  const plan = resolvePlacementPlan(piece, pointerHex, rotation, board, {
     deferOffMapCheck: true,
     worldPoint,
   })
-  const evaluation = evaluatePlacement(board, resolution)
+  const { resolution } = plan
+  const evaluation = evaluatePlacementPlan(board, plan)
   let unsupported = false
-  if (isLaurWallAddonPieceID(piece.id) && !('blocked' in resolution)) {
+  if (isPortAddonPieceID(piece.id) && !('blocked' in resolution)) {
     const previewPiece = {
       uid: 'placement-preview-laur-addon',
       inventoryID: piece.id,
@@ -52,7 +55,10 @@ export function getPlacementPreviewState(
       evaluation.reason = 'Conflicts with a Laur add-on'
     }
     if (unsupported) {
-      const supportReason = 'Missing required Laur pillar ports'
+      const supportReason =
+        getPortAddon(piece.id)?.family === 'void'
+          ? 'Missing required pylon ports'
+          : 'Missing required Laur pillar ports'
       evaluation.reason = evaluation.reason
         ? `${evaluation.reason}; ${supportReason}`
         : supportReason
@@ -81,5 +87,6 @@ export function getPlacementPreviewState(
     resolution,
     evaluation,
     unsupported,
+    ...(plan.automaticBases ? { automaticBases: plan.automaticBases } : {}),
   }
 }

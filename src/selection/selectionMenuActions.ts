@@ -1,3 +1,4 @@
+import { getPortAddonEnds, isPortAddonPieceID } from '../data/portPieces'
 import {
   getPieceEdgeId,
   getPieceFeatureIds,
@@ -30,9 +31,13 @@ const connectionCategoryRules: readonly [
     (terrain) => isSolidTerrainHex(terrain) || isFluidTerrainHex(terrain),
   ],
   [
+    // Port pillars and their add-ons: Laur, and Void and Pylons
     'laur',
     (terrain) =>
-      terrain === HexTerrain.laurWall || terrain === HexTerrain.laurWallAddon,
+      terrain === HexTerrain.laurWall ||
+      terrain === HexTerrain.laurWallAddon ||
+      terrain === HexTerrain.voidPylon ||
+      terrain === HexTerrain.deflectorShield,
   ],
   [
     'edge-piece',
@@ -359,13 +364,20 @@ function buildPieceNeighbors(
   for (const piece of visiblePieces) {
     const category = categories.get(piece.uid)
     if (category !== 'laur' && category !== 'edge-piece') continue
+    const features = getPieceFeatureIds({
+      ...piece,
+      pieceID: piece.inventoryID,
+    })
     const featureIds =
       category === 'edge-piece' && piece.inventoryID === Pieces.ladder
         ? [getConnectionEdgeId(piece)]
-        : (getPieceFeatureIds({
-            ...piece,
-            pieceID: piece.inventoryID,
-          })?.featureIds ?? [])
+        : // An add-on with no hex footprint (the Deflector Shield) connects
+          // through the ports at both of its ends.
+          features &&
+            !features.footprint &&
+            isPortAddonPieceID(piece.inventoryID)
+          ? (getPortAddonEnds(piece) ?? []).map((end) => end.featureId)
+          : (features?.featureIds ?? [])
     for (const featureId of featureIds) {
       if (!featureId) continue
       const attached = piecesWithFeatures.get(featureId)

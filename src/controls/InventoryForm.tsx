@@ -14,6 +14,8 @@ import {
 import { useSnackbar } from 'notistack'
 import { unparse } from 'papaparse'
 import { piecesSoFar } from '../data/pieces'
+import { isPieceOfferedForVC } from '../data/vcContent'
+import useBoundStore from '../store/store'
 import { blankPieceInventory } from '../inventory/blankInventory'
 import { useLocalPieceInventory } from '../local-storage/useLocalPieceInventory'
 import {
@@ -53,12 +55,15 @@ const InventoryForm = () => {
     {},
   )
 
+  const includeVCContent = useBoundStore((state) => state.includeVCContent)
+  // VC pieces are listed only with Include VC unit/terrain data on; their
+  // counts stay in the inventory either way.
   const inventoryPieceIDs = useMemo(
     () =>
-      Object.keys(blankPieceInventory).sort((a, b) =>
-        getPieceTitle(a).localeCompare(getPieceTitle(b)),
-      ),
-    [],
+      Object.keys(blankPieceInventory)
+        .filter((pieceID) => isPieceOfferedForVC(pieceID, includeVCContent))
+        .sort((a, b) => getPieceTitle(a).localeCompare(getPieceTitle(b))),
+    [includeVCContent],
   )
 
   const pieceRows = inventoryPieceIDs.map((pieceID) => ({
@@ -79,11 +84,18 @@ const InventoryForm = () => {
 
   // Group the terrain set buttons by era while keeping the shared type/date ordering.
   const contemporaryTerrainSets = useMemo(
-    () => getTerrainSetsForEra('contemporary'),
-    [],
+    () => getTerrainSetsForEra('contemporary', includeVCContent),
+    [includeVCContent],
   )
 
-  const classicTerrainSets = useMemo(() => getTerrainSetsForEra('classic'), [])
+  const classicTerrainSets = useMemo(
+    () => getTerrainSetsForEra('classic', includeVCContent),
+    [includeVCContent],
+  )
+  const communityTerrainSets = useMemo(
+    () => getTerrainSetsForEra('community', includeVCContent),
+    [includeVCContent],
+  )
 
   // Convert a set inventory into readable tooltip lines so users can inspect
   // exactly what will be added or removed before clicking a button.
@@ -411,6 +423,17 @@ const InventoryForm = () => {
         <Box sx={twoColumnGridSx}>
           {classicTerrainSets.map(renderTerrainSetCard)}
         </Box>
+
+        {includeVCContent && (
+          <>
+            <Typography variant="subtitle2" color="text.secondary">
+              Community
+            </Typography>
+            <Box sx={twoColumnGridSx}>
+              {communityTerrainSets.map(renderTerrainSetCard)}
+            </Box>
+          </>
+        )}
 
         <Divider />
 

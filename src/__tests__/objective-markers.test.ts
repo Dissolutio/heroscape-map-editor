@@ -856,6 +856,52 @@ describe('objective marker store actions', () => {
     )
   })
 
+  it('uses a selected marker as the pen without changing its selection', () => {
+    const numberUID = store.getState().addObjectiveMarker(
+      marker('', 0, 0, {
+        size: 2,
+        rotation: 4,
+        style: 'white',
+        content: { kind: 'number', value: 7 },
+        name: 'Elite',
+      }),
+    )
+    if (!numberUID) throw new Error('Expected the number marker to be added')
+    store.getState().setSelectedObjectiveMarkerUID(numberUID)
+
+    store.getState().pickObjectiveMarkerAsPen(numberUID)
+
+    expect(store.getState().penMode).toBe('objectiveMarker')
+    expect(store.getState().objectiveMarkerDraft).toMatchObject({
+      size: 2,
+      style: 'white',
+      content: { kind: 'number', value: 7 },
+      name: 'Elite',
+      pinNumber: false,
+      pickedNumberOnce: true,
+    })
+    expect(store.getState().penModeRotation).toBe(4)
+    expect(store.getState().selectedObjectiveMarkerUID).toBe(numberUID)
+
+    const textUID = store.getState().addObjectiveMarker(
+      marker('text-marker', 2, 0, {
+        style: 'black',
+        content: { kind: 'text', value: 'A2' },
+      }),
+    )
+    if (!textUID) throw new Error('Expected the text marker to be added')
+    store.getState().setSelectedObjectiveMarkerUID(textUID)
+
+    store.getState().pickObjectiveMarkerAsPen(textUID)
+
+    expect(store.getState().objectiveMarkerDraft).toMatchObject({
+      style: 'black',
+      content: { kind: 'text', value: 'A2' },
+      pickedNumberOnce: false,
+    })
+    expect(store.getState().selectedObjectiveMarkerUID).toBe(textUID)
+  })
+
   it('refuses additions and moves that overlap another marker', () => {
     const addMarker = store.getState().addObjectiveMarker
     const firstUID = addMarker(marker('', 0, 0, { size: 2 }))

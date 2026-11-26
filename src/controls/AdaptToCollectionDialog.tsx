@@ -25,6 +25,7 @@ import { useSnackbar } from 'notistack'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { MdInfoOutline } from 'react-icons/md'
 import { piecesSoFar } from '../data/pieces'
+import { isPieceOfferedForVC } from '../data/vcContent'
 import { MapAuthorNotesFields } from '../layout/MapAuthorNotesFields'
 import { MapNameField } from '../layout/MapNameField'
 import useBoundStore from '../store/store'
@@ -110,9 +111,16 @@ export function AdaptToCollectionDialog({
     () => getMissingLandTerrains(analysis, supply),
     [analysis, supply],
   )
+  const includeVCContent = useBoundStore((state) => state.includeVCContent)
+  // Community custom (VC) pylons are offered only with Include VC on
   const obstacleRows = useMemo(
-    () => getMissingObstacles(boardPieces, userPieceInventory),
-    [boardPieces, userPieceInventory],
+    () =>
+      getMissingObstacles(
+        boardPieces,
+        userPieceInventory,
+        hexMap.setsUsed ?? [],
+      ).filter((row) => isPieceOfferedForVC(row.inventoryID, includeVCContent)),
+    [boardPieces, hexMap.setsUsed, includeVCContent, userPieceInventory],
   )
   const obstacleOptionsByID = useMemo(
     () =>
@@ -173,6 +181,7 @@ export function AdaptToCollectionDialog({
       buildCollectionAdaptationPlan({
         boardHexes,
         boardPieces,
+        setsUsed: hexMap.setsUsed ?? [],
         supply,
         choices,
         buriedFillByKind,
@@ -181,6 +190,7 @@ export function AdaptToCollectionDialog({
     [
       boardHexes,
       boardPieces,
+      hexMap.setsUsed,
       supply,
       choices,
       buriedFillByKind,
@@ -285,6 +295,7 @@ export function AdaptToCollectionDialog({
       quantityShortfalls: getRemainingLandShortfalls(
         current.boardPieces,
         current.userPieceInventory,
+        current.hexMap.setsUsed ?? [],
       ),
       unconvertedPieces: plan.unconvertedPieces,
       unconvertedObstacles: plan.unconvertedObstacles,

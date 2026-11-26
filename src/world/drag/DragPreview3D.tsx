@@ -1,5 +1,6 @@
 import type { DragPreviewMember } from '../../data/dragMove'
 import { piecesSoFar } from '../../data/pieces'
+import { isPortAddonPieceID } from '../../data/portPieces'
 import useBoundStore from '../../store/store'
 import type { BoardPiece } from '../../types'
 import { HexTerrain } from '../../types'
@@ -62,7 +63,7 @@ export function DragPreview3D() {
           )
         }
         return (
-          <group key={member.uid}>
+          <group key={member.uid} userData={{ voidMatDragPreview: true }}>
             <PlacementFootprint
               status={member.status}
               unsupported={member.unsupported}
@@ -76,7 +77,8 @@ export function DragPreview3D() {
             />
             {showGhost && isLand && landGhost()}
             {showGhost &&
-              piece?.terrain === HexTerrain.laurWallAddon &&
+              piece &&
+              isPortAddonPieceID(piece.id) &&
               member.previewBp && (
                 <LaurAddonPreview
                   piece={piece}
@@ -89,7 +91,7 @@ export function DragPreview3D() {
               )}
             {showGhost &&
               !isLand &&
-              piece?.terrain !== HexTerrain.laurWallAddon &&
+              !(piece && isPortAddonPieceID(piece.id)) &&
               originalBp &&
               member.previewBp && (
                 <OperationPiecePreviewItem

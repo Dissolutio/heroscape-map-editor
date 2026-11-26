@@ -40,6 +40,7 @@ export const pieceCodes: Dictionary<string> = {
 
   '21001': Pieces.concrete1,
   '21002': Pieces.concrete2,
+  '21006': Pieces.concrete6,
   '21007': Pieces.concrete7,
 
   '22001': Pieces.asphalt1,
@@ -96,6 +97,9 @@ export const pieceCodes: Dictionary<string> = {
   // marvel ruin
   '11006': Pieces.marvel,
   '11007': Pieces.marvelBroken,
+  '11008': Pieces.marvelNoUpper,
+  '11009': Pieces.marvelNoUpperBroken,
+  '11010': Pieces.concrete6,
   // edge add-ons
   '12004': Pieces.roadWall,
   '16301': Pieces.battlement,
@@ -128,3 +132,85 @@ export const pieceCodes: Dictionary<string> = {
   // laurWallPillar
   '17101': Pieces.laurWallSquarePillar,
 }
+
+export const virtualscapeNamedPieceCodes: Dictionary<string> = {
+  'custom.ancient_land_1': Pieces.ancientTerrain1,
+  'custom.ancient_land_2': Pieces.ancientTerrain2,
+  'custom.ancient_land_24': Pieces.ancientTerrain24,
+  'custom.ancient_land_3': Pieces.ancientTerrain3,
+  'custom.ancient_land_7': Pieces.ancientTerrain7,
+  'custom.ancient_shroudshroom': Pieces.shroudshroom13,
+  'custom.aoa_long_wall': Pieces.laurWallLong,
+  'custom.aoa_pillar': Pieces.laurWallSquarePillar,
+  'custom.aoa_ruined_wall': Pieces.laurWallRuin1,
+  'custom.aoa_ruined_wall_b': Pieces.laurWallRuin2,
+  'custom.aoa_ruined_wall_c': Pieces.laurWallRuin3,
+  'custom.aoa_short_wall': Pieces.laurWallShort,
+  'custom.aoa_treasure_glyph': Pieces.glyphTreasure,
+  'custom.aoa_triangle_pillar': Pieces.laurWallTrianglePillar,
+  'custom.aoa_wall_arch': Pieces.laurWallArch,
+  'custom.asphalt_24': Pieces.asphalt24,
+  'core.asphalt_3': Pieces.asphalt3,
+  'core.concrete_24': Pieces.concrete24,
+  'custom.concrete_3': Pieces.concrete3,
+  'custom.concrete_6': Pieces.concrete6,
+  'core.cov_outcrop_3': Pieces.outcrop3,
+  'core.gale_bush': Pieces.laurBrush10,
+  'core.gale_palm_14': Pieces.laurPalm13,
+  'core.gale_palm_15': Pieces.laurPalm14,
+  'core.gale_palm_16': Pieces.laurPalm15,
+  'core.ice_3': Pieces.ice3,
+  'core.ice_4': Pieces.ice4,
+  'core.ice_6': Pieces.ice6,
+  'core.lava_3': Pieces.lava3,
+  'core.lava_field_24': Pieces.lavaField24,
+  'core.lava_field_3': Pieces.lavaField3,
+  'core.lava_outcrop_1': Pieces.lavaRockOutcrop1,
+  'core.lava_outcrop_3': Pieces.lavaRockOutcrop3,
+  'custom.gi_joe_wall': Pieces.fortifiedWall,
+  'custom.mature_shroudshroom': Pieces.shroudshroom10,
+  'core.void_mat': Pieces.voidMat,
+  'custom.void_1': Pieces.voidMarker,
+  'core.sand_24': Pieces.sand24,
+  'core.shadow_3': Pieces.shadow3,
+  'core.shov_cannon': Pieces.cannon,
+  'core.shov_rope_ladder': Pieces.ropeLadder,
+  'core.shov_ship_bow': Pieces.shipBow,
+  'core.shov_ship_wall': Pieces.shipWall,
+  'core.snow_24': Pieces.snow24,
+  'core.snow_3': Pieces.snow3,
+  'core.snow_7': Pieces.snow7,
+  'core.snow_tree_10': Pieces.snowTree10,
+  'core.snow_tree_12': Pieces.snowTree12,
+  'core.swamp_water_3': Pieces.swampWater3,
+  'core.swamp_water_6': Pieces.swampWater6,
+  'custom.toxic_land_1': Pieces.toxic1,
+  'core.toxic_land_3': Pieces.toxic3,
+  'core.toxic_outcrop_1': Pieces.toxicOutcrop1,
+  'core.toxic_outcrop_3': Pieces.toxicOutcrop3,
+  'custom.toxic_water_1': Pieces.toxicWater1,
+  'core.water_3': Pieces.water3,
+  'custom.wellspring_water_1': Pieces.wellspringWater1,
+  'core.wood_2': Pieces.wood2,
+  'custom.young_shroudshroom': Pieces.shroudshroom7,
+  'custom.pylon_2way': Pieces.twoWayPylon,
+  'custom.pylon_3way': Pieces.threeWayPylon,
+  'custom.energy_wall': Pieces.deflectorShield,
+}
+
+export const virtualscapeNamedPieceNames: Dictionary<string> =
+  Object.fromEntries(
+    Object.entries(virtualscapeNamedPieceCodes).map(([name, pieceID]) => [
+      pieceID,
+      name,
+    ]),
+  )
+
+export const virtualscapePieceCodesByID: Dictionary<string> = {
+  ...Object.fromEntries(
+    Object.entries(pieceCodes).map(([code, pieceID]) => [pieceID, code]),
+  ),
+  [Pieces.concrete6]: '11010',
+}
+
+export const virtualscapeLaurPillarBaseName = 'custom.aoa_pillar_base'

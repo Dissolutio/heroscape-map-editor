@@ -2,6 +2,7 @@ import { Document, PDFDownloadLink } from '@react-pdf/renderer'
 import { useMemo } from 'react'
 import type { PropsWithChildren } from 'react'
 import useBoundStore from '../store/store'
+import { withoutUndrawnExportPieces } from '../pdf-svg-shared/undrawnExportPieces'
 import { makeBuriedMarksByUID } from '../utils/tileMarks'
 import { PdfMapLevels6PerPage } from './PdfMap6LevelsPerPage'
 import { registerPdfFonts } from './registerPdfFonts'
@@ -9,8 +10,12 @@ import { registerPdfFonts } from './registerPdfFonts'
 registerPdfFonts()
 
 export const ReactPdfDownloadLink = (props: PropsWithChildren) => {
-  const boardHexes = useBoundStore((s) => s.boardHexes)
-  const boardPieces = useBoundStore((s) => s.boardPieces)
+  const storeBoardHexes = useBoundStore((s) => s.boardHexes)
+  const storeBoardPieces = useBoundStore((s) => s.boardPieces)
+  const { boardHexes, boardPieces } = useMemo(
+    () => withoutUndrawnExportPieces(storeBoardHexes, storeBoardPieces),
+    [storeBoardHexes, storeBoardPieces],
+  )
   const hexMap = useBoundStore((s) => s.hexMap)
   const isPdfColorBorders = useBoundStore((s) => s.isPdfColorBorders)
   const isShowPdfOverlayLayer = useBoundStore((s) => s.isShowPdfOverlayLayer)

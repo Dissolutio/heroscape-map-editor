@@ -18,6 +18,7 @@ import {
   SvgRopeLadder,
   SvgStartZone,
 } from './SvgMapShapes'
+import { SvgDeflectorShield, SvgVoidMatSymbol } from './SvgVoidAndPylons'
 
 export const SvgMapBoardPiece = ({
   piece,
@@ -58,6 +59,20 @@ export const SvgMapBoardPiece = ({
   // EARLY RETURN: NOT VISIBLE
   if (!isVisible) {
     return null
+  }
+  if (exportSymbol === 'void-mat') {
+    return isPieceKeyPreview ? (
+      <SvgVoidMatSymbol piece={piece} isSubLevel={false} />
+    ) : null
+  }
+  if (exportSymbol === 'deflector-shield') {
+    return (
+      <g
+        transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
+      >
+        <SvgDeflectorShield isSubLevel={isSubLevel} />
+      </g>
+    )
   }
   // Start Zones
   if (exportSymbol === 'start-zone') {

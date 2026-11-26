@@ -1,3 +1,4 @@
+import { VC_MAP_LOADED_MESSAGE, boardPiecesUseVC } from '../data/vcContent'
 import { produce } from 'immer'
 import { isEqual } from 'lodash'
 import { nanoid } from 'nanoid'
@@ -24,6 +25,7 @@ import {
 } from '../data/rebuildBoardState'
 import { removePiece } from '../data/removePiece'
 import { reanchorRotationPivotAfterRotation } from '../data/rotationPivot'
+import { getSeatedGroupUIDs, includeSeatedMoves } from '../data/seatedObstacles'
 import {
   type SavedSelection,
   type SelectionUnit,
@@ -170,6 +172,12 @@ type PaintTileArgs = {
   clickedHexCoords: CubeCoordinate
   altitude: number
   rotation: number
+  automaticBases?: {
+    piece: Piece
+    clickedHexCoords: CubeCoordinate
+    altitude: number
+    rotation: number
+  }[]
 }
 
 type ConvertTerrainArgs = {
@@ -231,23 +239,44 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
     clickedHexCoords,
     altitude,
     rotation,
+    automaticBases,
   }: PaintTileArgs): AddRemovePieceError => {
     let error: AddRemovePieceError
     const uid = nanoid(10)
+    const automaticBaseUIDs = automaticBases?.map(() => nanoid(10)) ?? []
     get().pushPendingUndoSelectionRestore({
-      pieceUIDs: [uid],
+      pieceUIDs: [...automaticBaseUIDs, uid],
       objectiveMarkerUID: null,
     })
     set((state) => {
       return produce(state, (draft) => {
+        let boardHexes = draft.boardHexes
+        let boardPieces = draft.boardPieces
+        for (const [index, automaticBase] of (automaticBases ?? []).entries()) {
+          const baseResult = addPiece({
+            piece: automaticBase.piece,
+            boardHexes,
+            boardPieces,
+            pieceCoords: automaticBase.clickedHexCoords,
+            placementAltitude: automaticBase.altitude,
+            rotation: automaticBase.rotation,
+            isVsTile: false,
+            uid: automaticBaseUIDs[index],
+            permissive: true,
+          })
+          error = baseResult.error
+          if (error) return
+          boardHexes = baseResult.newBoardHexes
+          boardPieces = baseResult.newBoardPieces
+        }
         const {
           newBoardHexes,
           newBoardPieces,
           error: addPieceError,
         } = addPiece({
           piece,
-          boardHexes: draft.boardHexes,
-          boardPieces: draft.boardPieces,
+          boardHexes,
+          boardPieces,
           pieceCoords: clickedHexCoords,
           placementAltitude: altitude,
           rotation,
@@ -275,23 +304,37 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
       get().recordActionLog({
         type: 'place',
         pieceName: piece.title,
-        selection: { pieceUIDs: [uid] },
+        selection: {
+          pieceUIDs: [...automaticBaseUIDs, uid],
+        },
       })
     }
     return error
   },
   unpaintTile: (uid: string) => {
-    const removedPiece = get().boardPieces.find((piece) => piece.uid === uid)
+    const stateBeforeDelete = get()
+    const removedPiece = stateBeforeDelete.boardPieces.find(
+      (piece) => piece.uid === uid,
+    )
     if (!removedPiece) return
+    const deletedUIDs = getSeatedGroupUIDs(
+      uid,
+      stateBeforeDelete.boardHexes,
+      stateBeforeDelete.boardPieces,
+      stateBeforeDelete.hexMap.setsUsed,
+    ).filter((pieceUID) =>
+      stateBeforeDelete.boardPieces.some((piece) => piece.uid === pieceUID),
+    )
     get().pushPendingUndoSelectionRestore({
-      pieceUIDs: [uid],
+      pieceUIDs: deletedUIDs,
       objectiveMarkerUID: null,
     })
     set((state) => {
       return produce(state, (draft) => {
         draft.rotationPivot = null
+        const deletedUIDSet = new Set(deletedUIDs)
         const remainingPieces = draft.boardPieces.filter(
-          (piece) => piece.uid !== uid,
+          (piece) => !deletedUIDSet.has(piece.uid),
         )
         const rebuilt = rebuildBoardStateFromPieces(
           remainingPieces,
@@ -299,7 +342,10 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
         )
         draft.boardHexes = rebuilt.boardHexes
         draft.boardPieces = rebuilt.boardPieces
-        draft.savedSelections = pruneDeletedPiece(draft.savedSelections, uid)
+        draft.savedSelections = deletedUIDs.reduce(
+          (selections, deletedUID) => pruneDeletedPiece(selections, deletedUID),
+          draft.savedSelections,
+        )
         draft.conflictedPieceUIDs = rebuilt.conflictedPieceUIDs
         draft.unsupportedPieceUIDs = getUnsupportedPieceUIDs({
           boardPieces: rebuilt.boardPieces,
@@ -313,7 +359,7 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
       pieceName:
         piecesSoFar[removedPiece.inventoryID]?.title ??
         removedPiece.inventoryID,
-      selection: { pieceUIDs: [uid] },
+      selection: { pieceUIDs: deletedUIDs },
     })
   },
   convertTerrainForPieces: ({
@@ -464,9 +510,15 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
   }) => {
     const stateBeforeMove = get()
     const piecesBeforeMove = stateBeforeMove.boardPieces
+    const movesWithSeats = includeSeatedMoves(
+      moves,
+      stateBeforeMove.boardHexes,
+      piecesBeforeMove,
+      stateBeforeMove.hexMap.setsUsed,
+    )
     const selectionRecordUIDs: string[] = []
     const seenMoveUIDs = new Set<string>()
-    for (const move of moves) {
+    for (const move of movesWithSeats) {
       if (seenMoveUIDs.has(move.uid)) continue
       seenMoveUIDs.add(move.uid)
       const boardPiece = piecesBeforeMove.find(
@@ -515,9 +567,11 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
       })
     }
     set((state) => {
-      const effectiveMoves = moves.filter((move, index) => {
+      const effectiveMoves = movesWithSeats.filter((move, index) => {
         if (
-          moves.findIndex((candidate) => candidate.uid === move.uid) !== index
+          movesWithSeats.findIndex(
+            (candidate) => candidate.uid === move.uid,
+          ) !== index
         )
           return false
         const boardPiece = state.boardPieces.find(
@@ -589,7 +643,7 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
     const piecesAfterMove = get().boardPieces
     const changedPieces: BoardPiece[] = []
     const seenUIDs = new Set<string>()
-    for (const move of moves) {
+    for (const move of movesWithSeats) {
       if (seenUIDs.has(move.uid)) continue
       seenUIDs.add(move.uid)
       const before = piecesBeforeMove.find((piece) => piece.uid === move.uid)
@@ -886,6 +940,10 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
     const hexMap = isEqual(current.hexMap, mapState.hexMap)
       ? current.hexMap
       : mapState.hexMap
+    // A map with community custom (VC) pieces turns Include VC unit/terrain
+    // data on. It is a setting, not map state: no undo step, no autosave.
+    const turnsOnVC =
+      !current.includeVCContent && boardPiecesUseVC(mapState.boardPieces)
     const result = set((state) => {
       return produce(state, (draft) => {
         const piecesBeforeLoad = draft.boardPieces
@@ -929,6 +987,7 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
         })
         draft.isAutosaveHeld = options.holdAutosave ?? false
         draft.mapLoadRevision += 1
+        if (turnsOnVC) draft.includeVCContent = true
         const constrainedInventory = getEffectiveTerrainConstraintInventory({
           setsUsed: mapState.hexMap?.setsUsed,
           terrainConstraintSource: draft.terrainConstraintSource,
@@ -951,6 +1010,14 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
     })
     get().clearPendingUndoSelectionRestore()
     get().clearActionLog()
+    if (turnsOnVC) {
+      enqueueSnackbar({
+        message: VC_MAP_LOADED_MESSAGE,
+        variant: 'info',
+        key: 'vc-map-loaded',
+        preventDuplicate: true,
+      })
+    }
     if (mapState.dimensionsAdjusted) {
       enqueueSnackbar({
         message: 'Hexoscape has adjusted your map dimensions to fit all pieces',
@@ -1018,10 +1085,21 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
       markerUIDs,
     )
     if (!resolved) return
+    const expandedPieceUIDs = new Set<string>()
+    for (const uid of resolved.pieceUIDs) {
+      for (const groupUID of getSeatedGroupUIDs(
+        uid,
+        state.boardHexes,
+        state.boardPieces,
+        state.hexMap.setsUsed,
+      )) {
+        if (visiblePieceUIDs.has(groupUID)) expandedPieceUIDs.add(groupUID)
+      }
+    }
     set({
       selectedPieceIDs: additive
-        ? [...new Set([...state.selectedPieceIDs, ...resolved.pieceUIDs])]
-        : resolved.pieceUIDs,
+        ? [...new Set([...state.selectedPieceIDs, ...expandedPieceUIDs])]
+        : [...expandedPieceUIDs],
       selectedObjectiveMarkerUID: additive
         ? (resolved.objectiveMarkerUID ?? state.selectedObjectiveMarkerUID)
         : (resolved.objectiveMarkerUID ?? null),

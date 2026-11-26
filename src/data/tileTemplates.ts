@@ -290,6 +290,43 @@ const ruins3 = [
   },
   ...ruinsCornerExterior,
 ]
+/**
+ * Void Mat (VC): the origin hex plus 13 auxiliary hexes, the 14 full hexes
+ * printed on the mat, in rows of 2, 3, 4, 3 and 2 (John, 2026-11-25). Cube
+ * offsets at rotation 0; O is the origin. The printed ring of half hexes
+ * around them is drawn only (src/world/models/voidMatGeometry.ts) and is not
+ * part of the footprint.
+ *
+ *       O   .          r+0: (0,0,0) (1,0,-1)
+ *     .   .   .        r+1: q -1..1
+ *   .   .   .   .      r+2: q -2..1
+ *     .   .   .        r+3: q -2..0
+ *       .   .          r+4: q -2..-1
+ *
+ * Page 1 of assets-src/void-and-pylons/printable-void-terrain-mats.pdf prints
+ * the same 14 hexes sideways (flat-top); turned 30 degrees it is this layout.
+ */
+const voidMat = [
+  // row r+0: 2 hexes
+  { q: 0, r: 0, s: 0 },
+  { q: 1, r: 0, s: -1 },
+  // row r+1: 3 hexes
+  { q: -1, r: 1, s: 0 },
+  { q: 0, r: 1, s: -1 },
+  { q: 1, r: 1, s: -2 },
+  // row r+2: 4 hexes
+  { q: -2, r: 2, s: 0 },
+  { q: -1, r: 2, s: -1 },
+  { q: 0, r: 2, s: -2 },
+  { q: 1, r: 2, s: -3 },
+  // row r+3: 3 hexes
+  { q: -2, r: 3, s: -1 },
+  { q: -1, r: 3, s: -2 },
+  { q: 0, r: 3, s: -3 },
+  // row r+4: 2 hexes
+  { q: -2, r: 4, s: -2 },
+  { q: -1, r: 4, s: -3 },
+]
 const fortifiedWall = [
   ...basic3,
   CUBE_SW,
@@ -368,6 +405,12 @@ const tileTemplates: Dictionary<CubeCoordinate[]> = {
   [Pieces.battlement]: basic1,
 
   [Pieces.roadWall]: straight4,
+  // Void and Pylons (VC)
+  [Pieces.voidMat]: voidMat,
+  [Pieces.voidMarker]: basic1,
+  [Pieces.twoWayPylon]: basic1,
+  [Pieces.threeWayPylon]: basic1,
+  [Pieces.deflectorShield]: basic1,
 }
 
 export default tileTemplates

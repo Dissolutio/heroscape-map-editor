@@ -1,3 +1,4 @@
+import { isVCPieceID } from '../data/vcContent'
 import { produce } from 'immer'
 import { enqueueSnackbar } from 'notistack'
 import type { StateCreator } from 'zustand'
@@ -6,8 +7,10 @@ import {
   getNewPieceSizeForPenMode,
   getPieceIDForPenMode,
 } from '../data/flatPieceSizes'
+import { getSeatedGroupUIDs } from '../data/seatedObstacles'
 import { type LookSettings, sanitizeLookSettings } from '../data/lookSettings'
 import { canSelectObjectiveMarker } from '../data/objectiveMarkerVisibility'
+import { OBJECTIVE_MARKER_PEN_MODE } from '../data/objectiveMarkers'
 import type {
   ObjectiveMarker,
   ObjectiveMarkerDraft,
@@ -139,6 +142,9 @@ export interface UISlice {
   selectedPieceIDs: string[]
   selectedObjectiveMarkerUID: string | null
   setSelectedObjectiveMarkerUID: (uid: string | null) => void
+  hoveredObjectiveMarkerUID: string | null
+  setHoveredObjectiveMarkerUID: (uid: string | null) => void
+  pickObjectiveMarkerAsPen: (uid: string) => void
   objectiveMarkerDraft: ObjectiveMarkerDraft
   updateObjectiveMarkerDraft: (updates: Partial<ObjectiveMarkerDraft>) => void
   objectiveMarkerDragPreview: {
@@ -368,13 +374,20 @@ const createUISlice: StateCreator<
   isShowObjectiveMarkers: true,
   toggleIsObjectiveMarkerNumbersFaceCamera: (show) =>
     set({ isObjectiveMarkerNumbersFaceCamera: show }),
-  toggleIncludeVCContent: (include) => set({ includeVCContent: include }),
+  // Turning VC off also drops a VC pen, so no VC piece stays offered.
+  toggleIncludeVCContent: (include) =>
+    set((state) =>
+      include || !isVCPieceID(state.penMode)
+        ? { includeVCContent: include }
+        : { includeVCContent: include, penMode: SELECT_PEN_MODE },
+    ),
   toggleIsShowObjectiveMarkers: (show) =>
     set(
       produce((s) => {
         s.isShowObjectiveMarkers = show
         if (!show) {
           s.selectedObjectiveMarkerUID = null
+          s.hoveredObjectiveMarkerUID = null
           s.objectiveMarkerDragPreview = null
         }
       }),
@@ -396,12 +409,51 @@ const createUISlice: StateCreator<
     }
     set({ selectedObjectiveMarkerUID: uid })
   },
+  hoveredObjectiveMarkerUID: null,
+  setHoveredObjectiveMarkerUID: (uid) => {
+    const state = get()
+    if (
+      uid &&
+      !canSelectObjectiveMarker(
+        uid,
+        state.hexMap.objectiveMarkers ?? [],
+        state.isShowObjectiveMarkers,
+      )
+    ) {
+      return
+    }
+    set({ hoveredObjectiveMarkerUID: uid })
+  },
+  pickObjectiveMarkerAsPen: (uid) => {
+    const state = get()
+    const marker = (state.hexMap.objectiveMarkers ?? []).find(
+      (item) => item.uid === uid,
+    )
+    if (!marker) return
+
+    state.togglePenMode(OBJECTIVE_MARKER_PEN_MODE, {
+      preferredSize: marker.size,
+      preserveSelection: true,
+    })
+    const updatedState = get()
+    updatedState.updateObjectiveMarkerDraft({
+      size: marker.size,
+      style: marker.style,
+      content: marker.content,
+      name: marker.name,
+      pickedNumberOnce:
+        marker.content.kind === 'number' &&
+        !updatedState.objectiveMarkerDraft.pinNumber,
+    })
+    get().togglePenModeRotation(marker.rotation)
+  },
   objectiveMarkerDraft: {
     size: 1,
     style: 'black',
     content: { kind: 'number', value: 1 },
     name: undefined,
     pinNumber: false,
+    pickedNumberOnce: false,
   },
   updateObjectiveMarkerDraft: (updates) =>
     set((state) =>
@@ -478,37 +530,51 @@ const createUISlice: StateCreator<
           }
         }
 
+        const groupUIDs = pieceID
+          ? getSeatedGroupUIDs(
+              pieceID,
+              state.boardHexes,
+              state.boardPieces,
+              state.hexMap.setsUsed,
+            )
+          : []
         const wasSelected = state.selectedPieceIDs.includes(pieceID)
+        const wasGroupSelected = groupUIDs.every((uid) =>
+          state.selectedPieceIDs.includes(uid),
+        )
         state.rotationPivot = null
         if (!pieceID) {
           state.selectedPieceIDs = []
         } else if (multiSelect) {
-          const idx = state.selectedPieceIDs.indexOf(pieceID)
-          if (idx === -1) {
-            state.selectedPieceIDs.push(pieceID)
+          if (wasGroupSelected) {
+            state.selectedPieceIDs = state.selectedPieceIDs.filter(
+              (uid: string) => !groupUIDs.includes(uid),
+            )
+            for (const uid of groupUIDs) {
+              if (state.hoveredPieceID === uid) state.hoveredPieceID = ''
+            }
           } else {
-            state.selectedPieceIDs.splice(idx, 1)
-            // Clear hover highlight so the deselected piece stops being yellow
-            if (state.hoveredPieceID === pieceID) {
-              state.hoveredPieceID = ''
+            for (const uid of groupUIDs) {
+              if (!state.selectedPieceIDs.includes(uid)) {
+                state.selectedPieceIDs.push(uid)
+              }
             }
           }
         } else {
           if (
-            state.selectedPieceIDs.length === 1 &&
-            state.selectedPieceIDs[0] === pieceID
+            wasGroupSelected &&
+            state.selectedPieceIDs.length === groupUIDs.length
           ) {
             state.selectedPieceIDs = []
           } else {
-            state.selectedPieceIDs = [pieceID]
+            state.selectedPieceIDs = groupUIDs
           }
         }
 
         if (
           pieceID &&
           !wasSelected &&
-          state.selectedPieceIDs[state.selectedPieceIDs.length - 1] ===
-            pieceID &&
+          state.selectedPieceIDs.includes(pieceID) &&
           hitHex
         ) {
           const piece = state.boardPieces.find(

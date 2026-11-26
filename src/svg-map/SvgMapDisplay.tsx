@@ -1,3 +1,4 @@
+import { withoutUndrawnExportPieces } from '../pdf-svg-shared/undrawnExportPieces'
 import { useEffect, useMemo, useState } from 'react'
 import { piecesSoFar } from '../data/pieces'
 import {
@@ -7,6 +8,7 @@ import {
   getSvgVisibleObjectiveMarkers,
 } from '../pdf-svg-shared/objectiveMarkerExport'
 import { getBoardPieceOriginHexes } from '../pdf-svg-shared/boardPieceOriginHexes'
+import { isVoidMatPieceID } from '../data/voidMat'
 import {
   type PieceKeyModel,
   getPieceKeyModel,
@@ -29,6 +31,7 @@ import {
 } from './SvgMapShapes'
 import { SvgMapBoardPiece } from './SvgMapBoardPiece'
 import { SvgMapHex } from './SvgMapHex'
+import { SvgVoidMatSymbol } from './SvgVoidAndPylons'
 import {
   SvgObjectiveMarkerLegend,
   SvgObjectiveMarkerOverlay,
@@ -51,8 +54,12 @@ const SvgMapDisplay = ({
   viewingLevelOverride?: number
   overlayEnabledOverride?: boolean
 }) => {
-  const boardHexes = useBoundStore((state) => state.boardHexes)
-  const boardPieces = useBoundStore((s) => s.boardPieces)
+  const storeBoardHexes = useBoundStore((state) => state.boardHexes)
+  const storeBoardPieces = useBoundStore((s) => s.boardPieces)
+  const { boardHexes, boardPieces } = useMemo(
+    () => withoutUndrawnExportPieces(storeBoardHexes, storeBoardPieces),
+    [storeBoardHexes, storeBoardPieces],
+  )
   const isShow2DExportTileLetters = useBoundStore(
     (s) => s.isShow2DExportTileLetters,
   )
@@ -113,6 +120,47 @@ const SvgMapDisplay = ({
     () => Object.values(boardHexes).sort((a, b) => a.altitude - b.altitude),
     [boardHexes],
   )
+  const visibleVoidMatPieces = decodedBoardPiecesArr.filter(
+    (piece) =>
+      isVoidMatPieceID(piece.inventoryID) && piece.altitude <= viewingLevel,
+  )
+  const emptyTableHexesArr = boardHexesArr.filter(
+    (hex) => (pieceOriginBySourceID.get(hex.id) ?? hex).terrain === 'empty',
+  )
+  const nonEmptyBoardHexesArr = boardHexesArr.filter(
+    (hex) => (pieceOriginBySourceID.get(hex.id) ?? hex).terrain !== 'empty',
+  )
+  const visibleVoidMatSymbols = visibleVoidMatPieces.map((piece) => (
+    <SvgVoidMatSymbol
+      key={`void-mat-${piece.boardPieceID}`}
+      piece={piece}
+      isSubLevel={piece.altitude < viewingLevel}
+    />
+  ))
+  const renderBoardHex = (hex: (typeof boardHexesArr)[number]) => {
+    const originHex = pieceOriginBySourceID.get(hex.id) ?? hex
+    return (
+      <SvgMapHex
+        key={hex.id}
+        hex={originHex}
+        buriedMarksByUID={buriedMarksByUID}
+        viewingLevel={
+          isShow2DExportBuriedMarks || isShow2DExportTileLetters
+            ? viewingLevel
+            : 0
+        }
+        overlayLevel={overlayLevel}
+        isVisible={originHex.altitude <= viewingLevel}
+        isSubLevel={originHex.altitude < viewingLevel}
+        isOverlayViewing={
+          is2DOverlayLevelEnabled && viewingLevel === overlayLevel
+        }
+        is2DOverlayLevelEnabled={is2DOverlayLevelEnabled}
+        isShow2DExportTileLetters={isShow2DExportTileLetters}
+        isShow2DExportBuriedMarks={isShow2DExportBuriedMarks}
+      />
+    )
+  }
   const buriedMarkLevels = useMemo(
     () =>
       new Set(
@@ -247,30 +295,18 @@ const SvgMapDisplay = ({
           )
         ) : (
           <g>
-            {boardHexesArr.map((hex) => {
-              const originHex = pieceOriginBySourceID.get(hex.id) ?? hex
-              return (
-                <SvgMapHex
-                  key={hex.id}
-                  hex={originHex}
-                  buriedMarksByUID={buriedMarksByUID}
-                  viewingLevel={
-                    isShow2DExportBuriedMarks || isShow2DExportTileLetters
-                      ? viewingLevel
-                      : 0
-                  }
-                  overlayLevel={overlayLevel}
-                  isVisible={originHex.altitude <= viewingLevel}
-                  isSubLevel={originHex.altitude < viewingLevel}
-                  isOverlayViewing={
-                    is2DOverlayLevelEnabled && viewingLevel === overlayLevel
-                  }
-                  is2DOverlayLevelEnabled={is2DOverlayLevelEnabled}
-                  isShow2DExportTileLetters={isShow2DExportTileLetters}
-                  isShow2DExportBuriedMarks={isShow2DExportBuriedMarks}
-                />
-              )
-            })}
+            {visibleVoidMatPieces.length > 0 ? (
+              <>
+                {emptyTableHexesArr.map(renderBoardHex)}
+                {visibleVoidMatSymbols}
+                {nonEmptyBoardHexesArr.map(renderBoardHex)}
+              </>
+            ) : (
+              <>
+                {visibleVoidMatSymbols}
+                {boardHexesArr.map(renderBoardHex)}
+              </>
+            )}
             {pieceOriginHexes
               .filter((origin) => !origin.sourceHexID)
               .map(({ hex }) =>

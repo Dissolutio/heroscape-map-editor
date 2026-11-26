@@ -6,7 +6,9 @@ import {
   getLaurPillarStackAltitude,
 } from '../data/laurPillarStacking'
 import { piecesSoFar } from '../data/pieces'
+import { isPortAddonPieceID } from '../data/portPieces'
 import { getPlacementPreviewState } from '../data/placementPreview'
+import { getSeatedObstacleDefinition } from '../data/seatedObstacles'
 import { getSmartPlacementAltitude } from '../data/smartPlacement'
 import { isE2E } from '../e2e/isE2E'
 import { setPlacementPreview } from '../e2e/placementPreviewStore'
@@ -16,7 +18,6 @@ import { HexTerrain, PiecePrefixes, Pieces } from '../types'
 import {
   isFluidTerrainHex,
   getShipPlacementAltitude,
-  isLaurWallAddonPieceID,
   isSolidTerrainHex,
 } from '../utils/board-utils'
 import {
@@ -67,6 +68,12 @@ import Shroudshroom13 from './models/Shroudshroom13'
 import { SnowEvergreenTree } from './models/SnowEvergreenTree'
 import { StartZone3D } from './models/StartZone3D'
 import {
+  VOID_MAT_Y_OFFSET,
+  VoidMat3D,
+  VoidMatFallback,
+  VoidPylonPreview,
+} from './models/VoidAndPylons'
+import {
   LaurBrushPreview,
   SwampBrushPreview,
   TicallaBrushPreview,
@@ -87,17 +94,19 @@ export default function PiecePreview() {
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
   const boardHexes = useBoundStore((s) => s.boardHexes)
   const boardPieces = useBoundStore((s) => s.boardPieces)
+  const setsUsed = useBoundStore((s) => s.hexMap.setsUsed)
   const penMode = useBoundStore((s) => s.penMode)
   const penModeSize = useBoundStore((s) => s.pieceSize)
   const penModeRotation = useBoundStore((s) => s.penModeRotation)
   const isTakingPicture = useBoundStore((s) => s.isTakingPicture)
+  const dragPreview = useBoundStore((s) => s.dragPreview)
   const pieceKey = getPieceIDForPenMode(penMode, penModeSize)
   const piece = piecesSoFar[pieceKey]
   const hoveredAddon = boardPieces.find(
     (boardPiece) =>
       boardPiece.uid === hoveredPieceID &&
       hoveredHex?.boardPieceUID === hoveredPieceID &&
-      isLaurWallAddonPieceID(boardPiece.inventoryID),
+      isPortAddonPieceID(boardPiece.inventoryID),
   )
   const placementPointerHex = useMemo(
     () => (hoveredAddon ? getLaurAddonHitHex(hoveredAddon) : hoveredHex),
@@ -108,7 +117,8 @@ export default function PiecePreview() {
       !placementPointerHex ||
       !piece ||
       penMode === 'select' ||
-      isTakingPicture
+      isTakingPicture ||
+      dragPreview
     ) {
       return null
     }
@@ -116,16 +126,18 @@ export default function PiecePreview() {
       piece,
       placementPointerHex,
       penModeRotation,
-      { boardHexes, boardPieces },
+      { boardHexes, boardPieces, setsUsed },
       hoveredAddon ? undefined : hoveredWorldPoint,
     )
   }, [
     boardHexes,
     boardPieces,
+    setsUsed,
     hoveredAddon,
     placementPointerHex,
     hoveredWorldPoint,
     isTakingPicture,
+    dragPreview,
     penMode,
     penModeRotation,
     piece,
@@ -182,7 +194,7 @@ export default function PiecePreview() {
         })
       : undefined
   const addonPreviewHex =
-    !('blocked' in resolution) && piece?.terrain === HexTerrain.laurWallAddon
+    !('blocked' in resolution) && piece && isPortAddonPieceID(piece.id)
       ? (boardHexes[
           genBoardHexID({
             ...resolution.coords,
@@ -194,6 +206,46 @@ export default function PiecePreview() {
           altitude: resolution.altitude,
         })
       : undefined
+  const automaticBaseSupportHexes = previewState.automaticBases?.map(
+    (automaticBase) =>
+      boardHexes[
+        genBoardHexID({
+          ...automaticBase.coords,
+          altitude: automaticBase.altitude,
+        })
+      ] ?? {
+        ...placementPointerHex,
+        ...automaticBase.coords,
+        altitude: automaticBase.altitude,
+        terrain: HexTerrain.empty,
+      },
+  )
+  const seatedDefinition =
+    piece && getSeatedObstacleDefinition(piece.id, setsUsed)
+  const seatedSupportHex =
+    !('blocked' in resolution) && seatedDefinition?.baseMode === 'separate'
+      ? (() => {
+          const seatedSupportID = genBoardHexID({
+            ...resolution.coords,
+            altitude: resolution.altitude,
+          })
+          const supportHex = boardHexes[seatedSupportID]
+          const supportPiece = boardPieces.find(
+            (boardPiece) =>
+              boardPiece.uid === supportHex?.boardPieceUID &&
+              seatedDefinition.allowedBaseIDs.includes(boardPiece.inventoryID),
+          )
+          const supportTerrain = supportPiece
+            ? supportHex?.terrain
+            : piecesSoFar[seatedDefinition.defaultBaseID]?.terrain
+          return {
+            ...(supportHex ?? placementPointerHex),
+            ...resolution.coords,
+            altitude: resolution.altitude,
+            terrain: supportTerrain ?? HexTerrain.empty,
+          }
+        })()
+      : undefined
 
   return (
     <>
@@ -203,9 +255,23 @@ export default function PiecePreview() {
         footprintHexes={evaluation.footprintHexes}
         hoveredHex={hoveredSurfaceHex}
       />
+      {evaluation.status !== 'blocked' &&
+        previewState.automaticBases?.map((automaticBase, index) => {
+          const supportHex = automaticBaseSupportHexes?.[index]
+          return supportHex ? (
+            <LandPieceGhost
+              key={`${automaticBase.piece.id}-${index}`}
+              piece={automaticBase.piece}
+              supportHex={supportHex}
+              rotation={automaticBase.rotation}
+            />
+          ) : null
+        })}
       {evaluation.status !== 'blocked' && (
         <PiecePreviewModel
-          hoveredHexOverride={addonPreviewHex ?? castleCapHex}
+          hoveredHexOverride={
+            addonPreviewHex ?? castleCapHex ?? seatedSupportHex
+          }
           unsupported={previewState.unsupported && evaluation.status === 'ok'}
           rotationOverride={
             'blocked' in resolution ? undefined : resolution.rotation
@@ -258,7 +324,7 @@ function PiecePreviewModel({
   const hoveredHexForPreview = useMemo(() => {
     if (hoveredHexOverride) return hoveredHexOverride
     if (!piece || !hoveredHexForModel) return hoveredHexForModel
-    if (piece.terrain === HexTerrain.laurWallAddon) return hoveredHexForModel
+    if (isPortAddonPieceID(piece.id)) return hoveredHexForModel
     const altitude = getSmartPlacementAltitude({
       boardHexes,
       boardPieces,
@@ -342,7 +408,7 @@ function PiecePreviewModel({
     hoveredHexForPreview.inventoryID === Pieces.castleWallCorner ||
     hoveredHexForPreview.inventoryID === Pieces.castleWallEnd ||
     hoveredHexForPreview.inventoryID === Pieces.castleWallStraight
-  const isLaurWallAddon = piece?.terrain === HexTerrain.laurWallAddon
+  const isLaurWallAddon = isPortAddonPieceID(piece.id)
   const isSolidSubterrain = isSolidTerrainHex(piece?.terrain)
   const isFluidSubterrain = isFluidTerrainHex(piece?.terrain)
   const isLaurSquarePillarHex =
@@ -496,6 +562,50 @@ function PiecePreviewModel({
         rotation={resolvedRotation}
         unsupported={unsupported}
       />
+    )
+  }
+  // VOID AND PYLONS (VC): a pylon on its support like a placed one, and the
+  // mat flat on the table wherever the pointer is.
+  if (
+    (pieceID === Pieces.twoWayPylon || pieceID === Pieces.threeWayPylon) &&
+    isLandOrEmptyBeneath
+  ) {
+    return (
+      <group
+        position={[
+          x,
+          y -
+            (isUnderHexFluid
+              ? HEXGRID_HEX_HEIGHT - HEXGRID_HEXCAP_FLUID_HEIGHT
+              : 0),
+          z,
+        ]}
+        rotation={[0, pieceRotation, 0]}
+      >
+        <Suspense fallback={<ModelLoader />}>
+          <VoidPylonPreview inventoryID={pieceID} />
+        </Suspense>
+      </group>
+    )
+  }
+  if (pieceID === Pieces.voidMat || pieceID === Pieces.voidMarker) {
+    const isMarker = pieceID === Pieces.voidMarker
+    return (
+      <group
+        position={[x, VOID_MAT_Y_OFFSET, z]}
+        rotation={[0, pieceRotation, 0]}
+      >
+        <Suspense
+          fallback={
+            <VoidMatFallback
+              isMarker={isMarker}
+              opacity={PIECE_PREVIEW_OPACITY}
+            />
+          }
+        >
+          <VoidMat3D isMarker={isMarker} opacity={PIECE_PREVIEW_OPACITY} />
+        </Suspense>
+      </group>
     )
   }
   if (isLaurSquarePillarHex && (isLandOrEmptyBeneath || canStackOnPillar)) {
@@ -816,7 +926,7 @@ function PiecePreviewModel({
       </group>
     )
   }
-  if (isHiveHex && isSolidOrEmptyBeneath) {
+  if (isHiveHex && isLandOrEmptyBeneath) {
     return (
       <group
         position={[x, yWithBase, z]}
