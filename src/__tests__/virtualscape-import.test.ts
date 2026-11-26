@@ -37,13 +37,13 @@ function makeVirtualscapeFile(
 ) {
   const tileLength = 4 + 8 + 16 + 1 + 4 + 4 + 4
   const buffer = new ArrayBuffer(
-    45 +
+    48 +
       name.length * 2 +
       tiles.reduce(
         (length, tile) =>
           length +
           tileLength +
-          (tile.virtualscapeName ? 1 + tile.virtualscapeName.length * 2 : 0),
+          (tile.virtualscapeName ? 4 + tile.virtualscapeName.length * 2 : 0),
         0,
       ),
   )
@@ -63,7 +63,11 @@ function makeVirtualscapeFile(
     view.setUint8(offset + 3, 0)
     offset += 4
   }
+  // Virtualscape marks every CString as UTF-16 with FF FE FF
   const setCString = (value: string) => {
+    view.setUint8(offset++, 0xff)
+    view.setUint16(offset, 0xfffe, true)
+    offset += 2
     view.setUint8(offset++, value.length)
     for (const character of value) {
       view.setInt16(offset, character.charCodeAt(0), true)
