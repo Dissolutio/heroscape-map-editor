@@ -97,6 +97,9 @@ export const pieceCodes: Dictionary<string> = {
   // marvel ruin
   '11006': Pieces.marvel,
   '11007': Pieces.marvelBroken,
+  '11008': Pieces.marvelNoUpper,
+  '11009': Pieces.marvelNoUpperBroken,
+  '11010': Pieces.concrete6,
   // edge add-ons
   '12004': Pieces.roadWall,
   '16301': Pieces.battlement,
@@ -141,6 +144,7 @@ export const virtualscapeNamedPieceCodes: Dictionary<string> = {
   'custom.aoa_pillar': Pieces.laurWallSquarePillar,
   'custom.aoa_ruined_wall': Pieces.laurWallRuin1,
   'custom.aoa_ruined_wall_b': Pieces.laurWallRuin2,
+  'custom.aoa_ruined_wall_c': Pieces.laurWallRuin3,
   'custom.aoa_short_wall': Pieces.laurWallShort,
   'custom.aoa_treasure_glyph': Pieces.glyphTreasure,
   'custom.aoa_triangle_pillar': Pieces.laurWallTrianglePillar,
@@ -151,10 +155,10 @@ export const virtualscapeNamedPieceCodes: Dictionary<string> = {
   'custom.concrete_3': Pieces.concrete3,
   'custom.concrete_6': Pieces.concrete6,
   'core.cov_outcrop_3': Pieces.outcrop3,
-  'core.gale_bush': Pieces.brush9,
-  'core.gale_palm_14': Pieces.palm14,
-  'core.gale_palm_15': Pieces.palm15,
-  'core.gale_palm_16': Pieces.palm16,
+  'core.gale_bush': Pieces.laurBrush10,
+  'core.gale_palm_14': Pieces.laurPalm13,
+  'core.gale_palm_15': Pieces.laurPalm14,
+  'core.gale_palm_16': Pieces.laurPalm15,
   'core.ice_3': Pieces.ice3,
   'core.ice_4': Pieces.ice4,
   'core.ice_6': Pieces.ice6,
@@ -202,9 +206,11 @@ export const virtualscapeNamedPieceNames: Dictionary<string> =
     ]),
   )
 
-export const virtualscapePieceCodesByID: Dictionary<string> =
-  Object.fromEntries(
+export const virtualscapePieceCodesByID: Dictionary<string> = {
+  ...Object.fromEntries(
     Object.entries(pieceCodes).map(([code, pieceID]) => [pieceID, code]),
-  )
+  ),
+  [Pieces.concrete6]: '11010',
+}
 
 export const virtualscapeLaurPillarBaseName = 'custom.aoa_pillar_base'

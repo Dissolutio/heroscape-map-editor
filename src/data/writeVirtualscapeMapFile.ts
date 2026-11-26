@@ -60,7 +60,10 @@ const startZoneColors = [
 
 function getTileMetadata(inventoryID: string) {
   const name = virtualscapeNamedPieceNames[inventoryID]
-  if (name) return metadataByName.get(name)
+  if (name) {
+    const metadata = metadataByName.get(name)
+    if (metadata) return metadata
+  }
   const code = virtualscapePieceCodesByID[inventoryID]
   return code ? metadataByCode.get(Number(code)) : undefined
 }
@@ -138,7 +141,9 @@ export function writeVirtualscapeMap(
   for (const piece of boardPieces) {
     if (
       piece.inventoryID !== Pieces.marvel &&
-      piece.inventoryID !== Pieces.marvelBroken
+      piece.inventoryID !== Pieces.marvelBroken &&
+      piece.inventoryID !== Pieces.marvelNoUpper &&
+      piece.inventoryID !== Pieces.marvelNoUpperBroken
     ) {
       continue
     }

@@ -65,6 +65,7 @@ import { getTerrainSetsForEra } from '../utils/terrain-set-utils'
 import { getObstacleSubstituteCandidates } from '../utils/adaptToCollection'
 import {
   VOID_MAT_OUTLINE_AXIAL,
+  VOID_MAT_UV_INSET,
   buildVoidMarkerGeometryArrays,
   buildVoidMatGeometryArrays,
   voidMatPoint,
@@ -845,6 +846,16 @@ describe('Void Mat', () => {
     expect(
       findVoidMatAtTableHex(covered.boardPieces, covered.boardHexes, inside),
     ).toBeUndefined()
+    const grassCovered = placeAll(board, [
+      bp('grass-cover', Pieces.grass1, inside),
+    ])
+    expect(
+      findVoidMatAtTableHex(
+        grassCovered.boardPieces,
+        grassCovered.boardHexes,
+        inside,
+      ),
+    ).toBeUndefined()
   })
 
   it('map fit, Trim and Convert count only its 14 hexes', () => {
@@ -915,24 +926,28 @@ describe('Void Mat', () => {
     for (const { q, r } of MAT_TEMPLATE) {
       expect(inside(voidMatPoint(q, r)), `${q},${r}`).toBe(true)
     }
-    // The outline corners are the trimmed image's edges: the left edge
-    // through two corners, the right edge through two, the top and bottom
-    // corners at v = 1 and v = 0.
+    // The outline corners map just inside the trimmed image's edges.
     const uvs = VOID_MAT_OUTLINE_AXIAL.map(([q, r]) => voidMatUV(q, r))
     const near = (value: number, target: number) =>
       Math.abs(value - target) < 1e-9
-    expect(uvs.filter(([u]) => near(u, 0))).toHaveLength(2)
-    expect(uvs.filter(([u]) => near(u, 1))).toHaveLength(2)
-    expect(uvs.filter(([, v]) => near(v, 1))).toHaveLength(1)
-    expect(uvs.filter(([, v]) => near(v, 0))).toHaveLength(1)
+    expect(uvs.filter(([u]) => near(u, VOID_MAT_UV_INSET))).toHaveLength(2)
+    expect(uvs.filter(([u]) => near(u, 1 - VOID_MAT_UV_INSET))).toHaveLength(2)
+    expect(uvs.filter(([, v]) => near(v, 1 - VOID_MAT_UV_INSET))).toHaveLength(
+      1,
+    )
+    expect(uvs.filter(([, v]) => near(v, VOID_MAT_UV_INSET))).toHaveLength(1)
     // The texture keeps the printed hexes' shape: one world unit is the
     // same length in u and v.
     const [u0, v0] = voidMatUV(0, 0)
     const [u1, v1] = voidMatUV(1, 0)
     const [x0, z0] = voidMatPoint(0, 0)
     const [x1, z1] = voidMatPoint(1, 0)
+    const uvScale = 1 - 2 * VOID_MAT_UV_INSET
     expect(
-      Math.hypot((u1 - u0) * 7.5, (v1 - v0) * 5.5 * Math.sqrt(3)),
+      Math.hypot(
+        ((u1 - u0) * 7.5) / uvScale,
+        ((v1 - v0) * 5.5 * Math.sqrt(3)) / uvScale,
+      ),
     ).toBeCloseTo(Math.hypot(x1 - x0, z1 - z0))
     // A flat fan facing up.
     const { positions, indices } = buildVoidMatGeometryArrays()

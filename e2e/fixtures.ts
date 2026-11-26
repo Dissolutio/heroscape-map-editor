@@ -428,11 +428,17 @@ export async function setPen(
   penMode: string,
   size: number,
   rotation?: number,
+  preserveSelection?: boolean,
 ) {
   await page.evaluate(
-    ({ mode, pieceSize, penRotation }) =>
-      window.__TEST__?.setPen(mode, pieceSize, penRotation),
-    { mode: penMode, pieceSize: size, penRotation: rotation },
+    ({ mode, pieceSize, penRotation, preserveSelection: preserve }) =>
+      window.__TEST__?.setPen(mode, pieceSize, penRotation, preserve),
+    {
+      mode: penMode,
+      pieceSize: size,
+      penRotation: rotation,
+      preserveSelection,
+    },
   )
 }
 

@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import buildupVSFileMap from '../data/buildupMap'
+import buildupVSFileMap, { trimVirtualscapeMap } from '../data/buildupMap'
 import {
   pieceCodes,
   virtualscapeLaurPillarBaseName,
@@ -126,6 +126,16 @@ async function importVirtualscapeTiles(tiles: VirtualscapeTileInput[]) {
   return buildupVSFileMap(map.tiles, map.name)
 }
 
+async function importVirtualscapeFixture(name: string) {
+  vi.stubGlobal('FileReader', MemoryFileReader)
+  const file = new File(
+    [readFileSync(new URL(`./fixtures/${name}`, import.meta.url))],
+    name,
+  )
+  const map = await readVirtualscapeMapFile(file)
+  return buildupVSFileMap(map.tiles, map.name)
+}
+
 afterEach(() => {
   vi.restoreAllMocks()
   vi.unstubAllGlobals()
@@ -218,6 +228,40 @@ describe('Virtualscape binary import', () => {
     ])
   })
 
+  it('imports the additional Marvel ruins and concrete base codes', async () => {
+    const variants = [
+      [11008, Pieces.marvelNoUpper],
+      [11009, Pieces.marvelNoUpperBroken],
+      [11010, Pieces.concrete6],
+    ] as const
+
+    for (const [code, inventoryID] of variants) {
+      expect(pieceCodes[String(code)]).toBe(inventoryID)
+      const loaded = await importVirtualscapeTiles([
+        {
+          type: code,
+          rotation: 0,
+          posX: 2,
+          posY: 2,
+          posZ: inventoryID === Pieces.concrete6 ? 0 : 1,
+        },
+      ])
+      expect(
+        loaded.boardPieces.map(({ inventoryID }) => inventoryID),
+      ).toContain(inventoryID)
+      expect(loaded.droppedPieces).toEqual([])
+
+      if (inventoryID !== Pieces.concrete6) {
+        expect(
+          loaded.boardPieces.some(
+            (piece) =>
+              piece.inventoryID === Pieces.concrete6 && piece.altitude === 0,
+          ),
+        ).toBe(true)
+      }
+    }
+  })
+
   it('imports the complete Virtualscape tile catalogue with an exact drop list', async () => {
     vi.stubGlobal('FileReader', MemoryFileReader)
     const file = new File(
@@ -238,7 +282,7 @@ describe('Virtualscape binary import', () => {
     ).toBe(61)
     expect(
       loaded.droppedPieces.map(({ inventoryID }) => inventoryID).sort(),
-    ).toEqual(['11008', '11009', '11010', '16403'])
+    ).toEqual(['16403'])
     vi.spyOn(console, 'warn').mockImplementation(() => undefined)
     const enqueueSnackbar = vi.fn()
     warnAboutLoadedMap(enqueueSnackbar, loaded)
@@ -246,7 +290,7 @@ describe('Virtualscape binary import', () => {
     expect(enqueueSnackbar).toHaveBeenCalledWith(
       expect.objectContaining({
         message:
-          'Skipped 4 unknown pieces (11008, 11009, 11010, 16403). Updating the app may let you load unknown pieces.',
+          'Skipped 1 unknown piece (16403). Updating the app may let you load unknown pieces.',
         variant: 'warning',
       }),
     )
@@ -293,6 +337,7 @@ describe('Virtualscape binary import', () => {
     // Expected overlaps: three castle base/wall pairs, two Fortified Wall
     // samples, and several Laur add-ons sharing one pillar.
     expect(conflicts).toEqual([
+      'c6',
       'cbc',
       'cbe',
       'cbs',
@@ -301,14 +346,14 @@ describe('Virtualscape binary import', () => {
       'cws',
       'fw',
       'fw',
-      'lwp',
       'lwr',
-      'lwr2',
-      'lws',
-      'lws',
+      'ot3',
+      'rd5',
+      'sb',
+      'y0',
     ])
-    // One short wall lacks its second/supporting hex.
-    expect(unsupported).toEqual(['lws'])
+    // Laur add-ons and the ship wall lack their required support features.
+    expect(unsupported).toEqual(['lwa', 'lwl', 'lws', 'sl'])
   })
 
   it('keeps forward and reverse Virtualscape piece mappings together', () => {
@@ -322,8 +367,66 @@ describe('Virtualscape binary import', () => {
     expect(getHexoscapeLaurRotation(Pieces.laurWallTrianglePillar, 10)).toBe(
       0.5,
     )
-    expect(getHexoscapeLaurRotation(Pieces.laurWallLong, 1)).toBe(0.5)
-    expect(getHexoscapeLaurRotation(Pieces.laurWallArch, 2)).toBe(1.5)
+    expect(getHexoscapeLaurRotation(Pieces.laurWallRuin3, 0)).toBe(4)
+    expect(getHexoscapeLaurRotation(Pieces.laurWallShort, 11)).toBe(3.5)
+    expect(getHexoscapeLaurRotation(Pieces.laurWallLong, 1)).toBe(0)
+    expect(getHexoscapeLaurRotation(Pieces.laurWallArch, 2)).toBe(0.5)
+  })
+
+  it('imports Laur and Ticalla jungle to their distinct pieces', async () => {
+    const laur = await importVirtualscapeFixture('vs-laur-jungle.hsc')
+    const ticalla = await importVirtualscapeFixture('vs-ticalla-jungle.hsc')
+
+    expect(laur.boardPieces.map(({ inventoryID }) => inventoryID)).toEqual([
+      Pieces.laurPalm13,
+      Pieces.laurPalm14,
+      Pieces.laurPalm15,
+      Pieces.laurBrush10,
+    ])
+    expect(ticalla.boardPieces.map(({ inventoryID }) => inventoryID)).toEqual([
+      Pieces.palm14,
+      Pieces.palm15,
+      Pieces.palm16,
+      Pieces.brush9,
+    ])
+    expect(laur.droppedPieces).toEqual([])
+    expect(ticalla.droppedPieces).toEqual([])
+  })
+
+  it('imports every Laur add-on at its Virtualscape default orientation', async () => {
+    const loaded = await importVirtualscapeFixture('vs-laur-addons-default.hsc')
+
+    expect(
+      loaded.boardPieces
+        .map(({ inventoryID, rotation }) => [inventoryID, rotation])
+        .sort(([a], [b]) => String(a).localeCompare(String(b))),
+    ).toEqual([
+      [Pieces.laurWallArch, 5.5],
+      [Pieces.laurWallLong, 5.5],
+      [Pieces.laurWallRuin1, 4],
+      [Pieces.laurWallRuin2, 4],
+      [Pieces.laurWallRuin3, 4],
+      [Pieces.laurWallShort, 4],
+    ])
+    expect(loaded.droppedPieces).toEqual([])
+  })
+
+  it('trims the Virtualscape import cushion without an extra map load', async () => {
+    const imported = await importVirtualscapeFixture('vs-ticalla-jungle.hsc')
+    const trimmed = trimVirtualscapeMap(imported)
+    const rows = trimmed.boardPieces.map(({ pieceCoords }) => pieceCoords.r)
+    const columns = trimmed.boardPieces.map(
+      ({ pieceCoords }) => pieceCoords.q + Math.floor(pieceCoords.r / 2),
+    )
+
+    expect(trimmed.hexMap.length).toBe(1)
+    expect(trimmed.hexMap.width).toBe(4)
+    expect(Math.min(...rows)).toBe(0)
+    expect(Math.min(...columns)).toBe(0)
+    expect(trimmed.droppedPieces).toEqual([])
+    expect(trimmed.boardPieces.map(({ pieceCoords }) => pieceCoords.r)).toEqual(
+      [0, 0, 0, 0],
+    )
   })
 
   it('imports Water 2 as two Water 1 pieces', async () => {
@@ -345,7 +448,7 @@ describe('Virtualscape binary import', () => {
     const addon = {
       type: 28010,
       ...shared,
-      rotation: 4,
+      rotation: 0,
       posZ: 2,
       virtualscapeName: 'custom.aoa_ruined_wall',
     }

@@ -1,5 +1,5 @@
 import { useThree } from '@react-three/fiber'
-import { Suspense, useEffect, useMemo, useRef } from 'react'
+import { Suspense, useEffect, useLayoutEffect, useMemo, useRef } from 'react'
 import type React from 'react'
 import { type Group, type Object3DEventMap, Raycaster, Vector2 } from 'three'
 import { worldToCube } from '../data/dragMove.ts'
@@ -13,6 +13,7 @@ import {
   getBoardHexesRectangularMapDimensions,
 } from '../utils/map-utils.ts'
 import { MapBoardPiece3D } from './MapBoardPiece3D.tsx'
+import { isVoidMatDragging } from './drag/dragController.ts'
 import ObjectiveMarkerPlacementPreview from './ObjectiveMarkerPlacementPreview.tsx'
 import { OperationPiecePreviews } from './OperationPiecePreviews.tsx'
 import PiecePreview from './PiecePreview.tsx'
@@ -35,6 +36,7 @@ import LandSubterrainInstanced, {
 } from './models/LandSubterrainInstanced.tsx'
 import ObjectiveMarkers3D from './models/ObjectiveMarkers3D.tsx'
 import { getLandHexInstanceIDs } from './models/landHexInstances.ts'
+import { ghostMapDuringVoidMatDrag } from './voidMatDragGhosting.ts'
 import { lazyWithRetry } from '../utils/lazyWithRetry.ts'
 
 // `?cells=1` only: the module is never loaded otherwise.
@@ -152,6 +154,8 @@ export default function MapDisplay3D({
     [hexMap],
   )
   const isTakingPicture = useBoundStore((s) => s.isTakingPicture)
+  const dragPreviewUID = useBoundStore((s) => s.dragPreview?.uid)
+  const ghostOtherPieces = isVoidMatDragging() && !!dragPreviewUID
   const landRendererMode = getLandRendererMode(
     effectiveGraphicsTier,
     isPerHexLandOverride,
@@ -159,6 +163,13 @@ export default function MapDisplay3D({
   const isPerHexLand = landRendererMode === 'per-hex'
   const previousLandRendererMode = useRef(landRendererMode)
   useMiddleClickPickPenMode()
+
+  useLayoutEffect(() => {
+    if (!ghostOtherPieces) return
+    const mapGroup = mapGroupRef.current
+    if (!mapGroup) return
+    return ghostMapDuringVoidMatDrag(mapGroup)
+  }, [ghostOtherPieces, mapGroupRef])
 
   useEffect(() => {
     if (previousLandRendererMode.current === landRendererMode) return

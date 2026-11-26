@@ -20,6 +20,7 @@ import {
   shouldSwallowRelease,
   worldToCube,
 } from '../../data/dragMove'
+import { isVoidMatPieceID } from '../../data/voidMat'
 import {
   WHEEL_ROTATION_COOLDOWN_MS,
   accumulateWheelRotation,
@@ -43,12 +44,7 @@ import {
   startPerformanceTiming,
 } from '../../performance/performanceTiming'
 import useBoundStore from '../../store/store'
-import {
-  type BoardHex,
-  type BoardPiece,
-  Pieces,
-  SELECT_PEN_MODE,
-} from '../../types'
+import { type BoardHex, type BoardPiece, Pieces } from '../../types'
 import { genBoardHexID } from '../../utils/map-utils'
 
 /**
@@ -292,6 +288,13 @@ function onWindowPointerDownCapture() {
   }
 }
 
+function onWindowContextMenuCapture(event: MouseEvent) {
+  if (state.phase === 'idle') return
+  event.preventDefault()
+  event.stopPropagation()
+  cancel('rightclick')
+}
+
 function onWindowClickCapture(event: MouseEvent) {
   event.stopPropagation()
   stopSwallowingClicks()
@@ -316,6 +319,7 @@ function listen() {
   window.addEventListener('keydown', onWindowKeyDownCapture, true)
   window.addEventListener('blur', onWindowBlur)
   window.addEventListener('pointerdown', onWindowPointerDownCapture, true)
+  window.addEventListener('contextmenu', onWindowContextMenuCapture, true)
 }
 
 function listenWheel() {
@@ -342,15 +346,16 @@ function unlisten() {
   window.removeEventListener('keydown', onWindowKeyDownCapture, true)
   window.removeEventListener('blur', onWindowBlur)
   window.removeEventListener('pointerdown', onWindowPointerDownCapture, true)
+  window.removeEventListener('contextmenu', onWindowContextMenuCapture, true)
 }
 
 // --- Press, target, drop ---
 
 /**
  * onPointerDown on any rendering of a placed piece. Starts a press only
- * for the selected draggable piece(s) in select mode with the left button;
- * otherwise the press is today's (the camera may orbit). Always stops
- * propagation so only the front-most piece decides.
+ * for the selected draggable piece(s) with the left button; otherwise the
+ * press is today's (the camera may orbit). Always stops propagation so only
+ * the front-most piece decides.
  */
 export function pressPieceForDrag(
   event: ThreeEvent<PointerEvent>,
@@ -358,14 +363,8 @@ export function pressPieceForDrag(
 ) {
   event.stopPropagation()
   if (!uid || event.button !== 0 || state.phase !== 'idle') return
-  const {
-    penMode,
-    selectedPieceIDs,
-    boardPieces,
-    isShowStartZones,
-    isShowGlyphs,
-  } = useBoundStore.getState()
-  if (penMode !== SELECT_PEN_MODE) return
+  const { selectedPieceIDs, boardPieces, isShowStartZones, isShowGlyphs } =
+    useBoundStore.getState()
   const members = getDraggableSelectionGroup(
     selectedPieceIDs,
     uid,
@@ -397,6 +396,10 @@ export function pressPieceForDrag(
 
 /** A drag is in progress (cheap; check it before costly lookups). */
 export const isDragging = () => state.phase === 'dragging'
+export const isVoidMatDragging = () =>
+  state.phase === 'dragging' &&
+  !!dragged &&
+  isVoidMatPieceID(dragged.bp.inventoryID)
 
 /** Whether a hover on this piece should be ignored (not stopped). */
 export const isDragPassThrough = (uid: string | undefined) =>

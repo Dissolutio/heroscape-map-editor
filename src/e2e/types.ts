@@ -12,10 +12,31 @@ export type E2ESnapshot = {
   conflictedPieceCount: number
   pieceCount: number
   objectiveMarkerCount: number
-  objectiveMarkerDraft: { size: 1 | 2; style: 'black' | 'white' }
+  objectiveMarkerDraft: {
+    size: 1 | 2
+    style: 'black' | 'white'
+    content: { kind: 'number'; value: number } | { kind: 'text'; value: string }
+    pinNumber: boolean
+  }
+  objectiveMarkers: Array<{
+    uid: string
+    anchor: { q: number; r: number; s: number; altitude: number }
+    size: 1 | 2
+    rotation: 0 | 1 | 2 | 3 | 4 | 5
+    style: 'black' | 'white'
+    content: { kind: 'number'; value: number } | { kind: 'text'; value: string }
+    name?: string
+  }>
   objectiveMarkerAnchors: Array<{
     uid: string
     anchor: { q: number; r: number; s: number; altitude: number }
+  }>
+  voidPieces: Array<{
+    uid: string
+    inventoryID: string
+    pieceCoords: { q: number; r: number; s: number }
+    altitude: number
+    rotation: number
   }>
   selectedObjectiveMarkerUID: string | null
   hexCount: number
@@ -95,6 +116,7 @@ export type E2ESnapshot = {
     altitude: number | null
     rotation: number | null
   } | null
+  ghostingOtherLevels: boolean
   /** A piece press or drag in progress (drag-to-move), or null. */
   drag: E2EDragSnapshot | null
 }
@@ -191,7 +213,12 @@ export type E2ETestBridge = {
   /** Where the camera is and looks (rounded), to check it did not move. */
   cameraPose: () => E2ECameraPose | null
   /** Set pen controls for test setup only. */
-  setPen: (penMode: string, size: number, rotation?: number) => void
+  setPen: (
+    penMode: string,
+    size: number,
+    rotation?: number,
+    preserveSelection?: boolean,
+  ) => void
   /** Place a piece through the paint action when pointer hit-testing is occluded. */
   paintPiece: (
     inventoryID: string,

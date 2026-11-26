@@ -32,6 +32,7 @@ export const VOID_MAT_OUTLINE_AXIAL: readonly (readonly [number, number])[] = [
 
 const IMAGE_WIDTH = 7.5
 const IMAGE_HEIGHT = 5.5 * SQRT3
+export const VOID_MAT_UV_INSET = 4 / 1024
 
 /** Texture coordinates (v up, three.js default flipY) of a template point. */
 export function voidMatUV(q: number, r: number): [number, number] {
@@ -39,7 +40,10 @@ export function voidMatUV(q: number, r: number): [number, number] {
   const pdfR = -q
   const x = 1.5 * (pdfQ + 1)
   const y = SQRT3 * (pdfR + pdfQ / 2 + 1.5)
-  return [x / IMAGE_WIDTH, 1 - y / IMAGE_HEIGHT]
+  const u = x / IMAGE_WIDTH
+  const v = 1 - y / IMAGE_HEIGHT
+  const uvScale = 1 - 2 * VOID_MAT_UV_INSET
+  return [VOID_MAT_UV_INSET + u * uvScale, VOID_MAT_UV_INSET + v * uvScale]
 }
 
 /** World x/z offset of a template point from the origin hex center. */

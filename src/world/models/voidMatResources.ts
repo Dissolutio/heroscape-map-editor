@@ -70,6 +70,7 @@ export function getVoidMatMaterial(
       side: DoubleSide,
       transparent,
       opacity: opacityLevel,
+      depthWrite: false,
       polygonOffset: true,
       polygonOffsetFactor: -1,
       polygonOffsetUnits: -1,

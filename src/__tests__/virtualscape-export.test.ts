@@ -155,6 +155,10 @@ describe('Virtualscape binary export', () => {
         Pieces.laurWallTrianglePillar,
         Pieces.laurWallLong,
         Pieces.laurWallArch,
+        Pieces.laurWallRuin1,
+        Pieces.laurWallRuin2,
+        Pieces.laurWallRuin3,
+        Pieces.laurWallShort,
       ]) {
         expect(
           getHexoscapeLaurRotation(
@@ -180,7 +184,7 @@ describe('Virtualscape binary export', () => {
         rotation,
       )
     }
-    expect(getVirtualscapeLaurRotation(Pieces.laurWallRuin2, 8)).toBe(8)
+    expect(getHexoscapeLaurRotation(Pieces.laurWallRuin2, 8)).toBe(2)
   })
 
   it('exports anchored wall and ship records using their Hexoscape rotations', () => {
@@ -432,21 +436,27 @@ describe('Virtualscape binary export', () => {
   })
 
   it('uses the exact tile metadata from the fixture', () => {
-    const fixture = processVirtualScapeArrayBuffer(
-      fixtureBytes('vs-all-tiles.hsc'),
-    )
+    const fixtures = [
+      processVirtualScapeArrayBuffer(fixtureBytes('vs-all-tiles.hsc')),
+      processVirtualScapeArrayBuffer(
+        fixtureBytes('vs-laur-addons-default.hsc'),
+      ),
+      processVirtualScapeArrayBuffer(fixtureBytes('vs-ticalla-jungle.hsc')),
+    ]
 
     for (const metadata of virtualscapeTileMetadata) {
       expect(
-        fixture.tiles.some((tile) => {
-          const color = tile.colorf.match(/\d+/g)?.map(Number)
-          return (
-            tile.type === metadata.type &&
-            tile.virtualscapeName === metadata.name &&
-            tile.glyphLetter.charCodeAt(0) === metadata.glyph &&
-            color?.every((value, index) => value === metadata.color[index])
-          )
-        }),
+        fixtures.some((fixture) =>
+          fixture.tiles.some((tile) => {
+            const color = tile.colorf.match(/\d+/g)?.map(Number)
+            return (
+              tile.type === metadata.type &&
+              tile.virtualscapeName === metadata.name &&
+              tile.glyphLetter.charCodeAt(0) === metadata.glyph &&
+              color?.every((value, index) => value === metadata.color[index])
+            )
+          }),
+        ),
         `${metadata.type} ${metadata.name}`,
       ).toBe(true)
     }
@@ -465,10 +475,12 @@ describe('Virtualscape binary export', () => {
     }
 
     for (const inventoryID of inventoryIDs) {
-      const altitude =
-        inventoryID === Pieces.marvel || inventoryID === Pieces.marvelBroken
-          ? 1
-          : 0
+      const isMarvelRuin =
+        inventoryID === Pieces.marvel ||
+        inventoryID === Pieces.marvelBroken ||
+        inventoryID === Pieces.marvelNoUpper ||
+        inventoryID === Pieces.marvelNoUpperBroken
+      const altitude = isMarvelRuin ? 1 : 0
       const rotation = inventoryID === Pieces.deflectorShield ? 0.5 : 0
       const piece = makePiece(
         inventoryID,
@@ -477,10 +489,7 @@ describe('Virtualscape binary export', () => {
         rotation,
       )
       const pieces = [piece]
-      if (
-        inventoryID === Pieces.marvel ||
-        inventoryID === Pieces.marvelBroken
-      ) {
+      if (isMarvelRuin) {
         pieces.push(
           makePiece(
             Pieces.concrete6,
@@ -657,9 +666,12 @@ describe('Virtualscape binary export', () => {
     }
   })
 
-  it('round-trips the existing normalized Virtualscape fixtures', () => {
+  it('round-trips Virtualscape fixtures', () => {
     for (const fixture of [
       'vs-all-tiles.hsc',
+      'vs-laur-jungle.hsc',
+      'vs-ticalla-jungle.hsc',
+      'vs-laur-addons-default.hsc',
       'void-and-pylons-example.hsc',
       'void-mat-templates.hsc',
     ]) {
