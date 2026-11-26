@@ -7,6 +7,7 @@ test('loads and renders a Void Mat from the Virtualscape file input', async ({
   await page.goto('/hs?e2e=1')
   await waitForAppReady(page)
 
+  await page.getByRole('tab', { name: 'File' }).click()
   await page.locator('#vsupload').setInputFiles({
     name: 'vs-void-mat-two-grass.hsc',
     mimeType: 'application/octet-stream',
