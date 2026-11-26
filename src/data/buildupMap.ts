@@ -20,7 +20,10 @@ import {
   dropUnknownBoardPieces,
 } from '../utils/map-utils'
 import { addPiece } from './addPiece'
-import { normalizeLegacyMapOrigin } from './convertMapShape'
+import {
+  normalizeLegacyMapOrigin,
+  trimAndNormalizeMap,
+} from './convertMapShape'
 import { fitMapToPieces } from './fitMapToPieces'
 import { getBuiltInSeatedBaseMerges } from './seatedObstacles'
 import {
@@ -58,7 +61,10 @@ function addMissingMarvelBases(tiles: VirtualScapeTile[]) {
     const code = getCodeForVSPersonalTile(tile)
     const inventoryID = pieceCodes[code] ?? String(code ?? tile.type)
     if (
-      (inventoryID !== Pieces.marvel && inventoryID !== Pieces.marvelBroken) ||
+      (inventoryID !== Pieces.marvel &&
+        inventoryID !== Pieces.marvelBroken &&
+        inventoryID !== Pieces.marvelNoUpper &&
+        inventoryID !== Pieces.marvelNoUpperBroken) ||
       hasConcreteBase(tile)
     ) {
       return [tile]
@@ -409,6 +415,23 @@ export function buildupJsonFileMap(
       ? { droppedObjectiveMarkers: fitted.droppedObjectiveMarkers }
       : {}),
     dimensionsAdjusted: fitted.changed,
+  }
+}
+
+export function trimVirtualscapeMap(
+  loadedMap: VirtualScapeMapLoadResult,
+): JsonMapLoadResult {
+  const trimmed = trimAndNormalizeMap(loadedMap.hexMap, loadedMap.boardPieces)
+  if (!trimmed.ok) return loadedMap
+
+  const rebuilt = buildupJsonFileMap(
+    trimmed.boardPieces,
+    trimmed.hexMap,
+    loadedMap.droppedPieces,
+  )
+  return {
+    ...rebuilt,
+    mergedSeatedBaseCount: loadedMap.mergedSeatedBaseCount,
   }
 }
 
