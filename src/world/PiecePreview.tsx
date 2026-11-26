@@ -99,6 +99,7 @@ export default function PiecePreview() {
   const penModeSize = useBoundStore((s) => s.pieceSize)
   const penModeRotation = useBoundStore((s) => s.penModeRotation)
   const isTakingPicture = useBoundStore((s) => s.isTakingPicture)
+  const dragPreview = useBoundStore((s) => s.dragPreview)
   const pieceKey = getPieceIDForPenMode(penMode, penModeSize)
   const piece = piecesSoFar[pieceKey]
   const hoveredAddon = boardPieces.find(
@@ -116,7 +117,8 @@ export default function PiecePreview() {
       !placementPointerHex ||
       !piece ||
       penMode === 'select' ||
-      isTakingPicture
+      isTakingPicture ||
+      dragPreview
     ) {
       return null
     }
@@ -135,6 +137,7 @@ export default function PiecePreview() {
     placementPointerHex,
     hoveredWorldPoint,
     isTakingPicture,
+    dragPreview,
     penMode,
     penModeRotation,
     piece,

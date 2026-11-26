@@ -213,7 +213,12 @@ export type E2ETestBridge = {
   /** Where the camera is and looks (rounded), to check it did not move. */
   cameraPose: () => E2ECameraPose | null
   /** Set pen controls for test setup only. */
-  setPen: (penMode: string, size: number, rotation?: number) => void
+  setPen: (
+    penMode: string,
+    size: number,
+    rotation?: number,
+    preserveSelection?: boolean,
+  ) => void
   /** Place a piece through the paint action when pointer hit-testing is occluded. */
   paintPiece: (
     inventoryID: string,

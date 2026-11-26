@@ -272,7 +272,7 @@ describe('dragReducer', () => {
     expect(next.outcome.type).toBe('none')
   })
 
-  it.each(['escape', 'blur'] as const)(
+  it.each(['escape', 'rightclick', 'blur'] as const)(
     '%s cancels and swallows the coming release, which then clears',
     (reason) => {
       const { state, outcomes } = run([
@@ -483,7 +483,7 @@ describe('multi-selection drag', () => {
     expect(target.evaluation.status).toBe('blocked')
   })
 
-  it('starts only when the grabbed piece is in an all-draggable selection', () => {
+  it('starts for selected pieces and not for unselected pieces', () => {
     const draggable = [
       {
         uid: 'A',
@@ -523,6 +523,7 @@ describe('multi-selection drag', () => {
         { ...addon, inventoryID: 'unknown' },
       ]),
     ).toBeNull()
+    expect(getDraggableSelectionGroup([], 'A', draggable)).toBeNull()
     expect(getDraggableSelectionGroup(['B'], 'A', draggable)).toBeNull()
   })
 

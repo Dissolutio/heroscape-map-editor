@@ -705,9 +705,9 @@ function TestBridgeInner() {
           zoom: round4(camera.zoom),
         }
       },
-      setPen: (penMode, size, rotation) => {
+      setPen: (penMode, size, rotation, preserveSelection) => {
         const store = useBoundStore.getState()
-        store.togglePenMode(penMode)
+        store.togglePenMode(penMode, { preserveSelection })
         store.togglePieceSize(size)
         if (rotation !== undefined) {
           store.togglePenModeRotation(rotation)

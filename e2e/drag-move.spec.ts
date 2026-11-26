@@ -7,6 +7,7 @@ import {
   expect,
   findPieceUid,
   mapUrl,
+  setPen,
   startDrag,
   startDragToPiece,
   test,
@@ -147,6 +148,64 @@ for (const { name, perspective } of views) {
       await expect
         .poll(async () => (await piece(page, rock))?.pieceCoords)
         .toEqual({ q: 1, r: 2, s: -3 })
+    })
+
+    test('a selected piece can be dragged while its piece pen is active', async ({
+      page,
+    }) => {
+      const rock = await selectRock(page)
+      await setPen(page, 'r1', 0, undefined, true)
+      await expect.poll(async () => (await snapshot(page))?.penMode).toBe('r1')
+      await expect
+        .poll(async () => (await snapshot(page))?.selectedPieceIDs)
+        .toEqual([rock])
+
+      const pieces = await page.evaluate(() => window.__TEST__?.listPieces())
+      const pose = await cameraPose(page)
+      await startDrag(page, rock, { q: 2, r: 2, altitude: 1 })
+      await expect
+        .poll(async () => (await snapshot(page))?.drag)
+        .toMatchObject({
+          state: 'dragging',
+          targetStatus: 'ok',
+          targetHex: { q: 2, r: 2, altitude: 1 },
+        })
+      expect((await snapshot(page))?.placementPreview).toBeNull()
+      expect(await cameraPose(page)).toEqual(pose)
+      await page.mouse.up()
+
+      await expect
+        .poll(async () => (await piece(page, rock))?.pieceCoords)
+        .toEqual({ q: 2, r: 2, s: -4 })
+      expect(
+        await page.evaluate(() => window.__TEST__?.listPieces()),
+      ).toHaveLength(pieces?.length ?? 0)
+      expect(await cameraPose(page)).toEqual(pose)
+      expect((await snapshot(page))?.penMode).toBe('r1')
+    })
+
+    test('right-click cancels a selected-piece drag in piece-pen mode', async ({
+      page,
+    }) => {
+      const rock = await selectRock(page)
+      await setPen(page, 'r1', 0, undefined, true)
+      const pieces = await page.evaluate(() => window.__TEST__?.listPieces())
+      const pose = await cameraPose(page)
+
+      await startDrag(page, rock, { q: 2, r: 2, altitude: 1 })
+      await expect
+        .poll(async () => (await snapshot(page))?.drag?.state)
+        .toBe('dragging')
+      await page.mouse.down({ button: 'right' })
+      await page.mouse.up({ button: 'right' })
+      await expect.poll(async () => (await snapshot(page))?.drag).toBeNull()
+      await page.mouse.up()
+
+      expect(await page.evaluate(() => window.__TEST__?.listPieces())).toEqual(
+        pieces,
+      )
+      expect(await cameraPose(page)).toEqual(pose)
+      expect((await snapshot(page))?.penMode).toBe('r1')
     })
 
     test('f. over its own start hex, the target is the grass under the rock', async ({
