@@ -107,10 +107,11 @@ The canvas is invisible to accessibility snapshots, so read state in text:
   `roadWallMaterials` (rendered Stone Wall UIDs, part names, material types, and
   base-color map state), `ruinsMaterials` (rendered Ruins 2/3 UIDs, face/column
   part names, and base-color map state), `objectiveMarkerCount`,
-  `selectedObjectiveMarkerUID`,
+  `selectedObjectiveMarkerUID`, and `voidPieces` (Void Mat/Marker positions),
   `hoveredPieceID`, `isOrthoCam`, `ready`, `placementPreview`
   (`status`, `reason`, `footprintCount`, `unsupported`, `altitude`, and
-  `rotation`, or `null`), and
+  `rotation`, or `null`), `ghostingOtherLevels` (true during a Void Mat or
+  Marker drag), and
   `drag`: a piece
   press or drag in progress, or `null` (`state` is `'pressed'` or
   `'dragging'`; `targetStatus` is the drop's `'ok'`, `'conflict'` or

@@ -17,6 +17,13 @@ export type E2ESnapshot = {
     uid: string
     anchor: { q: number; r: number; s: number; altitude: number }
   }>
+  voidPieces: Array<{
+    uid: string
+    inventoryID: string
+    pieceCoords: { q: number; r: number; s: number }
+    altitude: number
+    rotation: number
+  }>
   selectedObjectiveMarkerUID: string | null
   hexCount: number
   landInstanceCounts: { solid: number; fluid: number }
@@ -95,6 +102,7 @@ export type E2ESnapshot = {
     altitude: number | null
     rotation: number | null
   } | null
+  ghostingOtherLevels: boolean
   /** A piece press or drag in progress (drag-to-move), or null. */
   drag: E2EDragSnapshot | null
 }

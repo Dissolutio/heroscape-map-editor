@@ -33,7 +33,7 @@ import { getTemplateTopLevel } from '../data/vertical-obstruction-templates'
 import { getViewingLevelAfterPlacing } from '../store/map-slice'
 import useBoundStore from '../store/store'
 import type { BoardHex, BoardPiece, CubeCoordinate } from '../types'
-import { PiecePrefixes } from '../types'
+import { PiecePrefixes, Pieces } from '../types'
 import {
   CLICK_DRAG_TOLERANCE_PX,
   HEXGRID_MAX_ALTITUDE,
@@ -1350,6 +1350,53 @@ describe('drag target and drop decision', () => {
       newRotation: 0,
     })
     expect(board).toEqual(before)
+  })
+
+  it('keeps a Void Mat drag on the table when the pointer is above another piece', () => {
+    const mat: BoardPiece = {
+      uid: 'MAT',
+      inventoryID: Pieces.voidMat,
+      altitude: 0,
+      rotation: 0,
+      pieceCoords: { q: 3, r: 3, s: -6 },
+    }
+    const table = place({
+      board: makeTable(20),
+      pieceID: mat.inventoryID,
+      at: mat.pieceCoords,
+      altitude: mat.altitude,
+      rotation: mat.rotation,
+      uid: mat.uid,
+    }).board
+    const destination = { q: 5, r: 4, s: -9 }
+    const board = place({
+      board: table,
+      pieceID: Pieces.grass1,
+      at: destination,
+      altitude: 0,
+      uid: 'GRASS',
+    }).board
+    const grassTop = hexAt(board, destination, 1)
+    if (!grassTop) throw new Error('missing grass top')
+
+    const target = evaluateDragTarget(
+      board,
+      piecesSoFar[Pieces.voidMat],
+      mat,
+      grassTop,
+      { q: 0, r: 0, s: 0 },
+    )
+
+    expect(target.resolution).toMatchObject({
+      coords: destination,
+      altitude: 0,
+      rule: 'voidMat',
+    })
+    expect(decideDrop(mat.uid, target)).toMatchObject({
+      type: 'move',
+      newPieceCoords: destination,
+      newAltitude: 0,
+    })
   })
 
   it('onto free grass: ok, moves there with smart altitude', () => {

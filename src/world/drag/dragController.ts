@@ -20,6 +20,7 @@ import {
   shouldSwallowRelease,
   worldToCube,
 } from '../../data/dragMove'
+import { isVoidMatPieceID } from '../../data/voidMat'
 import {
   WHEEL_ROTATION_COOLDOWN_MS,
   accumulateWheelRotation,
@@ -397,6 +398,10 @@ export function pressPieceForDrag(
 
 /** A drag is in progress (cheap; check it before costly lookups). */
 export const isDragging = () => state.phase === 'dragging'
+export const isVoidMatDragging = () =>
+  state.phase === 'dragging' &&
+  !!dragged &&
+  isVoidMatPieceID(dragged.bp.inventoryID)
 
 /** Whether a hover on this piece should be ignored (not stopped). */
 export const isDragPassThrough = (uid: string | undefined) =>
