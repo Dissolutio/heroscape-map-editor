@@ -1,3 +1,4 @@
+import { execFileSync } from 'node:child_process'
 import { computeNextVersion, gitTags, parseVersion } from './next-version.mjs'
 
 export const LOCAL_RELEASE_VERSION = 'local-development'
@@ -48,6 +49,22 @@ const tryGitTags = (args) => {
 }
 
 /**
+ * Netlify reuses a cached clone and doesn't fetch new tags, so production
+ * builds saw only tags up to v1.0.17 and reported `hexoscape@1.0.18` for
+ * v1.0.35 and v1.0.36. Fetch the tags first; a failure just leaves the cache.
+ */
+const tryFetchGitTags = () => {
+  try {
+    execFileSync('git', ['fetch', '--force', '--tags', '--quiet', 'origin'], {
+      stdio: 'ignore',
+      timeout: 30_000,
+    })
+  } catch {
+    // keep going with whatever tags the clone has
+  }
+}
+
+/**
  * resolveReleaseVersion for this build. Only reads git on Netlify (and only
  * when the version isn't given), and never throws: a build never fails over
  * its version.
@@ -58,6 +75,7 @@ export function getBuildReleaseVersion(env = process.env) {
       !env.VITE_RELEASE_VERSION &&
       env.NETLIFY === 'true' &&
       env.CONTEXT === 'production'
+    if (needsGit) tryFetchGitTags()
     return resolveReleaseVersion({
       env,
       tags: needsGit ? tryGitTags(['--list', 'v*']) : null,
