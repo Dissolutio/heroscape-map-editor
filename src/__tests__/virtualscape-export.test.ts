@@ -91,6 +91,31 @@ describe('Virtualscape binary export', () => {
     expect(pieceValues(loaded.boardPieces)).toEqual(pieceValues([piece]))
   })
 
+  it('writes CStrings with the FF FE FF marker, like Virtualscape', () => {
+    // Virtualscape refused files whose CStrings lacked FF FE FF: MFC read
+    // the length as single-byte characters and the file misaligned.
+    const { buffer } = writeVirtualscapeMap(
+      { ...map, name: 'Ab', author: '' },
+      [makePiece(Pieces.grass1, { q: 0, r: 0, s: 0 })],
+    )
+    const bytes = Array.from(new Uint8Array(buffer))
+    // version (8 bytes), then name, author and player number
+    expect(bytes.slice(8, 24)).toEqual([
+      0xff, 0xfe, 0xff, 2, 0x41, 0, 0x62, 0, 0xff, 0xfe, 0xff, 0, 0xff, 0xfe,
+      0xff, 0,
+    ])
+    // A Grass 1 at 0,0,0 exactly as Virtualscape wrote it in vs-all-tiles.hsc
+    const grass1Record = [
+      // type 1001, version 0.0003
+      0xe9, 0x03, 0, 0, 0x61, 0x32, 0x55, 0x30, 0x2a, 0xa9, 0x33, 0x3f,
+      // rotation, x, y, z, glyph letter
+      ...Array(17).fill(0),
+      // glyph name, start name, RGBA
+      0xff, 0xfe, 0xff, 0, 0xff, 0xfe, 0xff, 0, 0, 0xa0, 0, 0,
+    ]
+    expect(bytes.slice(-grass1Record.length)).toEqual(grass1Record)
+  })
+
   it('inverts all import rotations and ladder altitude conversion', () => {
     for (let rotation = 0; rotation < 6; rotation += 1) {
       expect(

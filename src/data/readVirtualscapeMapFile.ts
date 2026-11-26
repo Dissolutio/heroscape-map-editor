@@ -153,14 +153,19 @@ function getUint8(dataView: DataView): number {
   return val
 }
 function readCString(dataView: DataView): string {
-  const length = readCStringLength(dataView)
+  const { length, isUnicode } = readCStringLength(dataView)
   let value = ''
   for (let i = 0; i < length; i++) {
-    value += String.fromCodePoint(getUint16(dataView))
+    value += String.fromCharCode(
+      isUnicode ? getUint16(dataView) : getUint8(dataView),
+    )
   }
   return value
 }
-function readCStringLength(dataView: DataView): number {
+function readCStringLength(
+  dataView: DataView,
+  isUnicode = false,
+): { length: number; isUnicode: boolean } {
   let length = 0
   const byte = getUint8(dataView)
   if (byte !== 0xff) {
@@ -171,9 +176,9 @@ function readCStringLength(dataView: DataView): number {
     const short = getUint16(dataView)
 
     if (short === 0xfffe) {
-      // Case 2a: If the 16-bit value is 0xFFFE, recursively call `readCStringLength`.
-      // This indicates that the length is encoded in a more complex way.
-      return readCStringLength(dataView)
+      // Case 2a: FF FE FF is MFC's UTF-16 marker; the length follows.
+      // Without it, the characters are single bytes.
+      return readCStringLength(dataView, true)
     }
     if (short === 0xffff) {
       // Case 2b: If the 16-bit value is 0xFFFF, read the next 4 bytes as a 32-bit unsigned integer.
@@ -184,7 +189,7 @@ function readCStringLength(dataView: DataView): number {
       length = short
     }
   }
-  return length
+  return { length, isUnicode }
 }
 function rtfToText(rtf: string) {
   if (!rtf.startsWith('{\\rtf')) return rtf

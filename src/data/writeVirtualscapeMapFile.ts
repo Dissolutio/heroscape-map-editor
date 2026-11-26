@@ -281,8 +281,13 @@ class BinaryWriter {
     this.bytes.push(...bytes)
   }
 
+  // MFC CArchive CString: FF FE FF marks UTF-16 text (Virtualscape always
+  // writes it, even for empty strings). Without it MFC reads the length as
+  // a count of single-byte characters and the rest of the file misaligns.
   writeCString(value: string) {
     const length = value.length
+    this.setUint8(0xff)
+    this.setUint16(0xfffe)
     if (length < 0xff) {
       this.setUint8(length)
     } else {
