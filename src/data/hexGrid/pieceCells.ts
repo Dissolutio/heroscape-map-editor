@@ -46,6 +46,7 @@ import {
   isSamePortFamily,
 } from '../portPieces'
 import { getLaurAddonFootprint } from '../laurAddonFootprints'
+import { piecesSoFar } from '../pieces'
 import {
   getObstructedLevelOffsets,
   type ObstructionEntry,
@@ -264,6 +265,7 @@ export function getEdgeNodePieceColumns(piece: CellPiece): CubeCoordinate[] {
 function getBoardHexCells(
   hex: BoardHex,
   piece: CellPiece,
+  boardPieces: BoardPieces,
 ): PieceCellId[] {
   if (!hex.boardPieceUID || hasCellFootprint(hex.inventoryID)) return []
   if (
@@ -273,9 +275,54 @@ function getBoardHexCells(
     return []
   }
   const coords = { q: hex.q, r: hex.r, s: hex.s }
+  const occupantID =
+    boardPieces.find(({ uid }) => uid === hex.boardPieceUID)?.inventoryID ??
+    hex.inventoryID
+  if (
+    pieceCellDeclarations[piece.inventoryID]?.fills === 'laur-addon' &&
+    isSupportedLaurAddonEndGround(piece, coords, occupantID, boardPieces)
+  ) {
+    return []
+  }
   const hexCell = `hex:${hex.q},${hex.r},${hex.s}` as PieceCellId
   if (isHexCenterPieceID(hex.inventoryID)) return [hexCell]
   return [hexCell, ...edgesForHex(coords), ...nodesForHex(coords)]
+}
+
+function isSupportedLaurAddonEndGround(
+  addon: CellPiece,
+  coords: CubeCoordinate,
+  inventoryID: string,
+  boardPieces: BoardPieces,
+) {
+  if (pieceCellDeclarations[addon.inventoryID]?.fills !== 'laur-addon') {
+    return false
+  }
+  const footprint = getLaurAddonFootprint({
+    inventoryID: addon.inventoryID,
+    anchor: addon.pieceCoords,
+    altitude: addon.altitude,
+    rotation: addon.rotation,
+  })
+  if (
+    !footprint?.endHexes.some(
+      (end) => end.q === coords.q && end.r === coords.r && end.s === coords.s,
+    )
+  ) {
+    return false
+  }
+  return (
+    Boolean(piecesSoFar[inventoryID]?.isHexTerrainPiece) &&
+    boardPieces.some(
+      (pillar) =>
+        getPortPillar(pillar.inventoryID)?.family === 'laur' &&
+        pillar.pieceCoords.q === coords.q &&
+        pillar.pieceCoords.r === coords.r &&
+        pillar.pieceCoords.s === coords.s &&
+        pillar.altitude >= footprint.altitude &&
+        pillar.altitude < footprint.altitude + footprint.heightInLevels,
+    )
+  )
 }
 
 const overlaps = (bottom: number, top: number, other: FilledCell) =>
@@ -328,9 +375,7 @@ function preservesLaurAddonRules(first: CellPiece, second: CellPiece) {
     pieceCellDeclarations[second.inventoryID]?.fills === 'laur-addon'
   if (!firstIsLaurAddon && !secondIsLaurAddon) return false
   if (firstIsLaurAddon && secondIsLaurAddon) return true
-  const pillar = getPortPillar(
-    (firstIsLaurAddon ? second : first).inventoryID,
-  )
+  const pillar = getPortPillar((firstIsLaurAddon ? second : first).inventoryID)
   return pillar?.family === 'laur'
 }
 
@@ -511,7 +556,7 @@ export function findCellConflicts({
       for (let altitude = bottom + 0.5; altitude < top + 1; altitude += 0.5) {
         const hex = boardHexes[hexKey(coords, altitude)]
         if (!hex?.boardPieceUID || hex.boardPieceUID === uid) continue
-        for (const hexCell of getBoardHexCells(hex, piece)) {
+        for (const hexCell of getBoardHexCells(hex, piece, boardPieces)) {
           const cell = cellsByID.get(hexCell)
           if (cell && overlaps(altitude - 1, altitude, cell)) {
             conflicts.add(hex.boardPieceUID)
@@ -528,11 +573,18 @@ export function findCellConflicts({
   if (walls.byCell.size === 0) return []
   for (const hex of writtenHexes) {
     if (!walls.columns.has(columnKey(hex))) continue
-    for (const cell of getBoardHexCells(hex, piece)) {
+    for (const cell of getBoardHexCells(hex, piece, boardPieces)) {
       for (const wall of walls.byCell.get(cell) ?? []) {
         if (
           wall.isWall &&
           wall.uid !== uid &&
+          !preservesLaurAddonRules(piece, wall.piece) &&
+          !isSupportedLaurAddonEndGround(
+            wall.piece,
+            hex,
+            piece.inventoryID,
+            boardPieces,
+          ) &&
           overlaps(hex.altitude - 1, hex.altitude, wall)
         ) {
           conflicts.add(wall.uid)

@@ -25,11 +25,13 @@ import {
 import {
   getPieceFootprintCells,
   getEdgeNodePieceColumns,
+  hasCellFootprint,
   isEdgeNodePieceID,
   isFootprintPieceID,
   isHexCenterPieceID,
 } from '../data/hexGrid/pieceCells'
 import { getLaurAddonFootprint } from '../data/laurAddonFootprints'
+import { getPortPieceRotations } from '../data/portPieces'
 import { pieceCellDeclarations } from '../data/hexGrid/pieceFeatures'
 import { pieceFootprints } from '../data/hexGrid/pieceFootprints'
 import { piecesSoFar } from '../data/pieces'
@@ -306,6 +308,7 @@ describe('the declarations', () => {
     }
     expect(isEdgeNodePieceID(Pieces.fortifiedWall)).toBe(true)
     expect(isEdgeNodePieceID(Pieces.laurWallLong)).toBe(true)
+    expect(hasCellFootprint(Pieces.laurWallLong)).toBe(true)
     expect(isEdgeNodePieceID('g1')).toBe(false)
     expect(isHexCenterPieceID(Pieces.cannon)).toBe(true)
     expect(isHexCenterPieceID(Pieces.glyphPower)).toBe(true)
@@ -523,40 +526,56 @@ describe('footprints', () => {
     expect(columns).toHaveLength(10)
   })
 
-  it('Laur add-on cells use their attachment feature, blocked hexes and height', () => {
-    const inventoryID = Pieces.laurWallLong
-    const rotation = 0.5
-    const origin = { q: 0, r: 0, s: 0 }
-    const footprint = getLaurAddonFootprint({
+  const laurAddonIDs = [
+    Pieces.laurWallShort,
+    Pieces.laurWallShortStackable,
+    Pieces.laurWallLong,
+    Pieces.laurWallLongStackable,
+    Pieces.laurWallArch,
+    Pieces.laurWallRuin1,
+    Pieces.laurWallRuin2,
+    Pieces.laurWallRuin3,
+  ]
+  const laurAddonCases = laurAddonIDs.flatMap((inventoryID) =>
+    (getPortPieceRotations(inventoryID) ?? []).map((rotation) => ({
       inventoryID,
-      anchor: origin,
-      altitude: 1,
       rotation,
-    })
-    if (!footprint) throw new Error('Expected a Laur add-on footprint')
-    const cells = getPieceFootprintCells({
-      inventoryID,
-      pieceCoords: origin,
-      rotation,
-      altitude: 1,
-    })
+    })),
+  )
 
-    expect(cells.map(({ cell }) => cell).sort()).toEqual(
-      [
-        footprint.featureId,
-        ...footprint.blockedHexes.map(
-          ({ q, r, s }) => `hex:${q},${r},${s}`,
+  it.each(laurAddonCases)(
+    '$inventoryID cells use attachment, blocked hexes and height at rotation $rotation',
+    ({ inventoryID, rotation }) => {
+      const origin = { q: 0, r: 0, s: 0 }
+      const footprint = getLaurAddonFootprint({
+        inventoryID,
+        anchor: origin,
+        altitude: 1,
+        rotation,
+      })
+      if (!footprint) throw new Error('Expected a Laur add-on footprint')
+      const cells = getPieceFootprintCells({
+        inventoryID,
+        pieceCoords: origin,
+        rotation,
+        altitude: 1,
+      })
+
+      expect(cells.map(({ cell }) => cell).sort()).toEqual(
+        [
+          footprint.featureId,
+          ...footprint.blockedHexes.map(({ q, r, s }) => `hex:${q},${r},${s}`),
+        ].sort(),
+      )
+      expect(
+        cells.every(
+          ({ bottom, top }) =>
+            bottom === footprint.altitude &&
+            top === footprint.altitude + footprint.heightInLevels,
         ),
-      ].sort(),
-    )
-    expect(
-      cells.every(
-        ({ bottom, top }) =>
-          bottom === footprint.altitude &&
-          top === footprint.altitude + footprint.heightInLevels,
-      ),
-    ).toBe(true)
-  })
+      ).toBe(true)
+    },
+  )
 
   it('a Laur long wall only conflicts with cell pieces that share its cells', () => {
     const addon = bp('addon', Pieces.laurWallLong, O, 1, 0.5)
@@ -565,6 +584,7 @@ describe('footprints', () => {
       bp('pillar-b', Pieces.laurWallSquarePillar, at(1, 1), 1, 2),
     ]
 
+    expect(rebuildBoardStateFromPieces([addon]).boardHexes).toEqual({})
     expect(conflictsOn(...pillarPair, addon)).toEqual([])
     expect(
       conflictsOn(addon, bp('adjacent-wall', Pieces.fortifiedWall, SE, 1)),
