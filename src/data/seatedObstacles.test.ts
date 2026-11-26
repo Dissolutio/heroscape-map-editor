@@ -49,6 +49,25 @@ describe('seated obstacle definitions', () => {
     }
   })
 
+  it('ignores community sets when determining the map era', () => {
+    expect(
+      getSeatedObstacleDefinition(Pieces.outcrop3, ['S', 'FF']),
+    ).toMatchObject({
+      defaultBaseID: Pieces.shadow3,
+      baseFootprint: 'same-size',
+    })
+    expect(
+      getSeatedObstacleDefinition(Pieces.outcrop3, ['C', 'FF']),
+    ).toMatchObject({
+      defaultBaseID: Pieces.shadow1,
+      baseFootprint: 'one-per-hex',
+    })
+    expect(getSeatedObstacleDefinition(Pieces.outcrop3, ['FF'])).toMatchObject({
+      defaultBaseID: Pieces.shadow1,
+      baseFootprint: 'one-per-hex',
+    })
+  })
+
   it('allows contemporary bases beneath any contemporary outcrop', () => {
     for (const pieceID of [
       Pieces.outcrop1,

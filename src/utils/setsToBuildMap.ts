@@ -88,7 +88,7 @@ type SetCandidate = {
   name: string
   abbreviation: string
   kind: TerrainSetKind
-  era: Era
+  era: Era | 'community'
   inventory: PieceInventory
   /** Community custom: eligible in every era, never shown with VC off. */
   isVC: boolean
@@ -144,7 +144,7 @@ const allSets: SetCandidate[] = Object.values(terrainSetsByShortID).map(
     name: set.name,
     abbreviation: set.abbreviation,
     kind: set.kind,
-    era: set.era as Era,
+    era: set.era,
     inventory: set.inventory,
     isVC: isVCTerrainSet(set),
   }),

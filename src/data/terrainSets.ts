@@ -353,7 +353,7 @@ export const terrainSetsByShortID = {
     id: 'FF',
     // hsOrgId omitted: a community custom set.
     releaseDate: '12/2023',
-    era: 'contemporary',
+    era: 'community',
     // Community custom (VC) content, shown only with the Include VC
     // unit/terrain data setting. The one place that says a set, and so its
     // pieces, are VC (src/data/vcContent.ts).
