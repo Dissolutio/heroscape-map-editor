@@ -8,6 +8,7 @@ import type {
 import { HexTerrain, Pieces } from '../types'
 import { isLaurWallAddonPieceID } from '../utils/board-utils'
 import type { HexFeatureId } from './hexGrid/edgesAndNodes'
+import { hasCellFootprint } from './hexGrid/pieceCells'
 import { getLaurAddonFootprint } from './laurAddonFootprints'
 import { getLaurAddonFeatureId } from './laurAddonPlacement'
 import {
@@ -191,6 +192,13 @@ export function evaluateLaurAddonConflicts(
 
           const inventoryID =
             pieceByUID.get(uid)?.inventoryID ?? hex.inventoryID
+          if (hasCellFootprint(inventoryID)) continue
+          if (
+            !attachmentEnds &&
+            piecesSoFar[inventoryID]?.terrain === HexTerrain.castleWall
+          ) {
+            continue
+          }
           if (
             (attachmentEnds &&
               (pillarIDs.has(inventoryID) ||
