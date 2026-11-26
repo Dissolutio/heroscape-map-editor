@@ -318,6 +318,28 @@ describe('click placement through the real handler', () => {
     expect(result.conflictedPieceUIDs).toEqual([])
   })
 
+  it('allows a built-in Outcrop 1 to sit on a fluid base on the table', () => {
+    const table = makeTable(9)
+    const baseBoard = place({
+      board: cloneBoard(table),
+      pieceID: Pieces.toxicWater1,
+      at: table.center,
+      altitude: 0,
+      uid: 'existing-toxic-base',
+    }).board
+    const baseCap = hexAt(baseBoard, table.center, 1) as BoardHex
+    const result = clickWithPen({
+      board: baseBoard,
+      pieceID: Pieces.outcrop1,
+      hex: baseCap,
+    })
+
+    expect(result.added.map((piece) => piece.inventoryID)).toEqual([
+      Pieces.outcrop1,
+    ])
+    expect(result.conflictedPieceUIDs).toEqual([])
+  })
+
   it('does not auto-place missing bases under a Rock Outcrop 3', () => {
     const table = withGrassFloor(makeTable(9))
     const outcropCoords = getPieceTemplateCoords({

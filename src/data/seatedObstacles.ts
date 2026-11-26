@@ -192,9 +192,7 @@ export function getExistingSeatedBases(
 ): ExistingSeatedBase[] {
   const obstaclePiece = piecesSoFar[pieceID]
   const definition = getSeatedObstacleDefinition(pieceID, setsUsed)
-  if (!obstaclePiece || !definition || definition.baseMode !== 'separate') {
-    return []
-  }
+  if (!obstaclePiece || !definition) return []
   const obstacleCoords = getPieceTemplateCoords({
     clickedHex: coords,
     rotation,
