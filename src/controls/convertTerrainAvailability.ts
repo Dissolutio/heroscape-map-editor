@@ -1,4 +1,6 @@
 import { piecesSoFar } from '../data/pieces'
+import { boardPiecesUseVC } from '../data/vcContent'
+import { findVoidMatLayoutForMarkers } from '../data/voidMat'
 import type { AppState } from '../store/store'
 import { Pieces, type BoardPiece } from '../types'
 import { isFluidTerrainHex, isSolidTerrainHex } from '../utils/board-utils'
@@ -54,6 +56,7 @@ export function getConvertTerrainAvailability({
   customConstraintInventoryFileName,
   userPieceInventory,
   compact,
+  includeVCContent = false,
 }: {
   boardPieces: readonly BoardPiece[]
   selectedPieceIDs: readonly string[]
@@ -63,6 +66,7 @@ export function getConvertTerrainAvailability({
   customConstraintInventoryFileName: AppState['customConstraintInventoryFileName']
   userPieceInventory: AppState['userPieceInventory']
   compact: boolean
+  includeVCContent?: boolean
 }) {
   const selectedIDs = new Set(selectedPieceIDs)
   const selectedBoardPieces = boardPieces.filter((piece) =>
@@ -83,6 +87,18 @@ export function getConvertTerrainAvailability({
   const selectedStartZonePieces = selectedBoardPieces.filter((piece) =>
     startZoneInventoryIDSet.has(piece.inventoryID),
   )
+  const selectedVoidMatPieces = selectedBoardPieces.filter(
+    (piece) => piece.inventoryID === Pieces.voidMat,
+  )
+  const voidMatLayoutForMarkers =
+    selectedPieceIDs.length === 14 && selectedBoardPieces.length === 14
+      ? findVoidMatLayoutForMarkers(selectedBoardPieces)
+      : undefined
+  const showVoidConversions = includeVCContent || boardPiecesUseVC(boardPieces)
+  const canConvertVoidMatToMarkers =
+    showVoidConversions && selectedVoidMatPieces.length > 0
+  const canConvertVoidMarkersToMat =
+    showVoidConversions && voidMatLayoutForMarkers !== undefined
   const hasMixedStartZoneSelection =
     selectedStartZonePieces.length > 0 && selectedLandPieces.length > 0
   const constrainedInventory = getEffectiveTerrainConstraintInventory({
@@ -147,7 +163,11 @@ export function getConvertTerrainAvailability({
     selectedLandPieces.length > 0 && availableTerrains.length > 0
   const hasAvailableStartZoneTargets =
     selectedStartZonePieces.length > 0 && !hasMixedStartZoneSelection
-  const isDisabled = !hasAvailableLandTargets && !hasAvailableStartZoneTargets
+  const isDisabled =
+    !hasAvailableLandTargets &&
+    !hasAvailableStartZoneTargets &&
+    !canConvertVoidMatToMarkers &&
+    !canConvertVoidMarkersToMat
   const disabledMessage =
     selectedLandPieces.length === 0 && selectedStartZonePieces.length === 0
       ? 'No eligible pieces selected'
@@ -169,8 +189,16 @@ export function getConvertTerrainAvailability({
     landPieceInventoryByTerrainAndSize,
     selectedLandPieces,
     selectedStartZonePieces,
+    selectedVoidMatPieces,
+    voidMatLayoutForMarkers,
+    canConvertVoidMatToMarkers,
+    canConvertVoidMarkersToMat,
     showConstraintNotice,
-    shouldRender: hasAvailableLandTargets || selectedStartZonePieces.length > 0,
+    shouldRender:
+      hasAvailableLandTargets ||
+      selectedStartZonePieces.length > 0 ||
+      canConvertVoidMatToMarkers ||
+      canConvertVoidMarkersToMat,
   }
 }
 

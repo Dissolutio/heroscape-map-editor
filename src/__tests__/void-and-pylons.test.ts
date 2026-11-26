@@ -39,7 +39,11 @@ import {
   isVCPieceID,
   isVCTerrainSetID,
 } from '../data/vcContent'
-import { findVoidMatAtTableHex, getVoidMatHexes } from '../data/voidMat'
+import {
+  findVoidMatAtTableHex,
+  findVoidMatLayoutForMarkers,
+  getVoidMatHexes,
+} from '../data/voidMat'
 import { withoutUndrawnExportPieces } from '../pdf-svg-shared/undrawnExportPieces'
 import {
   type BoardHex,
@@ -664,6 +668,51 @@ describe('Void Mat', () => {
         isVsTile: false,
       }).map(key),
     ).toEqual(MAT_TEMPLATE.map(key))
+  })
+
+  it('matches 14 markers to the deterministic Void Mat layout', () => {
+    const matchedRotations: number[] = []
+    for (let rotation = 0; rotation < 6; rotation += 1) {
+      const markerHexes = getVoidMatHexes({ ...mat, rotation })
+      const markers = markerHexes.map((coords, index) =>
+        bp(`marker-${rotation}-${index}`, Pieces.voidMarker, coords),
+      )
+      const layout = findVoidMatLayoutForMarkers(markers)
+
+      expect(layout).toBeDefined()
+      if (!layout) continue
+      matchedRotations.push(layout.rotation)
+      expect(
+        sortKeys(
+          getVoidMatHexes({
+            inventoryID: Pieces.voidMat,
+            ...layout,
+          }),
+        ),
+      ).toEqual(sortKeys(markerHexes))
+    }
+
+    expect(matchedRotations).toEqual([0, 1, 2, 3, 4, 5])
+  })
+
+  it('does not match an incomplete or differently shaped marker selection', () => {
+    const markerHexes = getVoidMatHexes(mat)
+    const markers = markerHexes.map((coords, index) =>
+      bp(`marker-${index}`, Pieces.voidMarker, coords),
+    )
+
+    expect(findVoidMatLayoutForMarkers(markers.slice(0, 13))).toBeUndefined()
+    expect(
+      findVoidMatLayoutForMarkers([
+        ...markers.slice(0, 13),
+        bp('wrong-hex', Pieces.voidMarker, { q: 20, r: 0, s: -20 }),
+      ]),
+    ).toBeUndefined()
+    expect(
+      findVoidMatLayoutForMarkers(
+        markers.map((marker) => ({ ...marker, altitude: 1 })),
+      ),
+    ).toBeUndefined()
   })
 
   it('places on level 0 wherever the pointer is', () => {
