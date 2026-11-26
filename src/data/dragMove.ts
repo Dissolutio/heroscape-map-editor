@@ -564,8 +564,8 @@ export type DragState =
   | {
       phase: 'idle'
       /**
-       * Swallow the next release: a drag was cancelled (Esc, focus lost)
-       * while the button may still be down, so its release must not click.
+       * Swallow the next release: a drag was cancelled while the button may
+       * still be down, so its release must not click.
        */
       swallowRelease: boolean
     }
@@ -577,7 +577,11 @@ export type DragState =
     }
   | { phase: 'dragging'; uid: string; grabOffset: CubeCoordinate }
 
-export type DragCancelReason = 'escape' | 'blur' | 'pointercancel'
+export type DragCancelReason =
+  | 'escape'
+  | 'rightclick'
+  | 'blur'
+  | 'pointercancel'
 
 export type DragEvent =
   | {
