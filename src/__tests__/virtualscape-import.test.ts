@@ -350,8 +350,9 @@ describe('Virtualscape binary import', () => {
       'lwr',
       'y0',
     ])
-    // Laur add-ons and the ship wall lack their required support features.
-    expect(unsupported).toEqual(['lwa', 'lwl', 'lws', 'sl'])
+    // Laur add-ons lack their required support features. The Ship Wall,
+    // turned the right way by #446, is supported now.
+    expect(unsupported).toEqual(['lwa', 'lwl', 'lws'])
   })
 
   it('keeps forward and reverse Virtualscape piece mappings together', () => {
