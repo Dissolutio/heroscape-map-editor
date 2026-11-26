@@ -5,7 +5,7 @@ import { Path, Shape } from 'three'
 import { shouldRenderObjectiveMarker } from '../../data/objectiveMarkerVisibility'
 import type { ObjectiveMarker } from '../../data/objectiveMarkers'
 import useBoundStore from '../../store/store'
-import { SELECT_PEN_MODE } from '../../types'
+import { PICK_PEN_MODE, SELECT_PEN_MODE } from '../../types'
 import { HEXGRID_HEX_RADIUS } from '../../utils/constants'
 import { pressObjectiveMarkerForDrag } from '../drag/objectiveMarkerDragController'
 import {
@@ -125,6 +125,9 @@ function ObjectiveMarkerToken({
   const setSelectedObjectiveMarkerUID = useBoundStore(
     (state) => state.setSelectedObjectiveMarkerUID,
   )
+  const setHoveredObjectiveMarkerUID = useBoundStore(
+    (state) => state.setHoveredObjectiveMarkerUID,
+  )
   const toggleSelectedPieceID = useBoundStore(
     (state) => state.toggleSelectedPieceID,
   )
@@ -190,9 +193,10 @@ function ObjectiveMarkerToken({
   const handlePointerUp = (event: ThreeEvent<PointerEvent>) => {
     event.stopPropagation()
     if (event.button !== 0) return
+    const state = useBoundStore.getState()
+    if (state.penMode === PICK_PEN_MODE) return
     toggleSelectedPieceID('')
     setSelectedObjectiveMarkerUID(marker.uid)
-    const state = useBoundStore.getState()
     if (state.penMode !== SELECT_PEN_MODE) {
       state.togglePenMode(SELECT_PEN_MODE)
     }
@@ -211,6 +215,14 @@ function ObjectiveMarkerToken({
           onPointerDown={(event) =>
             pressObjectiveMarkerForDrag(event, marker.uid)
           }
+          onPointerOver={() => setHoveredObjectiveMarkerUID(marker.uid)}
+          onPointerOut={() => {
+            if (
+              useBoundStore.getState().hoveredObjectiveMarkerUID === marker.uid
+            ) {
+              setHoveredObjectiveMarkerUID(null)
+            }
+          }}
           onPointerUp={handlePointerUp}
           castShadow={false}
           receiveShadow={false}

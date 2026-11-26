@@ -10,6 +10,7 @@ import {
 import { getSeatedGroupUIDs } from '../data/seatedObstacles'
 import { type LookSettings, sanitizeLookSettings } from '../data/lookSettings'
 import { canSelectObjectiveMarker } from '../data/objectiveMarkerVisibility'
+import { OBJECTIVE_MARKER_PEN_MODE } from '../data/objectiveMarkers'
 import type {
   ObjectiveMarker,
   ObjectiveMarkerDraft,
@@ -141,6 +142,9 @@ export interface UISlice {
   selectedPieceIDs: string[]
   selectedObjectiveMarkerUID: string | null
   setSelectedObjectiveMarkerUID: (uid: string | null) => void
+  hoveredObjectiveMarkerUID: string | null
+  setHoveredObjectiveMarkerUID: (uid: string | null) => void
+  pickObjectiveMarkerAsPen: (uid: string) => void
   objectiveMarkerDraft: ObjectiveMarkerDraft
   updateObjectiveMarkerDraft: (updates: Partial<ObjectiveMarkerDraft>) => void
   objectiveMarkerDragPreview: {
@@ -383,6 +387,7 @@ const createUISlice: StateCreator<
         s.isShowObjectiveMarkers = show
         if (!show) {
           s.selectedObjectiveMarkerUID = null
+          s.hoveredObjectiveMarkerUID = null
           s.objectiveMarkerDragPreview = null
         }
       }),
@@ -404,12 +409,51 @@ const createUISlice: StateCreator<
     }
     set({ selectedObjectiveMarkerUID: uid })
   },
+  hoveredObjectiveMarkerUID: null,
+  setHoveredObjectiveMarkerUID: (uid) => {
+    const state = get()
+    if (
+      uid &&
+      !canSelectObjectiveMarker(
+        uid,
+        state.hexMap.objectiveMarkers ?? [],
+        state.isShowObjectiveMarkers,
+      )
+    ) {
+      return
+    }
+    set({ hoveredObjectiveMarkerUID: uid })
+  },
+  pickObjectiveMarkerAsPen: (uid) => {
+    const state = get()
+    const marker = (state.hexMap.objectiveMarkers ?? []).find(
+      (item) => item.uid === uid,
+    )
+    if (!marker) return
+
+    state.togglePenMode(OBJECTIVE_MARKER_PEN_MODE, {
+      preferredSize: marker.size,
+      preserveSelection: true,
+    })
+    const updatedState = get()
+    updatedState.updateObjectiveMarkerDraft({
+      size: marker.size,
+      style: marker.style,
+      content: marker.content,
+      name: marker.name,
+      pickedNumberOnce:
+        marker.content.kind === 'number' &&
+        !updatedState.objectiveMarkerDraft.pinNumber,
+    })
+    get().togglePenModeRotation(marker.rotation)
+  },
   objectiveMarkerDraft: {
     size: 1,
     style: 'black',
     content: { kind: 'number', value: 1 },
     name: undefined,
     pinNumber: false,
+    pickedNumberOnce: false,
   },
   updateObjectiveMarkerDraft: (updates) =>
     set((state) =>

@@ -67,7 +67,12 @@ test('selects objective marker pen style and size with hotkeys', async ({
   expect(await nameInput.inputValue()).toBe('m1')
   expect(
     await page.evaluate(() => window.__TEST__?.snapshot().objectiveMarkerDraft),
-  ).toEqual({ size: 2, style: 'white' })
+  ).toEqual({
+    size: 2,
+    style: 'white',
+    content: { kind: 'number', value: 1 },
+    pinNumber: false,
+  })
 })
 
 test('shows selected marker values immediately when switching markers', async ({
@@ -93,6 +98,125 @@ test('shows selected marker values immediately when switching markers', async ({
   expect(await textInput.inputValue()).toBe('A2')
   expect(await nameInput.inputValue()).toBe('Elite')
   expect(await page.getByText('Style: White').isVisible()).toBe(true)
+})
+
+test('middle-clicks a marker to use it as the pen', async ({ page }) => {
+  await page.goto(
+    mapUrl(
+      OBJECTIVE_MARKERS_FIXTURE_HEX_MAP,
+      OBJECTIVE_MARKERS_FIXTURE_PIECE_IDS,
+    ),
+  )
+  await waitForAppReady(page)
+
+  const point = await page.evaluate(
+    (uid) => window.__TEST__?.screenPosOfObjectiveMarker(uid) ?? null,
+    'objective-stacked',
+  )
+  const bounds = await page.locator('canvas').first().boundingBox()
+  if (!point || !bounds) throw new Error('Objective marker is not on screen')
+  await page.mouse.click(bounds.x + point.x, bounds.y + point.y, {
+    button: 'middle',
+  })
+
+  await expect
+    .poll(() => page.evaluate(() => window.__TEST__?.snapshot().penMode))
+    .toBe('objectiveMarker')
+  await expect
+    .poll(() =>
+      page.evaluate(() => window.__TEST__?.snapshot().objectiveMarkerDraft),
+    )
+    .toMatchObject({
+      size: 1,
+      style: 'white',
+      content: { kind: 'text', value: 'A2' },
+    })
+  expect(
+    await page.evaluate(
+      () => window.__TEST__?.snapshot().selectedObjectiveMarkerUID,
+    ),
+  ).toBeNull()
+})
+
+test('uses a selected marker as the pen, then resumes auto-numbering', async ({
+  page,
+}) => {
+  await page.goto(
+    mapUrl(
+      OBJECTIVE_MARKERS_FIXTURE_HEX_MAP,
+      OBJECTIVE_MARKERS_FIXTURE_PIECE_IDS,
+    ),
+  )
+  await waitForAppReady(page)
+  await clickObjectiveMarker(page, 'objective-ground')
+
+  await page.getByRole('button', { name: 'Use as pen' }).click()
+  await page.keyboard.press('1')
+  await expect
+    .poll(() => page.evaluate(() => window.__TEST__?.snapshot().penMode))
+    .toBe('objectiveMarker')
+  await expect
+    .poll(() =>
+      page.evaluate(() => window.__TEST__?.snapshot().objectiveMarkerDraft),
+    )
+    .toMatchObject({
+      size: 1,
+      style: 'black',
+      content: { kind: 'number', value: 7 },
+    })
+
+  const point = await page.evaluate(
+    () => window.__TEST__?.screenPosOfHex({ q: 2, r: 2, altitude: 1 }) ?? null,
+  )
+  if (!point) throw new Error('Marker placement hex is not on screen')
+  await page.locator('canvas').first().click({ position: point })
+
+  await expect
+    .poll(() =>
+      page.evaluate(() => window.__TEST__?.snapshot().objectiveMarkerCount),
+    )
+    .toBe(3)
+  const placedMarker = await page.evaluate(
+    () =>
+      window.__TEST__
+        ?.snapshot()
+        .objectiveMarkers.find(
+          (marker) =>
+            marker.uid !== 'objective-ground' &&
+            marker.uid !== 'objective-stacked',
+        ) ?? null,
+  )
+  expect(placedMarker).toMatchObject({
+    style: 'black',
+    content: { kind: 'number', value: 7 },
+  })
+
+  await waitForAppReady(page)
+  const nextPoint = await page.evaluate(
+    () => window.__TEST__?.screenPosOfHex({ q: 1, r: 3, altitude: 0 }) ?? null,
+  )
+  if (!nextPoint)
+    throw new Error('Second marker placement hex is not on screen')
+  await page.locator('canvas').first().click({ position: nextPoint })
+  await expect
+    .poll(() =>
+      page.evaluate(() => window.__TEST__?.snapshot().objectiveMarkerCount),
+    )
+    .toBe(4)
+  const addedMarkers = await page.evaluate(() =>
+    window.__TEST__
+      ?.snapshot()
+      .objectiveMarkers.filter(
+        (marker) =>
+          marker.uid !== 'objective-ground' &&
+          marker.uid !== 'objective-stacked',
+      ),
+  )
+  expect(addedMarkers).toHaveLength(2)
+  expect(addedMarkers?.[1]).toMatchObject({
+    style: 'black',
+    content: { kind: 'number', value: 8 },
+  })
 })
 
 test('suggests unit names lazily and keeps them in saved map files', async ({
