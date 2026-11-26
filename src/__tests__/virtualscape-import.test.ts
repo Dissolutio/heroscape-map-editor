@@ -335,9 +335,10 @@ describe('Virtualscape binary import', () => {
       )
       .sort()
     // Expected overlaps: three castle base/wall pairs, two Fortified Wall
-    // samples, and several Laur add-ons sharing one pillar.
+    // samples, a Laur ruin sharing its pillar, and a glyph. With the ship and
+    // wall anchors from #446, the Concrete-6, outcrop, road and Ship Bow no
+    // longer collide.
     expect(conflicts).toEqual([
-      'c6',
       'cbc',
       'cbe',
       'cbs',
@@ -347,9 +348,6 @@ describe('Virtualscape binary import', () => {
       'fw',
       'fw',
       'lwr',
-      'ot3',
-      'rd5',
-      'sb',
       'y0',
     ])
     // Laur add-ons and the ship wall lack their required support features.
