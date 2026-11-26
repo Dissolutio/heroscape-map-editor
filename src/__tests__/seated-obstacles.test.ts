@@ -3,6 +3,8 @@ import { buildupJsonFileMap } from '../data/buildupMap'
 import { getDraggableSelectionGroup } from '../data/dragMove'
 import getPieceTemplateCoords from '../data/rotationTransforms'
 import { getSeatedGroupUIDs } from '../data/seatedObstacles'
+import { LS_KEYS } from '../local-storage/keys'
+import { warnAboutLoadedMap } from '../utils/warnAboutLoadedMap'
 import type { BoardPiece, CubeCoordinate, HexMap } from '../types'
 import { Pieces } from '../types'
 
@@ -33,24 +35,18 @@ const localStorageMock = {
   }),
 }
 
-function outcrop3Seat(): BoardPiece[] {
-  const coordinates = getPieceTemplateCoords({
-    clickedHex: center,
-    rotation: 0,
-    template: '3',
-    isVsTile: false,
-  })
+function marvelSeat(): BoardPiece[] {
   return [
-    ...coordinates.map((pieceCoords, index) => ({
-      uid: `base-${index}`,
-      inventoryID: Pieces.shadow1,
+    {
+      uid: 'base',
+      inventoryID: Pieces.concrete6,
       altitude: 0,
       rotation: 0,
-      pieceCoords,
-    })),
+      pieceCoords: center,
+    },
     {
-      uid: 'outcrop',
-      inventoryID: Pieces.outcrop3,
+      uid: 'marvel',
+      inventoryID: Pieces.marvel,
       altitude: 1,
       rotation: 0,
       pieceCoords: center,
@@ -93,80 +89,78 @@ afterEach(() => {
 })
 
 describe('seated obstacle groups', () => {
-  it('derives the seat group and selects it from either member', () => {
-    load(outcrop3Seat())
+  it('derives the Marvel Ruin group and selects it from either member', () => {
+    load(marvelSeat())
     const { boardHexes, boardPieces } = store.getState()
-    const groupUIDs = ['outcrop', 'base-0', 'base-1', 'base-2']
-    expect(getSeatedGroupUIDs('outcrop', boardHexes, boardPieces)).toEqual(
+    const groupUIDs = ['marvel', 'base']
+    expect(getSeatedGroupUIDs('marvel', boardHexes, boardPieces)).toEqual(
       groupUIDs,
     )
-    expect(getSeatedGroupUIDs('base-1', boardHexes, boardPieces)).toEqual(
+    expect(getSeatedGroupUIDs('base', boardHexes, boardPieces)).toEqual(
       groupUIDs,
     )
 
-    store.getState().toggleSelectedPieceID('base-1')
+    store.getState().toggleSelectedPieceID('base')
     expect(store.getState().selectedPieceIDs).toEqual(groupUIDs)
     expect(
       getDraggableSelectionGroup(
         store.getState().selectedPieceIDs,
-        'outcrop',
+        'marvel',
         store.getState().boardPieces,
       )?.map((piece) => piece.uid),
     ).toEqual(groupUIDs)
   })
 
-  it('moves and rotates the outcrop with all bases in one undo step', () => {
-    load(outcrop3Seat())
+  it('moves and rotates the Marvel Ruin with its base in one undo step', () => {
+    load(marvelSeat())
     const before = snapshot()
     const beforeHistory = store.temporal.getState().pastStates.length
     store.getState().movePiece({
-      uid: 'outcrop',
+      uid: 'marvel',
       newPieceCoords: at(6, 6),
       newRotation: 1,
     })
 
     const after = store.getState()
     expect(after.boardPieces.map((piece) => piece.uid)).toEqual([
-      'base-0',
-      'base-1',
-      'base-2',
-      'outcrop',
+      'base',
+      'marvel',
     ])
     expect(
-      getSeatedGroupUIDs('outcrop', after.boardHexes, after.boardPieces),
-    ).toEqual(['outcrop', 'base-0', 'base-1', 'base-2'])
+      getSeatedGroupUIDs('marvel', after.boardHexes, after.boardPieces),
+    ).toEqual(['marvel', 'base'])
     expect(store.temporal.getState().pastStates.length).toBe(beforeHistory + 1)
 
     store.temporal.getState().undo()
     expect(snapshot()).toEqual(before)
   })
 
-  it('moves the obstacle with a base selected as the move anchor', () => {
-    load(outcrop3Seat())
+  it('moves the Marvel Ruin with its base selected as the move anchor', () => {
+    load(marvelSeat())
     const before = snapshot()
     const beforeHistory = store.temporal.getState().pastStates.length
     store.getState().movePiece({
-      uid: 'base-1',
+      uid: 'base',
       newPieceCoords: at(6, 6),
     })
 
     expect(
       getSeatedGroupUIDs(
-        'outcrop',
+        'marvel',
         store.getState().boardHexes,
         store.getState().boardPieces,
       ),
-    ).toEqual(['outcrop', 'base-0', 'base-1', 'base-2'])
+    ).toEqual(['marvel', 'base'])
     expect(store.temporal.getState().pastStates.length).toBe(beforeHistory + 1)
     store.temporal.getState().undo()
     expect(snapshot()).toEqual(before)
   })
 
-  it('deleting the obstacle removes the whole seat in one undo step', () => {
-    load(outcrop3Seat())
+  it('deleting the Marvel Ruin removes its base in one undo step', () => {
+    load(marvelSeat())
     const before = snapshot()
     const beforeHistory = store.temporal.getState().pastStates.length
-    store.getState().unpaintTile('outcrop')
+    store.getState().unpaintTile('marvel')
 
     expect(store.getState().boardPieces).toEqual([])
     expect(store.temporal.getState().pastStates.length).toBe(beforeHistory + 1)
@@ -174,11 +168,11 @@ describe('seated obstacle groups', () => {
     expect(snapshot()).toEqual(before)
   })
 
-  it('deleting a base removes the whole seat in one undo step', () => {
-    load(outcrop3Seat())
+  it('deleting the Marvel base removes the whole seat in one undo step', () => {
+    load(marvelSeat())
     const before = snapshot()
     const beforeHistory = store.temporal.getState().pastStates.length
-    store.getState().unpaintTile('base-1')
+    store.getState().unpaintTile('base')
 
     expect(store.getState().boardPieces).toEqual([])
     expect(store.temporal.getState().pastStates.length).toBe(beforeHistory + 1)
@@ -205,6 +199,140 @@ describe('seated obstacle groups', () => {
         store.getState().boardPieces,
       ),
     ).toEqual([obstacle.uid])
+  })
+
+  it('merges an exact hand-placed base and reports it once', () => {
+    const base: BoardPiece = {
+      uid: 'old-shadow',
+      inventoryID: Pieces.shadow1,
+      altitude: 0,
+      rotation: 0,
+      pieceCoords: center,
+    }
+    const obstacle: BoardPiece = {
+      uid: 'old-outcrop',
+      inventoryID: Pieces.outcrop1,
+      altitude: 1,
+      rotation: 0,
+      pieceCoords: center,
+    }
+    const loaded = buildupJsonFileMap([base, obstacle], hexMap)
+    const enqueueSnackbar = vi.fn()
+
+    expect(loaded.boardPieces).toEqual([{ ...obstacle, altitude: 0 }])
+    expect(loaded.mergedSeatedBaseCount).toBe(1)
+    warnAboutLoadedMap(enqueueSnackbar, loaded)
+    expect(enqueueSnackbar).toHaveBeenCalledTimes(1)
+    expect(enqueueSnackbar).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message:
+          'Merged 1 hand-placed bases into the outcrops, glaciers or hives sitting on them.',
+        variant: 'info',
+      }),
+    )
+  })
+
+  it('does not autosave a migrated share-link map over the saved last map', () => {
+    const base: BoardPiece = {
+      uid: 'shared-shadow',
+      inventoryID: Pieces.shadow1,
+      altitude: 0,
+      rotation: 0,
+      pieceCoords: center,
+    }
+    const obstacle: BoardPiece = {
+      uid: 'shared-outcrop',
+      inventoryID: Pieces.outcrop1,
+      altitude: 1,
+      rotation: 0,
+      pieceCoords: center,
+    }
+    storageValues.set(LS_KEYS.lastMap, 'saved-last-map')
+    localStorageMock.setItem.mockClear()
+
+    const sharedMap = buildupJsonFileMap([base, obstacle], hexMap)
+    store.getState().loadMap(sharedMap, { holdAutosave: true })
+    vi.advanceTimersByTime(1000)
+
+    expect(store.getState().boardPieces).toEqual([{ ...obstacle, altitude: 0 }])
+    expect(storageValues.get(LS_KEYS.lastMap)).toBe('saved-last-map')
+    expect(
+      localStorageMock.setItem.mock.calls.filter(
+        ([key]) => key === LS_KEYS.lastMap,
+      ),
+    ).toEqual([])
+  })
+
+  it('does not merge unsupported, partial, or occupied base matches', () => {
+    const shadow: BoardPiece = {
+      uid: 'shadow',
+      inventoryID: Pieces.shadow1,
+      altitude: 0,
+      rotation: 0,
+      pieceCoords: center,
+    }
+    const glacier: BoardPiece = {
+      uid: 'glacier',
+      inventoryID: Pieces.glacier1,
+      altitude: 1,
+      rotation: 0,
+      pieceCoords: center,
+    }
+    const unrelated = buildupJsonFileMap([shadow, glacier], hexMap)
+    expect(unrelated.boardPieces).toEqual([shadow, glacier])
+    expect(unrelated.mergedSeatedBaseCount).toBe(0)
+
+    const coordinates = getPieceTemplateCoords({
+      clickedHex: center,
+      rotation: 0,
+      template: '3',
+      isVsTile: false,
+    })
+    const partialBases = coordinates.slice(0, 2).map((pieceCoords, index) => ({
+      uid: `partial-base-${index}`,
+      inventoryID: Pieces.shadow1,
+      altitude: 0,
+      rotation: 0,
+      pieceCoords,
+    }))
+    const partial = buildupJsonFileMap(
+      [
+        ...partialBases,
+        {
+          uid: 'partial-outcrop',
+          inventoryID: Pieces.outcrop3,
+          altitude: 1,
+          rotation: 0,
+          pieceCoords: center,
+        },
+      ],
+      hexMap,
+    )
+    expect(partial.boardPieces).toHaveLength(3)
+    expect(partial.mergedSeatedBaseCount).toBe(0)
+
+    const occupied = buildupJsonFileMap(
+      [
+        shadow,
+        {
+          uid: 'top-water',
+          inventoryID: Pieces.water1,
+          altitude: 1,
+          rotation: 0,
+          pieceCoords: center,
+        },
+        {
+          uid: 'occupied-outcrop',
+          inventoryID: Pieces.outcrop1,
+          altitude: 1,
+          rotation: 0,
+          pieceCoords: center,
+        },
+      ],
+      hexMap,
+    )
+    expect(occupied.mergedSeatedBaseCount).toBe(0)
+    expect(occupied.boardPieces).toHaveLength(3)
   })
 
   it('leaves a plain Shadow 1 independent', () => {

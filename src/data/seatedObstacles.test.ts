@@ -5,24 +5,25 @@ import { getSeatedObstacleDefinition } from './seatedObstacles'
 describe('seated obstacle definitions', () => {
   it('uses the listed default base and footprint for each obstacle', () => {
     const expected = [
-      [Pieces.hive, Pieces.swampWater6, 'six-hex'],
-      [Pieces.marvel, Pieces.concrete6, 'six-hex'],
-      [Pieces.marvelBroken, Pieces.concrete6, 'six-hex'],
-      [Pieces.marvelNoUpper, Pieces.concrete6, 'six-hex'],
-      [Pieces.marvelNoUpperBroken, Pieces.concrete6, 'six-hex'],
-      [Pieces.glacier1, Pieces.ice1, 'same-size'],
-      [Pieces.glacier3, Pieces.ice3, 'same-size'],
-      [Pieces.glacier4, Pieces.ice4, 'same-size'],
-      [Pieces.glacier6, Pieces.ice6, 'six-hex'],
-      [Pieces.outcrop1, Pieces.shadow1, 'one-per-hex'],
-      [Pieces.lavaRockOutcrop1, Pieces.lava1, 'one-per-hex'],
-      [Pieces.lavaRockOutcrop3, Pieces.lava1, 'one-per-hex'],
-      [Pieces.toxicOutcrop1, Pieces.toxicWater1, 'one-per-hex'],
-      [Pieces.toxicOutcrop3, Pieces.toxicWater1, 'one-per-hex'],
+      [Pieces.hive, Pieces.swampWater6, 'six-hex', 'built-in'],
+      [Pieces.marvel, Pieces.concrete6, 'six-hex', 'separate'],
+      [Pieces.marvelBroken, Pieces.concrete6, 'six-hex', 'separate'],
+      [Pieces.marvelNoUpper, Pieces.concrete6, 'six-hex', 'separate'],
+      [Pieces.marvelNoUpperBroken, Pieces.concrete6, 'six-hex', 'separate'],
+      [Pieces.glacier1, Pieces.ice1, 'same-size', 'built-in'],
+      [Pieces.glacier3, Pieces.ice3, 'same-size', 'built-in'],
+      [Pieces.glacier4, Pieces.ice4, 'same-size', 'built-in'],
+      [Pieces.glacier6, Pieces.ice6, 'six-hex', 'built-in'],
+      [Pieces.outcrop1, Pieces.shadow1, 'one-per-hex', 'built-in'],
+      [Pieces.lavaRockOutcrop1, Pieces.lava1, 'one-per-hex', 'built-in'],
+      [Pieces.lavaRockOutcrop3, Pieces.lava1, 'one-per-hex', 'built-in'],
+      [Pieces.toxicOutcrop1, Pieces.toxicWater1, 'one-per-hex', 'built-in'],
+      [Pieces.toxicOutcrop3, Pieces.toxicWater1, 'one-per-hex', 'built-in'],
     ] as const
 
-    for (const [pieceID, defaultBaseID, baseFootprint] of expected) {
+    for (const [pieceID, defaultBaseID, baseFootprint, baseMode] of expected) {
       expect(getSeatedObstacleDefinition(pieceID)).toMatchObject({
+        baseMode,
         defaultBaseID,
         baseFootprint,
       })
@@ -31,6 +32,7 @@ describe('seated obstacle definitions', () => {
 
   it('uses classic Rock Outcrop 3 bases only on classic-only maps', () => {
     expect(getSeatedObstacleDefinition(Pieces.outcrop3, ['S'])).toMatchObject({
+      baseMode: 'built-in',
       allowedBaseIDs: [Pieces.shadow3],
       defaultBaseID: Pieces.shadow3,
       baseFootprint: 'same-size',
@@ -39,6 +41,7 @@ describe('seated obstacle definitions', () => {
       expect(
         getSeatedObstacleDefinition(Pieces.outcrop3, setsUsed),
       ).toMatchObject({
+        baseMode: 'built-in',
         allowedBaseIDs: [Pieces.shadow1, Pieces.lava1, Pieces.toxicWater1],
         defaultBaseID: Pieces.shadow1,
         baseFootprint: 'one-per-hex',

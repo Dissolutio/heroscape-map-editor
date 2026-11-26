@@ -12,7 +12,7 @@ import {
 import { useMemo, type PropsWithChildren } from 'react'
 import { piecesSoFar } from '../data/pieces'
 import {
-  countPiecesUsedWithLaurStacking,
+  countPiecesUsedOnMap,
   getCombinedInventory,
   reconcileLaurLegacyToStackableUsage,
 } from '../inventory/laurInventoryReconcile'
@@ -758,7 +758,7 @@ const PdfPieceInventory = ({
     return null
   }
 
-  const countsBeforeReconcile = countPiecesUsedWithLaurStacking(boardPieces)
+  const countsBeforeReconcile = countPiecesUsedOnMap(boardPieces, setsUsed)
   const hasConstraints = Array.isArray(setsUsed) && setsUsed.length > 0
   const combinedInventory = getCombinedInventory(setsUsed)
 
@@ -989,7 +989,7 @@ const PdfPieceInventoryCondensed = ({
     return null
   }
 
-  const countsBeforeReconcile = countPiecesUsedWithLaurStacking(boardPieces)
+  const countsBeforeReconcile = countPiecesUsedOnMap(boardPieces, setsUsed)
   const hasConstraints = Array.isArray(setsUsed) && setsUsed.length > 0
   const combinedInventory = getCombinedInventory(setsUsed)
 

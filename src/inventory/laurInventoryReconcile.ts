@@ -1,4 +1,8 @@
 import { terrainSetsByShortID } from '../data/terrainSets'
+import {
+  getDefaultSeatedBasePlacements,
+  getSeatedObstacleDefinition,
+} from '../data/seatedObstacles'
 import { isGenericPieceID, Pieces, type BoardPiece } from '../types'
 
 const LAUR_STACK_ALTITUDE_DELTA = 8
@@ -134,6 +138,32 @@ export const countPiecesUsedWithLaurStacking = (
     }
 
     used[remappedInventoryID] = (used[remappedInventoryID] ?? 0) + 1
+  }
+
+  return used
+}
+
+export const countPiecesUsedOnMap = (
+  boardPieces: BoardPiece[],
+  setsUsed: readonly string[] = [],
+): Record<string, number> => {
+  const used = countPiecesUsedWithLaurStacking(boardPieces)
+
+  for (const boardPiece of boardPieces) {
+    const definition = getSeatedObstacleDefinition(
+      boardPiece.inventoryID,
+      setsUsed,
+    )
+    if (definition?.baseMode !== 'built-in') continue
+
+    for (const { piece } of getDefaultSeatedBasePlacements(
+      boardPiece.inventoryID,
+      boardPiece.pieceCoords,
+      boardPiece.rotation,
+      setsUsed,
+    )) {
+      used[piece.id] = (used[piece.id] ?? 0) + 1
+    }
   }
 
   return used

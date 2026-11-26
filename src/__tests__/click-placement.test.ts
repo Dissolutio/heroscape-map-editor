@@ -120,26 +120,15 @@ function clickSnackbarAction(index: number, label: string) {
 
 describe('click placement through the real handler', () => {
   it.each([0, 1])(
-    'auto-places every seated obstacle base at rotation %s and undoes it once',
+    'auto-places every separate Marvel Ruin base at rotation %s',
     (rotation) => {
       const table = withGrassFloor(makeTable(12))
       const hex = hexAt(table, table.center, 1) as BoardHex
       const obstacles = [
-        [Pieces.hive, Pieces.swampWater6, 1],
         [Pieces.marvel, Pieces.concrete6, 1],
         [Pieces.marvelBroken, Pieces.concrete6, 1],
         [Pieces.marvelNoUpper, Pieces.concrete6, 1],
         [Pieces.marvelNoUpperBroken, Pieces.concrete6, 1],
-        [Pieces.glacier1, Pieces.ice1, 1],
-        [Pieces.glacier3, Pieces.ice3, 1],
-        [Pieces.glacier4, Pieces.ice4, 1],
-        [Pieces.glacier6, Pieces.ice6, 1],
-        [Pieces.outcrop1, Pieces.shadow1, 1],
-        [Pieces.outcrop3, Pieces.shadow1, 3],
-        [Pieces.lavaRockOutcrop1, Pieces.lava1, 1],
-        [Pieces.lavaRockOutcrop3, Pieces.lava1, 3],
-        [Pieces.toxicOutcrop1, Pieces.toxicWater1, 1],
-        [Pieces.toxicOutcrop3, Pieces.toxicWater1, 3],
       ] as const
 
       for (const [pieceID, baseID, baseCount] of obstacles) {
@@ -162,6 +151,66 @@ describe('click placement through the real handler', () => {
         useBoundStore.temporal.getState().undo()
         expect(useBoundStore.getState().boardPieces).toEqual(table.boardPieces)
         expect(useBoundStore.getState().boardHexes).toEqual(table.boardHexes)
+      }
+    },
+  )
+
+  it.each([
+    Pieces.hive,
+    Pieces.glacier1,
+    Pieces.glacier3,
+    Pieces.glacier4,
+    Pieces.glacier6,
+    Pieces.outcrop1,
+    Pieces.outcrop3,
+    Pieces.lavaRockOutcrop1,
+    Pieces.lavaRockOutcrop3,
+    Pieces.toxicOutcrop1,
+    Pieces.toxicOutcrop3,
+  ])(
+    'places built-in-base %s at its original land and table altitude',
+    (pieceID) => {
+      const table = makeTable(12)
+      const landBoard = withGrassFloor(table)
+      const piece = piecesSoFar[pieceID]
+      if (!piece) throw new Error('test setup: obstacle is unavailable')
+
+      for (const [board, supportAltitude] of [
+        [landBoard, 1],
+        [table, 0],
+      ] as const) {
+        const pointer = hexAt(board, table.center, supportAltitude) as BoardHex
+        const result = clickWithPen({
+          board,
+          pieceID,
+          hex: pointer,
+        })
+        const obstacle = result.added.find(
+          (boardPiece) => boardPiece.inventoryID === pieceID,
+        )
+
+        expect(result.added).toHaveLength(1)
+        expect(obstacle?.altitude).toBe(supportAltitude)
+        if (!obstacle) throw new Error('test setup: obstacle was not placed')
+
+        const expectedCoords = getPieceTemplateCoords({
+          clickedHex: obstacle.pieceCoords,
+          rotation: obstacle.rotation,
+          template: piece.template,
+          isVsTile: false,
+        })
+        const occupiedHexes = Object.values(result.board.boardHexes)
+          .filter(
+            (hex) =>
+              hex.boardPieceUID === obstacle.uid && !hex.isVerticalClearanceHex,
+          )
+          .map(({ q, r, s }) => `${q},${r},${s}`)
+          .sort()
+
+        expect(occupiedHexes).toEqual(
+          expectedCoords.map(({ q, r, s }) => `${q},${r},${s}`).sort(),
+        )
+        useBoundStore.temporal.getState().undo()
       }
     },
   )
@@ -269,7 +318,29 @@ describe('click placement through the real handler', () => {
     expect(result.conflictedPieceUIDs).toEqual([])
   })
 
-  it('adds only missing bases to a partial contemporary Rock Outcrop 3 seat', () => {
+  it('allows a built-in Outcrop 1 to sit on a fluid base on the table', () => {
+    const table = makeTable(9)
+    const baseBoard = place({
+      board: cloneBoard(table),
+      pieceID: Pieces.toxicWater1,
+      at: table.center,
+      altitude: 0,
+      uid: 'existing-toxic-base',
+    }).board
+    const baseCap = hexAt(baseBoard, table.center, 1) as BoardHex
+    const result = clickWithPen({
+      board: baseBoard,
+      pieceID: Pieces.outcrop1,
+      hex: baseCap,
+    })
+
+    expect(result.added.map((piece) => piece.inventoryID)).toEqual([
+      Pieces.outcrop1,
+    ])
+    expect(result.conflictedPieceUIDs).toEqual([])
+  })
+
+  it('does not auto-place missing bases under a Rock Outcrop 3', () => {
     const table = withGrassFloor(makeTable(9))
     const outcropCoords = getPieceTemplateCoords({
       clickedHex: table.center,
@@ -295,10 +366,8 @@ describe('click placement through the real handler', () => {
     })
 
     expect(result.added.map((piece) => piece.inventoryID)).toEqual([
-      Pieces.shadow1,
       Pieces.outcrop3,
     ])
-    expect(result.conflictedPieceUIDs).toEqual([])
   })
 
   it('uses the half-level altitude of an existing fluid seat', () => {
@@ -330,7 +399,7 @@ describe('click placement through the real handler', () => {
     })
   })
 
-  it('uses Shadow-3 for Rock Outcrop 3 on a classic-only map', () => {
+  it('places Rock Outcrop 3 without a separate base on a classic-only map', () => {
     const table = withGrassFloor(makeTable(9))
     const hex = hexAt(table, table.center, 1) as BoardHex
     useBoundStore.setState({
@@ -343,10 +412,9 @@ describe('click placement through the real handler', () => {
     })
 
     expect(result.added.map((piece) => piece.inventoryID)).toEqual([
-      Pieces.shadow3,
       Pieces.outcrop3,
     ])
-    expect(result.conflictedPieceUIDs).toEqual([])
+    expect(result.added[0]?.altitude).toBe(1)
   })
 
   it('notifies when placing an objective marker while markers are hidden', () => {

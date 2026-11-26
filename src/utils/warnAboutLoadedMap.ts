@@ -19,6 +19,12 @@ export function warnAboutLoadedMap(
   enqueueSnackbar: EnqueueSnackbar,
   map: JsonMapLoadResult,
 ) {
+  if (map.mergedSeatedBaseCount > 0) {
+    enqueueSnackbar({
+      message: `Merged ${map.mergedSeatedBaseCount} hand-placed bases into the outcrops, glaciers or hives sitting on them.`,
+      variant: 'info',
+    })
+  }
   const droppedMessage = getDroppedPiecesWarning(map.droppedPieces)
   if (droppedMessage) {
     console.warn('Dropped pieces on load', map.droppedPieces)

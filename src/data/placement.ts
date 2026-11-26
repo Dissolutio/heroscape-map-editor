@@ -196,7 +196,7 @@ export function resolvePlacementPlan(
   } = {},
 ): PlacementPlan {
   const definition = getSeatedObstacleDefinition(piece.id, board.setsUsed)
-  if (!definition) {
+  if (definition?.baseMode !== 'separate') {
     return {
       resolution: resolvePlacement(piece, pointerHex, rotation, board, options),
     }

@@ -22,6 +22,7 @@ import {
 import { addPiece } from './addPiece'
 import { normalizeLegacyMapOrigin } from './convertMapShape'
 import { fitMapToPieces } from './fitMapToPieces'
+import { getBuiltInSeatedBaseMerges } from './seatedObstacles'
 import {
   generateObjectiveMarkerUID,
   normalizeObjectiveMarkers,
@@ -128,7 +129,7 @@ export default function buildupVSFileMap(
   })
   const { boardPieces: knownTiles, droppedPieces } =
     dropUnknownBoardPieces(mappedTiles)
-  const newBoardHexes = knownTiles.reduce(
+  let newBoardHexes = knownTiles.reduce(
     (boardHexes: BoardHexes, { tile, inventoryID }) => {
       const tileCoords = hexUtilsOddRToCube(tile.posX, tile.posY)
       const piece = piecesSoFar[inventoryID]
@@ -136,7 +137,7 @@ export default function buildupVSFileMap(
         return boardHexes
       }
       // get the new board hexes and new board pieces
-      const { newBoardHexes, newBoardPieces } = addPiece({
+      let result = addPiece({
         piece,
         boardHexes,
         boardPieces,
@@ -148,17 +149,54 @@ export default function buildupVSFileMap(
             : getHexoscapeLaurRotation(inventoryID, tile.rotation),
         isVsTile: true,
       })
-      boardPieces = newBoardPieces
-      return newBoardHexes
+      if (
+        piece.isObstaclePiece &&
+        result.error?.message === 'Obstacle is not supported there'
+      ) {
+        result = addPiece({
+          piece,
+          boardHexes,
+          boardPieces,
+          pieceCoords: tileCoords,
+          placementAltitude: tile.posZ,
+          rotation:
+            inventoryID === Pieces.deflectorShield
+              ? (tile.rotation + 4.5) % 6
+              : getHexoscapeLaurRotation(inventoryID, tile.rotation),
+          isVsTile: true,
+          permissive: true,
+        })
+      }
+      boardPieces = result.newBoardPieces
+      return result.newBoardHexes
     },
     boardHexes,
   )
+  const merges = getBuiltInSeatedBaseMerges(
+    newBoardHexes,
+    boardPieces,
+    hexMap.setsUsed,
+  )
+  const mergedSeatedBaseCount = merges.removedBaseUIDs.size
+  if (mergedSeatedBaseCount) {
+    const adjustedPieces = boardPieces
+      .filter((piece) => !merges.removedBaseUIDs.has(piece.uid))
+      .map((piece) =>
+        merges.loweredObstacleUIDs.has(piece.uid)
+          ? { ...piece, altitude: piece.altitude - 1 }
+          : piece,
+      )
+    const replayed = replayBoardPieces(adjustedPieces, boardHexes)
+    newBoardHexes = replayed.newBoardHexes
+    boardPieces = replayed.finalBoardPieces
+  }
   return {
     boardHexes: newBoardHexes,
     hexMap: hexMap,
     boardPieces,
     savedSelections: [],
     droppedPieces,
+    mergedSeatedBaseCount,
   }
 }
 // Replay support-dependent placements last. Ladders write boardHexes and need
@@ -192,15 +230,47 @@ function sortBoardPiecesForLoad(arr: BoardPiece[]) {
       a.altitude - b.altitude,
   )
 }
+
+function replayBoardPieces(
+  boardPieces: BoardPiece[],
+  initialBoardHexes: BoardHexes,
+) {
+  let finalBoardPieces: BoardPieces = []
+  const newBoardHexes = boardPieces.reduce(
+    (prev: BoardHexes, curr): BoardHexes => {
+      const piece = piecesSoFar[curr.inventoryID]
+      if (!piece) return prev
+      const result = addPiece({
+        piece,
+        boardHexes: prev,
+        boardPieces: finalBoardPieces,
+        pieceCoords: curr.pieceCoords,
+        placementAltitude: curr.altitude,
+        rotation: curr.rotation,
+        isVsTile: false,
+        uid: curr.uid,
+        permissive: true,
+      })
+      finalBoardPieces = result.newBoardPieces
+      return result.newBoardHexes
+    },
+    initialBoardHexes,
+  )
+
+  return { newBoardHexes, finalBoardPieces }
+}
+
 export type JsonMapLoadResult = MapState & {
   /** Pieces omitted because they are malformed, unknown, or too far away. */
   droppedPieces: DroppedBoardPiece[]
   droppedObjectiveMarkers?: NonNullable<HexMap['objectiveMarkers']>
   dimensionsAdjusted?: boolean
+  mergedSeatedBaseCount: number
 }
 export type VirtualScapeMapLoadResult = MapState & {
   /** Tiles omitted because their Virtualscape code is not recognized. */
   droppedPieces: DroppedBoardPiece[]
+  mergedSeatedBaseCount: number
 }
 export function buildupJsonFileMap(
   boardPieces: BoardPiece[],
@@ -255,7 +325,6 @@ export function buildupJsonFileMap(
       reason: 'too-far' as const,
     })),
   )
-  let finalBoardPieces: BoardPieces = []
   if (fittedHexMap.shape === 'rectangle') {
     initialBoardHexes = generateRectangle(
       fittedHexMap.length,
@@ -270,31 +339,29 @@ export function buildupJsonFileMap(
       fittedHexMap.originR ?? 0,
     )
   }
-  const piecesArray = sortBoardPiecesForLoad(initialBoardPieces)
-  const newBoardHexes = piecesArray.reduce(
-    (prev: BoardHexes, curr): BoardHexes => {
-      const piece = piecesSoFar[curr.inventoryID]
-      if (!piece) {
-        return prev // unreachable: unknown pieces were dropped above
-      }
-
-      // get the new board hexes and new board pieces
-      const { newBoardHexes, newBoardPieces } = addPiece({
-        piece,
-        boardHexes: prev,
-        boardPieces: finalBoardPieces,
-        pieceCoords: curr.pieceCoords,
-        placementAltitude: curr.altitude,
-        rotation: curr.rotation,
-        isVsTile: false,
-        uid: curr.uid,
-        permissive: true,
-      })
-      finalBoardPieces = newBoardPieces
-      return newBoardHexes
-    },
+  let { newBoardHexes, finalBoardPieces } = replayBoardPieces(
+    sortBoardPiecesForLoad(initialBoardPieces),
     initialBoardHexes,
   )
+  const merges = getBuiltInSeatedBaseMerges(
+    newBoardHexes,
+    finalBoardPieces,
+    fittedHexMap.setsUsed,
+  )
+  const mergedSeatedBaseCount = merges.removedBaseUIDs.size
+  if (mergedSeatedBaseCount) {
+    const adjustedPieces = finalBoardPieces
+      .filter((piece) => !merges.removedBaseUIDs.has(piece.uid))
+      .map((piece) =>
+        merges.loweredObstacleUIDs.has(piece.uid)
+          ? { ...piece, altitude: piece.altitude - 1 }
+          : piece,
+      )
+    ;({ newBoardHexes, finalBoardPieces } = replayBoardPieces(
+      sortBoardPiecesForLoad(adjustedPieces),
+      initialBoardHexes,
+    ))
+  }
 
   return {
     boardHexes: newBoardHexes,
@@ -308,6 +375,7 @@ export function buildupJsonFileMap(
       ),
     ),
     droppedPieces,
+    mergedSeatedBaseCount,
     ...(fitted.droppedObjectiveMarkers
       ? { droppedObjectiveMarkers: fitted.droppedObjectiveMarkers }
       : {}),

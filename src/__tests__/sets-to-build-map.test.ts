@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { terrainSetsByShortID } from '../data/terrainSets'
+import { countPiecesUsedOnMap } from '../inventory/laurInventoryReconcile'
 import { type BoardPiece, Pieces } from '../types'
 import {
   DEFAULT_VISIBLE_OPTION_COUNT,
@@ -267,6 +268,40 @@ describe('sets to build this map', () => {
       {
         inventoryID: Pieces.castleBaseCorner,
         title: 'Fortress Wall Base (Corner)',
+        count: 1,
+      },
+    ])
+  })
+
+  it('counts built-in bases using the map-era Rock Outcrop 3 rule', () => {
+    const contemporaryPieces = pieces(
+      Pieces.outcrop1,
+      Pieces.outcrop3,
+      Pieces.glacier4,
+      Pieces.hive,
+    )
+    const contemporary = countPiecesUsedOnMap(contemporaryPieces, ['C'])
+    const classic = countPiecesUsedOnMap(pieces(Pieces.outcrop3), ['S'])
+    const combined = { ...contemporary }
+    for (const [inventoryID, count] of Object.entries(classic)) {
+      combined[inventoryID] = (combined[inventoryID] ?? 0) + count
+    }
+
+    expect(combined).toMatchObject({
+      [Pieces.shadow1]: 4,
+      [Pieces.shadow3]: 1,
+      [Pieces.ice4]: 1,
+      [Pieces.swampWater6]: 1,
+    })
+    expect(classic[Pieces.shadow3]).toBe(1)
+    expect(
+      getPiecesMissingFromCollection(pieces(Pieces.outcrop1), {
+        [Pieces.outcrop1]: 1,
+      }),
+    ).toEqual([
+      {
+        inventoryID: Pieces.shadow1,
+        title: '1-hex Shadow',
         count: 1,
       },
     ])

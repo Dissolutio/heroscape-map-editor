@@ -220,7 +220,7 @@ export default function PiecePreview() {
   const seatedDefinition =
     piece && getSeatedObstacleDefinition(piece.id, setsUsed)
   const seatedSupportHex =
-    !('blocked' in resolution) && seatedDefinition
+    !('blocked' in resolution) && seatedDefinition?.baseMode === 'separate'
       ? (() => {
           const seatedSupportID = genBoardHexID({
             ...resolution.coords,
