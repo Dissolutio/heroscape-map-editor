@@ -8,6 +8,7 @@ import { terrainSetsByShortID } from './terrainSets'
 import { piecesSoFar } from './pieces'
 
 export type SeatedObstacleDefinition = {
+  baseMode: 'built-in' | 'separate'
   allowedBaseIDs: readonly string[]
   baseFootprint: 'six-hex' | 'same-size' | 'one-per-hex'
   defaultBaseID: string
@@ -34,11 +35,13 @@ const rockOutcrop3: SeatedObstacleRule = (setsUsed) => {
 
   return isClassicOnly
     ? {
+        baseMode: 'built-in',
         allowedBaseIDs: [Pieces.shadow3],
         baseFootprint: 'same-size',
         defaultBaseID: Pieces.shadow3,
       }
     : {
+        baseMode: 'built-in',
         allowedBaseIDs: contemporaryBases,
         baseFootprint: 'one-per-hex',
         defaultBaseID: Pieces.shadow1,
@@ -49,72 +52,86 @@ const rockOutcrop3: SeatedObstacleRule = (setsUsed) => {
 // should restore these bases on import and skip them on export.
 export const seatedObstacleTable: Record<string, SeatedObstacleRule> = {
   [Pieces.hive]: {
+    baseMode: 'built-in',
     allowedBaseIDs: [Pieces.swampWater6],
     baseFootprint: 'six-hex',
     defaultBaseID: Pieces.swampWater6,
   },
   [Pieces.marvel]: {
+    baseMode: 'separate',
     allowedBaseIDs: [Pieces.concrete6],
     baseFootprint: 'six-hex',
     defaultBaseID: Pieces.concrete6,
   },
   [Pieces.marvelBroken]: {
+    baseMode: 'separate',
     allowedBaseIDs: [Pieces.concrete6],
     baseFootprint: 'six-hex',
     defaultBaseID: Pieces.concrete6,
   },
   [Pieces.marvelNoUpper]: {
+    baseMode: 'separate',
     allowedBaseIDs: [Pieces.concrete6],
     baseFootprint: 'six-hex',
     defaultBaseID: Pieces.concrete6,
   },
   [Pieces.marvelNoUpperBroken]: {
+    baseMode: 'separate',
     allowedBaseIDs: [Pieces.concrete6],
     baseFootprint: 'six-hex',
     defaultBaseID: Pieces.concrete6,
   },
   [Pieces.glacier1]: {
+    baseMode: 'built-in',
     allowedBaseIDs: [Pieces.ice1],
     baseFootprint: 'same-size',
     defaultBaseID: Pieces.ice1,
   },
   [Pieces.glacier3]: {
+    baseMode: 'built-in',
     allowedBaseIDs: [Pieces.ice3],
     baseFootprint: 'same-size',
     defaultBaseID: Pieces.ice3,
   },
   [Pieces.glacier4]: {
+    baseMode: 'built-in',
     allowedBaseIDs: [Pieces.ice4],
     baseFootprint: 'same-size',
     defaultBaseID: Pieces.ice4,
   },
   [Pieces.glacier6]: {
+    baseMode: 'built-in',
     allowedBaseIDs: [Pieces.ice6],
     baseFootprint: 'six-hex',
     defaultBaseID: Pieces.ice6,
   },
   [Pieces.outcrop1]: {
+    baseMode: 'built-in',
     allowedBaseIDs: contemporaryBases,
     baseFootprint: 'one-per-hex',
     defaultBaseID: Pieces.shadow1,
   },
   [Pieces.outcrop3]: rockOutcrop3,
   [Pieces.lavaRockOutcrop1]: {
+    baseMode: 'built-in',
     allowedBaseIDs: contemporaryBases,
     baseFootprint: 'one-per-hex',
     defaultBaseID: Pieces.lava1,
   },
   [Pieces.lavaRockOutcrop3]: {
+    baseMode: 'built-in',
     allowedBaseIDs: contemporaryBases,
     baseFootprint: 'one-per-hex',
     defaultBaseID: Pieces.lava1,
   },
   [Pieces.toxicOutcrop1]: {
+    baseMode: 'built-in',
     allowedBaseIDs: contemporaryBases,
     baseFootprint: 'one-per-hex',
     defaultBaseID: Pieces.toxicWater1,
   },
   [Pieces.toxicOutcrop3]: {
+    baseMode: 'built-in',
     allowedBaseIDs: contemporaryBases,
     baseFootprint: 'one-per-hex',
     defaultBaseID: Pieces.toxicWater1,
@@ -175,7 +192,13 @@ export function getExistingSeatedBases(
 ): ExistingSeatedBase[] {
   const obstaclePiece = piecesSoFar[pieceID]
   const definition = getSeatedObstacleDefinition(pieceID, setsUsed)
-  if (!obstaclePiece || !definition) return []
+  if (
+    !obstaclePiece ||
+    !definition ||
+    definition.baseMode !== 'separate'
+  ) {
+    return []
+  }
   const obstacleCoords = getPieceTemplateCoords({
     clickedHex: coords,
     rotation,
@@ -240,7 +263,13 @@ function getSeatedBaseUIDs(
 ) {
   const obstaclePiece = piecesSoFar[obstacle.inventoryID]
   const definition = getSeatedObstacleDefinition(obstacle.inventoryID, setsUsed)
-  if (!obstaclePiece || !definition) return []
+  if (
+    !obstaclePiece ||
+    !definition ||
+    definition.baseMode !== 'separate'
+  ) {
+    return []
+  }
   const obstacleCoords = getFootprintCoords(obstaclePiece, obstacle)
   const obstacleHexIDs = new Set(
     obstacleCoords.map((coords) => genBoardHexID({ ...coords, altitude: 0 })),
@@ -282,7 +311,10 @@ export function getSeatedGroupUIDs(
   setsUsed: readonly string[] = [],
 ) {
   const matchingObstacles = boardPieces.flatMap((obstacle) => {
-    if (!getSeatedObstacleDefinition(obstacle.inventoryID, setsUsed)) {
+    if (
+      getSeatedObstacleDefinition(obstacle.inventoryID, setsUsed)?.baseMode !==
+      'separate'
+    ) {
       return []
     }
     const baseUIDs = getSeatedBaseUIDs(
@@ -298,6 +330,141 @@ export function getSeatedGroupUIDs(
   if (matchingObstacles.length !== 1) return [uid]
   const match = matchingObstacles[0]
   return match ? [match.obstacle.uid, ...match.baseUIDs] : [uid]
+}
+
+export type BuiltInSeatedBaseMerges = {
+  loweredObstacleUIDs: Set<string>
+  removedBaseUIDs: Set<string>
+}
+
+export function getBuiltInSeatedBaseMerges(
+  boardHexes: BoardHexes,
+  boardPieces: BoardPieces,
+  setsUsed: readonly string[] = [],
+): BuiltInSeatedBaseMerges {
+  const loweredObstacleUIDs = new Set<string>()
+  const removedBaseUIDs = new Set<string>()
+
+  for (const obstacle of boardPieces) {
+    const definition = getSeatedObstacleDefinition(
+      obstacle.inventoryID,
+      setsUsed,
+    )
+    const obstaclePiece = piecesSoFar[obstacle.inventoryID]
+    if (
+      !obstaclePiece ||
+      definition?.baseMode !== 'built-in'
+    ) {
+      continue
+    }
+
+    const obstacleCoords = getFootprintCoords(obstaclePiece, obstacle)
+    const obstacleHexIDs = new Set(
+      obstacleCoords.map((coords) => genBoardHexID({ ...coords, altitude: 0 })),
+    )
+    const directBases = boardPieces.filter((base) => {
+      if (
+        base.altitude + 1 !== obstacle.altitude ||
+        !definition.allowedBaseIDs.includes(base.inventoryID)
+      ) {
+        return false
+      }
+      const basePiece = piecesSoFar[base.inventoryID]
+      if (!basePiece) return false
+      const baseCoords = getFootprintCoords(basePiece, base)
+      const sameSize =
+        definition.baseFootprint === 'six-hex' ||
+        definition.baseFootprint === 'same-size'
+      return sameSize
+        ? baseCoords.length === obstacleCoords.length &&
+            baseCoords.every((coords) =>
+              obstacleHexIDs.has(genBoardHexID({ ...coords, altitude: 0 })),
+            )
+        : baseCoords.length === 1 &&
+            obstacleHexIDs.has(
+              genBoardHexID({ ...baseCoords[0], altitude: 0 }),
+            )
+    })
+
+    let matchingBases: BoardPieces
+    if (
+      definition.baseFootprint === 'six-hex' ||
+      definition.baseFootprint === 'same-size'
+    ) {
+      if (directBases.length !== 1) continue
+      matchingBases = directBases
+    } else {
+      const coveredHexIDs = new Set<string>()
+      if (
+        directBases.length !== obstacleCoords.length ||
+        directBases.some((base) => {
+          const basePiece = piecesSoFar[base.inventoryID]
+          const baseCoords = basePiece && getFootprintCoords(basePiece, base)
+          const hexID = baseCoords?.[0]
+            ? genBoardHexID({ ...baseCoords[0], altitude: 0 })
+            : ''
+          if (!hexID || coveredHexIDs.has(hexID)) return true
+          coveredHexIDs.add(hexID)
+          return false
+        }) ||
+        coveredHexIDs.size !== obstacleHexIDs.size
+      ) {
+        continue
+      }
+      matchingBases = directBases
+    }
+
+    const matchingBaseUIDs = new Set(matchingBases.map((base) => base.uid))
+    const baseCoords = matchingBases.flatMap((base) => {
+      const basePiece = piecesSoFar[base.inventoryID]
+      return basePiece ? getFootprintCoords(basePiece, base) : []
+    })
+    const basesAreOnTop = matchingBases.every((base) => {
+      const basePiece = piecesSoFar[base.inventoryID]
+      return (
+        basePiece !== undefined &&
+        getFootprintCoords(basePiece, base).every(
+          (coords) =>
+            boardHexes[
+              genBoardHexID({ ...coords, altitude: obstacle.altitude })
+            ]?.boardPieceUID === base.uid,
+        )
+      )
+    })
+    const hasOtherPieceOnBase = boardPieces.some((other) => {
+      if (
+        other.uid === obstacle.uid ||
+        matchingBaseUIDs.has(other.uid) ||
+        other.altitude !== obstacle.altitude
+      ) {
+        return false
+      }
+      const otherPiece = piecesSoFar[other.inventoryID]
+      return (
+        otherPiece !== undefined &&
+        getFootprintCoords(otherPiece, other).some((otherCoords) =>
+          baseCoords.some(
+            (coords) =>
+              coords.q === otherCoords.q &&
+              coords.r === otherCoords.r &&
+              coords.s === otherCoords.s,
+          ),
+        )
+      )
+    })
+    if (
+      hasOtherPieceOnBase ||
+      !basesAreOnTop ||
+      matchingBases.some((base) => removedBaseUIDs.has(base.uid))
+    ) {
+      continue
+    }
+
+    loweredObstacleUIDs.add(obstacle.uid)
+    matchingBases.forEach((base) => removedBaseUIDs.add(base.uid))
+  }
+
+  return { loweredObstacleUIDs, removedBaseUIDs }
 }
 
 export type SeatedMove = {

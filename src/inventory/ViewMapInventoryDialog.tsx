@@ -23,7 +23,7 @@ import {
 } from '../utils/terrain-constraints'
 import {
   type LaurReconcileDetail,
-  countPiecesUsedWithLaurStacking,
+  countPiecesUsedOnMap,
   reconcileLaurLegacyToStackableUsage,
 } from './laurInventoryReconcile'
 
@@ -58,7 +58,10 @@ const ViewMapInventoryDialog = () => {
     customConstraintInventory,
     userPieceInventory,
   })
-  const piecesUsedBeforeReconcile = countPiecesUsedWithLaurStacking(boardPieces)
+  const piecesUsedBeforeReconcile = countPiecesUsedOnMap(
+    boardPieces,
+    hexMap?.setsUsed,
+  )
   const hasConstraints = hasActiveTerrainConstraints({
     setsUsed: hexMap?.setsUsed ?? [],
     terrainConstraintSource,

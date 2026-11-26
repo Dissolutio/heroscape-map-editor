@@ -58,6 +58,36 @@ const choice = (
 const noBuriedFill = { solid: '', fluid: '' }
 
 describe('collection land supply and suggestions', () => {
+  it('includes built-in obstacle bases in land inventory shortfalls', () => {
+    const contemporaryPieces = [
+      piece('outcrop-1', Pieces.outcrop1, 1, 1),
+      piece('outcrop-3', Pieces.outcrop3, 3, 1),
+      piece('glacier-4', Pieces.glacier4, 5, 1),
+      piece('hive', Pieces.hive, 7, 1),
+    ]
+    const contemporary = getRemainingLandShortfalls(
+      contemporaryPieces,
+      {},
+      ['C'],
+    )
+    const classic = getRemainingLandShortfalls(
+      [piece('classic-outcrop-3', Pieces.outcrop3, 1, 1)],
+      {},
+      ['S'],
+    )
+
+    expect(contemporary).toEqual(
+      expect.arrayContaining([
+        { inventoryID: Pieces.shadow1, shortfall: 4 },
+        { inventoryID: Pieces.ice4, shortfall: 1 },
+        { inventoryID: Pieces.swampWater6, shortfall: 1 },
+      ]),
+    )
+    expect(classic).toEqual([
+      { inventoryID: Pieces.shadow3, shortfall: 1 },
+    ])
+  })
+
   it('only lists owned land terrain and never suggests Generic', () => {
     const empty = getCollectionLandSupply({
       [Pieces.generic1]: 20,

@@ -650,6 +650,19 @@ describe('Virtualscape binary import', () => {
     )
   })
 
+  it('merges a hand-placed base beneath a built-in outcrop on import', async () => {
+    const loaded = await importVirtualscapeTiles([
+      { type: 25001, rotation: 0, posX: 2, posY: 2, posZ: 0 },
+      { type: 27001, rotation: 0, posX: 2, posY: 2, posZ: 1 },
+    ])
+    expect(loaded.boardPieces).toHaveLength(1)
+    expect(loaded.boardPieces[0]).toMatchObject({
+      inventoryID: Pieces.outcrop1,
+      altitude: 0,
+    })
+    expect(loaded.mergedSeatedBaseCount).toBe(1)
+  })
+
   it('drops and warns for unknown Virtualscape codes without crashing', async () => {
     vi.stubGlobal('FileReader', MemoryFileReader)
     const virtualscapeMap = await readVirtualscapeMapFile(

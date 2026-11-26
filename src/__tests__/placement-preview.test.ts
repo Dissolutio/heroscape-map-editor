@@ -46,7 +46,7 @@ function preview(
 }
 
 describe('placement preview state', () => {
-  it('previews the Hive and its fluid base at the graphics-tier fixture spot', () => {
+  it('previews the Hive at its built-in-base altitude', () => {
     let fixture: Board = makeRectangleScenario({
       width: 6,
       length: 6,
@@ -72,20 +72,14 @@ describe('placement preview state', () => {
     const state = preview(fixture, Pieces.hive, pointerHex)
 
     expect(state).toMatchObject({
-      automaticBases: [
-        {
-          piece: { id: Pieces.swampWater6 },
-          coords: { q: 1, r: 0, s: -1 },
-          altitude: 0,
-        },
-      ],
       resolution: {
         coords: { q: 1, r: 0, s: -1 },
-        altitude: 1,
+        altitude: 0,
         rotation: 0,
       },
       evaluation: { status: 'ok' },
     })
+    expect(state.automaticBases).toBeUndefined()
   })
 
   it('reports a free land placement as ok', () => {
@@ -126,23 +120,15 @@ describe('placement preview state', () => {
     },
   )
 
-  it('previews all three contemporary bases under a Rock Outcrop 3', () => {
+  it('previews a Rock Outcrop 3 at its built-in-base altitude', () => {
     const state = preview(table, Pieces.outcrop3, undefined, 2)
 
-    expect(state.automaticBases).toHaveLength(3)
-    expect(state.automaticBases?.map(({ piece }) => piece.id)).toEqual([
-      Pieces.shadow1,
-      Pieces.shadow1,
-      Pieces.shadow1,
-    ])
+    expect(state.automaticBases).toBeUndefined()
+    expect(state.resolution).toMatchObject({ altitude: 1 })
     expect(state.evaluation).toMatchObject({
       status: 'ok',
-      footprintHexes: expect.arrayContaining([
-        expect.objectContaining({ altitude: 1 }),
-        expect.objectContaining({ altitude: 2 }),
-      ]),
     })
-    expect(state.evaluation.footprintHexes).toHaveLength(6)
+    expect(state.evaluation.footprintHexes).toHaveLength(3)
   })
 
   it('uses the classic Shadow-3 base for Rock Outcrop 3 on classic-only maps', () => {
@@ -154,10 +140,8 @@ describe('placement preview state', () => {
       { ...table, setsUsed: ['S'] },
     )
 
-    expect(state.automaticBases).toMatchObject([
-      { piece: piecesSoFar[Pieces.shadow3] },
-    ])
-    expect(state.resolution).toMatchObject({ altitude: 2 })
+    expect(state.automaticBases).toBeUndefined()
+    expect(state.resolution).toMatchObject({ altitude: 1 })
   })
 
   it('blocks a Marvel Ruin when its Concrete-6 base is not placeable', () => {

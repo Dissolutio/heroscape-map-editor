@@ -27,6 +27,7 @@ const SetsToBuildMapDialog = () => {
     (state) => state.toggleCurrentDialog,
   )
   const boardPieces = useBoundStore((state) => state.boardPieces)
+  const setsUsed = useBoundStore((state) => state.hexMap.setsUsed)
   const userPieceInventory = useBoundStore((state) => state.userPieceInventory)
   const objectiveMarkerCount = useBoundStore(
     (state) => state.hexMap.objectiveMarkers?.length ?? 0,
@@ -38,16 +39,21 @@ const SetsToBuildMapDialog = () => {
       isDialogOpen
         ? getSetsToBuildMapCatalog(boardPieces, undefined, {
             includeVCContent,
+            setsUsed,
           })
         : undefined,
-    [boardPieces, includeVCContent, isDialogOpen],
+    [boardPieces, includeVCContent, isDialogOpen, setsUsed],
   )
   const missingFromCollection = React.useMemo(
     () =>
       isDialogOpen
-        ? getPiecesMissingFromCollection(boardPieces, userPieceInventory)
+        ? getPiecesMissingFromCollection(
+            boardPieces,
+            userPieceInventory,
+            setsUsed,
+          )
         : [],
-    [boardPieces, isDialogOpen, userPieceInventory],
+    [boardPieces, isDialogOpen, setsUsed, userPieceInventory],
   )
   const collectionSupply = React.useMemo(
     () => getCollectionLandSupply(userPieceInventory),

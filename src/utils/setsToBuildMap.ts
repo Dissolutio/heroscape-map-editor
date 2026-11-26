@@ -2,7 +2,7 @@ import { isPieceOfferedForVC, isVCTerrainSet } from '../data/vcContent'
 import { piecesSoFar } from '../data/pieces'
 import { type TerrainSetKind, terrainSetsByShortID } from '../data/terrainSets'
 import {
-  countPiecesUsedWithLaurStacking,
+  countPiecesUsedOnMap,
   reconcileLaurLegacyToStackableUsage,
 } from '../inventory/laurInventoryReconcile'
 import {
@@ -550,7 +550,10 @@ const solveCategory = (
 export function getSetsToBuildMapCatalog(
   allBoardPieces: BoardPiece[],
   timeBudgetMs = DEFAULT_TIME_BUDGET_MS,
-  { includeVCContent = false }: { includeVCContent?: boolean } = {},
+  {
+    includeVCContent = false,
+    setsUsed = [],
+  }: { includeVCContent?: boolean; setsUsed?: readonly string[] } = {},
 ): SetsToBuildMapCatalog {
   const deadline = Date.now() + Math.max(0, timeBudgetMs)
   // With Include VC unit/terrain data off, community custom (VC) pieces are
@@ -558,7 +561,7 @@ export function getSetsToBuildMapCatalog(
   const boardPieces = allBoardPieces.filter((piece) =>
     isPieceOfferedForVC(piece.inventoryID, includeVCContent),
   )
-  const used = countPiecesUsedWithLaurStacking(boardPieces)
+  const used = countPiecesUsedOnMap(boardPieces, setsUsed)
   const ignoredCounts: Record<string, number> = {}
 
   for (const boardPiece of boardPieces) {
@@ -642,9 +645,10 @@ export function getSetsToBuildMapCatalog(
 export function getPiecesMissingFromCollection(
   boardPieces: BoardPiece[],
   collection: PieceInventory,
+  setsUsed: readonly string[] = [],
 ): PieceCount[] {
   const used = reconcileLaurLegacyToStackableUsage({
-    usedInventory: countPiecesUsedWithLaurStacking(boardPieces),
+    usedInventory: countPiecesUsedOnMap(boardPieces, setsUsed),
     availableInventory: collection,
   }).reconciledUsedInventory
   const missing: Record<string, number> = {}
