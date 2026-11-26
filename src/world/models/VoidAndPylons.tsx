@@ -52,6 +52,31 @@ function useFirstMeshGeometry(path: string) {
   ) as any
 }
 
+/**
+ * A pylon's meshes, split into its body and its energy beam: the cyan
+ * cylinder standing where the real piece takes a glue stick. The beam is any
+ * mesh whose object or material name contains "beam" (case ignored). Like
+ * the other VC models, only each mesh's geometry is used, so transforms must
+ * be applied in Blender before export.
+ */
+const PYLON_BEAM_NAME = /beam/i
+function usePylonMeshes(path: string) {
+  // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
+  const { nodes } = useDisposableGLTF(path) as any
+  const meshes = Object.values(nodes).filter(
+    // biome-ignore lint/suspicious/noExplicitAny: <GLTF node>
+    (node: any) => node?.isMesh,
+    // biome-ignore lint/suspicious/noExplicitAny: <GLTF node>
+  ) as any[]
+  const isBeam = (mesh: { name?: string; material?: { name?: string } }) =>
+    PYLON_BEAM_NAME.test(mesh.name ?? '') ||
+    PYLON_BEAM_NAME.test(mesh.material?.name ?? '')
+  return {
+    body: meshes.filter((mesh) => !isBeam(mesh)),
+    beam: meshes.filter(isBeam),
+  }
+}
+
 /** The hit hex a pylon hands to placement: like a Laur pillar's. */
 export function getPylonHitHex(bp: BoardPiece): BoardHex {
   return {
@@ -72,7 +97,7 @@ export function VoidPylon({
   bp: BoardPiece
   onPointerUp: (e: ThreeEvent<PointerEvent>, hex: BoardHex) => void
 }) {
-  const mesh = useFirstMeshGeometry(PYLON_GLB[bp.inventoryID])
+  const { body, beam } = usePylonMeshes(PYLON_GLB[bp.inventoryID])
   const isSelected = useBoundStore((s) => s.selectedPieceIDs.includes(bp.uid))
   const isHovered = useBoundStore((s) => s.hoveredPieceID === bp.uid)
   const isLightsAndShadowsRender = useBoundStore(
@@ -90,12 +115,25 @@ export function VoidPylon({
       onPointerEnter={(e) => onPointerEnter(e, hitHex)}
       onPointerOut={(e) => onPointerOut(e)}
     >
-      <mesh
-        receiveShadow={isLightsAndShadowsRender}
-        castShadow={isLightsAndShadowsRender}
-        geometry={mesh?.geometry}
-        material={basicModelMaterial(color, isLightsAndShadowsRender)}
-      />
+      {body.map((mesh) => (
+        <mesh
+          key={mesh.uuid}
+          receiveShadow={isLightsAndShadowsRender}
+          castShadow={isLightsAndShadowsRender}
+          geometry={mesh.geometry}
+          material={basicModelMaterial(color, isLightsAndShadowsRender)}
+        />
+      ))}
+      {beam.map((mesh) => (
+        <mesh
+          key={mesh.uuid}
+          geometry={mesh.geometry}
+          material={basicModelMaterial(
+            hexTerrainColor[HexTerrain.deflectorShield],
+            isLightsAndShadowsRender,
+          )}
+        />
+      ))}
     </group>
   )
 }
@@ -107,19 +145,35 @@ export function VoidPylonPreview({
   inventoryID: string
   opacity?: number
 }) {
-  const mesh = useFirstMeshGeometry(PYLON_GLB[inventoryID])
+  const { body, beam } = usePylonMeshes(PYLON_GLB[inventoryID])
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,
   )
   return (
-    <mesh
-      geometry={mesh?.geometry}
-      material={basicModelMaterial(
-        hexTerrainColor[HexTerrain.voidPylon],
-        isLightsAndShadowsRender,
-        opacity,
-      )}
-    />
+    <>
+      {body.map((mesh) => (
+        <mesh
+          key={mesh.uuid}
+          geometry={mesh.geometry}
+          material={basicModelMaterial(
+            hexTerrainColor[HexTerrain.voidPylon],
+            isLightsAndShadowsRender,
+            opacity,
+          )}
+        />
+      ))}
+      {beam.map((mesh) => (
+        <mesh
+          key={mesh.uuid}
+          geometry={mesh.geometry}
+          material={basicModelMaterial(
+            hexTerrainColor[HexTerrain.deflectorShield],
+            isLightsAndShadowsRender,
+            opacity,
+          )}
+        />
+      ))}
+    </>
   )
 }
 
