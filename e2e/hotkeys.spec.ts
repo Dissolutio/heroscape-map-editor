@@ -76,6 +76,44 @@ test('default obstacle hotkeys select Evergreen Tree, Ship, and Laur Wall', asyn
   }
 })
 
+test('inventory and terrain conversion hotkeys open their dialogs', async ({
+  page,
+}) => {
+  await page.goto(FIXTURE_URL)
+  await waitForAppReady(page)
+
+  await page.keyboard.press('k')
+  const inventoryDialog = page.getByRole('dialog', {
+    name: 'View Map Inventory',
+  })
+  await expect(inventoryDialog).toBeVisible()
+  await page.keyboard.press('Escape')
+  await expect(inventoryDialog).toBeHidden()
+
+  await page.keyboard.press('Shift+k')
+  const convertDialog = page.getByRole('dialog', {
+    name: 'Convert terrain',
+  })
+  await expect(convertDialog).toBeHidden()
+
+  const grass = await findPieceUid(page, {
+    inventoryID: 'g1',
+    q: 0,
+    r: 2,
+  })
+  await clickPiece(page, grass)
+  await expect
+    .poll(
+      async () =>
+        (await page.evaluate(() => window.__TEST__?.snapshot()))
+          ?.selectedPieceIDs,
+    )
+    .toContain(grass)
+
+  await page.keyboard.press('Shift+k')
+  await expect(convertDialog).toBeVisible()
+})
+
 test('rebinds, exports, resets, and imports hotkeys', async ({ page }) => {
   await page.goto(FIXTURE_URL)
   await waitForAppReady(page)

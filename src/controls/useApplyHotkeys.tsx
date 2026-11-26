@@ -7,6 +7,7 @@ import {
   getPieceIDForPenMode,
   isObstacleVariantFamily,
 } from '../data/flatPieceSizes'
+import { useConvertTerrainAvailability } from './ConvertTerrainQuickSelect'
 import { PEN_MODE_ACTION_TARGETS } from '../data/hotkeys'
 import { getLaurAddonAllowedRotations } from '../data/laurAddonPlacement'
 import {
@@ -165,6 +166,9 @@ export const useApplyHotkeys = ({
   const toggleIsCameraDisabled = useBoundStore((s) => s.toggleIsCameraDisabled)
   const unpaintTile = useBoundStore((s) => s.unpaintTile)
   const selectedPieceIDs = useBoundStore((s) => s.selectedPieceIDs)
+  const convertTerrainAvailability =
+    useConvertTerrainAvailability(selectedPieceIDs)
+  const toggleCurrentDialog = useBoundStore((s) => s.toggleCurrentDialog)
   const selectedObjectiveMarkerUID = useBoundStore(
     (s) => s.selectedObjectiveMarkerUID,
   )
@@ -371,6 +375,13 @@ export const useApplyHotkeys = ({
     updateObjectiveMarkerDraft(action.draftUpdates)
     if (action.selectPen) togglePenMode(OBJECTIVE_MARKER_PEN_MODE)
   }
+  const openConvertTerrainPicker = () => {
+    if (convertTerrainAvailability.isDisabled) return
+    toggleCurrentDialog(DIALOGS.convertTerrain)
+  }
+  const openMapInventory = () => {
+    toggleCurrentDialog(DIALOGS.viewMapInventory)
+  }
 
   const penModeActionMap = Object.fromEntries(
     Object.entries(PEN_MODE_ACTION_TARGETS).map(([action, mode]) => [
@@ -404,6 +415,8 @@ export const useApplyHotkeys = ({
     undoWorld: undoWorld,
     redoWorld: redoWorld,
     saveSelection: promptToSaveSelection,
+    openConvertTerrainPicker,
+    openMapInventory,
 
     togglePenModeSelect: togglePenModeSelect,
     togglePenModePick: togglePenModePick,
