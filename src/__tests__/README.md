@@ -168,7 +168,8 @@ owner per hex" rule.
   reaches (the ships' hulls): add it to the script as `kind: 'hull'` with its
   template levels (it fills hex cells too, clamped to the obstruction
   template), then add `{ fills: 'footprint', footprint: pieceFootprints[...] }`.
-  Against everything but walls it keeps owning its whole hexes.
+  Against other pieces, ship conflicts use its derived cells: whole-hex
+  pieces contribute their hex cells, and cell pieces contribute their own.
 
 Data only: addPiece, the replay, the previews and smart placement all read the
 declarations. Add the piece to the declaration and footprint tests in

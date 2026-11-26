@@ -10,11 +10,10 @@
  * Which cells a piece fills comes from pieceCellDeclarations (pieceFeatures.ts):
  * undeclared pieces fill the hex cell, 6 edges and 6 nodes of every hex they
  * write, so between two of them this rule is the old "one owner per hex"
- * rule, which addPiece still applies through boardHexes. This module only
- * adds the pairs a hex-only check cannot see: those involving an
- * edges-and-nodes piece (Fortified Wall, Ruins 2/3). Against such a piece, a
- * `footprint` piece (Ship Wall, Ship Bow) presents its derived cells instead
- * of its whole hexes; against everything else it still owns its hexes.
+ * rule, which addPiece still applies through boardHexes. This module handles
+ * conflicts involving edge/node pieces, cell footprints, Laur add-ons, and
+ * ships. In a ship comparison, a whole-hex piece presents only its hex cell;
+ * cell pieces present their declared cells.
  *
  * Levels are half-open intervals [bottom, top) in level units, where 0 is the
  * table surface. A boardHex at altitude `a` fills [a - 1, a): a land tile
@@ -35,6 +34,7 @@ import type {
 } from '../../types'
 import {
   getShipPlacementAltitude,
+  isLaurWallAddonPieceID,
   isShipPieceID,
 } from '../../utils/board-utils'
 import { hexUtilsRotateAroundOrigin_000 } from '../../utils/hex-utils'
@@ -43,6 +43,7 @@ import {
   getPortAddonEnds,
   isSamePortFamily,
 } from '../portPieces'
+import { getLaurAddonFootprint } from '../laurAddonFootprints'
 import {
   getObstructedLevelOffsets,
   type ObstructionEntry,
@@ -222,6 +223,30 @@ export function hexesTouchingCell(cell: PieceCellId): CubeCoordinate[] {
     : hexesForNode(cell as HexNodeId)
 }
 
+function getLaurAddonCells(piece: CellPiece): FilledCell[] {
+  const footprint = getLaurAddonFootprint({
+    inventoryID: piece.inventoryID,
+    anchor: piece.pieceCoords,
+    altitude: piece.altitude,
+    rotation: piece.rotation,
+  })
+  if (!footprint) return []
+  const { altitude, heightInLevels } = footprint
+  const range = { bottom: altitude, top: altitude + heightInLevels }
+  return [
+    {
+      ...range,
+      cell: footprint.featureId,
+      hexes: hexesTouchingCell(footprint.featureId),
+    },
+    ...footprint.blockedHexes.map((hex) => ({
+      ...range,
+      cell: `hex:${hex.q},${hex.r},${hex.s}` as PieceCellId,
+      hexes: [hex],
+    })),
+  ]
+}
+
 /** Every hex an edges-and-nodes piece touches: the columns it can conflict in. */
 export function getEdgeNodePieceColumns(piece: CellPiece): CubeCoordinate[] {
   if (!isEdgeNodePieceID(piece.inventoryID)) return []
@@ -338,7 +363,7 @@ function getIndexedCells(piece: BoardPiece) {
 }
 
 type EdgeNodeIndex = {
-  /** The cells of the walls and footprint pieces, by cell id. */
+  /** The cells of walls, footprint pieces, and Laur add-ons, by cell id. */
   byCell: Map<string, IndexedCell[]>
   /** Every column a wall touches. */
   columns: Set<string>
@@ -357,15 +382,26 @@ function getEdgeNodeIndex(boardPieces: BoardPieces): EdgeNodeIndex {
   if (cached?.length === boardPieces.length) return cached.index
   const index: EdgeNodeIndex = { byCell: new Map(), columns: new Set() }
   for (const piece of boardPieces) {
-    if (!hasCellFootprint(piece.inventoryID)) continue
-    const indexed = getIndexedCells(piece)
-    for (const entry of indexed.cells) {
+    const isLaurAddon = isLaurWallAddonPieceID(piece.inventoryID)
+    if (!hasCellFootprint(piece.inventoryID) && !isLaurAddon) continue
+    const cells = isLaurAddon
+      ? getLaurAddonCells(piece)
+      : getIndexedCells(piece).cells
+    for (const cell of cells) {
+      const entry = {
+        ...cell,
+        uid: piece.uid,
+        isWall: isEdgeNodePieceID(piece.inventoryID),
+        piece,
+      }
       const entries = index.byCell.get(entry.cell)
       if (entries) entries.push(entry)
       else index.byCell.set(entry.cell, [entry])
     }
     if (isEdgeNodePieceID(piece.inventoryID)) {
-      for (const column of indexed.columns) index.columns.add(column)
+      for (const column of getIndexedCells(piece).columns) {
+        index.columns.add(column)
+      }
     }
   }
   indexByPieces.set(boardPieces, { length: boardPieces.length, index })
@@ -373,16 +409,21 @@ function getEdgeNodeIndex(boardPieces: BoardPieces): EdgeNodeIndex {
 }
 
 /**
- * Let `next` (a copy of `previous` plus one piece without a cell footprint)
- * reuse `previous`'s index, so a replay rebuilds it only when a wall or ship
- * is added.
+ * Let `next` (a copy of `previous` plus one unindexed piece) reuse
+ * `previous`'s index, so a replay rebuilds it only when a cell piece or Laur
+ * add-on is added.
  */
 export function shareEdgeNodeIndex(
   previous: BoardPieces,
   next: BoardPieces,
   addedInventoryID: string,
 ) {
-  if (hasCellFootprint(addedInventoryID)) return
+  if (
+    hasCellFootprint(addedInventoryID) ||
+    isLaurWallAddonPieceID(addedInventoryID)
+  ) {
+    return
+  }
   const cached = indexByPieces.get(previous)
   if (cached?.length === previous.length) {
     indexByPieces.set(next, { length: next.length, index: cached.index })
@@ -391,17 +432,17 @@ export function shareEdgeNodeIndex(
 
 /**
  * The pieces that share a cell, at an overlapping level, with a piece that
- * has just been written into `boardHexes`. Only pairs that involve an
- * edges-and-nodes piece are reported; addPiece reports the others through
- * boardHexes ownership.
+ * has just been written into `boardHexes` or `boardPieces`. Ordinary
+ * whole-hex ownership conflicts remain the responsibility of addPiece.
  *
  * - For an edges-and-nodes piece: the other walls and footprint pieces in
  *   `boardPieces` that share a cell, and the boardHexes (of default pieces)
  *   that touch its cells. `boardHexes` must include the columns of
  *   getEdgeNodePieceColumns.
- * - For a footprint piece: the walls in `boardPieces` that share a cell.
- * - For any other piece: the walls in `boardPieces` whose cells are edges or
- *   nodes of the hexes it wrote (`writtenHexes`).
+ * - For ships: all indexed cell pieces, and the hex cells of whole-hex
+ *   occupants at their occupied levels.
+ * - For any other piece: walls whose cells are edges or nodes of the hexes it
+ *   wrote, plus ships sharing a hex cell.
  */
 export function findCellConflicts({
   piece,
@@ -417,17 +458,63 @@ export function findCellConflicts({
   boardPieces: BoardPieces
 }): string[] {
   const conflicts = new Set<string>()
+  if (isLaurWallAddonPieceID(piece.inventoryID)) {
+    const addonCells = getLaurAddonCells(piece)
+    const indexedCells = getEdgeNodeIndex(boardPieces).byCell
+    for (const cell of addonCells) {
+      for (const other of indexedCells.get(cell.cell) ?? []) {
+        if (
+          isShipPieceID(other.piece.inventoryID) &&
+          other.uid !== uid &&
+          overlaps(cell.bottom, cell.top, other)
+        ) {
+          conflicts.add(other.uid)
+        }
+      }
+    }
+    return [...conflicts]
+  }
   if (isFootprintPieceID(piece.inventoryID)) {
     const walls = getEdgeNodeIndex(boardPieces).byCell
+    const compareAllCells = isShipPieceID(piece.inventoryID)
     for (const cell of getPieceFootprintCells(piece)) {
       for (const wall of walls.get(cell.cell) ?? []) {
         if (
-          wall.isWall &&
+          (wall.isWall ||
+            compareAllCells ||
+            isShipPieceID(wall.piece.inventoryID)) &&
           wall.uid !== uid &&
           overlaps(cell.bottom, cell.top, wall) &&
           !isPluggedPort(piece, wall.piece, cell.cell)
         ) {
           conflicts.add(wall.uid)
+        }
+      }
+    }
+    if (compareAllCells) {
+      const cellsByID = new Map(
+        getPieceFootprintCells(piece).map((cell) => [cell.cell, cell]),
+      )
+      for (const cell of cellsByID.values()) {
+        if (!cell.cell.startsWith('hex:')) continue
+        const [q, r, s] = cell.cell.slice(4).split(',').map(Number)
+        const coords = { q, r, s }
+        for (
+          let altitude = cell.bottom + 0.5;
+          altitude < cell.top + 1;
+          altitude += 0.5
+        ) {
+          const hex = boardHexes[hexKey(coords, altitude)]
+          if (
+            !hex?.boardPieceUID ||
+            hex.boardPieceUID === uid ||
+            hasCellFootprint(hex.inventoryID)
+          ) {
+            continue
+          }
+          if (overlaps(altitude - 1, altitude, cell)) {
+            conflicts.add(hex.boardPieceUID)
+          }
         }
       }
     }
@@ -481,21 +568,33 @@ export function findCellConflicts({
     return [...conflicts]
   }
 
-  if (isHexCenterPieceID(piece.inventoryID) || writtenHexes.length === 0) {
+  if (writtenHexes.length === 0) {
     return []
   }
   const walls = getEdgeNodeIndex(boardPieces)
   if (walls.byCell.size === 0) return []
   for (const hex of writtenHexes) {
-    if (!walls.columns.has(columnKey(hex))) continue
-    for (const cell of getBoardHexEdgeNodeCells(hex)) {
-      for (const wall of walls.byCell.get(cell) ?? []) {
-        if (
-          wall.isWall &&
-          wall.uid !== uid &&
-          overlaps(hex.altitude - 1, hex.altitude, wall)
-        ) {
-          conflicts.add(wall.uid)
+    const hexCell = `hex:${hex.q},${hex.r},${hex.s}`
+    for (const ship of walls.byCell.get(hexCell) ?? []) {
+      if (
+        isShipPieceID(ship.piece.inventoryID) &&
+        ship.uid !== uid &&
+        overlaps(hex.altitude - 1, hex.altitude, ship)
+      ) {
+        conflicts.add(ship.uid)
+      }
+    }
+    if (!isHexCenterPieceID(piece.inventoryID)) {
+      if (!walls.columns.has(columnKey(hex))) continue
+      for (const cell of getBoardHexEdgeNodeCells(hex)) {
+        for (const wall of walls.byCell.get(cell) ?? []) {
+          if (
+            wall.isWall &&
+            wall.uid !== uid &&
+            overlaps(hex.altitude - 1, hex.altitude, wall)
+          ) {
+            conflicts.add(wall.uid)
+          }
         }
       }
     }
