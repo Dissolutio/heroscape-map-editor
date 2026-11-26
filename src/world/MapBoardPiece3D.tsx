@@ -383,6 +383,7 @@ const MapBoardPiece3DModel = ({
       <group
         position={[x, VOID_MAT_Y_OFFSET, z]}
         rotation={[0, pieceRotation, 0]}
+        userData={{ voidMatUID: uid }}
       >
         <Suspense
           fallback={

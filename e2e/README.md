@@ -108,6 +108,8 @@ The canvas is invisible to accessibility snapshots, so read state in text:
   base-color map state), `ruinsMaterials` (rendered Ruins 2/3 UIDs, face/column
   part names, and base-color map state), `objectiveMarkerCount`,
   `selectedObjectiveMarkerUID`, and `voidPieces` (Void Mat/Marker positions),
+  `voidMatRenderings` (visible Void Mat mesh count and whether it uses its
+  texture or the loading fallback),
   `hoveredPieceID`, `isOrthoCam`, `ready`, `placementPreview`
   (`status`, `reason`, `footprintCount`, `unsupported`, `altitude`, and
   `rotation`, or `null`), `ghostingOtherLevels` (true during a Void Mat or

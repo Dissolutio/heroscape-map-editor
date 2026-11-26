@@ -498,9 +498,7 @@ describe('Virtualscape binary import', () => {
   })
 
   it('loads a Void Mat with Grass 1 and Grass 7 around it', async () => {
-    const result = await loadVirtualscapeFixture(
-      'vs-void-mat-two-grass.hsc',
-    )
+    const result = await loadVirtualscapeFixture('vs-void-mat-two-grass.hsc')
     if (!result.ok) throw new Error('Expected a supported Virtualscape file')
 
     const { loadedMap } = result
@@ -509,9 +507,7 @@ describe('Virtualscape binary import', () => {
     )
 
     expect(
-      loadedMap.boardPieces
-        .map(({ inventoryID }) => inventoryID)
-        .sort(),
+      loadedMap.boardPieces.map(({ inventoryID }) => inventoryID).sort(),
     ).toEqual([Pieces.grass1, Pieces.voidMat, Pieces.grass7].sort())
     expect(loadedMap.droppedPieces).toEqual([])
     expect(mat).toMatchObject({

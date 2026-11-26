@@ -38,6 +38,12 @@ export type E2ESnapshot = {
     altitude: number
     rotation: number
   }>
+  voidMatRenderings: Array<{
+    uid: string
+    visible: boolean
+    meshCount: number
+    rendering: 'textured' | 'fallback'
+  }>
   selectedObjectiveMarkerUID: string | null
   hexCount: number
   landInstanceCounts: { solid: number; fluid: number }

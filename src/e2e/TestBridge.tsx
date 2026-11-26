@@ -4,6 +4,7 @@ import { useEffect } from 'react'
 import {
   Box3,
   Mesh,
+  type Object3D,
   PerspectiveCamera,
   Quaternion,
   Raycaster,
@@ -217,6 +218,7 @@ function TestBridgeInner() {
           hasMap: boolean
           materialTypes: string[]
         }> = []
+        const voidMatRenderings: E2ESnapshot['voidMatRenderings'] = []
         const junglePalmMaterials: E2ESnapshot['junglePalmMaterials'] = []
         const evergreenTreeMaterials: Array<{
           uid: string
@@ -238,6 +240,33 @@ function TestBridgeInner() {
           materialTypes: string[]
         }> = []
         const marvelRuinMaterials: E2ESnapshot['marvelRuinMaterials'] = []
+        get().scene.traverse((object) => {
+          const uid = object.userData.voidMatUID
+          if (typeof uid !== 'string') return
+
+          const meshes: Mesh[] = []
+          object.traverse((child) => {
+            if (child instanceof Mesh) meshes.push(child)
+          })
+          const materials = meshes.flatMap((mesh) =>
+            Array.isArray(mesh.material) ? mesh.material : [mesh.material],
+          ) as Array<{ map?: unknown }>
+          const hasTexture = materials.some((material) => Boolean(material.map))
+          const visible = meshes.some((mesh) => {
+            let ancestor: Object3D | null = mesh
+            while (ancestor) {
+              if (!ancestor.visible) return false
+              ancestor = ancestor.parent
+            }
+            return true
+          })
+          voidMatRenderings.push({
+            uid,
+            visible,
+            meshCount: meshes.length,
+            rendering: hasTexture ? 'textured' : 'fallback',
+          })
+        })
         get().scene.traverse((object) => {
           if (!(object instanceof Mesh)) return
           const materials = (
@@ -420,6 +449,7 @@ function TestBridgeInner() {
               altitude: piece.altitude,
               rotation: piece.rotation,
             })),
+          voidMatRenderings,
           selectedObjectiveMarkerUID: s.selectedObjectiveMarkerUID,
           hexCount: Object.keys(s.boardHexes).length,
           landInstanceCounts: landInstances.reduce(
