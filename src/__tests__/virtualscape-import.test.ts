@@ -497,6 +497,43 @@ describe('Virtualscape binary import', () => {
     ).toBe(true)
   })
 
+  it('loads a Void Mat with Grass 1 and Grass 7 around it', async () => {
+    const result = await loadVirtualscapeFixture(
+      'vs-void-mat-two-grass.hsc',
+    )
+    if (!result.ok) throw new Error('Expected a supported Virtualscape file')
+
+    const { loadedMap } = result
+    const mat = loadedMap.boardPieces.find(
+      (piece) => piece.inventoryID === Pieces.voidMat,
+    )
+
+    expect(
+      loadedMap.boardPieces
+        .map(({ inventoryID }) => inventoryID)
+        .sort(),
+    ).toEqual([Pieces.grass1, Pieces.voidMat, Pieces.grass7].sort())
+    expect(loadedMap.droppedPieces).toEqual([])
+    expect(mat).toMatchObject({
+      altitude: 0,
+      pieceCoords: { q: 1, r: 2, s: -3 },
+      rotation: 0,
+    })
+    expect(loadedMap.hexMap).toMatchObject({
+      length: 11,
+      width: 8,
+    })
+    expect(Object.keys(loadedMap.boardHexes)).toHaveLength(96)
+    if (!mat) throw new Error('Expected the Void Mat to remain in the map')
+    expect(
+      getVoidMatHexes(mat).every((hex) =>
+        mapTableHexes(loadedMap.hexMap).has(
+          genBoardHexID({ ...hex, altitude: 0 }),
+        ),
+      ),
+    ).toBe(true)
+  })
+
   it('keeps Void Markers through the UI loader', async () => {
     vi.stubGlobal('FileReader', MemoryFileReader)
     const file = makeVirtualscapeFile([
