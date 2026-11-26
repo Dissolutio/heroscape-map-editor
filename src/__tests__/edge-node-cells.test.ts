@@ -262,11 +262,14 @@ describe('the cell rule', () => {
     const ship = bp('ship', Pieces.shipWall, O)
     const shortAddon = bp('short-addon', Pieces.laurWallShort, O)
     const longAddon = bp('long-addon', Pieces.laurWallLong, O, 1, 0.5)
+    const wall = bp('wall', Pieces.fortifiedWall, O)
 
     expect(conflictsOn(ship, shortAddon)).toEqual(['ship', 'short-addon'])
     expect(conflictsOn(shortAddon, ship)).toEqual(['ship', 'short-addon'])
     expect(conflictsOn(ship, longAddon)).toEqual(['long-addon', 'ship'])
     expect(conflictsOn(longAddon, ship)).toEqual(['long-addon', 'ship'])
+    expect(conflictsOn(wall, shortAddon)).toEqual(['short-addon', 'wall'])
+    expect(conflictsOn(shortAddon, wall)).toEqual(['short-addon', 'wall'])
   })
 
   it('the Ship Bow figurehead conflicts only at its blocked levels', () => {

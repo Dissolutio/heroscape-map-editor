@@ -463,11 +463,7 @@ export function findCellConflicts({
     const indexedCells = getEdgeNodeIndex(boardPieces).byCell
     for (const cell of addonCells) {
       for (const other of indexedCells.get(cell.cell) ?? []) {
-        if (
-          isShipPieceID(other.piece.inventoryID) &&
-          other.uid !== uid &&
-          overlaps(cell.bottom, cell.top, other)
-        ) {
+        if (other.uid !== uid && overlaps(cell.bottom, cell.top, other)) {
           conflicts.add(other.uid)
         }
       }
@@ -482,7 +478,8 @@ export function findCellConflicts({
         if (
           (wall.isWall ||
             compareAllCells ||
-            isShipPieceID(wall.piece.inventoryID)) &&
+            isShipPieceID(wall.piece.inventoryID) ||
+            isLaurWallAddonPieceID(wall.piece.inventoryID)) &&
           wall.uid !== uid &&
           overlaps(cell.bottom, cell.top, wall) &&
           !isPluggedPort(piece, wall.piece, cell.cell)
