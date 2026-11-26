@@ -399,7 +399,14 @@ function TestBridgeInner() {
           objectiveMarkerDraft: {
             size: s.objectiveMarkerDraft.size,
             style: s.objectiveMarkerDraft.style,
+            content: { ...s.objectiveMarkerDraft.content },
+            pinNumber: s.objectiveMarkerDraft.pinNumber,
           },
+          objectiveMarkers: (s.hexMap.objectiveMarkers ?? []).map((marker) => ({
+            ...marker,
+            anchor: { ...marker.anchor },
+            content: { ...marker.content },
+          })),
           objectiveMarkerAnchors: (s.hexMap.objectiveMarkers ?? []).map(
             ({ uid, anchor }) => ({ uid, anchor: { ...anchor } }),
           ),

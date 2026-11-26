@@ -12,7 +12,21 @@ export type E2ESnapshot = {
   conflictedPieceCount: number
   pieceCount: number
   objectiveMarkerCount: number
-  objectiveMarkerDraft: { size: 1 | 2; style: 'black' | 'white' }
+  objectiveMarkerDraft: {
+    size: 1 | 2
+    style: 'black' | 'white'
+    content: { kind: 'number'; value: number } | { kind: 'text'; value: string }
+    pinNumber: boolean
+  }
+  objectiveMarkers: Array<{
+    uid: string
+    anchor: { q: number; r: number; s: number; altitude: number }
+    size: 1 | 2
+    rotation: 0 | 1 | 2 | 3 | 4 | 5
+    style: 'black' | 'white'
+    content: { kind: 'number'; value: number } | { kind: 'text'; value: string }
+    name?: string
+  }>
   objectiveMarkerAnchors: Array<{
     uid: string
     anchor: { q: number; r: number; s: number; altitude: number }

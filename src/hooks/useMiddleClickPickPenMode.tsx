@@ -56,6 +56,17 @@ export function pickPieceAsPenMode(
 // Makes the currently hovered piece the pen mode (aka eyedropper/pick)
 function pickHoveredPieceAsPenMode() {
   const state = useBoundStore.getState()
+  const hoveredMarkerUID = state.hoveredObjectiveMarkerUID
+  if (
+    state.isShowObjectiveMarkers &&
+    hoveredMarkerUID &&
+    state.hexMap.objectiveMarkers?.some(
+      (marker) => marker.uid === hoveredMarkerUID,
+    )
+  ) {
+    state.pickObjectiveMarkerAsPen(hoveredMarkerUID)
+    return
+  }
   if (!state.hoveredPieceID) return
   pickPieceAsPenMode(state.hoveredPieceID)
 }

@@ -525,6 +525,7 @@ describe('settings persistence', () => {
     const transientKeys = [
       'selectedPieceIDs',
       'selectedObjectiveMarkerUID',
+      'hoveredObjectiveMarkerUID',
       'objectiveMarkerDraft',
       'objectiveMarkerDragPreview',
       'rotationPivot',

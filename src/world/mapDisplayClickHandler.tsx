@@ -219,7 +219,9 @@ export function createMapClickHandler({
       }
       const draft = state.objectiveMarkerDraft
       const content =
-        draft.content.kind === 'number' && !draft.pinNumber
+        draft.content.kind === 'number' &&
+        !draft.pinNumber &&
+        !draft.pickedNumberOnce
           ? {
               kind: 'number' as const,
               value: getEffectiveObjectiveMarkerNumber(
@@ -268,6 +270,11 @@ export function createMapClickHandler({
           autoHideDuration: 2500,
         })
       } else {
+        if (draft.pickedNumberOnce) {
+          useBoundStore.getState().updateObjectiveMarkerDraft({
+            pickedNumberOnce: false,
+          })
+        }
         toggleSelectedPieceID('')
       }
       return
