@@ -25,9 +25,14 @@ const contemporaryBases = [
 ] as const
 
 const rockOutcrop3: SeatedObstacleRule = (setsUsed) => {
+  const officialSetsUsed = setsUsed.filter(
+    (setID) =>
+      terrainSetsByShortID[setID as keyof typeof terrainSetsByShortID]?.era !==
+      'community',
+  )
   const isClassicOnly =
-    setsUsed.length > 0 &&
-    setsUsed.every(
+    officialSetsUsed.length > 0 &&
+    officialSetsUsed.every(
       (setID) =>
         terrainSetsByShortID[setID as keyof typeof terrainSetsByShortID]
           ?.era === 'classic',

@@ -118,6 +118,19 @@ describe('sets to build this map', () => {
     expect(result.categories[2]?.reason).toContain('no Classic set has')
   })
 
+  it('does not count a community set as a second era for Mixed', () => {
+    const result = getSetsToBuildMapCatalog(
+      pieces(Pieces.marvel, Pieces.voidMat),
+      50,
+      { includeVCContent: true },
+    )
+
+    expect(result.categories.map((item) => item.id)).toEqual([
+      'contemporary',
+      'classic',
+    ])
+  })
+
   it('maps Ticalla palms to GaLE in Contemporary recommendations', () => {
     const result = category(pieces(Pieces.palm14), 'contemporary')
 

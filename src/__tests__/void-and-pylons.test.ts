@@ -168,6 +168,7 @@ describe('Void and Pylons registry', () => {
     const set = terrainSetsByShortID.FF
     expect(set.name).toBe('Void and Pylons')
     expect(set.isVC).toBe(true)
+    expect(set.era).toBe('community')
     expect(set.inventory).toEqual({
       [Pieces.voidMat]: 10,
       [Pieces.threeWayPylon]: 6,
@@ -262,13 +263,20 @@ describe('VC gating (Include VC unit/terrain data off)', () => {
       expect(isPieceOfferedForVC(id, true)).toBe(true)
     }
     expect(isPieceOfferedForVC(Pieces.laurWallSquarePillar, false)).toBe(true)
-    const setIDs = (include: boolean) =>
-      [
-        ...getTerrainSetsForEra('contemporary', include),
-        ...getTerrainSetsForEra('classic', include),
-      ].map((set) => set.id)
-    expect(setIDs(false)).not.toContain('FF')
-    expect(setIDs(true)).toContain('FF')
+    const setIDs = (
+      era: 'contemporary' | 'classic' | 'community',
+      include: boolean,
+    ) => getTerrainSetsForEra(era, include).map((candidate) => candidate.id)
+    expect(setIDs('community', false)).toEqual([])
+    expect(setIDs('community', true)).toEqual(['FF'])
+    expect(setIDs('contemporary', true)).not.toContain('FF')
+    const allSetIDs = (include: boolean) => [
+      ...setIDs('contemporary', include),
+      ...setIDs('classic', include),
+      ...setIDs('community', include),
+    ]
+    expect(allSetIDs(false)).not.toContain('FF')
+    expect(allSetIDs(true)).toContain('FF')
   })
 
   it('keeps the pieces in their own piece-grid group, without hotkeys', () => {

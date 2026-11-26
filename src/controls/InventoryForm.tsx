@@ -92,6 +92,10 @@ const InventoryForm = () => {
     () => getTerrainSetsForEra('classic', includeVCContent),
     [includeVCContent],
   )
+  const communityTerrainSets = useMemo(
+    () => getTerrainSetsForEra('community', includeVCContent),
+    [includeVCContent],
+  )
 
   // Convert a set inventory into readable tooltip lines so users can inspect
   // exactly what will be added or removed before clicking a button.
@@ -419,6 +423,17 @@ const InventoryForm = () => {
         <Box sx={twoColumnGridSx}>
           {classicTerrainSets.map(renderTerrainSetCard)}
         </Box>
+
+        {includeVCContent && (
+          <>
+            <Typography variant="subtitle2" color="text.secondary">
+              Community
+            </Typography>
+            <Box sx={twoColumnGridSx}>
+              {communityTerrainSets.map(renderTerrainSetCard)}
+            </Box>
+          </>
+        )}
 
         <Divider />
 
