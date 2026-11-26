@@ -272,6 +272,19 @@ export function DeflectorShieldPreview({
 export const VOID_MAT_Y_OFFSET = 0.012
 
 /**
+ * A tiny, stable height step per mat, so overlapping mats never share a depth
+ * and flicker (z-fight). Mats must keep writing depth, or the table draws
+ * over them. 16 steps of 0.0002 stay well under the gap to anything above.
+ */
+export function getVoidMatLayerOffset(uid: string) {
+  let hash = 0
+  for (const character of uid) {
+    hash = (hash * 31 + character.charCodeAt(0)) % 16
+  }
+  return hash * 0.0002
+}
+
+/**
  * The mat: a flat textured mesh in its outline's shape, under everything
  * else. It never takes the pointer, so clicks and hover reach the table hex
  * or piece underneath; selecting it by click goes through the empty table hex
