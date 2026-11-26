@@ -63,7 +63,7 @@ export function DragPreview3D() {
           )
         }
         return (
-          <group key={member.uid}>
+          <group key={member.uid} userData={{ voidMatDragPreview: true }}>
             <PlacementFootprint
               status={member.status}
               unsupported={member.unsupported}

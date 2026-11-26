@@ -4,6 +4,7 @@ import { Suspense } from 'react'
 import { Vector3 } from 'three'
 import { hasSupportingLaurPillar } from '../data/laurPillarStacking'
 import { piecesSoFar } from '../data/pieces'
+import { isVoidMatPieceID } from '../data/voidMat'
 import { isPortPillarID } from '../data/portPieces'
 import {
   resolveRotationPivot,
@@ -135,7 +136,8 @@ export const MapBoardPiece3D = (props: MapBoardPiece3DProps) => {
     pieceCoords,
     pivotCoords,
   )
-  const isVisible = altitude + 1 <= viewingLevel
+  const isVisible =
+    altitude + (isVoidMatPieceID(props.bp.inventoryID) ? 0 : 1) <= viewingLevel
   const isPivotVisible = pivotAltitude <= viewingLevel
   const { x, y, z } = getBoardHex3DCoords({
     ...pivotCoords,
@@ -247,7 +249,9 @@ const MapBoardPiece3DModel = ({
     : yWithBase - pillarStackYOffset
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
   const isSelected = useBoundStore((s) => s.selectedPieceIDs.includes(uid))
-  const isVisible = altitude + 1 <= viewingLevel
+  const isHovered = useBoundStore((s) => s.hoveredPieceID === uid)
+  const isVisible =
+    altitude + (isVoidMatPieceID(inventoryID) ? 0 : 1) <= viewingLevel
   const isPowerGlyph = inventoryID === Pieces.glyphPower
   const isTreasureGlyph = inventoryID === Pieces.glyphTreasure
   const isAnyGlyph = inventoryID.startsWith('y')
@@ -380,8 +384,18 @@ const MapBoardPiece3DModel = ({
         position={[x, VOID_MAT_Y_OFFSET, z]}
         rotation={[0, pieceRotation, 0]}
       >
-        <Suspense fallback={<VoidMatFallback isMarker={isMarker} />}>
-          <VoidMat3D isHighlighted={isSelected} isMarker={isMarker} />
+        <Suspense
+          fallback={
+            <VoidMatFallback
+              isHighlighted={isSelected || isHovered}
+              isMarker={isMarker}
+            />
+          }
+        >
+          <VoidMat3D
+            isHighlighted={isSelected || isHovered}
+            isMarker={isMarker}
+          />
         </Suspense>
       </group>
     )

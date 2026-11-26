@@ -249,9 +249,11 @@ export function VoidMat3D({
 
 /** Flat stand-in while the texture loads. */
 export function VoidMatFallback({
+  isHighlighted = false,
   isMarker = false,
   opacity,
 }: {
+  isHighlighted?: boolean
   isMarker?: boolean
   opacity?: number
 }) {
@@ -260,7 +262,7 @@ export function VoidMatFallback({
     <mesh
       geometry={geometry}
       material={getVoidMatFallbackMaterial(
-        hexTerrainColor[HexTerrain.voidMat],
+        isHighlighted ? HIGHLIGHT_COLOR : hexTerrainColor[HexTerrain.voidMat],
         opacity,
       )}
       raycast={() => null}

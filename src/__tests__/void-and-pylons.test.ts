@@ -846,6 +846,16 @@ describe('Void Mat', () => {
     expect(
       findVoidMatAtTableHex(covered.boardPieces, covered.boardHexes, inside),
     ).toBeUndefined()
+    const grassCovered = placeAll(board, [
+      bp('grass-cover', Pieces.grass1, inside),
+    ])
+    expect(
+      findVoidMatAtTableHex(
+        grassCovered.boardPieces,
+        grassCovered.boardHexes,
+        inside,
+      ),
+    ).toBeUndefined()
   })
 
   it('map fit, Trim and Convert count only its 14 hexes', () => {
