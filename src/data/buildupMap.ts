@@ -42,13 +42,45 @@ import { isLaurPillarID } from './laurPillarStacking'
 import { isPortAddonPieceID } from './portPieces'
 import { virtualscapeLaurPillarBaseName } from './pieceCodes'
 
+function addMissingMarvelBases(tiles: VirtualScapeTile[]) {
+  const hasConcreteBase = (marvel: VirtualScapeTile) =>
+    tiles.some((tile) => {
+      if (tile.posX !== marvel.posX || tile.posY !== marvel.posY) return false
+      if (tile.posZ !== marvel.posZ - 1 || tile.rotation !== marvel.rotation) {
+        return false
+      }
+      const code = getCodeForVSPersonalTile(tile)
+      const inventoryID = pieceCodes[code] ?? String(code ?? tile.type)
+      return inventoryID === Pieces.concrete6
+    })
+
+  return tiles.flatMap((tile) => {
+    const code = getCodeForVSPersonalTile(tile)
+    const inventoryID = pieceCodes[code] ?? String(code ?? tile.type)
+    if (
+      (inventoryID !== Pieces.marvel && inventoryID !== Pieces.marvelBroken) ||
+      hasConcreteBase(tile)
+    ) {
+      return [tile]
+    }
+    return [
+      { ...tile, type: 21006, virtualscapeName: '', posZ: tile.posZ - 1 },
+      tile,
+    ]
+  })
+}
+
 export default function buildupVSFileMap(
   tiles: VirtualScapeTile[],
   mapName: string,
+  mapAuthor = '',
+  mapNotes = '',
 ): VirtualScapeMapLoadResult {
   const blankMap = getBlankHexoscapeMapForVSTiles(tiles, mapName)
   let { boardPieces } = blankMap
   const { boardHexes, hexMap } = blankMap
+  hexMap.author = mapAuthor
+  hexMap.mapNotes = mapNotes
   const isPillarTile = (tile: VirtualScapeTile) =>
     isLaurPillarID(
       pieceCodes?.[getCodeForVSPersonalTile(tile)] ??
@@ -90,14 +122,14 @@ export default function buildupVSFileMap(
   if (objectiveMarkers.length) {
     hexMap.objectiveMarkers = objectiveMarkers
   }
-  const mappedTiles = tiles.flatMap((tile) => {
+  const tilesWithMarvelBases = addMissingMarvelBases(tiles)
+  const mappedTiles = tilesWithMarvelBases.flatMap((tile) => {
     if (tile.type >= 15101 && tile.type <= 15106) return []
     if (tile.virtualscapeName === virtualscapeLaurPillarBaseName) {
       return pairedPillarBases.has(tile)
         ? []
         : [{ tile, inventoryID: virtualscapeLaurPillarBaseName }]
     }
-
     const code = getCodeForVSPersonalTile(tile)
     const inventoryID =
       code === 4002
@@ -149,10 +181,7 @@ export default function buildupVSFileMap(
             : getHexoscapeLaurRotation(inventoryID, tile.rotation),
         isVsTile: true,
       })
-      if (
-        piece.isObstaclePiece &&
-        result.error?.message === 'Obstacle is not supported there'
-      ) {
+      if (result.error) {
         result = addPiece({
           piece,
           boardHexes,
@@ -387,32 +416,24 @@ function getBlankHexoscapeMapForVSTiles(
   tiles: VirtualScapeTile[],
   mapName: string,
 ): MapState {
-  // cushions have to be an even number because of the coordinate system used in virtualscape
-  const cushionToPadY = 8 // 24-hexer's max Y displacement in vscape
-  const cushionToPadX = 6 // 24-hexer's max X displacement in vscape
-  const xMin = Math.min(...(tiles.map((t) => t.posX - cushionToPadX) ?? 0))
-  const yMin = Math.min(...(tiles.map((t) => t.posY - cushionToPadY) ?? 0))
-  // remove as many empty hexes as possible from the empty grid we are going to generate
-  const xIncrementsWorthEmpty = Math.floor(xMin / 2)
-  const yIncrementsWorthEmpty = Math.floor(yMin / 2)
-  // MUTATE TILES TO MAKE MAP SMALL AS POSSIBLE
-  if (xIncrementsWorthEmpty > 0) {
-    for (const t of tiles) {
-      t.posX -= xIncrementsWorthEmpty * 2
-    }
-  }
-  if (yIncrementsWorthEmpty > 0) {
-    for (const t of tiles) {
-      t.posY -= yIncrementsWorthEmpty * 2
-    }
-  }
-  // these are the dimensions of the empty map to generate
-  const length = Math.max(...(tiles.map((t) => t.posY + cushionToPadY) ?? 0))
-  const width = Math.max(...(tiles.map((t) => t.posX + cushionToPadX) ?? 0))
+  if (!tiles.length) return makeRectangleScenario({ mapName })
+
+  const cushionToPadY = 8
+  const cushionToPadX = 6
+  const minX = Math.min(...tiles.map((tile) => tile.posX))
+  const maxX = Math.max(...tiles.map((tile) => tile.posX))
+  const minY = Math.min(...tiles.map((tile) => tile.posY))
+  const maxY = Math.max(...tiles.map((tile) => tile.posY))
+  const originQ = minX - cushionToPadX
+  const originR = minY - cushionToPadY
+  const length = maxY - minY + cushionToPadY * 2 + 1
+  const width = maxX - minX + cushionToPadX * 2 + 1
 
   return makeRectangleScenario({
     length,
     width,
+    originQ,
+    originR,
     mapName,
   })
 }

@@ -1,134 +1,338 @@
-const isLittleEndian = true
-let offset = 0
-const myFile = {
-  version: 0.0007,
-  name: '', // gets written blank
-  author: '', // gets written blank
-  playerNumber: '', // gets written blank
-  scenario: '', // gets written blank, but is not a C-string
-  levelPerPage: 6,
-  printingTransparency: 80,
-  printingGrid: true,
-  printTileNumber: false,
-  printStartAreaAsLevel: true,
-  tileCount: 1,
-  tiles: [
-    {
-      type: 1001,
+import type { BoardPiece, BoardPieces, HexMap } from '../types'
+import { Pieces } from '../types'
+import { hexUtilsCubeToOddR } from '../utils/hex-utils'
+import {
+  getVirtualscapeLadderBattlementRotation,
+  getVirtualscapeLaurRotation,
+  getVirtualscapeRopeLadderAltitude,
+  getVirtualscapeShieldRotation,
+} from './readVirtualscapeMapFile'
+import { getSeatedGroupUIDs } from './seatedObstacles'
+import { isLaurPillarID } from './laurPillarStacking'
+import { isPortAddonPieceID } from './portPieces'
+import { piecesSoFar } from './pieces'
+import { rebuildBoardStateFromPieces } from './rebuildBoardState'
+import { getVirtualscapeAnchorOffset } from './rotationTransforms'
+import {
+  virtualscapeLaurPillarBaseName,
+  virtualscapeNamedPieceNames,
+  virtualscapePieceCodesByID,
+} from './pieceCodes'
+import { virtualscapeTileMetadata } from './virtualscapeTileMetadata'
+
+export type SkippedPiece = {
+  inventoryID: string
+  title: string
+}
+
+type ExportTile = {
+  type: number
+  version: number
+  rotation: number
+  posX: number
+  posY: number
+  posZ: number
+  glyphLetter: number
+  glyphName: string
+  startName: string
+  color: readonly [number, number, number, number]
+  virtualscapeName: string
+}
+
+const metadataByName = new Map(
+  virtualscapeTileMetadata
+    .filter(({ name }) => name)
+    .map((metadata) => [metadata.name, metadata]),
+)
+const metadataByCode = new Map(
+  virtualscapeTileMetadata.map((metadata) => [metadata.type, metadata]),
+)
+const startZoneColors = [
+  [255, 0, 0, 0],
+  [0, 255, 0, 0],
+  [0, 0, 255, 0],
+  [255, 255, 0, 0],
+  [255, 0, 255, 0],
+  [0, 255, 255, 0],
+  [255, 128, 0, 0],
+  [128, 0, 255, 0],
+] as const
+
+function getTileMetadata(inventoryID: string) {
+  const name = virtualscapeNamedPieceNames[inventoryID]
+  if (name) return metadataByName.get(name)
+  const code = virtualscapePieceCodesByID[inventoryID]
+  return code ? metadataByCode.get(Number(code)) : undefined
+}
+
+function getExportRotation(piece: BoardPiece) {
+  if (piece.inventoryID === Pieces.deflectorShield) {
+    return getVirtualscapeShieldRotation(piece.rotation)
+  }
+  if (
+    piece.inventoryID === Pieces.ladder ||
+    piece.inventoryID === Pieces.battlement
+  ) {
+    return getVirtualscapeLadderBattlementRotation(piece.rotation)
+  }
+  return getVirtualscapeLaurRotation(piece.inventoryID, piece.rotation)
+}
+
+function getVirtualscapeCoordinate(
+  piece: BoardPiece,
+  rotation: number,
+  template: string,
+) {
+  const anchorOffset = getVirtualscapeAnchorOffset(template, rotation)
+  return {
+    q: piece.pieceCoords.q - anchorOffset.q,
+    r: piece.pieceCoords.r - anchorOffset.r,
+    s: piece.pieceCoords.s - anchorOffset.s,
+  }
+}
+
+function createTile(
+  metadata: NonNullable<ReturnType<typeof getTileMetadata>>,
+  piece: BoardPiece,
+  options: {
+    type?: number
+    rotation?: number
+    altitude?: number
+    startName?: string
+    color?: readonly [number, number, number, number]
+    virtualscapeName?: string
+  } = {},
+): ExportTile {
+  const rotation = options.rotation ?? getExportRotation(piece)
+  const virtualscapeCoordinate = getVirtualscapeCoordinate(
+    piece,
+    rotation,
+    piecesSoFar[piece.inventoryID]?.template ?? '1',
+  )
+  const { x, y } = hexUtilsCubeToOddR(virtualscapeCoordinate)
+  return {
+    type: options.type ?? metadata.type,
+    version: 0.0003,
+    rotation,
+    posX: x,
+    posY: y,
+    posZ: options.altitude ?? piece.altitude,
+    glyphLetter: metadata.glyph,
+    glyphName: '',
+    startName: options.startName ?? '',
+    color: options.color ?? metadata.color,
+    virtualscapeName: options.virtualscapeName ?? metadata.name,
+  }
+}
+
+export function writeVirtualscapeMap(
+  hexMap: HexMap,
+  boardPieces: BoardPieces,
+): { buffer: ArrayBuffer; skipped: SkippedPiece[] } {
+  const skippedByID = new Map<string, SkippedPiece>()
+  const addSkipped = (inventoryID: string, title?: string) => {
+    if (!skippedByID.has(inventoryID)) {
+      skippedByID.set(inventoryID, {
+        inventoryID,
+        title: title ?? piecesSoFar[inventoryID]?.title ?? inventoryID,
+      })
+    }
+  }
+  const boardHexes = rebuildBoardStateFromPieces(boardPieces).boardHexes
+  const marvelBaseUIDs = new Set<string>()
+  for (const piece of boardPieces) {
+    if (
+      piece.inventoryID !== Pieces.marvel &&
+      piece.inventoryID !== Pieces.marvelBroken
+    ) {
+      continue
+    }
+    for (const uid of getSeatedGroupUIDs(piece.uid, boardHexes, boardPieces)) {
+      if (uid !== piece.uid) marvelBaseUIDs.add(uid)
+    }
+  }
+
+  const tiles: ExportTile[] = []
+  for (const piece of boardPieces) {
+    if (marvelBaseUIDs.has(piece.uid)) continue
+    if (piece.inventoryID.startsWith('z')) {
+      const player = Number(piece.inventoryID.slice(1))
+      const color = startZoneColors[player - 1]
+      const startZoneMetadata = metadataByCode.get(15001)
+      if (!color || !startZoneMetadata) {
+        addSkipped(piece.inventoryID)
+        continue
+      }
+      tiles.push(
+        createTile(startZoneMetadata, piece, {
+          type: 15001,
+          color,
+        }),
+      )
+      continue
+    }
+    const metadata = getTileMetadata(piece.inventoryID)
+    if (!metadata) {
+      addSkipped(piece.inventoryID)
+      continue
+    }
+
+    const isPillar = isLaurPillarID(piece.inventoryID)
+    const hasPillarAtCoords = isPortAddonPieceID(piece.inventoryID)
+      ? boardPieces.some(
+          (other) =>
+            isLaurPillarID(other.inventoryID) &&
+            other.pieceCoords.q === piece.pieceCoords.q &&
+            other.pieceCoords.r === piece.pieceCoords.r &&
+            other.pieceCoords.s === piece.pieceCoords.s,
+        )
+      : false
+    const rotation = getExportRotation(piece)
+    const altitude =
+      piece.inventoryID === Pieces.ropeLadder
+        ? getVirtualscapeRopeLadderAltitude(piece.altitude)
+        : piece.altitude + (isPillar || hasPillarAtCoords ? 1 : 0)
+    tiles.push(createTile(metadata, piece, { rotation, altitude }))
+
+    if (isPillar) {
+      const baseMetadata = metadataByName.get(virtualscapeLaurPillarBaseName)
+      if (baseMetadata) {
+        tiles.push(
+          createTile(baseMetadata, piece, {
+            rotation,
+            altitude: piece.altitude,
+            virtualscapeName: virtualscapeLaurPillarBaseName,
+          }),
+        )
+      }
+    }
+  }
+
+  for (const marker of hexMap.objectiveMarkers ?? []) {
+    if (
+      marker.size !== 1 ||
+      marker.content.kind !== 'number' ||
+      marker.content.value < 1 ||
+      marker.content.value > 6
+    ) {
+      addSkipped('objective-marker', 'Objective marker')
+      continue
+    }
+    const metadata = metadataByCode.get(15100 + marker.content.value)
+    if (!metadata) {
+      addSkipped('objective-marker', 'Objective marker')
+      continue
+    }
+    const { x, y } = hexUtilsCubeToOddR(marker.anchor)
+    tiles.push({
+      type: metadata.type,
       version: 0.0003,
-      rotation: 0,
-      posX: 0,
-      posY: 0,
-      posZ: 0,
-      glyphLetter: 'T', // gets written static until a problem arises: T works, use "T"
-      glyphName: '', // gets written blank
-      startName: '', // gets written blank
-      colorf: { r: 0, g: 160, b: 0, a: 0 },
-    },
-  ],
-}
-export function writeVirtualScapeArrayBuffer(length?: number) {
-  let arrayBuffer: ArrayBuffer
-  const isToGetOffsetOnly = (length ?? 0) <= 0
-  if (isToGetOffsetOnly) {
-    arrayBuffer = new ArrayBuffer(10000000)
-  } else {
-    arrayBuffer = new ArrayBuffer(length ?? 0)
+      rotation: marker.rotation,
+      posX: x,
+      posY: y,
+      posZ: marker.anchor.altitude,
+      glyphLetter: metadata.glyph,
+      glyphName: '',
+      startName: marker.name ?? '',
+      color: metadata.color,
+      virtualscapeName: '',
+    })
   }
-  const dataView = new DataView(arrayBuffer)
-  offset = 0
-  setFloat64(dataView, myFile.version)
-  // writeBlankCString(dataView, myFile.name)
-  writeBlankCString(dataView)
-  // writeBlankCString(dataView, myFile.author)
-  writeBlankCString(dataView)
-  // writeBlankCString(dataView, myFile.playerNumber)
-  writeBlankCString(dataView)
-  setInt32(dataView, myFile.scenario.length)
-  const encoder = new TextEncoder()
-  const encodedData = encoder.encode(myFile.scenario)
-  for (let i = 0; i < myFile.scenario.length; i++) {
-    setUint8(dataView, encodedData[i])
-  }
-  setInt32(dataView, myFile.levelPerPage)
-  setInt32(dataView, myFile.printingTransparency)
-  setInt32(dataView, myFile.printingGrid === true ? 1 : 0)
-  setInt32(dataView, myFile.printTileNumber === true ? 1 : 0)
-  setInt32(dataView, myFile.printStartAreaAsLevel === true ? 1 : 0)
-  setInt32(dataView, myFile.tiles.length)
 
-  for (let i = 0; i < myFile.tiles.length; i++) {
-    const tile = myFile.tiles[i]
-    setInt32(dataView, tile.type)
-    setFloat64(dataView, tile.version)
-    setInt32(dataView, tile.rotation)
-    setInt32(dataView, tile.posX)
-    setInt32(dataView, tile.posY)
-    setInt32(dataView, tile.posZ)
-    setInt8(dataView, 68)
-    // writeBlankCString(dataView, tile.glyphName)
-    writeBlankCString(dataView)
-    // writeBlankCString(dataView, tile.startName)
-    writeBlankCString(dataView)
-    setInt8(dataView, tile.colorf.r)
-    setInt8(dataView, tile.colorf.g)
-    setInt8(dataView, tile.colorf.b)
-    setInt8(dataView, tile.colorf.a) // alpha?
+  const writer = new BinaryWriter()
+  writer.setFloat64(0.0007)
+  writer.writeCString(hexMap.name)
+  writer.writeCString(hexMap.author)
+  writer.writeCString('')
+  writer.writeScenario(hexMap.mapNotes ?? '')
+  writer.setInt32(6)
+  writer.setInt32(80)
+  writer.setInt32(1)
+  writer.setInt32(0)
+  writer.setInt32(1)
+  writer.setInt32(tiles.length)
+  for (const tile of tiles) writer.writeTile(tile)
+  return {
+    buffer: writer.toArrayBuffer(),
+    skipped: [...skippedByID.values()],
   }
-  return { offset, dataView, arrayBuffer }
-}
-function setFloat64(dataView: DataView, value: number) {
-  dataView.setFloat64(offset, value, isLittleEndian)
-  offset += 8
-}
-function setInt32(dataView: DataView, value: number) {
-  dataView.setInt32(offset, value, isLittleEndian)
-  offset += 4
-}
-// function setInt16(dataView: DataView, value: number) {
-//   dataView.setInt16(offset, value, isLittleEndian)
-//   offset += 2
-// }
-function setUint16(dataView: DataView, value: number) {
-  dataView.setUint16(offset, value, isLittleEndian)
-  offset += 2
-}
-function setUint8(dataView: DataView, value: number) {
-  dataView.setUint8(offset, value)
-  offset += 1
-}
-function setInt8(dataView: DataView, value: number) {
-  dataView.setInt8(offset, value)
-  offset += 1
 }
 
-function writeBlankCString(dataView: DataView) {
-  // Cannot figure out how to write strings, so they all get written as empty
-  const length = 0
-  // FEFF 00FF : for empty strings
-  setUint16(dataView, 0xfeff)
-  setUint8(dataView, 0xff)
-  setUint8(dataView, length)
+class BinaryWriter {
+  private readonly bytes: number[] = []
 
-  // const valueAsUtf16Arr = stringToUTF16Bytes(truncated)
-  // for (let i = 0; i < length; i++) {
-  //   // const new2Bit = String.prototype.codePointAt(truncated[i])
-  //   setInt16(dataView, valueAsUtf16Arr[i])
-  // }
-  // function stringToUTF16Bytes(str) {
-  //   const bytes = [];
-  //   for (let i = 0; i < str.length; i++) {
-  //     const codePoint = str.charCodeAt(i);
-  //     // Check if code point requires surrogate pair
-  //     if (codePoint > 0xFFFF) {
-  //       const highSurrogate = 0xD800 + ((codePoint - 0x10000) >> 10);
-  //       const lowSurrogate = 0xDC00 + ((codePoint - 0x10000) & 0x3FF);
-  //       bytes.push(highSurrogate >> 8, highSurrogate & 0xFF);
-  //       bytes.push(lowSurrogate >> 8, lowSurrogate & 0xFF);
-  //     } else {
-  //       bytes.push(codePoint >> 8, codePoint & 0xFF);
-  //     }
-  //     return bytes;
-  //   }
-  // }
+  setUint8(value: number) {
+    this.bytes.push(value & 0xff)
+  }
+
+  setUint16(value: number) {
+    this.bytes.push(value & 0xff, (value >>> 8) & 0xff)
+  }
+
+  setInt32(value: number) {
+    const bytes = new Uint8Array(4)
+    new DataView(bytes.buffer).setInt32(0, value, true)
+    this.bytes.push(...bytes)
+  }
+
+  setFloat64(value: number) {
+    const bytes = new Uint8Array(8)
+    new DataView(bytes.buffer).setFloat64(0, value, true)
+    this.bytes.push(...bytes)
+  }
+
+  writeCString(value: string) {
+    const length = value.length
+    if (length < 0xff) {
+      this.setUint8(length)
+    } else {
+      this.setUint8(0xff)
+      if (length < 0xfffe) {
+        this.setUint16(length)
+      } else {
+        this.setUint16(0xffff)
+        this.setInt32(length)
+      }
+    }
+    for (let index = 0; index < length; index += 1) {
+      this.setUint16(value.charCodeAt(index))
+    }
+  }
+
+  writeScenario(value: string) {
+    const bytes = new TextEncoder().encode(value)
+    this.setInt32(bytes.length)
+    for (const byte of bytes) this.setUint8(byte)
+  }
+
+  writeTile(tile: ExportTile) {
+    this.setInt32(tile.type)
+    this.setFloat64(tile.version)
+    this.setInt32(tile.rotation)
+    this.setInt32(tile.posX)
+    this.setInt32(tile.posY)
+    this.setInt32(tile.posZ)
+    this.setUint8(tile.glyphLetter)
+    this.writeCString(tile.glyphName)
+    this.writeCString(tile.startName)
+    for (const color of tile.color) this.setUint8(color)
+    if (Math.floor(tile.type / 1000) === 28) {
+      this.writeCString(tile.virtualscapeName)
+    }
+    if (Math.floor(tile.type / 1000) === 17) {
+      this.setInt32(0)
+      this.writeCString('')
+      this.writeCString('')
+      this.writeCString('')
+      this.writeCString('')
+    }
+    if (Math.floor(tile.type / 1000) === 18) {
+      this.writeCString('')
+      this.writeCString('')
+    }
+  }
+
+  toArrayBuffer() {
+    return Uint8Array.from(this.bytes).buffer
+  }
 }
