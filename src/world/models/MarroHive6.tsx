@@ -1,5 +1,6 @@
 import type { ThreeEvent } from '@react-three/fiber'
-import type { MeshStandardMaterial } from 'three'
+import { useMemo } from 'react'
+import { type MeshStandardMaterial, Vector3 } from 'three'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
 import useBoundStore from '../../store/store'
 import { PIECE_PREVIEW_OPACITY } from '../../utils/constants'
@@ -13,6 +14,15 @@ export default function MarroHive6({ pid }: { pid?: string }) {
   const { nodes } = useDisposableGLTF('/marro-hive-6-textured.glb') as any
   const mesh = nodes.Marro_Hive_VS
   const gltfMaterial = mesh.material as MeshStandardMaterial
+  // The model faces the wrong way, so it turns 180 degrees. Turn it about its
+  // own footprint center, not the mesh origin, so it stays on its hexes: a
+  // half turn moves a point c to -c, so shifting by 2c puts the center back.
+  const halfTurnOffset = useMemo((): [number, number, number] => {
+    const geometry = mesh.geometry
+    if (!geometry.boundingBox) geometry.computeBoundingBox()
+    const center = geometry.boundingBox?.getCenter(new Vector3())
+    return center ? [2 * center.x, 0, 2 * center.z] : [0, 0, 0]
+  }, [mesh.geometry])
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,
@@ -46,6 +56,7 @@ export default function MarroHive6({ pid }: { pid?: string }) {
   return (
     <mesh
       userData={{ marroHiveUID: pid ?? null }}
+      position={halfTurnOffset}
       rotation={[0, Math.PI, 0]}
       receiveShadow={isLightsAndShadowsRender}
       castShadow={isLightsAndShadowsRender}
