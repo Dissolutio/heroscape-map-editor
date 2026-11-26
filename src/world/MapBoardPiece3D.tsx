@@ -73,6 +73,7 @@ import { StartZone3D } from './models/StartZone3D'
 import {
   DeflectorShieldAddon,
   VOID_MAT_Y_OFFSET,
+  getVoidMatLayerOffset,
   VoidMat3D,
   VoidMatFallback,
   VoidPylon,
@@ -381,7 +382,7 @@ const MapBoardPiece3DModel = ({
     const isMarker = inventoryID === Pieces.voidMarker
     return (
       <group
-        position={[x, VOID_MAT_Y_OFFSET, z]}
+        position={[x, VOID_MAT_Y_OFFSET + getVoidMatLayerOffset(uid), z]}
         rotation={[0, pieceRotation, 0]}
       >
         <Suspense

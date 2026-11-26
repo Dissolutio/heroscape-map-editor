@@ -50,7 +50,8 @@ describe('Void Mat shared rendering resources', () => {
     expect(selectedMaterial).not.toBe(normalMaterials[0])
     expect(normalMaterials[0].color.getHexString()).toBe('ffffff')
     expect(selectedMaterial.color.getHexString()).toBe('fff59d')
-    expect(normalMaterials[0].depthWrite).toBe(false)
+    // Mats must write depth: without it the table drew over them (#442).
+    expect(normalMaterials[0].depthWrite).toBe(true)
   })
 
   it('shares fallback materials for matching preview opacity', () => {
