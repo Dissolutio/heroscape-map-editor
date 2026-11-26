@@ -105,13 +105,15 @@ describe('Virtualscape binary export', () => {
       0xff, 0,
     ])
     // A Grass 1 at 0,0,0 exactly as Virtualscape wrote it in vs-all-tiles.hsc
+    const hex = (text: string) =>
+      text.split(' ').map((byte) => Number.parseInt(byte, 16))
     const grass1Record = [
       // type 1001, version 0.0003
-      0xe9, 0x03, 0, 0, 0x61, 0x32, 0x55, 0x30, 0x2a, 0xa9, 0x33, 0x3f,
+      ...hex('e9 03 00 00 61 32 55 30 2a a9 33 3f'),
       // rotation, x, y, z, glyph letter
       ...Array(17).fill(0),
       // glyph name, start name, RGBA
-      0xff, 0xfe, 0xff, 0, 0xff, 0xfe, 0xff, 0, 0, 0xa0, 0, 0,
+      ...hex('ff fe ff 00 ff fe ff 00 00 a0 00 00'),
     ]
     expect(bytes.slice(-grass1Record.length)).toEqual(grass1Record)
   })
