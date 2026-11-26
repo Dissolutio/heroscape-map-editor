@@ -291,8 +291,7 @@ describe('Virtualscape binary import', () => {
       )
       .sort()
     // Expected overlaps: three castle base/wall pairs, two Fortified Wall
-    // samples, several Laur add-ons sharing one pillar, and three overlapping
-    // terrain samples in the catalogue fixture.
+    // samples, and several Laur add-ons sharing one pillar.
     expect(conflicts).toEqual([
       'cbc',
       'cbe',
@@ -307,12 +306,9 @@ describe('Virtualscape binary import', () => {
       'lwr2',
       'lws',
       'lws',
-      'ot3',
-      'rd5',
-      'sb',
     ])
-    // One short wall and the ship wall lack their second/supporting hex.
-    expect(unsupported).toEqual(['lws', 'sl'])
+    // One short wall lacks its second/supporting hex.
+    expect(unsupported).toEqual(['lws'])
   })
 
   it('keeps forward and reverse Virtualscape piece mappings together', () => {

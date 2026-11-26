@@ -384,6 +384,17 @@ export function getHexoscapeLaurRotation(
   if (inventoryID === Pieces.laurWallArch) {
     return (virtualscapeRotation / 2 + 0.5) % 6
   }
+  if (inventoryID === Pieces.fortifiedWall) {
+    return rotation
+  }
+  if (inventoryID === Pieces.shipBow) {
+    return (rotation + 2) % 6
+  }
+  // VS rotations r and r+3 mark the same three main hexes; assume r+3
+  // represents the wall turned 180 degrees from r.
+  if (inventoryID === Pieces.shipWall) {
+    return (rotation + 3) % 6
+  }
   return virtualscapeRotation
 }
 
@@ -403,6 +414,16 @@ export function getVirtualscapeLaurRotation(
   }
   if (inventoryID === Pieces.laurWallArch) {
     return ((((rotation - 0.5) * 2) % 12) + 12) % 12
+  }
+  if (inventoryID === Pieces.fortifiedWall) {
+    return rotation
+  }
+  if (inventoryID === Pieces.shipBow) {
+    return (rotation + 4) % 6
+  }
+  // Keep the 180-degree VS flip paired with its import mapping above.
+  if (inventoryID === Pieces.shipWall) {
+    return (rotation + 3) % 6
   }
   return hexoscapeRotation
 }
