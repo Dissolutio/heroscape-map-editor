@@ -24,7 +24,11 @@ import {
   normalizeLegacyMapOrigin,
   trimAndNormalizeMap,
 } from './convertMapShape'
-import { fitMapToPieces } from './fitMapToPieces'
+import {
+  fitMapToPieces,
+  getMapTableFootprintCoords,
+  getRectangleTableFit,
+} from './fitMapToPieces'
 import { getBuiltInSeatedBaseMerges } from './seatedObstacles'
 import {
   generateObjectiveMarkerUID,
@@ -40,6 +44,7 @@ import {
   getCodeForVSPersonalTile,
   getHexoscapeLaurRotation,
   getHexoscapeRopeLadderAltitude,
+  readVirtualscapeMapFile,
 } from './readVirtualscapeMapFile'
 import { isLaurPillarID } from './laurPillarStacking'
 import { isPortAddonPieceID } from './portPieces'
@@ -424,14 +429,54 @@ export function trimVirtualscapeMap(
   const trimmed = trimAndNormalizeMap(loadedMap.hexMap, loadedMap.boardPieces)
   if (!trimmed.ok) return loadedMap
 
+  let hexMap = trimmed.hexMap
+  if (trimmed.note && hexMap.shape === 'rectangle') {
+    const fit = getRectangleTableFit(
+      getMapTableFootprintCoords(hexMap, trimmed.boardPieces),
+      { existingMap: hexMap },
+    )
+    if (!fit) return loadedMap
+    hexMap = {
+      ...hexMap,
+      width: fit.width,
+      length: fit.length,
+      ...(fit.originQ !== 0 || hexMap.originQ !== undefined
+        ? { originQ: fit.originQ }
+        : {}),
+      ...(fit.originR !== 0 || hexMap.originR !== undefined
+        ? { originR: fit.originR }
+        : {}),
+    }
+  }
+
   const rebuilt = buildupJsonFileMap(
     trimmed.boardPieces,
-    trimmed.hexMap,
+    hexMap,
     loadedMap.droppedPieces,
   )
   return {
     ...rebuilt,
     mergedSeatedBaseCount: loadedMap.mergedSeatedBaseCount,
+  }
+}
+
+export async function loadVirtualscapeFile(file: File) {
+  const virtualscapeMap = await readVirtualscapeMapFile(file)
+  if (virtualscapeMap.version.toString() !== '0.0007') {
+    return { ok: false as const, virtualscapeMap }
+  }
+
+  return {
+    ok: true as const,
+    virtualscapeMap,
+    loadedMap: trimVirtualscapeMap(
+      buildupVSFileMap(
+        virtualscapeMap.tiles,
+        virtualscapeMap.name || file.name,
+        virtualscapeMap.author,
+        virtualscapeMap.scenario,
+      ),
+    ),
   }
 }
 

@@ -2,11 +2,7 @@ import type { ChangeEvent } from 'react'
 import { type SnackbarAction, type SnackbarKey, useSnackbar } from 'notistack'
 import { useLocation } from 'wouter'
 import { ROUTES } from '../ROUTES'
-import buildupVSFileMap, {
-  buildupJsonFileMap,
-  trimVirtualscapeMap,
-} from '../data/buildupMap'
-import { readVirtualscapeMapFile } from '../data/readVirtualscapeMapFile'
+import { buildupJsonFileMap, loadVirtualscapeFile } from '../data/buildupMap'
 import useBoundStore from '../store/store'
 import type { MapFileState } from '../types'
 import { normalizeBoardPiecesWithDropped } from '../utils/map-utils'
@@ -119,8 +115,9 @@ export const LoadFileHiddenInputs = () => {
     }
 
     try {
-      const vsMap = await readVirtualscapeMapFile(file)
-      if (vsMap.version.toString() !== '0.0007') {
+      const importResult = await loadVirtualscapeFile(file)
+      if (!importResult.ok) {
+        const { virtualscapeMap: vsMap } = importResult
         const action: SnackbarAction = (snackbarId) => (
           <>
             <Button
@@ -143,14 +140,7 @@ export const LoadFileHiddenInputs = () => {
         })
         return
       }
-      const loadedMap = trimVirtualscapeMap(
-        buildupVSFileMap(
-          vsMap.tiles,
-          vsMap.name || file.name,
-          vsMap.author,
-          vsMap.scenario,
-        ),
-      )
+      const { loadedMap } = importResult
       loadMap(loadedMap)
       enqueueSnackbar({
         message: `Loaded map: ${loadedMap.hexMap.name}`,

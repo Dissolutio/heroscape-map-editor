@@ -1,6 +1,9 @@
 import { readFileSync } from 'node:fs'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import buildupVSFileMap, { trimVirtualscapeMap } from '../data/buildupMap'
+import buildupVSFileMap, {
+  loadVirtualscapeFile,
+  trimVirtualscapeMap,
+} from '../data/buildupMap'
 import {
   pieceCodes,
   virtualscapeLaurPillarBaseName,
@@ -14,12 +17,14 @@ import {
   getHexoscapeRopeLadderAltitude,
   readVirtualscapeMapFile,
 } from '../data/readVirtualscapeMapFile'
+import { mapTableHexes } from '../data/fitMapToPieces'
 import { getUnsupportedPieceUIDs } from '../data/unsupportedPieces'
 import { getVoidMatHexes } from '../data/voidMat'
 import { isLaurAddonSupported } from '../data/laurAddonSupport'
 import { rebuildBoardStateFromPieces } from '../data/rebuildBoardState'
 import { Pieces } from '../types'
 import { hexUtilsOddRToCube } from '../utils/hex-utils'
+import { genBoardHexID } from '../utils/map-utils'
 import { warnAboutLoadedMap } from '../utils/warnAboutLoadedMap'
 
 type VirtualscapeTileInput = {
@@ -134,6 +139,15 @@ async function importVirtualscapeFixture(name: string) {
   )
   const map = await readVirtualscapeMapFile(file)
   return buildupVSFileMap(map.tiles, map.name)
+}
+
+async function loadVirtualscapeFixture(name: string) {
+  vi.stubGlobal('FileReader', MemoryFileReader)
+  const file = new File(
+    [readFileSync(new URL(`./fixtures/${name}`, import.meta.url))],
+    name,
+  )
+  return loadVirtualscapeFile(file)
 }
 
 afterEach(() => {
@@ -427,6 +441,119 @@ describe('Virtualscape binary import', () => {
       [0, 0, 0, 0],
     )
   })
+
+  it('loads the single Void Mat fixture with its full footprint', async () => {
+    const result = await loadVirtualscapeFixture('vs-void-mat-single.hsc')
+    if (!result.ok) throw new Error('Expected a supported Virtualscape file')
+
+    const { loadedMap, virtualscapeMap } = result
+    const mat = loadedMap.boardPieces.find(
+      (piece) => piece.inventoryID === Pieces.voidMat,
+    )
+    const initial = buildupVSFileMap(
+      virtualscapeMap.tiles,
+      virtualscapeMap.name,
+    )
+    const initialMat = initial.boardPieces.find(
+      (piece) => piece.inventoryID === Pieces.voidMat,
+    )
+    const grass = loadedMap.boardPieces.find(
+      (piece) => piece.inventoryID === Pieces.grass1,
+    )
+    const initialGrass = initial.boardPieces.find(
+      (piece) => piece.inventoryID === Pieces.grass1,
+    )
+
+    expect(virtualscapeMap.tileCount).toBe(2)
+    expect(
+      loadedMap.boardPieces.map(({ inventoryID }) => inventoryID).sort(),
+    ).toEqual([Pieces.grass1, Pieces.voidMat].sort())
+    expect(loadedMap.droppedPieces).toEqual([])
+    expect(mat).toBeDefined()
+    expect(grass).toBeDefined()
+    expect(initialMat).toBeDefined()
+    expect(initialGrass).toBeDefined()
+
+    if (!mat || !grass || !initialMat || !initialGrass) return
+
+    const shift = {
+      q: mat.pieceCoords.q - initialMat.pieceCoords.q,
+      r: mat.pieceCoords.r - initialMat.pieceCoords.r,
+      s: mat.pieceCoords.s - initialMat.pieceCoords.s,
+    }
+    expect({
+      q: grass.pieceCoords.q - initialGrass.pieceCoords.q,
+      r: grass.pieceCoords.r - initialGrass.pieceCoords.r,
+      s: grass.pieceCoords.s - initialGrass.pieceCoords.s,
+    }).toEqual(shift)
+    expect(
+      getVoidMatHexes(mat).every((hex) =>
+        mapTableHexes(loadedMap.hexMap).has(
+          genBoardHexID({ ...hex, altitude: 0 }),
+        ),
+      ),
+    ).toBe(true)
+  })
+
+  it('keeps Void Markers through the UI loader', async () => {
+    vi.stubGlobal('FileReader', MemoryFileReader)
+    const file = makeVirtualscapeFile([
+      {
+        type: 28001,
+        rotation: 0,
+        posX: 1,
+        posY: 1,
+        posZ: 0,
+        virtualscapeName: 'custom.void_1',
+      },
+      { type: 1001, rotation: 0, posX: 0, posY: 0, posZ: 0 },
+    ])
+    const result = await loadVirtualscapeFile(file)
+    if (!result.ok) throw new Error('Expected a supported Virtualscape file')
+
+    const marker = result.loadedMap.boardPieces.find(
+      (piece) => piece.inventoryID === Pieces.voidMarker,
+    )
+    expect(marker).toBeDefined()
+    expect(
+      result.loadedMap.boardPieces.filter(
+        (piece) => piece.inventoryID === Pieces.grass1,
+      ),
+    ).toHaveLength(1)
+    expect(result.loadedMap.droppedPieces).toEqual([])
+    if (!marker) return
+    expect(
+      mapTableHexes(result.loadedMap.hexMap).has(
+        genBoardHexID({ ...marker.pieceCoords, altitude: 0 }),
+      ),
+    ).toBe(true)
+  })
+
+  it.each(['void-mat-templates.hsc', 'void-and-pylons-example.hsc'])(
+    'keeps every Void Mat from %s through the UI loader',
+    async (name) => {
+      const result = await loadVirtualscapeFixture(name)
+      if (!result.ok) throw new Error('Expected a supported Virtualscape file')
+
+      const expectedCount = result.virtualscapeMap.tiles.filter(
+        (tile) => tile.virtualscapeName === 'core.void_mat',
+      ).length
+      const mats = result.loadedMap.boardPieces.filter(
+        (piece) => piece.inventoryID === Pieces.voidMat,
+      )
+
+      expect(expectedCount).toBeGreaterThan(0)
+      expect(mats).toHaveLength(expectedCount)
+      const tableHexes = mapTableHexes(result.loadedMap.hexMap)
+      for (const mat of mats) {
+        expect(
+          getVoidMatHexes(mat).every((hex) =>
+            tableHexes.has(genBoardHexID({ ...hex, altitude: 0 })),
+          ),
+        ).toBe(true)
+      }
+    },
+  )
 
   it('imports Water 2 as two Water 1 pieces', async () => {
     const loaded = await importVirtualscapeTiles([
