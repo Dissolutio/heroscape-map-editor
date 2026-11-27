@@ -1,5 +1,4 @@
 import type { ThreeEvent } from '@react-three/fiber'
-import React from 'react'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
 import useBoundStore from '../../store/store'
 import { isDragPassThrough } from '../drag/dragController'
@@ -17,9 +16,7 @@ import {
 import { genBoardHexID } from '../../utils/map-utils'
 import { hexTerrainColor } from '../maphex/hexColors'
 import { getFortressModelUrl, vsFitTarget } from './fortressModels'
-import { basicModelMaterial } from './materials'
 import { useDisposableGLTF } from './useDisposableGLTF'
-import { useFortressModelSet } from './useFortressModelSet'
 import {
   deferToOwnCap,
   fortressCapUserData,
@@ -37,7 +34,7 @@ type Props = {
 
 type PointerHandler = (e: ThreeEvent<PointerEvent>) => void
 
-/** The Virtualscape arch, and its door, fitted to the classic arch's height. */
+/** The Virtualscape arch, and its door, fitted to the arch's target height. */
 function VsArch({
   isDoor,
   isHighlighted,
@@ -53,7 +50,7 @@ function VsArch({
   onPointerUpBody?: PointerHandler
   onPointerUpDoor?: PointerHandler
 }) {
-  const archUrl = getFortressModelUrl('fortressArch', 'vs')
+  const archUrl = getFortressModelUrl('fortressArch')
   const archNodes = useVsNodes(archUrl)
   // The door is fitted with the arch's own bottom and top, so it stays put
   // inside the arch.
@@ -78,7 +75,7 @@ function VsArch({
       />
       {isDoor && (
         <VsModel
-          url={getFortressModelUrl('fortressDoor', 'vs')}
+          url={getFortressModelUrl('fortressDoor')}
           name="VsFortressDoor"
           target={target}
           color={hexTerrainColor.castleDoor}
@@ -93,88 +90,19 @@ function VsArch({
 }
 
 export function CastleArchPreview({ isDoor }: { isDoor: boolean }) {
-  // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
-  const { nodes } = useDisposableGLTF('/castle-arch-handmade.glb') as any
-  const isVs = useFortressModelSet() === 'vs'
-  const isLightsAndShadowsRender = useBoundStore(
-    (s) => s.isLightsAndShadowsRender,
-  )
-  const color = hexTerrainColor[HexTerrain.castleWall]
-  const colorDoor = hexTerrainColor.castleDoor
-
-  if (isVs) {
-    return (
-      <VsArch
-        isDoor={isDoor}
-        isHighlighted={false}
-        opacity={PIECE_PREVIEW_OPACITY}
-      />
-    )
-  }
   return (
-    <>
-      {isDoor && (
-        <mesh
-          receiveShadow={isLightsAndShadowsRender}
-          castShadow
-          geometry={nodes.ArchDoor.geometry}
-          material={basicModelMaterial(
-            colorDoor,
-            isLightsAndShadowsRender,
-            PIECE_PREVIEW_OPACITY,
-          )}
-        />
-      )}
-      <mesh
-        receiveShadow={isLightsAndShadowsRender}
-        castShadow={isLightsAndShadowsRender}
-        geometry={nodes.CastleArchBody.geometry}
-        material={basicModelMaterial(
-          color,
-          isLightsAndShadowsRender,
-          PIECE_PREVIEW_OPACITY,
-        )}
-      />
-      <mesh
-        receiveShadow={isLightsAndShadowsRender}
-        castShadow={isLightsAndShadowsRender}
-        geometry={nodes.CastleArchCapNear.geometry}
-        material={basicModelMaterial(
-          color,
-          isLightsAndShadowsRender,
-          PIECE_PREVIEW_OPACITY,
-        )}
-      />
-      <mesh
-        receiveShadow={isLightsAndShadowsRender}
-        castShadow={isLightsAndShadowsRender}
-        geometry={nodes.CastleArchCapMiddle.geometry}
-        material={basicModelMaterial(
-          color,
-          isLightsAndShadowsRender,
-          PIECE_PREVIEW_OPACITY,
-        )}
-      />
-      <mesh
-        receiveShadow={isLightsAndShadowsRender}
-        castShadow={isLightsAndShadowsRender}
-        geometry={nodes.CastleArchCapFar.geometry}
-        material={basicModelMaterial(
-          color,
-          isLightsAndShadowsRender,
-          PIECE_PREVIEW_OPACITY,
-        )}
-      />
-    </>
+    <VsArch
+      isDoor={isDoor}
+      isHighlighted={false}
+      opacity={PIECE_PREVIEW_OPACITY}
+    />
   )
 }
 export function CastleArch({ boardHex, onPointerUp }: Props) {
+  // Loaded only for the invisible cap click targets used to paint on arch tops.
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useDisposableGLTF('/castle-arch-handmade.glb') as any
-  const isVs = useFortressModelSet() === 'vs'
-  const capUserData = isVs
-    ? fortressCapUserData(boardHex.boardPieceUID ?? '')
-    : undefined
+  const capUserData = fortressCapUserData(boardHex.boardPieceUID ?? '')
   const boardHexes = useBoundStore((s) => s.boardHexes)
   const selectedPieceIDs = useBoundStore((s) => s.selectedPieceIDs)
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
@@ -185,21 +113,7 @@ export function CastleArch({ boardHex, onPointerUp }: Props) {
   )
   const { onPointerEnter, onPointerOut } = usePieceHoverState()
   const isHighlighted = hoveredPieceID === boardHex?.boardPieceUID || isSelected
-  const yellowColor = 'yellow'
-  const color = isHighlighted
-    ? yellowColor
-    : hexTerrainColor[HexTerrain.castleWall]
-  const colorDoor = isHighlighted ? yellowColor : hexTerrainColor.castleDoor
   const isDoor = !(boardHex.inventoryID === Pieces.castleArchNoDoor)
-  const [colorNear, setColorNear] = React.useState(
-    hexTerrainColor[HexTerrain.castleWall],
-  )
-  const [colorMiddle, setColorMiddle] = React.useState(
-    hexTerrainColor[HexTerrain.castleWall],
-  )
-  const [colorFar, setColorFar] = React.useState(
-    hexTerrainColor[HexTerrain.castleWall],
-  )
   const middleBaseHex = () => {
     const middleCube = hexUtilsAdd(
       boardHex,
@@ -220,31 +134,25 @@ export function CastleArch({ boardHex, onPointerUp }: Props) {
     ]
   }
   const onPointerEnterNear = (e: ThreeEvent<PointerEvent>) => {
-    setColorNear(yellowColor)
     onPointerEnter(e, boardHex)
   }
   const onPointerOutNear = (e: ThreeEvent<PointerEvent>) => {
-    setColorNear(hexTerrainColor[HexTerrain.castleWall])
     onPointerOut(e)
   }
   const onPointerEnterMiddle = (e: ThreeEvent<PointerEvent>) => {
-    setColorMiddle(yellowColor)
     const hex = middleBaseHex()
     if (hex) onPointerEnter(e, hex)
     else if (!isDragPassThrough(boardHex.boardPieceUID)) e.stopPropagation()
   }
   const onPointerOutMiddle = (e: ThreeEvent<PointerEvent>) => {
-    setColorMiddle(hexTerrainColor[HexTerrain.castleWall])
     onPointerOut(e)
   }
   const onPointerEnterFar = (e: ThreeEvent<PointerEvent>) => {
-    setColorFar(yellowColor)
     const hex = farBaseHex()
     if (hex) onPointerEnter(e, hex)
     else if (!isDragPassThrough(boardHex.boardPieceUID)) e.stopPropagation()
   }
   const onPointerOutFar = (e: ThreeEvent<PointerEvent>) => {
-    setColorFar(hexTerrainColor[HexTerrain.castleWall])
     onPointerOut(e)
   }
   const isVerticalClearanceHex = !(
@@ -282,91 +190,48 @@ export function CastleArch({ boardHex, onPointerUp }: Props) {
   }
 
   return (
-    <>
-      <group
-        onPointerEnter={(e) => onPointerEnter(e, boardHex)}
-        onPointerOut={(e) => onPointerOut(e)}
-      >
-        {isVs ? (
-          <VsArch
-            isDoor={isDoor}
-            isHighlighted={isHighlighted}
-            pid={boardHex.boardPieceUID ?? ''}
-            onPointerUpBody={deferToOwnCap(
-              boardHex.boardPieceUID ?? '',
-              onPointerUpBody,
-            )}
-            onPointerUpDoor={(e) => onPointerUp(e, boardHex)}
-          />
-        ) : (
-          <>
-            {isDoor && (
-              <mesh
-                receiveShadow={isLightsAndShadowsRender}
-                castShadow
-                geometry={nodes.ArchDoor.geometry}
-                onPointerUp={(e) => onPointerUp(e, boardHex)}
-                material={basicModelMaterial(
-                  colorDoor,
-                  isLightsAndShadowsRender,
-                )}
-              />
-            )}
-            <mesh
-              receiveShadow={isLightsAndShadowsRender}
-              castShadow={isLightsAndShadowsRender}
-              geometry={nodes.CastleArchBody.geometry}
-              onPointerUp={onPointerUpBody}
-              material={basicModelMaterial(color, isLightsAndShadowsRender)}
-            />
-          </>
+    <group
+      onPointerEnter={(e) => onPointerEnter(e, boardHex)}
+      onPointerOut={(e) => onPointerOut(e)}
+    >
+      <VsArch
+        isDoor={isDoor}
+        isHighlighted={isHighlighted}
+        pid={boardHex.boardPieceUID ?? ''}
+        onPointerUpBody={deferToOwnCap(
+          boardHex.boardPieceUID ?? '',
+          onPointerUpBody,
         )}
-        {/* In VS mode the caps stay as invisible targets for painting on top */}
-        <mesh
-          userData={capUserData}
-          receiveShadow={isLightsAndShadowsRender}
-          castShadow={isLightsAndShadowsRender && !isVs}
-          geometry={nodes.CastleArchCapNear.geometry}
-          onPointerUp={(e) => onPointerUp(e, boardHex)}
-          onPointerEnter={onPointerEnterNear}
-          onPointerOut={onPointerOutNear}
-          material={
-            isVs
-              ? invisibleHitMaterial
-              : basicModelMaterial(colorNear, isLightsAndShadowsRender)
-          }
-        />
-        <mesh
-          userData={capUserData}
-          receiveShadow={isLightsAndShadowsRender}
-          castShadow={isLightsAndShadowsRender && !isVs}
-          geometry={nodes.CastleArchCapMiddle.geometry}
-          onPointerEnter={onPointerEnterMiddle}
-          onPointerOut={onPointerOutMiddle}
-          onPointerUp={onPointerUpMiddle}
-          material={
-            isVs
-              ? invisibleHitMaterial
-              : basicModelMaterial(colorMiddle, isLightsAndShadowsRender)
-          }
-        />
-        <mesh
-          userData={capUserData}
-          receiveShadow={isLightsAndShadowsRender}
-          castShadow={isLightsAndShadowsRender && !isVs}
-          geometry={nodes.CastleArchCapFar.geometry}
-          onPointerEnter={onPointerEnterFar}
-          onPointerOut={onPointerOutFar}
-          onPointerUp={onPointerUpFar}
-          material={
-            isVs
-              ? invisibleHitMaterial
-              : basicModelMaterial(colorFar, isLightsAndShadowsRender)
-          }
-        />
-      </group>
-    </>
+        onPointerUpDoor={(e) => onPointerUp(e, boardHex)}
+      />
+      {/* Invisible cap targets for painting on top */}
+      <mesh
+        userData={capUserData}
+        receiveShadow={isLightsAndShadowsRender}
+        geometry={nodes.CastleArchCapNear.geometry}
+        onPointerUp={(e) => onPointerUp(e, boardHex)}
+        onPointerEnter={onPointerEnterNear}
+        onPointerOut={onPointerOutNear}
+        material={invisibleHitMaterial}
+      />
+      <mesh
+        userData={capUserData}
+        receiveShadow={isLightsAndShadowsRender}
+        geometry={nodes.CastleArchCapMiddle.geometry}
+        onPointerEnter={onPointerEnterMiddle}
+        onPointerOut={onPointerOutMiddle}
+        onPointerUp={onPointerUpMiddle}
+        material={invisibleHitMaterial}
+      />
+      <mesh
+        userData={capUserData}
+        receiveShadow={isLightsAndShadowsRender}
+        geometry={nodes.CastleArchCapFar.geometry}
+        onPointerEnter={onPointerEnterFar}
+        onPointerOut={onPointerOutFar}
+        onPointerUp={onPointerUpFar}
+        material={invisibleHitMaterial}
+      />
+    </group>
   )
 }
-
-// useGltf.preload('/castle-arch-handmade.glb')

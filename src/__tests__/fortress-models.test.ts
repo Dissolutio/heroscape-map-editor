@@ -2,14 +2,12 @@ import { existsSync, readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { LS_KEYS } from '../local-storage/keys'
-import { loadSettings, SETTINGS_DEFAULTS } from '../local-storage/settings'
+import { loadSettings } from '../local-storage/settings'
 import { Pieces } from '../types'
 import {
   FORTRESS_MODEL_URLS,
   FORTRESS_PIECE_PARTS,
-  getFortressModelOverride,
   getFortressModelUrlsForPiece,
-  resolveFortressModelSet,
   VS_FORTRESS_BANNER_URL,
   CLASSIC_HEIGHTS,
   classicWallTop,
@@ -49,61 +47,43 @@ const nodeBounds = (glb: GlbJson, name: string) => {
 }
 
 describe('which GLB each fortress piece uses', () => {
-  it('defaults to the Virtualscape models; Classic stays available', () => {
-    expect(SETTINGS_DEFAULTS.fortressModels).toBe('vs')
-    expect(
-      getFortressModelUrlsForPiece(Pieces.castleBaseCorner, 'classic'),
-    ).toEqual(['/adjustable-castle-walls.glb'])
-    expect(
-      getFortressModelUrlsForPiece(Pieces.castleWallEnd, 'classic'),
-    ).toEqual(['/adjustable-castle-walls.glb'])
-    expect(getFortressModelUrlsForPiece(Pieces.castleArch, 'classic')).toEqual([
-      '/castle-arch-handmade.glb',
-    ])
-    expect(getFortressModelUrlsForPiece(Pieces.ladder, 'classic')).toEqual([
-      '/handmade-ladder.glb',
-    ])
-    expect(getFortressModelUrlsForPiece(Pieces.battlement, 'classic')).toEqual([
-      '/handmade-battlement.glb',
-    ])
-  })
-
-  it('switches all six fortress pieces to the Virtualscape GLBs', () => {
-    const vs = (id: string) => getFortressModelUrlsForPiece(id, 'vs')
+  it('maps all six fortress pieces to their Virtualscape GLBs', () => {
     for (const id of [
       Pieces.castleBaseCorner,
       Pieces.castleBaseStraight,
       Pieces.castleBaseEnd,
     ]) {
-      expect(vs(id)).toEqual(['/vs-castle-base.glb'])
+      expect(getFortressModelUrlsForPiece(id)).toEqual(['/vs-castle-base.glb'])
     }
     for (const id of [
       Pieces.castleWallCorner,
       Pieces.castleWallStraight,
       Pieces.castleWallEnd,
     ]) {
-      expect(vs(id)).toEqual(['/vs-castle-wall.glb'])
+      expect(getFortressModelUrlsForPiece(id)).toEqual(['/vs-castle-wall.glb'])
     }
-    expect(vs(Pieces.castleArch)).toEqual([
+    expect(getFortressModelUrlsForPiece(Pieces.castleArch)).toEqual([
       '/vs-fortress-arch.glb',
       '/vs-fortress-door.glb',
     ])
-    expect(vs(Pieces.castleArchNoDoor)).toEqual(['/vs-fortress-arch.glb'])
-    expect(vs(Pieces.ladder)).toEqual(['/vs-fortress-ladder.glb'])
-    expect(vs(Pieces.battlement)).toEqual(['/vs-fortress-battlement.glb'])
+    expect(getFortressModelUrlsForPiece(Pieces.castleArchNoDoor)).toEqual([
+      '/vs-fortress-arch.glb',
+    ])
+    expect(getFortressModelUrlsForPiece(Pieces.ladder)).toEqual([
+      '/vs-fortress-ladder.glb',
+    ])
+    expect(getFortressModelUrlsForPiece(Pieces.battlement)).toEqual([
+      '/vs-fortress-battlement.glb',
+    ])
   })
 
   it('leaves other pieces alone, including the rope ladder', () => {
-    expect(getFortressModelUrlsForPiece(Pieces.ropeLadder, 'vs')).toEqual([])
-    expect(getFortressModelUrlsForPiece(Pieces.grass1, 'vs')).toEqual([])
+    expect(getFortressModelUrlsForPiece(Pieces.ropeLadder)).toEqual([])
+    expect(getFortressModelUrlsForPiece(Pieces.grass1)).toEqual([])
   })
 
   it('has every GLB it names in public/', () => {
-    const urls = [
-      ...Object.values(FORTRESS_MODEL_URLS.classic),
-      ...Object.values(FORTRESS_MODEL_URLS.vs),
-      VS_FORTRESS_BANNER_URL,
-    ]
+    const urls = [...Object.values(FORTRESS_MODEL_URLS), VS_FORTRESS_BANNER_URL]
     for (const url of urls) {
       expect(existsSync(resolve(process.cwd(), 'public', url.slice(1)))).toBe(
         true,
@@ -113,23 +93,7 @@ describe('which GLB each fortress piece uses', () => {
   })
 })
 
-describe('the ?fortress= URL override', () => {
-  it('reads vs and classic, and ignores anything else', () => {
-    expect(getFortressModelOverride('?fortress=vs')).toBe('vs')
-    expect(getFortressModelOverride('?e2e=1&fortress=classic')).toBe('classic')
-    expect(getFortressModelOverride('?fortress=VS')).toBeNull()
-    expect(getFortressModelOverride('?fortress=')).toBeNull()
-    expect(getFortressModelOverride('')).toBeNull()
-  })
-
-  it('wins over the saved setting', () => {
-    expect(resolveFortressModelSet('classic', '?fortress=vs')).toBe('vs')
-    expect(resolveFortressModelSet('vs', '?fortress=classic')).toBe('classic')
-    expect(resolveFortressModelSet('vs', '?m=abc')).toBe('vs')
-  })
-})
-
-describe('the Fortress models setting', () => {
+describe('legacy saved fortressModels setting', () => {
   const values = new Map<string, string>()
   beforeEach(() => {
     values.clear()
@@ -141,20 +105,13 @@ describe('the Fortress models setting', () => {
   })
   afterEach(() => vi.unstubAllGlobals())
 
-  const store = (fortressModels: unknown) =>
+  it('ignores an old saved fortressModels value without error', () => {
     values.set(
       LS_KEYS.settings,
-      JSON.stringify({ v: 1, values: { fortressModels } }),
+      JSON.stringify({ v: 1, values: { fortressModels: 'classic' } }),
     )
-
-  it('loads a saved Virtualscape choice', () => {
-    store('vs')
-    expect(loadSettings().fortressModels).toBe('vs')
-  })
-
-  it('falls back to the default (Virtualscape) for unknown values', () => {
-    store('virtualscape')
-    expect(loadSettings().fortressModels).toBe('vs')
+    const loaded = loadSettings()
+    expect(loaded).not.toHaveProperty('fortressModels')
   })
 })
 
@@ -393,7 +350,7 @@ describe('the fitted Virtualscape models land on the classic bottoms and tops', 
     )
   })
 
-  it('agrees with the classic models themselves', () => {
+  it('agrees with the kept cap-target GLBs', () => {
     const classic = (url: string, names: string[]) => {
       const meshes = readGlbMeshes(url).filter((m) => names.includes(m.name))
       return heightRange(meshes)
@@ -410,17 +367,5 @@ describe('the fitted Virtualscape models land on the classic bottoms and tops', 
     ])
     expect(arch.min).toBeCloseTo(CLASSIC_HEIGHTS.fortressArch.bottom, 3)
     expect(arch.max).toBeCloseTo(CLASSIC_HEIGHTS.fortressArch.top, 3)
-    const ladder = classic('/handmade-ladder.glb', ['Ladder'])
-    expect(ladder.min).toBeCloseTo(CLASSIC_HEIGHTS.fortressLadder.bottom, 3)
-    expect(ladder.max).toBeCloseTo(CLASSIC_HEIGHTS.fortressLadder.top, 3)
-    const battlement = classic('/handmade-battlement.glb', ['Battlement'])
-    expect(battlement.min).toBeCloseTo(
-      CLASSIC_HEIGHTS.fortressBattlement.bottom,
-      3,
-    )
-    expect(battlement.max).toBeCloseTo(
-      CLASSIC_HEIGHTS.fortressBattlement.top,
-      3,
-    )
   })
 })

@@ -1,6 +1,4 @@
 import type { ThreeEvent } from '@react-three/fiber'
-import React from 'react'
-import { Vector3 } from 'three'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
 import useBoundStore from '../../store/store'
 import { isDragPassThrough } from '../drag/dragController'
@@ -17,9 +15,7 @@ import {
   vsFitTarget,
 } from './fortressModels'
 import { isFortressTopCovered } from './fortressCover'
-import { basicModelMaterial } from './materials'
 import { useDisposableGLTF } from './useDisposableGLTF'
-import { useFortressModelSet } from './useFortressModelSet'
 import {
   deferToOwnCap,
   fortressCapUserData,
@@ -40,25 +36,18 @@ type Props = {
 }
 
 export function CastleWall({ boardHex, onPointerUp }: Props) {
+  // Loaded only for the invisible cap click targets used to paint on wall tops.
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useDisposableGLTF('/adjustable-castle-walls.glb') as any
-  const isVs = useFortressModelSet() === 'vs'
-  // VS only: a piece on top hides the receiver (one shared board lookup)
-  const isTopCovered = useBoundStore(
-    (s) =>
-      isVs &&
-      isFortressTopCovered(
-        s.boardHexes,
-        s.viewingLevel,
-        boardHex.boardPieceUID ?? '',
-      ),
+  // A piece on top hides the receiver (one shared board lookup)
+  const isTopCovered = useBoundStore((s) =>
+    isFortressTopCovered(
+      s.boardHexes,
+      s.viewingLevel,
+      boardHex.boardPieceUID ?? '',
+    ),
   )
-  const capUserData = isVs
-    ? fortressCapUserData(boardHex.boardPieceUID ?? '')
-    : undefined
-  const [capColor, setCapColor] = React.useState(
-    hexTerrainColor[HexTerrain.castleWall],
-  )
+  const capUserData = fortressCapUserData(boardHex.boardPieceUID ?? '')
   const selectedPieceIDs = useBoundStore((s) => s.selectedPieceIDs)
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
@@ -69,33 +58,20 @@ export function CastleWall({ boardHex, onPointerUp }: Props) {
   const isHighlighted =
     hoveredPieceID === boardHex?.boardPieceUID ||
     selectedPieceIDs.includes(boardHex?.boardPieceUID ?? '')
-  const yellowColor = 'yellow'
   const scaleYAdjust = 0.01 // just a little to get it out of the subterrain
   // castle walls are 10 levels tall, UNLESS stacked on another wall, then they are 9 (they have a 1-level bottom base when on land)
   const scaleY = (boardHex?.obstacleHeight ?? 9) + (1 - scaleYAdjust)
-  const scale = new Vector3(1, scaleY, 1)
   const pieceID = boardHex.pieceID
-  const color = isHighlighted
-    ? yellowColor
-    : hexTerrainColor[HexTerrain.castleWall]
   const onPointerEnterCap = (e: ThreeEvent<PointerEvent>) => {
     // the pointer sees through a wall being dragged
     if (isDragPassThrough(boardHex.boardPieceUID)) return
-    setCapColor('yellow')
     onPointerEnter(e, boardHex)
     e.stopPropagation()
   }
   const onPointerOutCap = (e: ThreeEvent<PointerEvent>) => {
-    // toggleHoveredHex(undefined)
     onPointerOut(e)
-    setCapColor(hexTerrainColor[HexTerrain.castleWall])
     e.stopPropagation()
   }
-  const bodyGeometry = pieceID.includes(Pieces.castleWallEnd)
-    ? nodes.CastleWallEndBody.geometry
-    : pieceID.includes(Pieces.castleWallStraight)
-      ? nodes.CastleWallStraightBody.geometry
-      : nodes.CastleWallCornerBody.geometry
   const capGeometry = pieceID.includes(Pieces.castleWallEnd)
     ? nodes.CastleWallEndCap.geometry
     : pieceID.includes(Pieces.castleWallStraight)
@@ -116,34 +92,21 @@ export function CastleWall({ boardHex, onPointerUp }: Props) {
 
   return (
     <>
-      {isVs ? (
-        <VsModel
-          url={getFortressModelUrl('castleWall', 'vs')}
-          name={vsCastleNodeName('Wall', wallShape(pieceID))}
-          target={vsFitTarget('castleWall', { scaleY, isTopCovered })}
-          color={hexTerrainColor[HexTerrain.castleWall]}
-          isHighlighted={isHighlighted}
-          pid={boardHex.boardPieceUID ?? ''}
-          onPointerUp={deferToOwnCap(
-            boardHex.boardPieceUID ?? '',
-            onPointerUpBody,
-          )}
-          onPointerEnter={(e) => onPointerEnter(e, boardHex)}
-          onPointerOut={(e) => onPointerOut(e)}
-        />
-      ) : (
-        <mesh
-          receiveShadow={isLightsAndShadowsRender}
-          castShadow={isLightsAndShadowsRender}
-          scale={scale}
-          geometry={bodyGeometry}
-          onPointerUp={onPointerUpBody}
-          onPointerEnter={(e) => onPointerEnter(e, boardHex)}
-          onPointerOut={(e) => onPointerOut(e)}
-          material={basicModelMaterial(color, isLightsAndShadowsRender)}
-        />
-      )}
-      {/* In VS mode the caps stay as invisible targets for painting on top */}
+      <VsModel
+        url={getFortressModelUrl('castleWall')}
+        name={vsCastleNodeName('Wall', wallShape(pieceID))}
+        target={vsFitTarget('castleWall', { scaleY, isTopCovered })}
+        color={hexTerrainColor[HexTerrain.castleWall]}
+        isHighlighted={isHighlighted}
+        pid={boardHex.boardPieceUID ?? ''}
+        onPointerUp={deferToOwnCap(
+          boardHex.boardPieceUID ?? '',
+          onPointerUpBody,
+        )}
+        onPointerEnter={(e) => onPointerEnter(e, boardHex)}
+        onPointerOut={(e) => onPointerOut(e)}
+      />
+      {/* Invisible cap targets for painting on top */}
       <group
         onPointerUp={(e) => onPointerUp(e, boardHex)}
         onPointerEnter={onPointerEnterCap}
@@ -152,27 +115,17 @@ export function CastleWall({ boardHex, onPointerUp }: Props) {
         <mesh
           userData={capUserData}
           receiveShadow={isLightsAndShadowsRender}
-          castShadow={isLightsAndShadowsRender && !isVs}
           geometry={nodes.WallCap.geometry}
           position={[0, (scaleY - 1) * HEXGRID_HEX_HEIGHT, 0]}
-          material={
-            isVs
-              ? invisibleHitMaterial
-              : basicModelMaterial(capColor, isLightsAndShadowsRender)
-          }
+          material={invisibleHitMaterial}
         />
         <mesh
           userData={capUserData}
           receiveShadow={isLightsAndShadowsRender}
-          castShadow={isLightsAndShadowsRender && !isVs}
           geometry={capGeometry}
           position={[0, (scaleY - 1) * HEXGRID_HEX_HEIGHT, 0]}
           onPointerUp={(e) => onPointerUp(e, boardHex)}
-          material={
-            isVs
-              ? invisibleHitMaterial
-              : basicModelMaterial(capColor, isLightsAndShadowsRender)
-          }
+          material={invisibleHitMaterial}
         />
       </group>
     </>
@@ -189,82 +142,24 @@ export function CastleWallPreview({
   isCastleStraight?: boolean
   isCastleUnder?: boolean
 }) {
-  // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
-  const { nodes } = useDisposableGLTF('/adjustable-castle-walls.glb') as any
-  const isVs = useFortressModelSet() === 'vs'
-  const capColor = hexTerrainColor[HexTerrain.castleWall]
-  const isLightsAndShadowsRender = useBoundStore(
-    (s) => s.isLightsAndShadowsRender,
-  )
   const scaleYAdjust = 0.01 // just a little to get it out of the subterrain
   // castle walls are 10 levels tall, UNLESS stacked on another wall, then they are 9 (they have a 1-level bottom base when on land)
   const scaleY = (isCastleUnder ? 8 : 9) + (1 - scaleYAdjust)
-  const scale = new Vector3(1, scaleY, 1)
   const color = hexTerrainColor[HexTerrain.castleWall]
-  const bodyGeometry = isCastleEnd
-    ? nodes.CastleWallEndBody.geometry
-    : isCastleStraight
-      ? nodes.CastleWallStraightBody.geometry
-      : nodes.CastleWallCornerBody.geometry
-  const capGeometry = isCastleEnd
-    ? nodes.CastleWallEndCap.geometry
-    : isCastleStraight
-      ? nodes.CastleWallStraightCap.geometry
-      : nodes.CastleWallCornerCap.geometry
   const opacityLevel = opacity ?? PIECE_PREVIEW_OPACITY
-  if (isVs) {
-    const shape: CastleShape = isCastleEnd
-      ? 'End'
-      : isCastleStraight
-        ? 'Straight'
-        : 'Corner'
-    return (
-      <VsModel
-        url={getFortressModelUrl('castleWall', 'vs')}
-        name={vsCastleNodeName('Wall', shape)}
-        target={vsFitTarget('castleWall', { scaleY })}
-        color={color}
-        isHighlighted={false}
-        opacity={opacityLevel}
-      />
-    )
-  }
+  const shape: CastleShape = isCastleEnd
+    ? 'End'
+    : isCastleStraight
+      ? 'Straight'
+      : 'Corner'
   return (
-    <>
-      <mesh
-        receiveShadow={isLightsAndShadowsRender}
-        castShadow={isLightsAndShadowsRender}
-        scale={scale}
-        geometry={bodyGeometry}
-        material={basicModelMaterial(
-          color,
-          isLightsAndShadowsRender,
-          opacityLevel,
-        )}
-      />
-      <mesh
-        receiveShadow={isLightsAndShadowsRender}
-        castShadow={isLightsAndShadowsRender}
-        geometry={nodes.WallCap.geometry}
-        position={[0, (scaleY - 1) * HEXGRID_HEX_HEIGHT, 0]}
-        material={basicModelMaterial(
-          capColor,
-          isLightsAndShadowsRender,
-          opacityLevel,
-        )}
-      />
-      <mesh
-        receiveShadow={isLightsAndShadowsRender}
-        castShadow={isLightsAndShadowsRender}
-        geometry={capGeometry}
-        position={[0, (scaleY - 1) * HEXGRID_HEX_HEIGHT, 0]}
-        material={basicModelMaterial(
-          capColor,
-          isLightsAndShadowsRender,
-          opacityLevel,
-        )}
-      />
-    </>
+    <VsModel
+      url={getFortressModelUrl('castleWall')}
+      name={vsCastleNodeName('Wall', shape)}
+      target={vsFitTarget('castleWall', { scaleY })}
+      color={color}
+      isHighlighted={false}
+      opacity={opacityLevel}
+    />
   )
 }
-// useGltf.preload('/adjustable-castle-walls.glb')

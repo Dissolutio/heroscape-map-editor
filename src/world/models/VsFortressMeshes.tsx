@@ -19,24 +19,24 @@ import { useTexturedModelMaterial } from './texturedModelMaterial'
 import { useDisposableGLTF } from './useDisposableGLTF'
 
 // Rendering for the Virtualscape fortress models (see fortressModels.ts). The
-// classic components keep their own pointer targets; these only draw.
+// piece components keep invisible cap pointer targets; these only draw.
 
-/** Draws nothing but still takes pointer events: the classic caps in VS mode. */
+/** Draws nothing but still takes pointer events: the invisible cap targets. */
 export const invisibleHitMaterial = new MeshBasicMaterial({
   colorWrite: false,
   depthWrite: false,
 })
 
-/** userData for a classic cap kept as an invisible target in VS mode. */
+/** userData for a cap mesh kept as an invisible pointer target. */
 export const fortressCapUserData = (pieceUID: string) => ({
   fortressCapOf: pieceUID,
 })
 
 /**
- * The VS models' walkways are level with the classic caps, so a click on the
- * top can hit the model first. When the same pointer ray also goes through
+ * The fortress models' walkways are level with the cap targets, so a click on
+ * the top can hit the model first. When the same pointer ray also goes through
  * this piece's own cap, step aside (no handler, no stopPropagation) and let
- * the cap take the event, as it does in classic mode.
+ * the cap take the event.
  */
 export function deferToOwnCap<E extends ThreeEvent<PointerEvent>>(
   pieceUID: string,

@@ -1,18 +1,8 @@
-// Which 3D models the castle/fortress pieces use: Hexoscape's own ("classic")
-// or the ones converted from Virtualscape (scripts/virtualscape). Only the
-// 3D models change; placement, footprints, conflicts, SVG/PDF and saved maps
-// do not depend on this.
+// Virtualscape 3D models for the castle/fortress pieces (scripts/virtualscape).
+// Placement, footprints, conflicts, SVG/PDF and saved maps are independent of
+// the 3D models.
 import { Pieces } from '../../types'
 import { HEXGRID_HEX_HEIGHT } from '../../utils/constants'
-
-export type FortressModelSet = 'classic' | 'vs'
-
-export const FORTRESS_MODEL_SETS: FortressModelSet[] = ['classic', 'vs']
-
-export const FORTRESS_MODEL_SET_LABELS: Record<FortressModelSet, string> = {
-  classic: 'Classic',
-  vs: 'Virtualscape',
-}
 
 export type FortressModelPart =
   | 'castleBase'
@@ -22,26 +12,13 @@ export type FortressModelPart =
   | 'fortressLadder'
   | 'fortressBattlement'
 
-export const FORTRESS_MODEL_URLS: Record<
-  FortressModelSet,
-  Record<FortressModelPart, string>
-> = {
-  classic: {
-    castleBase: '/adjustable-castle-walls.glb',
-    castleWall: '/adjustable-castle-walls.glb',
-    fortressDoor: '/castle-arch-handmade.glb',
-    fortressArch: '/castle-arch-handmade.glb',
-    fortressLadder: '/handmade-ladder.glb',
-    fortressBattlement: '/handmade-battlement.glb',
-  },
-  vs: {
-    castleBase: '/vs-castle-base.glb',
-    castleWall: '/vs-castle-wall.glb',
-    fortressDoor: '/vs-fortress-door.glb',
-    fortressArch: '/vs-fortress-arch.glb',
-    fortressLadder: '/vs-fortress-ladder.glb',
-    fortressBattlement: '/vs-fortress-battlement.glb',
-  },
+export const FORTRESS_MODEL_URLS: Record<FortressModelPart, string> = {
+  castleBase: '/vs-castle-base.glb',
+  castleWall: '/vs-castle-wall.glb',
+  fortressDoor: '/vs-fortress-door.glb',
+  fortressArch: '/vs-fortress-arch.glb',
+  fortressLadder: '/vs-fortress-ladder.glb',
+  fortressBattlement: '/vs-fortress-battlement.glb',
 }
 
 /** The model parts each fortress piece draws (the arch with a door adds it). */
@@ -58,41 +35,17 @@ export const FORTRESS_PIECE_PARTS: Record<string, FortressModelPart[]> = {
   [Pieces.battlement]: ['fortressBattlement'],
 }
 
-/** The GLB files a placed piece loads for this model set, or [] if none. */
-export function getFortressModelUrlsForPiece(
-  inventoryID: string,
-  set: FortressModelSet,
-) {
+/** The GLB files a placed piece loads, or [] if none. */
+export function getFortressModelUrlsForPiece(inventoryID: string) {
   const parts = FORTRESS_PIECE_PARTS[inventoryID] ?? []
-  return [...new Set(parts.map((part) => getFortressModelUrl(part, set)))]
+  return [...new Set(parts.map((part) => getFortressModelUrl(part)))]
 }
 
-/** Not a piece yet: only previewed on the dev-only model comparison page. */
+/** Not a piece yet: converted Virtualscape banner GLB. */
 export const VS_FORTRESS_BANNER_URL = '/vs-fortress-banner.glb'
 
-export function getFortressModelUrl(
-  part: FortressModelPart,
-  set: FortressModelSet,
-) {
-  return FORTRESS_MODEL_URLS[set][part]
-}
-
-export const isFortressModelSet = (value: unknown): value is FortressModelSet =>
-  value === 'classic' || value === 'vs'
-
-/** `?fortress=vs` or `?fortress=classic` overrides the saved setting. */
-export function getFortressModelOverride(
-  search: string,
-): FortressModelSet | null {
-  const value = new URLSearchParams(search).get('fortress')
-  return isFortressModelSet(value) ? value : null
-}
-
-export function resolveFortressModelSet(
-  setting: FortressModelSet,
-  search: string,
-): FortressModelSet {
-  return getFortressModelOverride(search) ?? setting
+export function getFortressModelUrl(part: FortressModelPart) {
+  return FORTRESS_MODEL_URLS[part]
 }
 
 // Shape node names in the Virtualscape GLBs.
