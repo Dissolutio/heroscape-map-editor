@@ -51,6 +51,12 @@ import {
   resolvePictureCaptureOptions,
 } from '../world/camera/pictureCaptureOptions'
 import { captureWithOptionalHighQuality } from '../world/camera/pictureQuality'
+import {
+  FORTRESS_MODEL_SET_LABELS,
+  FORTRESS_MODEL_SETS,
+  type FortressModelSet,
+} from '../world/models/fortressModels'
+import { useFortressModelOverride } from '../world/models/useFortressModelSet'
 import { ControlTabsListItemButton } from './ControlTabsListItemButton'
 import { HotkeyText } from './HotKeyText'
 import { useHotkeyConfig } from './useHotkeyConfig'
@@ -631,6 +637,9 @@ const ViewPreferencesSwitchForm = () => {
     toggleIsDisplayCapHeights(event.target.checked)
   }
   const isHideTableTop = useBoundStore((s) => s.isHideTableTop)
+  const fortressModels = useBoundStore((s) => s.fortressModels)
+  const setFortressModels = useBoundStore((s) => s.setFortressModels)
+  const fortressModelOverride = useFortressModelOverride()
   const toggleIsHideTableTop = useBoundStore((s) => s.toggleIsHideTableTop)
   const handleChangeHideTableTop = (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -809,6 +818,41 @@ const ViewPreferencesSwitchForm = () => {
           />
         )}
 
+        <Box
+          sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.5 }}
+          title="Which 3D models castle walls, bases, arches, doors, ladders and battlements use. Only the 3D view changes."
+        >
+          <FormLabel
+            id="fortress-models-label"
+            component="label"
+            htmlFor="fortress-models-select"
+          >
+            Fortress models
+          </FormLabel>
+          <FormControl size="small">
+            <Select
+              id="fortress-models-select"
+              labelId="fortress-models-label"
+              data-testid="fortress-models-select"
+              value={fortressModelOverride ?? fortressModels}
+              disabled={fortressModelOverride !== null}
+              onChange={(event: SelectChangeEvent) => {
+                setFortressModels(event.target.value as FortressModelSet)
+              }}
+            >
+              {FORTRESS_MODEL_SETS.map((modelSet) => (
+                <MenuItem key={modelSet} value={modelSet}>
+                  {FORTRESS_MODEL_SET_LABELS[modelSet]}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </Box>
+        {fortressModelOverride !== null && (
+          <FormHelperText>
+            Set by ?fortress={fortressModelOverride} in the page address.
+          </FormHelperText>
+        )}
         <FormControlLabel
           control={
             <Switch

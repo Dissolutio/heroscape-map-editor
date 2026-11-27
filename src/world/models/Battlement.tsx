@@ -4,12 +4,16 @@ import useBoundStore from '../../store/store'
 import { HexTerrain } from '../../types'
 import { PIECE_PREVIEW_OPACITY } from '../../utils/constants'
 import { hexTerrainColor } from '../maphex/hexColors'
+import { getFortressModelUrl } from './fortressModels'
 import { basicModelMaterial } from './materials'
 import { useDisposableGLTF } from './useDisposableGLTF'
+import { useFortressModelSet } from './useFortressModelSet'
+import { VsModel } from './VsFortressMeshes'
 
 export function Battlement({ pid }: { pid: string }) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useDisposableGLTF('/handmade-battlement.glb') as any
+  const isVs = useFortressModelSet() === 'vs'
   const { onPointerEnterPID, onPointerOut } = usePieceHoverState()
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
   const selectedPieceIDs = useBoundStore((s) => s.selectedPieceIDs)
@@ -35,6 +39,20 @@ export function Battlement({ pid }: { pid: string }) {
       { x: event.point.x, z: event.point.z },
     )
   }
+  if (isVs) {
+    return (
+      <VsModel
+        url={getFortressModelUrl('fortressBattlement', 'vs')}
+        name="VsFortressBattlement"
+        color={hexTerrainColor[HexTerrain.battlement]}
+        isHighlighted={isHighlighted}
+        pid={pid}
+        onPointerUp={onPointerUp}
+        onPointerEnter={(e) => onPointerEnterPID(e, pid)}
+        onPointerOut={(e) => onPointerOut(e)}
+      />
+    )
+  }
   return (
     <mesh
       receiveShadow={isLightsAndShadowsRender}
@@ -50,11 +68,23 @@ export function Battlement({ pid }: { pid: string }) {
 export function BattlementPreview({ opacity }: { opacity?: number }) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useDisposableGLTF('/handmade-battlement.glb') as any
+  const isVs = useFortressModelSet() === 'vs'
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,
   )
   const color = hexTerrainColor[HexTerrain.battlement]
   const opacityLevel = opacity ?? PIECE_PREVIEW_OPACITY
+  if (isVs) {
+    return (
+      <VsModel
+        url={getFortressModelUrl('fortressBattlement', 'vs')}
+        name="VsFortressBattlement"
+        color={color}
+        isHighlighted={false}
+        opacity={opacityLevel}
+      />
+    )
+  }
   return (
     <mesh
       receiveShadow={isLightsAndShadowsRender}
