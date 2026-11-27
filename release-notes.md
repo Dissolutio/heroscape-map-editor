@@ -1,7 +1,7 @@
 Nov-27-2026
 TLDR: Virtualscape fortress models. Ships and Laur add-ons stop false conflicts. Turn a Void Mat into Void Markers. Two new hotkeys.
 
-- **Fortress models**: Castle walls, bases, arch, door, ladder and battlement now use the Virtualscape models. View tab: switch back to Classic if you like the old look.
+- **Fortress models**: Castle walls, bases, arch, door, ladder and battlement now use the Virtualscape models.
 - **Ship Wall/Bow**: No more false conflicts with land, trees and other pieces beside them. They still block exactly what the real pieces do.
 - **Laur add-ons**: No more false conflicts next to castle walls, Fortified Walls and ships.
 - **Void Mats**: Right-click: Convert to Void Markers (full hexes only), and back. Placement previews show over mats again. Mats show in the SVG view, and the PDF gets a level 0 page for them.
