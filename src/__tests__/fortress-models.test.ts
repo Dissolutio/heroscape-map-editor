@@ -225,9 +225,8 @@ describe('the Virtualscape GLBs', () => {
     expect(baseTop).toBeCloseTo(0.32, 2)
     expect(archTop).toBeCloseTo(3.5, 2)
     if (!wallTop || !baseTop || !archTop) return
-    // A 9-level wall on land: the classic cap top is at 9.99 * 0.35 + 0.1;
-    // the Virtualscape wall's receiver top sits one level (0.35) below it.
-    expect(vsWallScaleY(9.99, wallTop) * wallTop).toBeCloseTo(3.2465, 4)
+    // A 9-level wall on land: the classic cap top is at 9.99 * 0.35 + 0.1.
+    expect(vsWallScaleY(9.99, wallTop) * wallTop).toBeCloseTo(3.5965, 4)
     const { scale, offset } = vsBaseTransformY(baseTop)
     expect(offset + scale * baseTop).toBeCloseTo(0.45, 4)
     expect(vsArchScaleY(archTop) * archTop).toBeCloseTo(3.6, 4)
