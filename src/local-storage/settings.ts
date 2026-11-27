@@ -8,6 +8,10 @@ import { sanitizeHotkeyOverrides, type HotkeyOverrides } from '../data/hotkeys'
 import { blankPieceInventory } from '../inventory/blankInventory'
 import type { PieceInventory, TerrainConstraintSource } from '../types'
 import { normalizePieceInventory } from '../utils/piece-inventory'
+import {
+  type FortressModelSet,
+  isFortressModelSet,
+} from '../world/models/fortressModels'
 import { LS_KEYS } from './keys'
 import {
   safeGetJSON,
@@ -34,6 +38,7 @@ export type SettingsValues = {
   useHighQualityForPicture: boolean
   isDisplayCapHeights: boolean
   isHideTableTop: boolean
+  fortressModels: FortressModelSet
   useLegacyStartZones: boolean
   isShowActionLog: boolean
   pdfRenderFormat: PdfRenderFormat
@@ -77,6 +82,7 @@ export const SETTINGS_DEFAULTS: SettingsValues = {
   useHighQualityForPicture: false,
   isDisplayCapHeights: false,
   isHideTableTop: false,
+  fortressModels: 'vs',
   useLegacyStartZones: false,
   isShowActionLog: true,
   pdfRenderFormat: 'coversheet',
@@ -211,6 +217,8 @@ const validSettingValue = (
         : undefined
     case 'pdfRenderFormat':
       return isPdfRenderFormat(value) ? value : undefined
+    case 'fortressModels':
+      return isFortressModelSet(value) ? value : undefined
     case 'terrainConstraintSource':
       return isTerrainConstraintSource(value) ? value : undefined
     case 'customConstraintInventory':

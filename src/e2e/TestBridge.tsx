@@ -468,6 +468,27 @@ function TestBridgeInner() {
         Object.values(useBoundStore.getState().boardHexes)
           .filter((hex) => hex.boardPieceUID === uid)
           .map(({ q, r, altitude, terrain }) => ({ q, r, altitude, terrain })),
+      fortressBounds: (uid) => {
+        const scene = get().scene
+        scene.updateMatrixWorld(true)
+        const box = new Box3()
+        scene.traverse((object) => {
+          if (object.userData.fortressUID !== uid) return
+          object.traverse((child) => {
+            if (!(child instanceof Mesh) || !child.visible) return
+            const materials = Array.isArray(child.material)
+              ? child.material
+              : [child.material]
+            if (materials.every((m) => m.colorWrite === false)) return
+            box.expandByObject(child, true)
+          })
+        })
+        if (box.isEmpty()) return null
+        return {
+          min: round4Vector(box.min),
+          max: round4Vector(box.max),
+        }
+      },
       listRenderedObjectiveMarkerUIDs: () => {
         const uids: string[] = []
         get().scene.traverse((object) => {
@@ -611,6 +632,26 @@ function TestBridgeInner() {
           altitude: bp.altitude + 1,
         })
         if (bp.inventoryID === Pieces.battlement) {
+          // The Virtualscape battlement sits just inside the edge, not across
+          // it, so aim at the middle of its rendered mesh.
+          const vsBounds = new Box3()
+          get().scene.updateMatrixWorld(true)
+          get().scene.traverse((object) => {
+            if (object.userData.fortressUID !== uid) return
+            object.traverse((child) => {
+              if (
+                child instanceof Mesh &&
+                child.visible &&
+                child.name.startsWith('VsFortress')
+              ) {
+                vsBounds.expandByObject(child, true)
+              }
+            })
+          })
+          if (!vsBounds.isEmpty()) {
+            const center = vsBounds.getCenter(new Vector3())
+            return project(center.x, center.y, center.z)
+          }
           const offset = getLadderBattlementOptions(bp.rotation)
           return project(
             anchor.x + offset.xAdd,

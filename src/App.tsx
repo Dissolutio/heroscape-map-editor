@@ -1,6 +1,7 @@
 import { CssBaseline, ThemeProvider, createTheme } from '@mui/material'
 import * as Sentry from '@sentry/react'
 import { SnackbarProvider } from 'notistack'
+import { lazy, Suspense } from 'react'
 import { Redirect, Route, Switch } from 'wouter'
 
 import { EventProvider } from './hooks/useEvent'
@@ -36,6 +37,12 @@ const darkTheme = createTheme({
     // },
   },
 })
+// Dev-only: classic vs Virtualscape fortress models. Vite drops this branch
+// (and the page's chunk) from production builds.
+const ModelComparePage = import.meta.env.DEV
+  ? lazy(() => import('./dev/ModelComparePage'))
+  : null
+
 const RootPage = () => {
   return <Redirect to={ROUTES.heroscapeHome} />
 }
@@ -77,6 +84,13 @@ const App = () => {
             <Switch>
               <Route path={ROUTES.root} component={RootPage} />
               <Route path={`${ROUTES.heroscapeHome}`} component={HomePage} />
+              {ModelComparePage && (
+                <Route path="/model-compare">
+                  <Suspense fallback={null}>
+                    <ModelComparePage />
+                  </Suspense>
+                </Route>
+              )}
 
               {/* Default route in a switch */}
               <Route>

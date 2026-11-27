@@ -151,6 +151,11 @@ Some pieces, like the Ruins from Rise of the Valkyrie, have different amounts of
 BoardHex IDs are structured based on their coordinates in the hex grid.
 Each hex on the board has a unique ID that is derived from its Q and R coordinates, and its altitude. This allows the application to efficiently manage and reference each hex on the board.
 
+### URL Parameters
+
+Feature flags, debug overlays and test switches you can add to the page
+address are listed in [docs/url-params.md](docs/url-params.md).
+
 ### Adding New Terrain Pieces
 
 Terrain registration touches more than the model and UI: it can require piece
