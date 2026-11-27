@@ -6,7 +6,7 @@
  * The `isVC` flag on a terrain set identifies its pieces. The uninventoried
  * Void Marker is also VC, but is not part of the set's inventory.
  */
-import type { BoardPieces } from '../types'
+import type { BoardPiece } from '../types'
 import { Pieces } from '../types'
 import { terrainSetsByShortID } from './terrainSets'
 
@@ -42,7 +42,7 @@ export const isSetOfferedForVC = (
   includeVCContent: boolean,
 ) => includeVCContent || !isVCTerrainSet(set)
 
-export const boardPiecesUseVC = (boardPieces: BoardPieces) =>
+export const boardPiecesUseVC = (boardPieces: readonly BoardPiece[]) =>
   boardPieces.some((piece) => isVCPieceID(piece.inventoryID))
 
 export const VC_MAP_LOADED_MESSAGE =

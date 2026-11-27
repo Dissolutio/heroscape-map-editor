@@ -10,6 +10,7 @@ import { getPieceEdgeId } from '../data/hexGrid/pieceFeatures'
 import { getUnsupportedPieceUIDs } from '../data/unsupportedPieces'
 import { type MovePieceArgs, applyPieceMoves } from '../data/movePieces'
 import { filterVisibleObjectiveMarkerUIDs } from '../data/objectiveMarkerVisibility'
+import { findVoidMatLayoutForMarkers, getVoidMatHexes } from '../data/voidMat'
 import {
   type NewObjectiveMarker,
   type ObjectiveMarker,
@@ -131,6 +132,8 @@ export interface MapSlice extends MapState {
   recomputeConflicts: () => void
   paintTile: (args: PaintTileArgs) => AddRemovePieceError
   unpaintTile: (uid: string) => void
+  convertVoidMatToMarkers: (selectedUIDs: string[]) => string[]
+  convertVoidMarkersToMat: (selectedUIDs: string[]) => string | undefined
   convertTerrainForPieces: (args: ConvertTerrainArgs) => number
   movePiece: (args: MovePieceArgs) => void
   /** Moves several pieces in one update (one undo step); see applyPieceMoves. */
@@ -361,6 +364,140 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
         removedPiece.inventoryID,
       selection: { pieceUIDs: deletedUIDs },
     })
+  },
+  convertVoidMatToMarkers: (selectedUIDs) => {
+    const selectedIDs = new Set(selectedUIDs)
+    const mats = get().boardPieces.filter(
+      (piece) =>
+        selectedIDs.has(piece.uid) && piece.inventoryID === Pieces.voidMat,
+    )
+    if (!mats.length) return []
+
+    const sourceUIDs = mats.map((piece) => piece.uid)
+    const markerUIDs: string[] = []
+    get().pushPendingUndoSelectionRestore({
+      pieceUIDs: sourceUIDs,
+      objectiveMarkerUID: null,
+    })
+    set((state) =>
+      produce(state, (draft) => {
+        let workingHexes = draft.boardHexes
+        let workingPieces = draft.boardPieces
+        for (const mat of mats) {
+          const currentMat = workingPieces.find(
+            (piece) => piece.uid === mat.uid,
+          )
+          if (!currentMat) continue
+          const hexes = getVoidMatHexes(currentMat)
+          const removed = removePiece({
+            uid: currentMat.uid,
+            boardHexes: workingHexes,
+            boardPieces: workingPieces,
+          })
+          workingHexes = removed.newBoardHexes
+          workingPieces = removed.newBoardPieces
+
+          for (const coords of hexes) {
+            const uid = nanoid()
+            const added = addPiece({
+              piece: piecesSoFar[Pieces.voidMarker],
+              boardHexes: workingHexes,
+              boardPieces: workingPieces,
+              pieceCoords: coords,
+              placementAltitude: currentMat.altitude,
+              rotation: currentMat.rotation,
+              isVsTile: false,
+              uid,
+              permissive: true,
+            })
+            workingHexes = added.newBoardHexes
+            workingPieces = added.newBoardPieces
+            markerUIDs.push(uid)
+          }
+        }
+
+        const rebuilt = rebuildBoardStateFromPieces(workingPieces, workingHexes)
+        draft.boardHexes = rebuilt.boardHexes
+        draft.boardPieces = rebuilt.boardPieces
+        draft.conflictedPieceUIDs = rebuilt.conflictedPieceUIDs
+        draft.unsupportedPieceUIDs = getUnsupportedPieceUIDs({
+          boardPieces: rebuilt.boardPieces,
+          boardHexes: rebuilt.boardHexes,
+        })
+        draft.selectedPieceIDs = markerUIDs
+        draft.rotationPivot = null
+      }),
+    )
+    get().clearPendingUndoSelectionRestore()
+    if (!markerUIDs.length) return []
+    get().recordActionLog({
+      type: 'convert',
+      count: sourceUIDs.length,
+      selection: { pieceUIDs: sourceUIDs },
+    })
+    return markerUIDs
+  },
+  convertVoidMarkersToMat: (selectedUIDs) => {
+    if (selectedUIDs.length !== 14) return undefined
+    const selectedIDs = new Set(selectedUIDs)
+    const markers = get().boardPieces.filter((piece) =>
+      selectedIDs.has(piece.uid),
+    )
+    if (markers.length !== 14) return undefined
+    const layout = findVoidMatLayoutForMarkers(markers)
+    if (!layout) return undefined
+
+    const matUID = nanoid()
+    get().pushPendingUndoSelectionRestore({
+      pieceUIDs: markers.map((piece) => piece.uid),
+      objectiveMarkerUID: null,
+    })
+    set((state) =>
+      produce(state, (draft) => {
+        let workingHexes = draft.boardHexes
+        let workingPieces = draft.boardPieces
+        for (const marker of markers) {
+          const removed = removePiece({
+            uid: marker.uid,
+            boardHexes: workingHexes,
+            boardPieces: workingPieces,
+          })
+          workingHexes = removed.newBoardHexes
+          workingPieces = removed.newBoardPieces
+        }
+        const added = addPiece({
+          piece: piecesSoFar[Pieces.voidMat],
+          boardHexes: workingHexes,
+          boardPieces: workingPieces,
+          pieceCoords: layout.pieceCoords,
+          placementAltitude: 0,
+          rotation: layout.rotation,
+          isVsTile: false,
+          uid: matUID,
+          permissive: true,
+        })
+        const rebuilt = rebuildBoardStateFromPieces(
+          added.newBoardPieces,
+          added.newBoardHexes,
+        )
+        draft.boardHexes = rebuilt.boardHexes
+        draft.boardPieces = rebuilt.boardPieces
+        draft.conflictedPieceUIDs = rebuilt.conflictedPieceUIDs
+        draft.unsupportedPieceUIDs = getUnsupportedPieceUIDs({
+          boardPieces: rebuilt.boardPieces,
+          boardHexes: rebuilt.boardHexes,
+        })
+        draft.selectedPieceIDs = [matUID]
+        draft.rotationPivot = null
+      }),
+    )
+    get().clearPendingUndoSelectionRestore()
+    get().recordActionLog({
+      type: 'convert',
+      count: 1,
+      selection: { pieceUIDs: markers.map((piece) => piece.uid) },
+    })
+    return matUID
   },
   convertTerrainForPieces: ({
     selectedUIDs,

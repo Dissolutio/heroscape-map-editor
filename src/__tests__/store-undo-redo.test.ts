@@ -9,6 +9,7 @@ import {
 import { OBJECTIVE_MARKER_PEN_MODE } from '../data/objectiveMarkers'
 import { piecesSoFar } from '../data/pieces'
 import { computeConflictedPieceUIDs } from '../data/rebuildBoardState'
+import { getVoidMatHexes } from '../data/voidMat'
 import { LS_KEYS } from '../local-storage/keys'
 import {
   type BoardPiece,
@@ -487,6 +488,126 @@ describe('real store undo and redo', () => {
       `Deleted ${piecesSoFar.g2.title}`,
     ])
     expect(historyLength()).toBe(3)
+  })
+
+  it.each([0, 1, 2, 3, 4, 5])(
+    'converts a Void Mat at rotation %i to markers and back',
+    (rotation) => {
+      const mat: BoardPiece = {
+        uid: 'void-mat',
+        inventoryID: Pieces.voidMat,
+        altitude: 0,
+        rotation,
+        pieceCoords: { q: 4, r: 4, s: -8 },
+      }
+      loadWithoutHistory(loadedMap([mat]))
+      store.getState().setSelectedPieceIDs([mat.uid])
+
+      const markerUIDs = store.getState().convertVoidMatToMarkers([mat.uid])
+      const markers = store
+        .getState()
+        .boardPieces.filter((piece) => markerUIDs.includes(piece.uid))
+
+      expect(markers).toHaveLength(14)
+      expect(
+        markers.every((piece) => piece.inventoryID === Pieces.voidMarker),
+      ).toBe(true)
+      expect(
+        markers.map(({ pieceCoords: { q, r, s } }) => `${q},${r},${s}`).sort(),
+      ).toEqual(
+        getVoidMatHexes(mat)
+          .map(({ q, r, s }) => `${q},${r},${s}`)
+          .sort(),
+      )
+      expect(store.getState().selectedPieceIDs).toEqual(markerUIDs)
+
+      const matUID = store.getState().convertVoidMarkersToMat(markerUIDs)
+      expect(matUID).toBeDefined()
+      const convertedMat = store
+        .getState()
+        .boardPieces.find((piece) => piece.uid === matUID)
+      expect(convertedMat?.inventoryID).toBe(Pieces.voidMat)
+      expect(
+        getVoidMatHexes(convertedMat as BoardPiece)
+          .map(({ q, r, s }) => `${q},${r},${s}`)
+          .sort(),
+      ).toEqual(
+        getVoidMatHexes(mat)
+          .map(({ q, r, s }) => `${q},${r},${s}`)
+          .sort(),
+      )
+      expect(store.getState().selectedPieceIDs).toEqual([matUID])
+    },
+  )
+
+  it('converts several selected Void Mats in one operation', () => {
+    const mats: BoardPiece[] = [
+      {
+        uid: 'void-mat-one',
+        inventoryID: Pieces.voidMat,
+        altitude: 0,
+        rotation: 0,
+        pieceCoords: { q: 4, r: 4, s: -8 },
+      },
+      {
+        uid: 'void-mat-two',
+        inventoryID: Pieces.voidMat,
+        altitude: 0,
+        rotation: 3,
+        pieceCoords: { q: -4, r: 4, s: 0 },
+      },
+    ]
+    loadWithoutHistory(loadedMap(mats))
+    store.getState().setSelectedPieceIDs(mats.map((mat) => mat.uid))
+
+    const markerUIDs = store
+      .getState()
+      .convertVoidMatToMarkers(mats.map((mat) => mat.uid))
+
+    expect(markerUIDs).toHaveLength(28)
+    expect(store.getState().boardPieces).toHaveLength(28)
+    expect(store.getState().selectedPieceIDs).toEqual(markerUIDs)
+    expect(historyLength()).toBe(1)
+  })
+
+  it('undoes each Void conversion in one step and restores its selection', () => {
+    const mat: BoardPiece = {
+      uid: 'void-mat',
+      inventoryID: Pieces.voidMat,
+      altitude: 0,
+      rotation: 2,
+      pieceCoords: { q: 4, r: 4, s: -8 },
+    }
+    loadWithoutHistory(loadedMap([mat]))
+    store.getState().setSelectedPieceIDs([mat.uid])
+    const markerUIDs = store.getState().convertVoidMatToMarkers([mat.uid])
+    expect(historyLength()).toBe(1)
+
+    undoWithSelectionRestore()
+    expect(store.getState().boardPieces).toEqual([mat])
+    expect(store.getState().selectedPieceIDs).toEqual([mat.uid])
+
+    const markers = getVoidMatHexes(mat).map((pieceCoords, index) => ({
+      uid: `marker-${index}`,
+      inventoryID: Pieces.voidMarker,
+      altitude: 0,
+      rotation: 0,
+      pieceCoords,
+    }))
+    loadWithoutHistory(loadedMap(markers))
+    store.getState().setSelectedPieceIDs(markers.map((piece) => piece.uid))
+    const convertedMatUID = store
+      .getState()
+      .convertVoidMarkersToMat(markers.map((piece) => piece.uid))
+    expect(convertedMatUID).toBeDefined()
+    expect(historyLength()).toBe(1)
+
+    undoWithSelectionRestore()
+    expect(store.getState().boardPieces).toEqual(markers)
+    expect(store.getState().selectedPieceIDs).toEqual(
+      markers.map((piece) => piece.uid),
+    )
+    expect(markerUIDs).toHaveLength(14)
   })
 
   it('adapts different instances in one undo step and restores their IDs', () => {

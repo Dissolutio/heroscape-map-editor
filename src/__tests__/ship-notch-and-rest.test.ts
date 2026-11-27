@@ -81,11 +81,11 @@ const templateCoords = (pieceID: string, rotation: number) =>
   })
 
 const ships = [
-  { id: Pieces.shipBow, title: 'Ship Bow' },
-  { id: Pieces.shipWall, title: 'Ship Wall' },
+  { id: Pieces.shipBow, title: 'Ship Bow', blocked: [2, 6], fits: 7 },
+  { id: Pieces.shipWall, title: 'Ship Wall', blocked: [2, 2], fits: 3 },
 ] as const
 
-describe.each(ships)('$title notch hexes', ({ id }) => {
+describe.each(ships)('$title notch hexes', ({ id, blocked, fits }) => {
   it('are the last two template hexes, NE of the origin and E of that, with an open base level', () => {
     const coords = templateCoords(id, 0)
     expect(coords.slice(-2)).toEqual(notchHexes(0))
@@ -95,10 +95,10 @@ describe.each(ships)('$title notch hexes', ({ id }) => {
 
   describe.each([0, 2])('at rotation %i', (rotation) => {
     const ship = bp('ship', id, center, SHIP_ALTITUDE, rotation)
-    const levels = Array.from({ length: 7 }, (_, i) => i + 1)
+    const levels = Array.from({ length: fits + 1 }, (_, i) => i + 1)
 
     it.each(notchHexes(rotation).map((hex, i) => ({ hex, i })))(
-      'notch hex $i: whole-hex land conflicts only when its hex cell overlaps the ship',
+      'notch hex $i: land at level 1 fits, the blocked levels conflict, and land fits above them',
       ({ hex }) => {
         for (const level of levels) {
           const conflicts = conflictsOf([
@@ -106,7 +106,11 @@ describe.each(ships)('$title notch hexes', ({ id }) => {
             ship,
             landAtLevel('land', hex, level),
           ])
-          expect(conflicts.sort(), `level ${level}`).toEqual([])
+          const isBlocked = level >= blocked[0] && level <= blocked[1]
+          expect(
+            conflicts.sort(),
+            `level ${level} ${isBlocked ? 'conflicts' : 'fits'}`,
+          ).toEqual(isBlocked ? ['land', 'ship'] : [])
         }
       },
     )
