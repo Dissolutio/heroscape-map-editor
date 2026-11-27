@@ -25,10 +25,13 @@ import {
 import {
   getPieceFootprintCells,
   getEdgeNodePieceColumns,
+  hasCellFootprint,
   isEdgeNodePieceID,
   isFootprintPieceID,
   isHexCenterPieceID,
 } from '../data/hexGrid/pieceCells'
+import { getLaurAddonFootprint } from '../data/laurAddonFootprints'
+import { getPortPieceRotations } from '../data/portPieces'
 import { pieceCellDeclarations } from '../data/hexGrid/pieceFeatures'
 import { pieceFootprints } from '../data/hexGrid/pieceFootprints'
 import { piecesSoFar } from '../data/pieces'
@@ -287,6 +290,16 @@ describe('the declarations', () => {
         'vc2:footprint',
         'vc3:footprint',
         'vc4:edges-and-nodes',
+        ...[
+          Pieces.laurWallArch,
+          Pieces.laurWallLong,
+          Pieces.laurWallLongStackable,
+          Pieces.laurWallRuin1,
+          Pieces.laurWallRuin2,
+          Pieces.laurWallRuin3,
+          Pieces.laurWallShort,
+          Pieces.laurWallShortStackable,
+        ].map((id) => `${id}:laur-addon`),
         ...glyphIDs.map((id) => `${id}:hex-center`),
       ].sort(),
     )
@@ -294,6 +307,8 @@ describe('the declarations', () => {
       expect(piecesSoFar[id], id).toBeDefined()
     }
     expect(isEdgeNodePieceID(Pieces.fortifiedWall)).toBe(true)
+    expect(isEdgeNodePieceID(Pieces.laurWallLong)).toBe(true)
+    expect(hasCellFootprint(Pieces.laurWallLong)).toBe(true)
     expect(isEdgeNodePieceID('g1')).toBe(false)
     expect(isHexCenterPieceID(Pieces.cannon)).toBe(true)
     expect(isHexCenterPieceID(Pieces.glyphPower)).toBe(true)
@@ -509,6 +524,119 @@ describe('footprints', () => {
       altitude: 0,
     })
     expect(columns).toHaveLength(10)
+  })
+
+  const laurAddonIDs = [
+    Pieces.laurWallShort,
+    Pieces.laurWallShortStackable,
+    Pieces.laurWallLong,
+    Pieces.laurWallLongStackable,
+    Pieces.laurWallArch,
+    Pieces.laurWallRuin1,
+    Pieces.laurWallRuin2,
+    Pieces.laurWallRuin3,
+  ]
+  const laurAddonCases = laurAddonIDs.flatMap((inventoryID) =>
+    (getPortPieceRotations(inventoryID) ?? []).map((rotation) => ({
+      inventoryID,
+      rotation,
+    })),
+  )
+
+  it.each(laurAddonCases)(
+    '$inventoryID cells use attachment, blocked hexes and height at rotation $rotation',
+    ({ inventoryID, rotation }) => {
+      const origin = { q: 0, r: 0, s: 0 }
+      const footprint = getLaurAddonFootprint({
+        inventoryID,
+        anchor: origin,
+        altitude: 1,
+        rotation,
+      })
+      if (!footprint) throw new Error('Expected a Laur add-on footprint')
+      const cells = getPieceFootprintCells({
+        inventoryID,
+        pieceCoords: origin,
+        rotation,
+        altitude: 1,
+      })
+
+      expect(cells.map(({ cell }) => cell).sort()).toEqual(
+        [
+          footprint.featureId,
+          ...footprint.blockedHexes.map(({ q, r, s }) => `hex:${q},${r},${s}`),
+        ].sort(),
+      )
+      expect(
+        cells.every(
+          ({ bottom, top }) =>
+            bottom === footprint.altitude &&
+            top === footprint.altitude + footprint.heightInLevels,
+        ),
+      ).toBe(true)
+    },
+  )
+
+  it('a Laur long wall only conflicts with cell pieces that share its cells', () => {
+    const addon = bp('addon', Pieces.laurWallLong, O, 1, 0.5)
+    const pillarPair = [
+      bp('pillar-a', Pieces.laurWallSquarePillar, O, 1, 5),
+      bp('pillar-b', Pieces.laurWallSquarePillar, at(1, 1), 1, 2),
+    ]
+
+    expect(rebuildBoardStateFromPieces([addon]).boardHexes).toEqual({})
+    expect(conflictsOn(...pillarPair, addon)).toEqual([])
+    expect(
+      conflictsOn(addon, bp('adjacent-wall', Pieces.fortifiedWall, SE, 1)),
+    ).toEqual([])
+    expect(
+      conflictsOn(bp('adjacent-wall', Pieces.fortifiedWall, SE, 1), addon),
+    ).toEqual([])
+    expect(
+      conflictsOn(
+        addon,
+        bp('overlapping-wall', Pieces.fortifiedWall, at(1, 0), 1),
+      ),
+    ).toEqual(['addon', 'overlapping-wall'])
+    expect(
+      conflictsOn(
+        bp('overlapping-wall', Pieces.fortifiedWall, at(1, 0), 1),
+        addon,
+      ),
+    ).toEqual(['addon', 'overlapping-wall'])
+    expect(
+      conflictsOn(addon, bp('adjacent-ship', Pieces.shipWall, at(-2, 0), 1)),
+    ).toEqual([])
+    expect(
+      conflictsOn(bp('adjacent-ship', Pieces.shipWall, at(-2, 0), 1), addon),
+    ).toEqual([])
+    expect(
+      conflictsOn(addon, bp('overlapping-ship', Pieces.shipWall, O, 1)),
+    ).toEqual(['addon', 'overlapping-ship'])
+    expect(
+      conflictsOn(
+        addon,
+        bp('adjacent-castle-wall', Pieces.castleWallStraight, at(-1, 0), 1),
+      ),
+    ).toEqual([])
+    expect(
+      conflictsOn(
+        bp('adjacent-castle-wall', Pieces.castleWallStraight, at(-1, 0), 1),
+        addon,
+      ),
+    ).toEqual([])
+    expect(
+      conflictsOn(
+        addon,
+        bp('overlapping-castle-wall', Pieces.castleWallStraight, at(1, 0), 1),
+      ),
+    ).toEqual(['addon', 'overlapping-castle-wall'])
+    expect(
+      conflictsOn(
+        bp('overlapping-castle-wall', Pieces.castleWallStraight, at(1, 0), 1),
+        addon,
+      ),
+    ).toEqual(['addon', 'overlapping-castle-wall'])
   })
 })
 
