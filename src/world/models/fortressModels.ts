@@ -114,8 +114,16 @@ export function vsCastleNodeName(kind: 'Base' | 'Wall', shape: CastleShape) {
 // cap is 0.1 thick on top of that.
 export const CLASSIC_CAP_THICKNESS = 0.1
 
+// The Virtualscape wall's top is the male receiver for a wall walk tile, so it
+// stands one level lower than the classic cap: a wall walk placed on it covers
+// the receiver instead of the receiver poking through (the owner's check).
+export const VS_WALL_TOP_DROP = HEXGRID_HEX_HEIGHT
+
 export function vsWallScaleY(scaleY: number, walkableTop: number) {
-  return (scaleY * HEXGRID_HEX_HEIGHT + CLASSIC_CAP_THICKNESS) / walkableTop
+  return (
+    (scaleY * HEXGRID_HEX_HEIGHT + CLASSIC_CAP_THICKNESS - VS_WALL_TOP_DROP) /
+    walkableTop
+  )
 }
 
 // The classic base reaches 0.45 (body plus cap) and stands in the middle of
