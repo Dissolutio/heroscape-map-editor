@@ -453,6 +453,13 @@ const indexedCellsByPiece = new WeakMap<
     columns: string[]
   }
 >()
+const snapshotCellPiece = (piece: CellPiece): CellPiece => ({
+  inventoryID: piece.inventoryID,
+  pieceCoords: { ...piece.pieceCoords },
+  rotation: piece.rotation,
+  altitude: piece.altitude,
+})
+
 function getIndexedCells(piece: BoardPiece) {
   const cells = getPieceFootprintCells(piece)
   const cached = indexedCellsByPiece.get(piece)
@@ -460,11 +467,12 @@ function getIndexedCells(piece: BoardPiece) {
     return { cells: cached.indexed, columns: cached.columns }
   }
   const isWall = isEdgeNodePieceID(piece.inventoryID)
+  const indexedPiece = snapshotCellPiece(piece)
   const indexed = cells.map((cell) => ({
     ...cell,
     uid: piece.uid,
     isWall,
-    piece,
+    piece: indexedPiece,
   }))
   const columns = [
     ...new Set(cells.flatMap((cell) => cell.hexes.map(columnKey))),
@@ -495,16 +503,16 @@ function getEdgeNodeIndex(boardPieces: BoardPieces): EdgeNodeIndex {
   for (const piece of boardPieces) {
     const isLaurAddon = isLaurWallAddonPieceID(piece.inventoryID)
     if (!hasCellFootprint(piece.inventoryID) && !isLaurAddon) continue
+    const indexedPiece = snapshotCellPiece(piece)
     const cells = isLaurAddon
-      ? getLaurAddonCells(piece)
+      ? getLaurAddonCells(indexedPiece).map((cell) => ({
+          ...cell,
+          uid: piece.uid,
+          isWall: isEdgeNodePieceID(piece.inventoryID),
+          piece: indexedPiece,
+        }))
       : getIndexedCells(piece).cells
-    for (const cell of cells) {
-      const entry = {
-        ...cell,
-        uid: piece.uid,
-        isWall: isEdgeNodePieceID(piece.inventoryID),
-        piece,
-      }
+    for (const entry of cells) {
       const entries = index.byCell.get(entry.cell)
       if (entries) entries.push(entry)
       else index.byCell.set(entry.cell, [entry])
