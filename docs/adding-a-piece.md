@@ -1,307 +1,244 @@
 # How to add terrain to Hexoscape
 
-Always show the set `name`, never its `abbreviation`, to users. This guide
-follows the current implementation; the source and tests are authoritative when
-behavior changes.
+Always show the set `name`, never its `abbreviation`, to users. Follow this
+checklist from registration through rendering and tests. Source and tests are
+authoritative when behavior changes.
 
 ## End-to-end checklist
 
-| Done | Step |
-|---|---|
-| [ ] | 1. Data: IDs, metadata, footprint, inventories/sets, interlocks |
-| [ ] | 2. Placement: support, clearance, conflicts, and stacking |
-| [ ] | 3. 3D: Low, Medium/High, or non-instanced GLB; preview and pointer |
-| [ ] | 4. SVG/PDF: colors, shapes, letters, and buried marks |
-| [ ] | 5. Textures: sources, config, pack, manifest, and guard tests |
-| [ ] | 6. Edge/node declarations and their family sweep, when applicable |
-| [ ] | 7. Focused/full tests, browser check, and applicable build checks |
-| [ ] | 8. Release notes when preparing a user-facing release |
+- [ ] [Register the piece, template, rotation and inventory](#1-register-the-piece)
+- [ ] [Check placement, support, bases and cell conflicts](#2-check-placement-and-cells)
+- [ ] [Add Virtualscape import/export support when available](#3-add-virtualscape-support)
+- [ ] [Wire 3D models, graphics tiers and textures](#4-wire-the-3d-renderer)
+- [ ] [Check SVG/PDF appearance and locked colors](#5-check-2d-exports)
+- [ ] [Gate community content and inventory UI](#6-wire-inventory-and-community-content)
+- [ ] [Add focused tests and check the app](#7-test-the-piece)
 
-## 1. Register the piece and its data
+## 1. Register the piece
 
-`boardPieces` is the canonical list of placed pieces; `boardHexes` is derived
-occupancy and surface data. A piece's `inventoryID`, placement altitude,
-rotation, and cube-coordinate origin are saved. Do not register a cap or a
-footprint hex as another placed piece.
+- [ ] Add a stable `Pieces` ID in [`src/types.ts`](../src/types.ts).
+      Add a `PiecePrefixes` or `HexTerrain` value only for a new family or terrain.
+- [ ] Define the piece in [`src/data/pieces.ts`](../src/data/pieces.ts):
+      terrain, size, template, physical `height`, and applicable flags.
+- [ ] Use `gameHeight` when printed rules height differs from physical height.
+      Use `null` when the game defines no height.
+- [ ] Add or reuse a footprint in
+      [`src/data/tileTemplates.ts`](../src/data/tileTemplates.ts).
+      Land template length must equal `size`; verify the actual footprint.
+- [ ] Add rotation anchors in
+      [`src/data/rotationTransforms.ts`](../src/data/rotationTransforms.ts)
+      when the rotated footprint needs a different origin.
+- [ ] Keep ordinary placement and Virtualscape anchors distinct:
+      `getPieceTemplateCoords` applies a template rotation; `isVsTile` also applies
+      the Virtualscape origin offset.
+- [ ] Align support and clearance entries in
+      [`src/data/vertical-obstruction-templates.ts`](../src/data/vertical-obstruction-templates.ts).
+      Check [`src/data/interlock-templates.ts`](../src/data/interlock-templates.ts)
+      and [`src/data/interlock-rotations.ts`](../src/data/interlock-rotations.ts)
+      for interlocking pieces.
+- [ ] Add countable pieces to
+      [`src/inventory/blankInventory.ts`](../src/inventory/blankInventory.ts),
+      set quantities to [`src/data/inventories.ts`](../src/data/inventories.ts),
+      and set metadata in [`src/data/terrainSets.ts`](../src/data/terrainSets.ts).
+- [ ] Add the piece to
+      [`src/data/pieceGroups.ts`](../src/data/pieceGroups.ts) if it belongs in the
+      placed-pieces grid. Add menu/filter handling in
+      [`src/controls/PenModeControls.tsx`](../src/controls/PenModeControls.tsx)
+      when existing derived choices do not cover it.
+- [ ] For obstacle variants, use one `pieceSizeFamily` and unique,
+      one-based `variantOrder` values with short `variantLabel`s.
+- [ ] Run [`src/__tests__/piece-registry.test.ts`](../src/__tests__/piece-registry.test.ts)
+      to catch missing IDs, definitions, templates, inventories, sets and groups.
 
-1. Add a named ID to `Pieces` in [`src/types.ts`](../src/types.ts). Add a new
-   `PiecePrefixes` value only for a new family, and a `HexTerrain` value only
-   for a genuinely new terrain kind. IDs are part of saved/share data; do not
-   rename existing ones.
-2. Define the `Piece` in [`src/data/pieces.ts`](../src/data/pieces.ts), keyed by
-   its ID. Set its terrain, size, template, physical `height`, land/obstacle
-   flags, and applicable prefix, glyph, overlay, or inventory flags. If its
-   printed game/rules height differs from its physical placement height, set
-   `gameHeight`; use `null` when the game defines no height. Named glyph
-   definitions are assembled from [`src/data/glyphs.ts`](../src/data/glyphs.ts).
-3. Give it a template in `src/data/tileTemplates.ts`.
-   The registry requires a template for every piece. For land, the template
-   length must equal `size`; reuse a template only when its footprint is right.
-   Add rotation transforms in `src/data/rotationTransforms.ts` if needed.
-4. For obstacles with nonuniform support or clearance, keep their per-template
-   arrays aligned in `src/data/vertical-obstruction-templates.ts`. Check
-   `src/data/interlock-templates.ts` and `src/data/interlock-rotations.ts` for
-   interlocking pieces.
-5. Add countable pieces to `src/inventory/blankInventory.ts`, and actual counts
-   to applicable set inventories in `src/data/inventories.ts`. Set records are
-   exposed through `src/data/terrainSets.ts`. Uninventoried and overlay pieces
-   are excluded from the countable-piece check.
-6. Add the piece to `src/data/pieceGroups.ts` if it belongs in the placed-pieces
-   grid. Add a menu entry or family handling to
-   `src/controls/PenModeControls.tsx`; land size choices are derived from
-   `landPrefix` and `size`. Obstacle variants share a `pieceSizeFamily` value
-   and each member has a unique, one-based `variantOrder` plus a short
-   `variantLabel`. The Piece size buttons show every family member in that
-   order, including variants with matching footprints. Keep alternate models
-   with the same footprint in the same family. A new pen prefix needs the
-   corresponding menu and filter handling.
-7. Map a Virtualscape import code in `src/data/pieceCodes.ts` only if the
-   original editor has one. This is not a requirement for every piece.
+## 2. Check placement and cells
 
-The registry guard in `src/__tests__/piece-registry.test.ts` checks IDs,
-definitions, templates, inventories, sets, and groups. Unknown IDs are dropped
-and warned about on load; they are not retained as hidden pieces.
+- [ ] Start with [`src/data/placement.ts`](../src/data/placement.ts),
+      [`src/data/addPiece.ts`](../src/data/addPiece.ts) and
+      [`src/utils/board-utils.ts`](../src/utils/board-utils.ts).
+      Keep previews, clicks and map loading consistent.
+- [ ] Verify physical support, clearance, stacking, conflicts, map edges and
+      removal against the real piece. Do not infer clearances from model bounds.
+- [ ] For a seated obstacle, add its rule to
+      [`src/data/seatedObstacles.ts`](../src/data/seatedObstacles.ts):
+      `built-in` or `separate` base, allowed base IDs, footprint and default.
+- [ ] Base footprints are `six-hex`, `same-size` or `one-per-hex`.
+      Built-in bases are represented by the obstacle; separate bases are board
+      pieces that are grouped, moved and removed with it.
+- [ ] Check era-dependent rules against `setsUsed`. For example, Rock Outcrop
+      3 uses a same-size built-in Shadow base for classic-only sets; otherwise it
+      uses one base per footprint hex. Community sets do not make a map
+      contemporary.
+- [ ] Count built-in base use through
+      [`src/inventory/laurInventoryReconcile.ts`](../src/inventory/laurInventoryReconcile.ts);
+      do not add duplicate base pieces to the map. Separate bases remain inventory
+      pieces and must be represented in the set counts.
+- [ ] For an edge/node or footprint piece, add a declaration in
+      [`src/data/hexGrid/pieceFeatures.ts`](../src/data/hexGrid/pieceFeatures.ts)
+      and a model-derived footprint in
+      [`src/data/hexGrid/pieceFootprints.ts`](../src/data/hexGrid/pieceFootprints.ts).
+- [ ] [`src/data/hexGrid/pieceCells.ts`](../src/data/hexGrid/pieceCells.ts)
+      resolves rotated hex, edge and node cells with level ranges. Conflicts occur
+      when pieces fill the same cell at overlapping levels.
+- [ ] Default pieces still own their written hexes; `hex-center` pieces avoid
+      edges/nodes; walls fill only their declared edge/node cells; ships expose
+      their hull footprint against walls.
+- [ ] Add coverage in
+      [`src/__tests__/edge-node-cells.test.ts`](../src/__tests__/edge-node-cells.test.ts)
+      and [`src/__tests__/store-edge-node-walls.test.ts`](../src/__tests__/store-edge-node-walls.test.ts).
+      Inspect the debug cells overlay with `?cells=1`.
+- [ ] For port providers or add-ons, also check
+      [`src/data/portPieces.ts`](../src/data/portPieces.ts),
+      [`src/data/hexGrid/pieceFeatures.ts`](../src/data/hexGrid/pieceFeatures.ts)
+      and [`docs/edges-and-nodes-design.md`](edges-and-nodes-design.md).
 
-## 2. Confirm placement and physical rules
+## 3. Add Virtualscape support
 
-Start with `resolvePlacement()` in `src/data/placement.ts` and `addPiece()` in
-`src/data/addPiece.ts`. Reuse terrain classification and support helpers in
-`src/utils/board-utils.ts` instead of introducing a competing rule. `addPiece()`
-expands ordinary pieces through their template into `boardHexes`. Special
-placement logic belongs in the resolver and must match the real click handler.
+- [ ] Add a numeric import code to
+      [`src/data/pieceCodes.ts`](../src/data/pieceCodes.ts) only if the original
+      editor has one. Named `28xxx` records carry a CString name after RGBA and
+      use `virtualscapeNamedPieceCodes` in the same file.
+- [ ] Check import parsing and coordinate conversion in
+      [`src/data/readVirtualscapeMapFile.ts`](../src/data/readVirtualscapeMapFile.ts)
+      and [`src/data/buildupMap.ts`](../src/data/buildupMap.ts).
+      Virtualscape positions are odd-r; rotations and altitude can need conversion.
+- [ ] For a new or irregular footprint, measure a template map in Virtualscape:
+      place lava on the recorded/clicked hex and water on every other footprint
+      hex. Import it at each rotation and compare the water hexes to the template.
+- [ ] Store the import anchor/rotation correction in
+      [`src/data/rotationTransforms.ts`](../src/data/rotationTransforms.ts) and
+      [`src/data/readVirtualscapeMapFile.ts`](../src/data/readVirtualscapeMapFile.ts)
+      where needed. Keep the export inverse in
+      [`src/data/writeVirtualscapeMapFile.ts`](../src/data/writeVirtualscapeMapFile.ts)
+      and its rotation helpers in sync.
+- [ ] Add import and export cases to
+      [`src/__tests__/virtualscape-import.test.ts`](../src/__tests__/virtualscape-import.test.ts)
+      and [`src/__tests__/virtualscape-export.test.ts`](../src/__tests__/virtualscape-export.test.ts).
+      Round-trip origin, rotation, altitude, bases and linked add-ons where relevant.
+- [ ] Keep fixture-backed metadata in
+      [`src/data/virtualscapeTileMetadata.ts`](../src/data/virtualscapeTileMetadata.ts)
+      aligned with the Virtualscape fixture files.
 
-Check `src/data/interlock-templates.ts` and
-`src/data/interlock-rotations.ts` for piece interlocks. For a new terrain kind,
-update its solid/fluid classification and test support, stacking, conflicts,
-map edges, and removal. Do not infer physical clearances from the rendered
-model's bounds; verify them against the real piece.
+## 4. Wire the 3D renderer
 
-Useful focused tests include `place-and-remove.test.ts`, `placement.test.ts`,
-`click-placement.test.ts`, `replay-conflicts.test.ts`, and
-`terrain-constraints.test.ts`. Add a case to
-`src/__tests__/helpers/placementCases.ts` when the piece has a distinct click
-rule. Do not pin a particular altitude for fluid-on-fluid stacking; that
-behavior is being reworked on `dev`.
+- [ ] Check the effective tier in
+      [`src/world/MapDisplay3D.tsx`](../src/world/MapDisplay3D.tsx):
+      Low uses legacy land; Medium/High use per-hex land.
+- [ ] Reuse [`src/world/models/LandSubterrain.tsx`](../src/world/models/LandSubterrain.tsx)
+      for supported Low-tier land and
+      [`src/world/models/landHexInstances.ts`](../src/world/models/landHexInstances.ts)
+      for per-hex land. Medium loads diffuse arrays; High adds PBR arrays.
+- [ ] For non-land or special GLB pieces, add the asset under `public/`, wire
+      dispatch in [`src/world/MapBoardPiece3D.tsx`](../src/world/MapBoardPiece3D.tsx),
+      and update previews, picking and pointer forwarding.
+- [ ] Apply object transforms in Blender before export when the component uses
+      mesh geometry directly. Preserve names consumed by the component; pylon
+      beams are identified by `beam` in the mesh or material name.
+- [ ] Load GLBs through
+      [`src/world/models/useDisposableGLTF.ts`](../src/world/models/useDisposableGLTF.ts).
+      It reference-counts cached assets and disposes owned geometry, skeletons and
+      textures; do not dispose shared materials.
+- [ ] Check bounds, ground alignment, mesh names, UVs and embedded textures with
+      the focused GLB tests under [`src/__tests__/`](../src/__tests__/README.md).
+- [ ] For terrain textures, add source images under `textures/` (256×256 caps,
+      128×32 sides), configure
+      [`scripts/textures/terrain-textures.config.mjs`](../scripts/textures/terrain-textures.config.mjs),
+      then run `npm run textures:pack` and `npm run textures:check`.
+- [ ] Add the `HexTerrain` manifest mapping in
+      `src/world/models/landHexInstances.ts`. Do not hand-edit generated files in
+      `public/textures/`; verify mappings with
+      [`src/__tests__/textures-pack.test.ts`](../src/__tests__/textures-pack.test.ts).
+- [ ] Preserve the 14 vertex-attribute limit in
+      [`src/__tests__/land-hex-geometry.test.ts`](../src/__tests__/land-hex-geometry.test.ts).
+- [ ] Compare placement, hover, selection and drag in Low and per-hex modes.
+      Preserve `usePieceHoverState()` and hit-hex behavior where applicable.
 
-## 3. Wire the 3D renderer, preview, and interactions
+## 5. Check 2D exports
 
-`src/world/MapDisplay3D.tsx` chooses the land renderer by effective graphics
-tier:
+- [ ] Add terrain colors in
+      [`src/world/maphex/hexColors.ts`](../src/world/maphex/hexColors.ts) and
+      shared border decisions in
+      [`src/pdf-svg-shared/exportBorderColor.ts`](../src/pdf-svg-shared/exportBorderColor.ts).
+- [ ] SVG and PDF shapes are separate:
+      [`src/svg-map/SvgMapShapes.tsx`](../src/svg-map/SvgMapShapes.tsx) and
+      [`src/pdf-map/PdfMapShapes.tsx`](../src/pdf-map/PdfMapShapes.tsx).
+      Reuse [`src/pdf-svg-shared/`](../src/pdf-svg-shared/) for shared geometry.
+- [ ] Add a letter in [`src/utils/tileLetters.ts`](../src/utils/tileLetters.ts)
+      only when needed. Check contrast and buried marks in
+      [`src/utils/tileMarks.ts`](../src/utils/tileMarks.ts) and the related tests.
+- [ ] Add or update piece-key shapes and descriptions in
+      [`src/pdf-svg-shared/pieceKey.ts`](../src/pdf-svg-shared/pieceKey.ts) when
+      the piece needs a legend symbol.
+- [ ] Inspect both SVG and PDF when adding custom geometry.
+      [`src/__tests__/export-border-color.test.ts`](../src/__tests__/export-border-color.test.ts)
+      covers shared borders and representative rendered output.
+- [ ] Add the new piece's expected lines to
+      [`src/__tests__/__snapshots__/export-colors-lock.test.ts.snap`](../src/__tests__/__snapshots__/export-colors-lock.test.ts.snap).
+      Never change existing export colors without approval.
 
-1. **Low uses the legacy land renderer.** Ordinary land uses
-   `LandSubterrainInstanced` and `LandSubterrain`; caps use the existing cap
-   renderers. Reuse this generic path when the terrain and size are supported.
-2. **Medium and High use per-hex land.** The renderer builds a cap and sides per
-   land hex with `LandHexInstanced.tsx` and `landHexInstances.ts`. Medium uses
-   diffuse arrays; High adds PBR arrays. Add a new terrain's manifest mapping
-   to `LAND_HEX_TEXTURE_TERRAIN_NAMES` when it has textures.
-3. **Some pieces remain model-based.** Non-land pieces and special GLB terrain
-   use `MapBoardPiece3D.tsx` and their model assets/dispatch. If a land
-   subterrain must stay on the GLB path instead of per-hex land, register its
-   piece ID in `NON_INSTANCED_SUBTERRAIN_PIECES` in
-   `src/world/models/landHexInstances.ts`. Check `PiecePreview.tsx` and
-   `LandPieceGhost.tsx` for matching preview behavior.
+## 6. Wire inventory and community content
 
-For a custom model, add the component/asset, dispatch, preview, and any
-castle-specific `MapHex3D.tsx` dispatch. Check that the model and caps forward
-pointer events for painting, hover, and selection; preserve hit-hex behavior.
-Use `usePieceHoverState()` where appropriate. Compare placement, hover,
-selection, and drag behavior in Low and per-hex modes.
+- [ ] Add the owned count to
+      [`src/inventory/blankInventory.ts`](../src/inventory/blankInventory.ts) and
+      box counts to [`src/data/inventories.ts`](../src/data/inventories.ts).
+      Exclude only genuinely uninventoried or overlay pieces.
+- [ ] Set the set's `era` and `setType` in
+      [`src/data/terrainSets.ts`](../src/data/terrainSets.ts). Community sets use
+      era `community` and appear in the Community category in
+      [`src/controls/InventoryForm.tsx`](../src/controls/InventoryForm.tsx) and
+      [`src/layout/InputSetsUsedCard.tsx`](../src/layout/InputSetsUsedCard.tsx).
+- [ ] Mark a community set `isVC: true`. Use
+      [`src/data/vcContent.ts`](../src/data/vcContent.ts) helpers so
+      `includeVCContent` gates pieces and sets in menus, groups, inventory,
+      Sets to Build and Adapt. The Void Marker is VC but is not in set inventory.
+- [ ] Keep Community separate from classic/contemporary era logic; do not
+      classify it as either.
+- [ ] Test VC availability and map loading in
+      [`src/__tests__/void-and-pylons.test.ts`](../src/__tests__/void-and-pylons.test.ts)
+      and [`src/__tests__/vc-map-load.test.ts`](../src/__tests__/vc-map-load.test.ts).
+- [ ] Check the collection inventory in
+      [`src/inventory/ViewMapInventoryDialog.tsx`](../src/inventory/ViewMapInventoryDialog.tsx),
+      set recommendations in
+      [`src/inventory/SetsToBuildMapDialog.tsx`](../src/inventory/SetsToBuildMapDialog.tsx)
+      and substitutions in
+      [`src/controls/AdaptToCollectionDialog.tsx`](../src/controls/AdaptToCollectionDialog.tsx).
+- [ ] Add or extend focused tests in
+      [`src/__tests__/sets-to-build-map.test.ts`](../src/__tests__/sets-to-build-map.test.ts)
+      and [`src/__tests__/adapt-to-collection.test.ts`](../src/__tests__/adapt-to-collection.test.ts).
 
-## 4. Check SVG and PDF exports
+## 7. Test the piece
 
-Terrain colors live in `src/world/maphex/hexColors.ts` (`hexTerrainColor`,
-`terrainCapColors`, and SVG colors). Add a custom symbol only when the piece
-should look different from its terrain. SVG and PDF shape tables are separate:
-`src/svg-map/SvgMapShapes.tsx` and `src/pdf-map/PdfMapShapes.tsx`; their board
-piece and hex renderers are `SvgMapBoardPiece.tsx`, `PdfMapBoardPiece.tsx`,
-`SvgMapHex.tsx`, and `PdfMapHex.tsx`. Reuse
-`src/pdf-svg-shared/` for geometry shared by both exports.
+- [ ] Read [`src/__tests__/README.md`](../src/__tests__/README.md).
+      Tests characterize pure behavior; use existing board helpers instead of
+      mutating `boardHexes` directly.
+- [ ] Add focused cases for registration, placement/removal, conflicts,
+      support, rotation, inventory and serialization as applicable.
+      See [`src/__tests__/place-and-remove.test.ts`](../src/__tests__/place-and-remove.test.ts),
+      [`src/__tests__/replay-conflicts.test.ts`](../src/__tests__/replay-conflicts.test.ts)
+      and [`src/__tests__/terrain-constraints.test.ts`](../src/__tests__/terrain-constraints.test.ts).
+- [ ] A known defect uses `it.fails` and a title starting `KNOWN GAP:`.
+      It passes while the defect exists and goes red when fixed; change it to `it`
+      only while fixing that defect. Never weaken a test to get green.
+- [ ] Run focused tests, then the full suite and checks:
 
-If the terrain needs a letter, update `src/utils/tileLetters.ts` and check its
-contrast in `generic-terrain-colors.test.ts`. PDF buried-mark positioning also
-uses the terrain-letter advances in `src/pdf-map/pdfBuriedMarkPosition.ts`.
-Buried marks are selected in `src/utils/tileMarks.ts` and rendered by the SVG
-and PDF hex paths; test them with `tile-marks.test.ts` and
-`pdf-buried-mark-position.test.ts`.
+  ```sh
+  npm test -- src/__tests__/piece-registry.test.ts \
+    src/__tests__/registry-lifecycle.test.ts
+  npm test
+  npx tsc -b
+  npx @biomejs/biome lint ./src
+  npx @biomejs/biome format ./src
+  npm run build
+  ```
 
-`export-border-color.test.ts` covers shared border decisions, representative
-SVG markup, and rendered PDF output. It does not visually verify every shape
-or the full renderer dispatch; inspect both exports when adding custom geometry.
-Adding a piece adds lines to `src/__tests__/export-colors-lock.test.ts.snap`;
-existing lines must never change.
-
-## 5. Add terrain textures
-
-The source images are under `textures/`; packing writes runtime strips and
-`manifest.json` under `public/textures/`. To add a textured terrain:
-
-1. Add cap and side diffuse source images under `textures/` (256×256 caps,
-   128×32 sides). Do not edit existing sources.
-2. Add the terrain to `terrainTextures` in
-   `scripts/textures/terrain-textures.config.mjs`. Choose existing ORM and
-   normal templates, provide `flatColor` when appropriate, set the fluid flag,
-   and set `allowRandomRotation` intentionally.
-3. Run `npm run textures:pack`, then `npm run textures:check`. The pack command
-   generates the strips and manifest; the check command verifies the outputs.
-   Do not hand-edit generated files. Run `npm test` for the
-   `src/__tests__/textures-pack.test.ts` checks.
-4. Check the packed layer indices and dimensions in
-   `public/textures/manifest.json`.
-   A layer is `-1` when absent; otherwise it must be below the layer count of
-   its array. `textures-pack.test.ts` checks source existence, layer bounds,
-   strip dimensions, side repairs, fluid normals, and generated-output drift.
-
-Caps are 256×256 and sides are 128×32; side images are one face and one level
-high. Side diffuse layers are deduplicated by source image. Keep the existing
-packing and layer model rather than inventing a new atlas. Mipmapped GPU memory
-is estimated at 7.38 MiB for Medium and 17.48 MiB for High; Low uses no texture
-arrays. See [`docs/textures-plan.md`](textures-plan.md).
-
-Every terrain with a cap diffuse image allows random cap rotation. The texture
-packing test enforces this policy.
-
-The per-hex land geometry has a 14 vertex-attribute-location budget. The
-`keeps land geometry within the WebGL vertex-attribute budget` test in
-`src/__tests__/land-hex-geometry.test.ts` guards it. Do not add vertex
-attributes to the land shader; use an existing attribute or another supported
-representation, and keep the budget test passing.
-
-## 6. Declare port providers and edge or node features when applicable
-
-For a port provider (Laur pillars provide ports) or an edge- or
-node-positioned piece (Laur add-ons, battlements, road walls, rope ladders), add
-its declaration to `src/data/hexGrid/pieceFeatures.ts`. Add its terrain family
-to the sweep in `src/__tests__/piece-features.test.ts` if it introduces a new
-family. `edges-and-nodes.test.ts` and `piece-features.test.ts` verify coordinate
-conventions and adapter parity.
-
-Port pillars and the add-ons that clip into them (Laur pillars and walls, the
-Void and Pylons pylons and Deflector Shield) are data in
-[`src/data/portPieces.ts`](../src/data/portPieces.ts): a pillar declares its
-family, port directions and rotations; an add-on its family and span. Support,
-smart hover rotation, pen rotations and placement read that table, so a new
-family adds rows there plus its models.
-
-Laur placement, support, footprints and conflicts use the canonical typed edge
-and node IDs; altitude stays separate from the ID. Other consumers
-(battlements, road walls, ladders, drag and group transforms, rendering,
-picking, exports and edge/node occupancy) have not moved yet, and non-Laur
-declarations stay read-only. Keep the current boardPieces-only behavior for
-Laur add-ons. Get owner agreement on feature identity, support/conflict rules,
-and consumers before changing runtime behavior; see
-[`docs/edges-and-nodes-design.md`](edges-and-nodes-design.md).
-Laur footprint altitudes use the `BoardPiece` placement-altitude domain; convert
-the base to `BoardHex` altitude (`altitude + 1`) when checking hex occupants.
-
-Conflicts are checked by cell (hex interior, edge, node) for pieces declared in
-`pieceCellDeclarations`, next to the topology declarations. A piece that stands
-between hexes, like the Fortified Wall and Ruins, gets an edge/node footprint
-derived from its model; a piece whose base stays in the hex center gets
-`hex-center`. See "Adding an edge or node piece" in
-[`src/__tests__/README.md`](../src/__tests__/README.md).
-
-## 7. Run tests and check the app
-
-Tests are primarily pure-logic tests; read
-[`src/__tests__/README.md`](../src/__tests__/README.md) before adding one.
-These guards should catch incomplete registration, texture mappings, or
-geometry changes:
-
-- `piece-registry.test.ts` identifies missing registry data. The
-  `registry-lifecycle.test.ts` ratchet automatically exercises every registered
-  piece through placement, removal, drag, rotation, undo, and JSON load. Add
-  family-specific support in its `makeFixture` if required.
-- `textures-pack.test.ts` catches missing texture sources/configuration,
-  invalid manifest layers, incorrect strip dimensions/repairs, and output drift.
-- `land-hex-geometry.test.ts` fails if cap, side, or fluid geometry exceeds the
-  14-location vertex-attribute budget.
-
-Known gaps use `it.fails` and titles beginning `KNOWN GAP:`. They pass while the
-defect exists and go red when it is fixed; change such a test to `it` only when
-fixing that defect. Never weaken a test to make the suite green.
-
-Run focused checks while developing, then the full suite and build:
-
-```sh
-npm test -- src/__tests__/piece-registry.test.ts \
-  src/__tests__/registry-lifecycle.test.ts \
-  src/__tests__/textures-pack.test.ts \
-  src/__tests__/land-hex-geometry.test.ts
-npm test
-npx tsc -b
-npx @biomejs/biome lint ./src
-npx @biomejs/biome format ./src
-npm run build
-```
-
-For a browser check, read [`e2e/README.md`](../e2e/README.md). Open
-`/hs?e2e=1` (not `/`), wait for `window.__APP_READY__ === true`, and use the
-documented `window.__TEST__` helpers instead of guessed canvas coordinates.
-Use `&perHexLand=1&graphicsTier=medium` or `high` to exercise per-hex tiers.
-Evidence screenshots are temporary review aids; do not commit them.
-
-## 8. Add release notes when preparing a release
-
-User-facing release entries go in the root `release-notes.md`, not in this
-guide. Use a unique date heading such as `Oct-29-2026`, then an optional `TLDR:`
-line and one or more `- ` bullets. Keep the wording user-facing. The
-`src/__tests__/release-notes-format.test.ts` checks valid headings, unique IDs,
-and non-empty parsed entries. Do not edit release notes for a guide-only change.
-
-## Worked example: a hypothetical one-hex solid terrain
-
-Suppose the project approves a new solid terrain called Basalt with one piece,
-`basalt1`. These names are illustrative; confirm the real ID and terrain naming
-before using them. The Basalt image paths below are new files to create, not
-assets already in this checkout.
-
-1. In `src/types.ts`, add the approved `HexTerrain`, prefix, and `Pieces` ID.
-   In `src/utils/board-utils.ts`, classify the new terrain as solid.
-2. In `src/data/pieces.ts`, define the one-hex land piece with size `1`, height
-   `1`, and template `'1'`. That template already exists in
-   `src/data/tileTemplates.ts`, so do not edit it unless its footprint is
-   actually wrong.
-3. Add the count to `src/inventory/blankInventory.ts`, the approved set counts
-   to `src/data/inventories.ts`, and its grid placement to
-   `src/data/pieceGroups.ts`. Add its pen family/size handling in
-   `src/controls/PenModeControls.tsx`. Add a Virtualscape mapping only if one
-   exists.
-4. Add its 3D cap/side colors in `src/world/maphex/hexColors.ts`. If this is a
-   textured terrain, add `textures/caps/Basalt.png` and
-   `textures/sides/BasaltSide.png`, map them in
-   `scripts/textures/terrain-textures.config.mjs`, and add its `HexTerrain`
-   mapping in `src/world/models/landHexInstances.ts`. No custom GLB or shape is
-   needed when the generic solid-land paths and exports are correct.
-5. Add an export letter in `src/utils/tileLetters.ts` only if the terrain needs
-   one. Check SVG/PDF colors and buried marks; add custom shapes only if its
-   export appearance differs from a normal terrain hex.
-6. Run the registry, lifecycle, texture, and geometry tests shown above. Then
-   run `npm run textures:pack` and `npm run textures:check` for texture changes,
-   followed by `npm test`, `npx tsc -b`, the Biome checks, and `npm run build`.
-7. Open a draft PR targeting `dev`. After review and the owner's go-ahead, merge
-   to `dev`; do not merge directly to `main`. Add a release-note entry when
-   preparing the user-facing release.
-
-## Common mistakes
-
-- **Wrong registration is only discovered later.** A `Pieces` constant without
-  a definition, inventory count, set entry, group, or template is caught by the
-  registry checks. The lifecycle ratchet also needs a family fixture when a
-  piece requires special support.
-- **Land shader attributes exceed the hardware budget.** The land geometry
-  test counts geometry attributes plus the instanced matrix and color inputs.
-  Keep the 14-location limit; do not add a vertex attribute to solve per-piece
-  data needs.
-- **Texture-array upload flags are not ordinary 2D texture flags.** WebGL
-  rejects `flipY` and `premultiplyAlpha` for 3D texture uploads. Keep both
-  false on `DataArrayTexture`; row orientation is handled while preparing the
-  array data.
-- **Evidence files leak into the change.** E2E screenshots are temporary review
-  aids and should not be committed.
-- **Biome lines grow past the project style.** Keep source lines within the
-  project's 80-column limit and run the documented Biome checks.
-- **A custom model swallows clicks.** Preserve pointer forwarding for paint,
-  hover, selection, and drag; verify through the actual canvas path.
-- **A correct 3D model is mistaken for a correct export.** SVG and PDF shapes
-  are separate. Check both when adding a distinct symbol.
+- [ ] For browser coverage, read
+      [`e2e/README.md`](../e2e/README.md) and add a focused Playwright case when
+      behavior needs the real UI or canvas.
+- [ ] Open `/hs?e2e=1`, wait for `window.__APP_READY__ === true`, read state
+      from `window.__TEST__.snapshot()` and click using bridge positions, not
+      guessed canvas coordinates.
+- [ ] Check graphics tiers with
+      `&perHexLand=1&graphicsTier=medium` or `high`. The canvas is not visible to
+      accessibility snapshots; use the bridge and status element.
+- [ ] The bridge is for setup and read-only state; drive real UI actions for
+      the behavior under test. E2E screenshots are opt-in and should not be
+      committed by default.
