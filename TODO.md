@@ -5,25 +5,18 @@ One bullet per item, 80 characters or less. Same text as the Project doc
 
 ## In progress
 
-- 👤 Smoke-test v1.0.35 on the Windows desktop app (Tauri 2.12.6)
-- 👤 #453 Trim after a .hsc import keeps every Void Mat (click Merge)
-- #457 Void Mats show in 3D again (restore depth writes)
-- #459 Void Mats at level 0 in the SVG view, SVG export and PDF (cloud)
+- 👤 Smoke-test the Windows desktop app on the next release
+- Sentry: confirm the next web error reports the right release (#463)
 
 ## Next
 
 - 👤 Ask Caps if he wants a Virtualscape compatibility doc
-- Fortress Banner piece: 7 tall, on a battlement, striped in SVG/PDF
-- Fortress wall, arch, ladder, battlement models from Virtualscape files
-- Convert void mats to void markers and back
-- Sentry: confirm the first web error reports `hexoscape@1.0.35`
+- Fortress Banner piece: 7 tall, on a battlement (GLB from Virtualscape ready)
+- ❓ Fortress models: keep the Classic option, or drop it later
 - ❓ Confirm cells for obstacles still marked "full hex" (list in #404)
 - 👤 Check Ruins 2/3 cells with `?cells=1` (some may be 1 level off)
-- Laur add-ons on edge/node cells (no false flags next to walls)
-- Ships on cells against every piece, not just walls
 - ❓ Piece key font: Proxima Nova license, or free Sofia Sans Condensed
 - ❓ SVG key "Notice centers" wording, maybe "Size and border color"
-- More hotkey actions: inventory dialog, convert terrain
 - OHS picture preset: see-through jungle leaves, quiet glyphs, no table
 - SVG: classic shapes that don't scale well (Marvel ruin)
 - Virtualscape-style color option
@@ -32,7 +25,6 @@ One bullet per item, 80 characters or less. Same text as the Project doc
 - Edges and nodes step 7: occupancy and saving on edges
 - ❓ Snow trees texture plan (no Virtualscape model)
 - 👤 Laur Ruin 1 redo
-- Refresh the developer guide (`docs/adding-a-piece.md`)
 
 ## Upgrades (Dependabot skips these on purpose)
 
