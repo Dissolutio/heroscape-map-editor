@@ -4,7 +4,7 @@ import React from 'react'
 import { findVoidMatAtTableHex } from '../../../data/voidMat'
 import usePieceHoverState from '../../../hooks/usePieceHoverState'
 import useBoundStore from '../../../store/store'
-import { type BoardHex, HexTerrain } from '../../../types'
+import { type BoardHex, HexTerrain, SELECT_PEN_MODE } from '../../../types'
 import {
   HEXGRID_EMPTYHEX_HEIGHT,
   INSTANCE_LIMIT,
@@ -104,7 +104,13 @@ function EmptyHex({
 
   const handleEnter = (e: ThreeEvent<PointerEvent>) => {
     e.stopPropagation() // prevent this hover from passing through and affecting behind
-    const mat = voidMatAtHex()
+    // Only the select pen hovers the mat under this hex (to select or drag
+    // it). Every other pen hovers the hex itself, so its placement preview
+    // shows on top of the mat like on any empty hex.
+    const mat =
+      useBoundStore.getState().penMode === SELECT_PEN_MODE
+        ? voidMatAtHex()
+        : undefined
     if (mat) {
       onPointerEnterPID(e, mat.uid)
     } else {
