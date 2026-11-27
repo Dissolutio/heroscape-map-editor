@@ -90,8 +90,8 @@ export const defaultHotkeyConfig = {
   j: 'togglePenModeLaurJungleTree',
   'shift+j': 'togglePenModeTicallaPalm',
   'alt+j': undefined,
-  k: undefined,
-  'shift+k': undefined,
+  k: 'openMapInventory',
+  'shift+k': 'openConvertTerrainPicker',
   'alt+k': undefined,
   l: 'togglePenModeLavaField',
   'shift+l': 'togglePenModeLava',
@@ -289,10 +289,16 @@ export const HOTKEY_ACTIONS: {
   })),
   { id: 'saveSelection', label: 'Save selection', group: 'Selection' },
   {
+    id: 'openConvertTerrainPicker',
+    label: 'Convert terrain',
+    group: 'Selection',
+  },
+  {
     id: 'deleteSelectedPiece',
     label: 'Delete selected pieces',
     group: 'Selection',
   },
+  { id: 'openMapInventory', label: 'Open map inventory', group: 'Map' },
   { id: 'undoWorld', label: 'Undo', group: 'Undo and redo' },
   { id: 'redoWorld', label: 'Redo', group: 'Undo and redo' },
   { id: 'togglePenModeSelect', label: 'Select mode', group: 'Pens' },
@@ -471,6 +477,8 @@ const newDefaultHotkeyKeys = new Set([
   'shift+a',
   'shift+b',
   'shift+c',
+  'k',
+  'shift+k',
 ])
 const keyNames = new Set([
   'backspace',
