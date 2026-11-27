@@ -208,6 +208,7 @@ function VsPart({
       : color
   return (
     <mesh
+      name={partKey}
       receiveShadow={isLightsAndShadowsRender}
       castShadow={isLightsAndShadowsRender}
       geometry={geometry ?? node.geometry}

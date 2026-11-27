@@ -82,7 +82,7 @@ export const SETTINGS_DEFAULTS: SettingsValues = {
   useHighQualityForPicture: false,
   isDisplayCapHeights: false,
   isHideTableTop: false,
-  fortressModels: 'classic',
+  fortressModels: 'vs',
   useLegacyStartZones: false,
   isShowActionLog: true,
   pdfRenderFormat: 'coversheet',

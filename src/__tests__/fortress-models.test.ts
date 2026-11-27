@@ -49,8 +49,8 @@ const nodeBounds = (glb: GlbJson, name: string) => {
 }
 
 describe('which GLB each fortress piece uses', () => {
-  it('uses today’s models by default (Classic)', () => {
-    expect(SETTINGS_DEFAULTS.fortressModels).toBe('classic')
+  it('defaults to the Virtualscape models; Classic stays available', () => {
+    expect(SETTINGS_DEFAULTS.fortressModels).toBe('vs')
     expect(
       getFortressModelUrlsForPiece(Pieces.castleBaseCorner, 'classic'),
     ).toEqual(['/adjustable-castle-walls.glb'])
@@ -152,9 +152,9 @@ describe('the Fortress models setting', () => {
     expect(loadSettings().fortressModels).toBe('vs')
   })
 
-  it('falls back to Classic for unknown values', () => {
+  it('falls back to the default (Virtualscape) for unknown values', () => {
     store('virtualscape')
-    expect(loadSettings().fortressModels).toBe('classic')
+    expect(loadSettings().fortressModels).toBe('vs')
   })
 })
 
