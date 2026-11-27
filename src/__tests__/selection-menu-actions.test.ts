@@ -3,6 +3,7 @@ import { getPieceEdgeId } from '../data/hexGrid/pieceFeatures'
 import { hexesForEdge } from '../data/hexGrid/edgesAndNodes'
 import { getLaurAddonFeatureId } from '../data/laurAddonPlacement'
 import { piecesSoFar } from '../data/pieces'
+import { getVoidMatHexes } from '../data/voidMat'
 import {
   getHiddenSelectionPieces,
   getSelectionMenuItems,
@@ -642,6 +643,44 @@ describe('selection menu pure actions', () => {
 })
 
 describe('selection menu action registry', () => {
+  it('shows Void conversion actions only for eligible selections', () => {
+    const footprint = getVoidMatHexes({
+      inventoryID: Pieces.voidMat,
+      pieceCoords: { q: 0, r: 0, s: 0 },
+      rotation: 0,
+    })
+    const markers = footprint.map((pieceCoords, index) =>
+      piece(`marker-${index}`, Pieces.voidMarker, pieceCoords),
+    )
+    const markerBoard = {
+      ...makeTable(8),
+      boardPieces: markers,
+    }
+    const markerIDs = markers.map((marker) => marker.uid)
+    const idsFor = (selectedIDs: string[], boardPieces = markers) =>
+      getSelectionMenuItems(
+        selectionMenuActions,
+        context({ ...markerBoard, boardPieces }, selectedIDs, selectedIDs),
+      ).map(({ action }) => action.id)
+
+    expect(idsFor(markerIDs)).toContain('convert-void-markers-to-mat')
+    expect(idsFor(markerIDs.slice(0, 13))).not.toContain(
+      'convert-void-markers-to-mat',
+    )
+    expect(
+      idsFor(markerIDs, [
+        ...markers.slice(0, 13),
+        piece('wrong-marker', Pieces.voidMarker, { q: 20, r: 0, s: -20 }),
+      ]),
+    ).not.toContain('convert-void-markers-to-mat')
+
+    const mat = piece('void-mat', Pieces.voidMat, { q: 0, r: 0, s: 0 })
+    expect(idsFor([mat.uid], [mat])).toContain('convert-void-mat-to-markers')
+    expect(idsFor([mat.uid], [mat])).not.toContain(
+      'convert-void-markers-to-mat',
+    )
+  })
+
   it('orders selection actions and disables seed actions without a seed', () => {
     const table = makeTable(8)
     const board = put(table, Pieces.grass1, table.center, 0, 'grass')

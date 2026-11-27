@@ -157,14 +157,15 @@ export const pieceTopologyDeclarations = {
  *   edges and nodes in its footprint, each over its own levels, and no hex
  *   cell. Its boardHexes are kept only for rendering and support, and never
  *   displace another piece (see addPiece).
+ * - `laur-addon`: its attachment feature and blocked hexes are derived from
+ *   laurAddonFootprints.ts at the placed rotation.
  * - `footprint`: the piece owns its hexes like an undeclared piece, but
  *   against an edges-and-nodes piece it fills only its footprint: hex cells,
  *   and the edges and nodes its model reaches (the ships' hulls).
  *
- * To add one, derive its footprint table (scripts/derive-cell-footprints.mjs
- * writes pieceFootprints.ts) and add one entry here. No other code changes.
- * Port pillars and add-ons (Void and Pylons) derive theirs from their ports
- * in portPieces.ts instead; see portPillarFootprint and longAddonFootprint.
+ * For a static footprint, derive its table (scripts/derive-cell-footprints.mjs
+ * writes pieceFootprints.ts) and add one entry here. Port pieces derive their
+ * cells from portPieces.ts or laurAddonFootprints.ts instead.
  *
  * `rotationOffset: 0.5` declares the footprint at rotation 0.5, for a piece
  * that only takes half-step rotations (the Deflector Shield).
@@ -177,6 +178,7 @@ export type PieceCellDeclaration =
       rotationOffset?: 0 | 0.5
     }
   | { fills: 'footprint'; footprint: CellFootprint }
+  | { fills: 'laur-addon' }
 
 const ORIGIN = { q: 0, r: 0, s: 0 }
 
@@ -257,6 +259,14 @@ export const pieceCellDeclarations: Readonly<
     fills: 'edges-and-nodes',
     footprint: pieceFootprints[Pieces.ruins3],
   },
+  [Pieces.laurWallShort]: { fills: 'laur-addon' },
+  [Pieces.laurWallShortStackable]: { fills: 'laur-addon' },
+  [Pieces.laurWallLong]: { fills: 'laur-addon' },
+  [Pieces.laurWallLongStackable]: { fills: 'laur-addon' },
+  [Pieces.laurWallArch]: { fills: 'laur-addon' },
+  [Pieces.laurWallRuin1]: { fills: 'laur-addon' },
+  [Pieces.laurWallRuin2]: { fills: 'laur-addon' },
+  [Pieces.laurWallRuin3]: { fills: 'laur-addon' },
   [Pieces.shipWall]: {
     fills: 'footprint',
     footprint: pieceFootprints[Pieces.shipWall],

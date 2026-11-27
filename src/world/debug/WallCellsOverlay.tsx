@@ -19,8 +19,8 @@ import { cubeToPixel } from '../../utils/hex-utils'
 
 /*
  * Debug overlay for `?cells=1` (see src/e2e/isE2E.ts): the cells of every
- * wall (Fortified Wall, Ruins 2/3) and ship (Ship Wall, Ship Bow) at their
- * level ranges, as
+ * wall (Fortified Wall, Ruins 2/3), Laur add-on and ship (Ship Wall, Ship Bow)
+ * cells at their level ranges, as
  * pieceCells.ts sees them. A thin bar per edge and a thin post per node, each
  * with a bright marker at its top level. Drawn through the models and never
  * hit by the pointer. MapDisplay3D only loads this module with the flag on.

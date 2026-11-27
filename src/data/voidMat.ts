@@ -4,12 +4,17 @@ import type {
   BoardPieces,
   CubeCoordinate,
 } from '../types'
-import { HexTerrain } from '../types'
+import { HexTerrain, Pieces } from '../types'
 import { piecesSoFar } from './pieces'
 import getPieceTemplateCoords from './rotationTransforms'
 
 export const isVoidMatPieceID = (inventoryID: string) =>
   piecesSoFar[inventoryID]?.terrain === HexTerrain.voidMat
+
+export type VoidMatLayout = {
+  pieceCoords: CubeCoordinate
+  rotation: number
+}
 
 /** The full hexes a Void Mat or Marker occupies visually on the table. */
 export function getVoidMatHexes(
@@ -23,6 +28,49 @@ export function getVoidMatHexes(
     template: piece.template,
     isVsTile: false,
   })
+}
+
+/** Finds the Void Mat placement covered by exactly these level-0 markers. */
+export function findVoidMatLayoutForMarkers(
+  markers: readonly BoardPiece[],
+): VoidMatLayout | undefined {
+  if (
+    markers.length !== 14 ||
+    markers.some(
+      (marker) =>
+        marker.inventoryID !== Pieces.voidMarker || marker.altitude !== 0,
+    )
+  ) {
+    return undefined
+  }
+
+  const markerHexIDs = new Set(
+    markers.map(({ pieceCoords: { q, r, s } }) => `${q},${r},${s}`),
+  )
+  if (markerHexIDs.size !== 14) return undefined
+
+  for (const marker of markers) {
+    for (let rotation = 0; rotation < 6; rotation += 1) {
+      const layout = {
+        pieceCoords: marker.pieceCoords,
+        rotation,
+      }
+      const matHexIDs = new Set(
+        getVoidMatHexes({
+          inventoryID: Pieces.voidMat,
+          ...layout,
+        }).map(({ q, r, s }) => `${q},${r},${s}`),
+      )
+      if (
+        matHexIDs.size === markerHexIDs.size &&
+        [...matHexIDs].every((hexID) => markerHexIDs.has(hexID))
+      ) {
+        return layout
+      }
+    }
+  }
+
+  return undefined
 }
 
 /**

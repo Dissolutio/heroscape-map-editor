@@ -37,17 +37,24 @@ import {
   isLaurWallAddonPieceID,
   isShipPieceID,
 } from '../../utils/board-utils'
-import { hexUtilsRotateAroundOrigin_000 } from '../../utils/hex-utils'
+import {
+  hexUtilsAdd,
+  hexUtilsRotateAroundOrigin_000,
+} from '../../utils/hex-utils'
 import {
   getPillarPorts,
+  getPortPillar,
   getPortAddonEnds,
   isSamePortFamily,
 } from '../portPieces'
 import { getLaurAddonFootprint } from '../laurAddonFootprints'
+import { piecesSoFar } from '../pieces'
 import {
   getObstructedLevelOffsets,
   type ObstructionEntry,
+  verticalObstructionTemplates,
 } from '../vertical-obstruction-templates'
+import { SHIP_NOTCH_OFFSETS } from '../tileTemplates'
 import {
   type HexEdgeId,
   type HexNodeId,
@@ -83,10 +90,11 @@ export function getPieceCellDeclaration(inventoryID: string) {
 
 /** Pieces that stand between hexes (on edges and nodes), not in them. */
 export function isEdgeNodePieceID(inventoryID: string | undefined) {
-  return (
-    inventoryID !== undefined &&
-    pieceCellDeclarations[inventoryID]?.fills === 'edges-and-nodes'
-  )
+  const fills =
+    inventoryID === undefined
+      ? undefined
+      : pieceCellDeclarations[inventoryID]?.fills
+  return fills === 'edges-and-nodes' || fills === 'laur-addon'
 }
 
 /**
@@ -100,7 +108,7 @@ export function isFootprintPieceID(inventoryID: string | undefined) {
   )
 }
 
-/** Pieces with a derived cell footprint: walls and ships. */
+/** Pieces with a derived cell footprint: walls, Laur add-ons and ships. */
 export function hasCellFootprint(inventoryID: string | undefined) {
   return isEdgeNodePieceID(inventoryID) || isFootprintPieceID(inventoryID)
 }
@@ -180,6 +188,29 @@ export function getPieceFootprintCells(piece: CellPiece): FilledCell[] {
   const signature = pieceSignature(piece)
   const cached = cellsByPiece.get(piece)
   if (cached?.signature === signature) return cached.cells
+  if (pieceCellDeclarations[piece.inventoryID]?.fills === 'laur-addon') {
+    const footprint = getLaurAddonFootprint({
+      inventoryID: piece.inventoryID,
+      anchor: piece.pieceCoords,
+      altitude: piece.altitude,
+      rotation: piece.rotation,
+    })
+    const cells = footprint
+      ? [
+          footprint.featureId,
+          ...footprint.blockedHexes.map(
+            ({ q, r, s }) => `hex:${q},${r},${s}` as PieceCellId,
+          ),
+        ].map((cell) => ({
+          cell,
+          bottom: footprint.altitude,
+          top: footprint.altitude + footprint.heightInLevels,
+          hexes: hexesTouchingCell(cell),
+        }))
+      : []
+    cellsByPiece.set(piece, { signature, cells })
+    return cells
+  }
   const footprints = getRotatedFootprints(piece.inventoryID)
   // A half-step piece declares its footprint at rotation 0.5.
   const declaration = pieceCellDeclarations[piece.inventoryID]
@@ -208,6 +239,29 @@ export function getPieceFootprintCells(piece: CellPiece): FilledCell[] {
       hexes: hexesTouchingCell(cell),
     }
   })
+  if (isShipPieceID(piece.inventoryID)) {
+    const notchEntries = verticalObstructionTemplates[piece.inventoryID]?.slice(
+      -SHIP_NOTCH_OFFSETS.length,
+    )
+    if (notchEntries?.length === SHIP_NOTCH_OFFSETS.length) {
+      for (const [index, offset] of SHIP_NOTCH_OFFSETS.entries()) {
+        const coords = hexUtilsAdd(
+          piece.pieceCoords,
+          hexUtilsRotateAroundOrigin_000(offset, rotation),
+        )
+        const offsets = getObstructedLevelOffsets(notchEntries[index])
+        const cell = `hex:${normalizeZero(coords.q)},${normalizeZero(
+          coords.r,
+        )},${normalizeZero(coords.s)}` as PieceCellId
+        cells.push({
+          cell,
+          bottom: base + Math.min(...offsets),
+          top: base + Math.max(...offsets) + 1,
+          hexes: [coords],
+        })
+      }
+    }
+  }
   cellsByPiece.set(piece, { signature, cells })
   return cells
 }
@@ -259,21 +313,67 @@ export function getEdgeNodePieceColumns(piece: CellPiece): CubeCoordinate[] {
   return [...columns.values()]
 }
 
-/**
- * The edge and node cells a boardHex fills (its hex cell aside, which no
- * edges-and-nodes piece shares). Default pieces fill all 12. Hex-center
- * pieces fill none, and pieces with a cell footprint present that instead.
- */
-function getBoardHexEdgeNodeCells(hex: BoardHex): (HexEdgeId | HexNodeId)[] {
+function getBoardHexCells(
+  hex: BoardHex,
+  piece: CellPiece,
+  boardPieces: BoardPieces,
+): PieceCellId[] {
+  if (!hex.boardPieceUID || hasCellFootprint(hex.inventoryID)) return []
   if (
-    !hex.boardPieceUID ||
-    hasCellFootprint(hex.inventoryID) ||
-    isHexCenterPieceID(hex.inventoryID)
+    pieceCellDeclarations[piece.inventoryID]?.fills === 'laur-addon' &&
+    getPortPillar(hex.inventoryID)?.family === 'laur'
   ) {
     return []
   }
   const coords = { q: hex.q, r: hex.r, s: hex.s }
-  return [...edgesForHex(coords), ...nodesForHex(coords)]
+  const occupantID =
+    boardPieces.find(({ uid }) => uid === hex.boardPieceUID)?.inventoryID ??
+    hex.inventoryID
+  if (
+    pieceCellDeclarations[piece.inventoryID]?.fills === 'laur-addon' &&
+    isSupportedLaurAddonEndGround(piece, coords, occupantID, boardPieces)
+  ) {
+    return []
+  }
+  const hexCell = `hex:${hex.q},${hex.r},${hex.s}` as PieceCellId
+  if (isHexCenterPieceID(hex.inventoryID)) return [hexCell]
+  return [hexCell, ...edgesForHex(coords), ...nodesForHex(coords)]
+}
+
+function isSupportedLaurAddonEndGround(
+  addon: CellPiece,
+  coords: CubeCoordinate,
+  inventoryID: string,
+  boardPieces: BoardPieces,
+) {
+  if (pieceCellDeclarations[addon.inventoryID]?.fills !== 'laur-addon') {
+    return false
+  }
+  const footprint = getLaurAddonFootprint({
+    inventoryID: addon.inventoryID,
+    anchor: addon.pieceCoords,
+    altitude: addon.altitude,
+    rotation: addon.rotation,
+  })
+  if (
+    !footprint?.endHexes.some(
+      (end) => end.q === coords.q && end.r === coords.r && end.s === coords.s,
+    )
+  ) {
+    return false
+  }
+  return (
+    Boolean(piecesSoFar[inventoryID]?.isHexTerrainPiece) &&
+    boardPieces.some(
+      (pillar) =>
+        getPortPillar(pillar.inventoryID)?.family === 'laur' &&
+        pillar.pieceCoords.q === coords.q &&
+        pillar.pieceCoords.r === coords.r &&
+        pillar.pieceCoords.s === coords.s &&
+        pillar.altitude >= footprint.altitude &&
+        pillar.altitude < footprint.altitude + footprint.heightInLevels,
+    )
+  )
 }
 
 const overlaps = (bottom: number, top: number, other: FilledCell) =>
@@ -281,7 +381,7 @@ const overlaps = (bottom: number, top: number, other: FilledCell) =>
 
 type IndexedCell = FilledCell & {
   uid: string
-  /** An edges-and-nodes piece (a wall), not a footprint piece. */
+  /** An edges-and-nodes piece, not a footprint piece. */
   isWall: boolean
   piece: CellPiece
 }
@@ -317,6 +417,17 @@ function isPluggedPort(first: CellPiece, second: CellPiece, cell: string) {
         pillarPorts.includes(end.rotation),
     ) ?? false
   )
+}
+
+function preservesLaurAddonRules(first: CellPiece, second: CellPiece) {
+  const firstIsLaurAddon =
+    pieceCellDeclarations[first.inventoryID]?.fills === 'laur-addon'
+  const secondIsLaurAddon =
+    pieceCellDeclarations[second.inventoryID]?.fills === 'laur-addon'
+  if (!firstIsLaurAddon && !secondIsLaurAddon) return false
+  if (firstIsLaurAddon && secondIsLaurAddon) return true
+  const pillar = getPortPillar((firstIsLaurAddon ? second : first).inventoryID)
+  return pillar?.family === 'laur'
 }
 
 const columnKey = ({ q, r }: CubeCoordinate) => `${q},${r}`
@@ -458,18 +569,6 @@ export function findCellConflicts({
   boardPieces: BoardPieces
 }): string[] {
   const conflicts = new Set<string>()
-  if (isLaurWallAddonPieceID(piece.inventoryID)) {
-    const addonCells = getLaurAddonCells(piece)
-    const indexedCells = getEdgeNodeIndex(boardPieces).byCell
-    for (const cell of addonCells) {
-      for (const other of indexedCells.get(cell.cell) ?? []) {
-        if (other.uid !== uid && overlaps(cell.bottom, cell.top, other)) {
-          conflicts.add(other.uid)
-        }
-      }
-    }
-    return [...conflicts]
-  }
   if (isFootprintPieceID(piece.inventoryID)) {
     const walls = getEdgeNodeIndex(boardPieces).byCell
     const compareAllCells = isShipPieceID(piece.inventoryID)
@@ -481,6 +580,7 @@ export function findCellConflicts({
             isShipPieceID(wall.piece.inventoryID) ||
             isLaurWallAddonPieceID(wall.piece.inventoryID)) &&
           wall.uid !== uid &&
+          !preservesLaurAddonRules(piece, wall.piece) &&
           overlaps(cell.bottom, cell.top, wall) &&
           !isPluggedPort(piece, wall.piece, cell.cell)
         ) {
@@ -529,6 +629,7 @@ export function findCellConflicts({
       for (const other of others.get(cell.cell) ?? []) {
         if (
           other.uid !== uid &&
+          !preservesLaurAddonRules(piece, other.piece) &&
           overlaps(cell.bottom, cell.top, other) &&
           !isPluggedPort(piece, other.piece, cell.cell)
         ) {
@@ -553,7 +654,7 @@ export function findCellConflicts({
       for (let altitude = bottom + 0.5; altitude < top + 1; altitude += 0.5) {
         const hex = boardHexes[hexKey(coords, altitude)]
         if (!hex?.boardPieceUID || hex.boardPieceUID === uid) continue
-        for (const hexCell of getBoardHexEdgeNodeCells(hex)) {
+        for (const hexCell of getBoardHexCells(hex, piece, boardPieces)) {
           const cell = cellsByID.get(hexCell)
           if (cell && overlaps(altitude - 1, altitude, cell)) {
             conflicts.add(hex.boardPieceUID)
@@ -565,9 +666,7 @@ export function findCellConflicts({
     return [...conflicts]
   }
 
-  if (writtenHexes.length === 0) {
-    return []
-  }
+  if (writtenHexes.length === 0) return []
   const walls = getEdgeNodeIndex(boardPieces)
   if (walls.byCell.size === 0) return []
   for (const hex of writtenHexes) {
@@ -583,11 +682,18 @@ export function findCellConflicts({
     }
     if (!isHexCenterPieceID(piece.inventoryID)) {
       if (!walls.columns.has(columnKey(hex))) continue
-      for (const cell of getBoardHexEdgeNodeCells(hex)) {
+      for (const cell of getBoardHexCells(hex, piece, boardPieces)) {
         for (const wall of walls.byCell.get(cell) ?? []) {
           if (
             wall.isWall &&
             wall.uid !== uid &&
+            !preservesLaurAddonRules(piece, wall.piece) &&
+            !isSupportedLaurAddonEndGround(
+              wall.piece,
+              hex,
+              piece.inventoryID,
+              boardPieces,
+            ) &&
             overlaps(hex.altitude - 1, hex.altitude, wall)
           ) {
             conflicts.add(wall.uid)
