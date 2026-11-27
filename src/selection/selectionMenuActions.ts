@@ -5,6 +5,8 @@ import {
 } from '../data/hexGrid/pieceFeatures'
 import { edgeIdFromHex, hexesForEdge } from '../data/hexGrid/edgesAndNodes'
 import { piecesSoFar } from '../data/pieces'
+import { boardPiecesUseVC } from '../data/vcContent'
+import { findVoidMatLayoutForMarkers } from '../data/voidMat'
 import {
   isGlyphBoardPiece,
   isStartZoneBoardPiece,
@@ -83,6 +85,9 @@ export type SelectionMenuContext = {
   contextPieceUID?: string
   convertTerrainDisabledReason?: string
   openConvertTerrainPicker?: () => void
+  includeVCContent?: boolean
+  convertVoidMatToMarkers?: (pieceUIDs: string[]) => void
+  convertVoidMarkersToMat?: (pieceUIDs: string[]) => void
   deleteSelectedPieces: () => void
   pickPieceAsPen: (pieceUID: string) => void
 }
@@ -92,6 +97,7 @@ export type SelectionMenuAction = {
   label: string
   group: string
   tooltip: string
+  isVisible?: (ctx: SelectionMenuContext) => boolean
   isEnabled: (ctx: SelectionMenuContext) => boolean
   disabledReason: (ctx: SelectionMenuContext) => string | undefined
   run: (ctx: SelectionMenuContext) => void
@@ -516,6 +522,27 @@ function getUseAsPenPieceUID(ctx: SelectionMenuContext) {
 const canUseAsPen = (ctx: SelectionMenuContext) =>
   ctx.selectedPieceIDs.length === 1 && getUseAsPenPieceUID(ctx) !== undefined
 
+function canShowVoidConversions(ctx: SelectionMenuContext) {
+  return ctx.includeVCContent || boardPiecesUseVC(ctx.boardPieces)
+}
+
+function getSelectedVoidMats(ctx: SelectionMenuContext) {
+  const selectedIDs = new Set(ctx.selectedPieceIDs)
+  return ctx.boardPieces.filter(
+    (piece) =>
+      selectedIDs.has(piece.uid) && piece.inventoryID === Pieces.voidMat,
+  )
+}
+
+function getSelectedVoidMatLayout(ctx: SelectionMenuContext) {
+  if (ctx.selectedPieceIDs.length !== 14) return undefined
+  const selectedIDs = new Set(ctx.selectedPieceIDs)
+  const selectedPieces = ctx.boardPieces.filter((piece) =>
+    selectedIDs.has(piece.uid),
+  )
+  return findVoidMatLayoutForMarkers(selectedPieces)
+}
+
 export const selectionMenuActions: SelectionMenuAction[] = [
   {
     id: 'same-type',
@@ -569,6 +596,37 @@ export const selectionMenuActions: SelectionMenuAction[] = [
     run: (ctx) => ctx.openConvertTerrainPicker?.(),
   },
   {
+    id: 'convert-void-mat-to-markers',
+    label: 'Convert to Void Markers',
+    group: 'piece-actions',
+    tooltip:
+      'Replace each selected Void Mat with markers on its 14 full hexes.',
+    isVisible: (ctx) =>
+      canShowVoidConversions(ctx) && getSelectedVoidMats(ctx).length > 0,
+    isEnabled: (ctx) =>
+      canShowVoidConversions(ctx) && getSelectedVoidMats(ctx).length > 0,
+    disabledReason: () => 'Select a Void Mat.',
+    run: (ctx) =>
+      ctx.convertVoidMatToMarkers?.(
+        getSelectedVoidMats(ctx).map((piece) => piece.uid),
+      ),
+  },
+  {
+    id: 'convert-void-markers-to-mat',
+    label: 'Convert to Void Mat',
+    group: 'piece-actions',
+    tooltip: 'Replace these 14 markers with a matching Void Mat.',
+    isVisible: (ctx) =>
+      canShowVoidConversions(ctx) &&
+      getSelectedVoidMatLayout(ctx) !== undefined,
+    isEnabled: (ctx) =>
+      canShowVoidConversions(ctx) &&
+      getSelectedVoidMatLayout(ctx) !== undefined,
+    disabledReason: () =>
+      'Select exactly 14 level-0 Void Markers matching a Void Mat.',
+    run: (ctx) => ctx.convertVoidMarkersToMat?.([...ctx.selectedPieceIDs]),
+  },
+  {
     id: 'delete',
     label: 'Delete',
     group: 'piece-actions',
@@ -614,12 +672,14 @@ export function getSelectionMenuItems(
   actions: readonly SelectionMenuAction[],
   ctx: SelectionMenuContext,
 ): SelectionMenuActionItem[] {
-  return actions.map((action) => {
-    const enabled = action.isEnabled(ctx)
-    return {
-      action,
-      enabled,
-      ...(!enabled ? { disabledReason: action.disabledReason(ctx) } : {}),
-    }
-  })
+  return actions
+    .filter((action) => action.isVisible?.(ctx) !== false)
+    .map((action) => {
+      const enabled = action.isEnabled(ctx)
+      return {
+        action,
+        enabled,
+        ...(!enabled ? { disabledReason: action.disabledReason(ctx) } : {}),
+      }
+    })
 }

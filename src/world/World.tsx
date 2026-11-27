@@ -305,6 +305,13 @@ const World = ({
   const isShowStartZones = useBoundStore((s) => s.isShowStartZones)
   const isShowGlyphs = useBoundStore((s) => s.isShowGlyphs)
   const setSelectedPieceIDs = useBoundStore((s) => s.setSelectedPieceIDs)
+  const includeVCContent = useBoundStore((s) => s.includeVCContent)
+  const convertVoidMatToMarkers = useBoundStore(
+    (s) => s.convertVoidMatToMarkers,
+  )
+  const convertVoidMarkersToMat = useBoundStore(
+    (s) => s.convertVoidMarkersToMat,
+  )
   const isDraggingPiece = useBoundStore((s) => s.isDraggingPiece)
   const isOrthoCam = useBoundStore((s) => s.isOrthoCam)
   const isLightsAndShadowsRender = useBoundStore(
@@ -436,6 +443,9 @@ const World = ({
     isShowStartZones,
     isShowGlyphs,
     setSelectedPieceIDs,
+    includeVCContent,
+    convertVoidMatToMarkers,
+    convertVoidMarkersToMat,
     contextPieceUID: selectionMenuTargetPieceUID,
     deleteSelectedPieces,
     pickPieceAsPen: (pieceUID) =>
