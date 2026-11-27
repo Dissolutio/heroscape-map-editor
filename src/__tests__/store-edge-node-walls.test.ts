@@ -7,10 +7,16 @@
  * replay of boardPieces would, and undo/redo must restore each step exactly.
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { produce } from 'immer'
+import { addPiece } from '../data/addPiece'
 import { buildupJsonFileMap } from '../data/buildupMap'
+import { getPlacementPreviewState } from '../data/placementPreview'
 import { piecesSoFar } from '../data/pieces'
 import { rebuildBoardStateFromPieces } from '../data/rebuildBoardState'
+import { getShipDeckPointerHex } from '../data/shipDeck'
+import { SHIP_NOTCH_OFFSETS } from '../data/tileTemplates'
 import { type BoardPiece, type HexMap, type MapState, Pieces } from '../types'
+import { hexUtilsAdd, hexUtilsRotateAroundOrigin_000 } from '../utils/hex-utils'
 
 vi.mock('notistack', () => ({ enqueueSnackbar: vi.fn() }))
 
@@ -174,6 +180,50 @@ describe('walls in the store', () => {
       redo()
       expect(snapshot()).toEqual(steps[i])
     }
+  })
+
+  it('does not retain draft Ship Wall cells when painting a deck tile', () => {
+    const ship = bp('ship', Pieces.shipWall, 5, 6, 0, 3)
+    load([ship])
+    const notch = hexUtilsAdd(
+      ship.pieceCoords,
+      hexUtilsRotateAroundOrigin_000(SHIP_NOTCH_OFFSETS[0], ship.rotation),
+    )
+    const current = store.getState()
+    const board = produce(
+      {
+        boardHexes: current.boardHexes,
+        boardPieces: current.boardPieces,
+      },
+      (draft) => {
+        const placed = addPiece({
+          piece: piecesSoFar.g1,
+          boardHexes: draft.boardHexes,
+          boardPieces: draft.boardPieces,
+          pieceCoords: notch,
+          placementAltitude: 6,
+          rotation: 0,
+          isVsTile: false,
+          uid: 'land',
+          permissive: true,
+        })
+        draft.boardHexes = placed.newBoardHexes
+        draft.boardPieces = placed.newBoardPieces
+      },
+    )
+
+    expect(() => {
+      const placedShip = board.boardPieces.find(
+        (piece) => piece.uid === ship.uid,
+      )
+      if (!placedShip) throw new Error('Ship Wall was not retained')
+      getPlacementPreviewState(
+        piecesSoFar.g1,
+        getShipDeckPointerHex(placedShip, 'forward', board.boardHexes),
+        0,
+        board,
+      )
+    }).not.toThrow()
   })
 
   it('removing a piece that took a wall hex gives the hex back to the wall, as a replay would', () => {

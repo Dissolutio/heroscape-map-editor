@@ -94,10 +94,12 @@ export function addPiece({
   const trackDisplaced = (hexID: string) => {
     claimedHexIDs.push(hexID)
     const existing = newBoardHexes[hexID]
+    // A ship/whole-hex pair is resolved by cell overlap below.
     if (
       existing?.boardPieceUID &&
       existing.boardPieceUID !== uid &&
       !isEdgeNodePieceID(existing.inventoryID) &&
+      isShipPieceID(piece.id) === isShipPieceID(existing.inventoryID) &&
       !(
         existing.boardPieceUID === supportingLaurPillar?.uid &&
         existing.isVerticalClearanceHex
@@ -938,7 +940,7 @@ export function addPiece({
       writtenHexes: claimedHexIDs
         .map((id) => newBoardHexes[id])
         .filter((hex) => hex?.boardPieceUID === uid),
-      boardHexes: newBoardHexes,
+      boardHexes,
       boardPieces,
     })) {
       displacedUIDs.add(conflictUID)

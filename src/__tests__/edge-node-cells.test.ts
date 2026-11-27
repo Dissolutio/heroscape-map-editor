@@ -5,10 +5,9 @@
  * Every piece fills cells (hex interior, edge, node) over level ranges, and
  * two pieces conflict when they fill the same cell at an overlapping level.
  * Undeclared pieces fill the hex cell, 6 edges and 6 nodes of every hex they
- * write; the walls fill only their footprint's edges and nodes, and against a
- * wall the ships fill only their footprint's hex cells, edges and nodes (both
- * derived from the 3D models, src/data/hexGrid/pieceFootprints.ts); the
- * Cannon and the glyphs fill only their hex cell.
+ * write; the walls fill only their footprint's edges and nodes. Ships use
+ * their derived model cells against cell pieces and compare only hex cells
+ * with whole-hex pieces. The Cannon and glyphs fill only their hex cell.
  *
  * Wall at origin O, rotation 0 (see pieceFootprints.ts for the diagram):
  * - FW at O+(-2,1) shares edge:-2,1,1 with it (two walls end to end);
@@ -36,6 +35,7 @@ import { pieceCellDeclarations } from '../data/hexGrid/pieceFeatures'
 import { pieceFootprints } from '../data/hexGrid/pieceFootprints'
 import { piecesSoFar } from '../data/pieces'
 import { getPlacementPreviewState } from '../data/placementPreview'
+import { SHIP_NOTCH_OFFSETS } from '../data/tileTemplates'
 import {
   computeConflictedPieceUIDs,
   rebuildBoardStateFromPieces,
@@ -53,6 +53,7 @@ import getPieceTemplateCoords from '../data/rotationTransforms'
 import {
   getHexObstructionOffsets,
   getObstructedLevelOffsets,
+  verticalObstructionTemplates,
 } from '../data/vertical-obstruction-templates'
 import fortifiedWallsAndRuins from './fixtures/fortified-walls-and-ruins.json'
 import twinIronsDockyard from './fixtures/twin-irons-dockyard.json'
@@ -213,7 +214,7 @@ describe('the cell rule', () => {
     ).toEqual(['ship', 'wall'])
   })
 
-  it('ships keep owning their hexes against everything but walls', () => {
+  it('ships conflict with overlapping whole-hex cells and preserve ship-vs-ship rules', () => {
     expect(
       conflictsOn(bp('ship', Pieces.shipWall, O), bp('land', 'g1', at(1, 0))),
     ).toEqual(['land', 'ship'])
@@ -223,6 +224,98 @@ describe('the cell rule', () => {
         bp('other', Pieces.shipWall, at(3, 0)),
       ),
     ).toEqual(['other', 'ship'])
+  })
+
+  it('a Ship Wall notch conflicts with level 2 land in either placement order', () => {
+    const ship = bp('ship', Pieces.shipWall, O)
+    for (const notch of [at(1, -1), at(2, -1)]) {
+      const land = bp('land', 'g1', notch, 2)
+      expect(conflictsOn(ship, land)).toEqual(['land', 'ship'])
+      expect(conflictsOn(land, ship)).toEqual(['land', 'ship'])
+    }
+  })
+
+  it('a Ship Wall at rotation 3 leaves level 7 open in both notches', () => {
+    const ship = bp('ship', Pieces.shipWall, O, 0, 3)
+    const notches = SHIP_NOTCH_OFFSETS.map((offset) =>
+      hexUtilsAdd(O, hexUtilsRotateAroundOrigin_000(offset, 3)),
+    )
+
+    for (const [index, notch] of notches.entries()) {
+      expect(
+        computeConflictedPieceUIDs([
+          ship,
+          bp(`deck-${index}`, 'g1', notch, 6),
+        ]).sort(),
+      ).toEqual([])
+      expect(
+        computeConflictedPieceUIDs([
+          ship,
+          bp(`level-2-${index}`, 'g1', notch, 1),
+        ]).sort(),
+      ).toEqual([`level-2-${index}`, 'ship'])
+    }
+  })
+
+  it('a Ship Wall does not conflict with pieces beside its notch', () => {
+    const ship = bp('ship', Pieces.shipWall, O)
+    const besideNotch = at(3, -2)
+
+    expect(conflictsOn(ship, bp('tree', Pieces.tree10, besideNotch))).toEqual(
+      [],
+    )
+    expect(
+      conflictsOn(ship, bp('outcrop', Pieces.outcrop3, besideNotch)),
+    ).toEqual([])
+    expect(
+      conflictsOn(
+        ship,
+        bp('land-lower', 'g1', besideNotch, 1),
+        bp('land-upper', 'g1', besideNotch, 2),
+      ),
+    ).toEqual([])
+  })
+
+  it('a tree in a Ship Wall hex conflicts', () => {
+    expect(
+      conflictsOn(bp('ship', Pieces.shipWall, O), bp('tree', Pieces.tree10, O)),
+    ).toEqual(['ship', 'tree'])
+    expect(
+      conflictsOn(bp('tree', Pieces.tree10, O), bp('ship', Pieces.shipWall, O)),
+    ).toEqual(['ship', 'tree'])
+  })
+
+  it('a glyph in a Ship Wall hex conflicts', () => {
+    expect(
+      conflictsOn(
+        bp('ship', Pieces.shipWall, O),
+        bp('glyph', Pieces.glyphPower, O),
+      ),
+    ).toEqual(['glyph', 'ship'])
+  })
+
+  it('ships conflict with overlapping Laur attachment cells in either order', () => {
+    const ship = bp('ship', Pieces.shipWall, O)
+    const shortAddon = bp('short-addon', Pieces.laurWallShort, O)
+    const longAddon = bp('long-addon', Pieces.laurWallLong, O, 1, 0.5)
+    const wall = bp('wall', Pieces.fortifiedWall, O)
+
+    expect(conflictsOn(ship, shortAddon)).toEqual(['ship', 'short-addon'])
+    expect(conflictsOn(shortAddon, ship)).toEqual(['ship', 'short-addon'])
+    expect(conflictsOn(ship, longAddon)).toEqual(['long-addon', 'ship'])
+    expect(conflictsOn(longAddon, ship)).toEqual(['long-addon', 'ship'])
+    expect(conflictsOn(wall, shortAddon)).toEqual(['short-addon', 'wall'])
+    expect(conflictsOn(shortAddon, wall)).toEqual(['short-addon', 'wall'])
+  })
+
+  it('the Ship Bow figurehead conflicts only at its blocked levels', () => {
+    const figurehead = at(-1, 0)
+    const bow = bp('bow', Pieces.shipBow, O)
+
+    expect(conflictsOn(bow, bp('land-below', 'g1', figurehead, 2))).toEqual([])
+    expect(
+      conflictsOn(bow, bp('land-same-level', 'g1', figurehead, 3)),
+    ).toEqual(['bow', 'land-same-level'])
   })
 
   it('a glyph in a hex next to the wall edge does not conflict; with land in its hex it does, as before', () => {
@@ -338,8 +431,29 @@ describe('footprints', () => {
       .sort()
 
   it.each(footprintPieces)(
-    '%s at rotation 0 matches the table',
+    '%s at rotation 0 matches the model table and ship notch cells',
     (inventoryID) => {
+      const expected = new Map(
+        Object.entries(pieceFootprints[inventoryID]).map(([cell, entry]) => {
+          const offsets = getObstructedLevelOffsets(entry)
+          return [cell, [Math.min(...offsets), Math.max(...offsets) + 1]]
+        }),
+      )
+      if (inventoryID === Pieces.shipWall || inventoryID === Pieces.shipBow) {
+        const notchEntries =
+          verticalObstructionTemplates[inventoryID]?.slice(
+            -SHIP_NOTCH_OFFSETS.length,
+          ) ?? []
+        expect(notchEntries).toHaveLength(SHIP_NOTCH_OFFSETS.length)
+        for (const [index, offset] of SHIP_NOTCH_OFFSETS.entries()) {
+          const entry = notchEntries[index]
+          if (!entry) throw new Error(`Missing ${inventoryID} notch levels`)
+          const coords = hexUtilsRotateAroundOrigin_000(offset, 0)
+          const cell = `hex:${coords.q},${coords.r},${coords.s}`
+          const levels = getObstructedLevelOffsets(entry)
+          expected.set(cell, [Math.min(...levels), Math.max(...levels) + 1])
+        }
+      }
       expect(
         Object.fromEntries(
           cellsAt(inventoryID, 0).map(({ cell, bottom, top }) => [
@@ -347,14 +461,7 @@ describe('footprints', () => {
             [bottom, top],
           ]),
         ),
-      ).toEqual(
-        Object.fromEntries(
-          Object.entries(pieceFootprints[inventoryID]).map(([cell, entry]) => {
-            const offsets = getObstructedLevelOffsets(entry)
-            return [cell, [Math.min(...offsets), Math.max(...offsets) + 1]]
-          }),
-        ),
-      )
+      ).toEqual(Object.fromEntries(expected))
     },
   )
 

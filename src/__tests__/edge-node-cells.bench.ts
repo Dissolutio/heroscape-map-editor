@@ -43,6 +43,21 @@ function makeManyWalls(): BoardPieces {
 }
 const manyWalls = makeManyWalls()
 
+function makeManyShips(): BoardPieces {
+  return Array.from({ length: 200 }, (_, index) => {
+    const q = (index % 20) * 12
+    const r = Math.floor(index / 20) * 12
+    return {
+      uid: `ship-${index}`,
+      inventoryID: index % 2 === 0 ? Pieces.shipWall : Pieces.shipBow,
+      altitude: 1,
+      rotation: index % 6,
+      pieceCoords: { q, r, s: -q - r },
+    }
+  })
+}
+const manyShips = makeManyShips()
+
 describe('edge/node cell replay', () => {
   bench('twin-irons-dockyard replay', () => {
     rebuildBoardStateFromPieces(dockyard)
@@ -52,5 +67,8 @@ describe('edge/node cell replay', () => {
   })
   bench('200 walls on land replay', () => {
     rebuildBoardStateFromPieces(manyWalls)
+  })
+  bench('200 ships on a large map replay', () => {
+    rebuildBoardStateFromPieces(manyShips)
   })
 })
