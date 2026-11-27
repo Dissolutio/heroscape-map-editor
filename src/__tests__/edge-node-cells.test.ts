@@ -235,6 +235,28 @@ describe('the cell rule', () => {
     }
   })
 
+  it('a Ship Wall at rotation 3 leaves level 7 open in both notches', () => {
+    const ship = bp('ship', Pieces.shipWall, O, 0, 3)
+    const notches = SHIP_NOTCH_OFFSETS.map((offset) =>
+      hexUtilsAdd(O, hexUtilsRotateAroundOrigin_000(offset, 3)),
+    )
+
+    for (const [index, notch] of notches.entries()) {
+      expect(
+        computeConflictedPieceUIDs([
+          ship,
+          bp(`deck-${index}`, 'g1', notch, 6),
+        ]).sort(),
+      ).toEqual([])
+      expect(
+        computeConflictedPieceUIDs([
+          ship,
+          bp(`level-2-${index}`, 'g1', notch, 1),
+        ]).sort(),
+      ).toEqual([`level-2-${index}`, 'ship'])
+    }
+  })
+
   it('a Ship Wall does not conflict with pieces beside its notch', () => {
     const ship = bp('ship', Pieces.shipWall, O)
     const besideNotch = at(3, -2)
