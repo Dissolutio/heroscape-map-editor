@@ -468,6 +468,27 @@ function TestBridgeInner() {
         Object.values(useBoundStore.getState().boardHexes)
           .filter((hex) => hex.boardPieceUID === uid)
           .map(({ q, r, altitude, terrain }) => ({ q, r, altitude, terrain })),
+      fortressBounds: (uid) => {
+        const scene = get().scene
+        scene.updateMatrixWorld(true)
+        const box = new Box3()
+        scene.traverse((object) => {
+          if (object.userData.fortressUID !== uid) return
+          object.traverse((child) => {
+            if (!(child instanceof Mesh) || !child.visible) return
+            const materials = Array.isArray(child.material)
+              ? child.material
+              : [child.material]
+            if (materials.every((m) => m.colorWrite === false)) return
+            box.expandByObject(child, true)
+          })
+        })
+        if (box.isEmpty()) return null
+        return {
+          min: round4Vector(box.min),
+          max: round4Vector(box.max),
+        }
+      },
       listRenderedObjectiveMarkerUIDs: () => {
         const uids: string[] = []
         get().scene.traverse((object) => {

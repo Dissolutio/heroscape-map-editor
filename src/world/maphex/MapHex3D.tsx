@@ -64,6 +64,8 @@ export const MapHex3D = ({
   if (!isVisible) {
     return null
   }
+  // lets the e2e bridge measure the drawn model (fortressBounds)
+  const fortressUserData = { fortressUID: boardHex.boardPieceUID }
 
   // castle pieces render from their hexes: drag-to-move hooks (press to
   // drag a selected one; while dragging another piece, this is a target)
@@ -112,6 +114,7 @@ export const MapHex3D = ({
           <group
             position={[x, yBase, z]}
             rotation={[0, pieceRotation, 0]}
+            userData={fortressUserData}
             {...dragHandlers}
           >
             <Suspense fallback={<ModelLoader />}>
@@ -140,6 +143,7 @@ export const MapHex3D = ({
           <group
             position={[x, yBase - 0.005, z]}
             rotation={[0, pieceRotation, 0]}
+            userData={fortressUserData}
             {...dragHandlers}
           >
             <Suspense fallback={<ModelLoader />}>
@@ -169,6 +173,7 @@ export const MapHex3D = ({
         <group
           position={[x, yBase, z]}
           rotation={[0, pieceRotation, 0]}
+          userData={fortressUserData}
           {...dragHandlers}
         >
           <Suspense fallback={<ModelLoader />}>
