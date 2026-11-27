@@ -1,11 +1,19 @@
 import type { ThreeEvent } from '@react-three/fiber'
 import { useMemo } from 'react'
 import {
-  type BufferGeometry,
+  BufferAttribute,
+  BufferGeometry,
   MeshBasicMaterial,
   type MeshStandardMaterial,
 } from 'three'
 import useBoundStore from '../../store/store'
+import {
+  fitMeshHeights,
+  gather,
+  type HeightFit,
+  type IndexedMesh,
+  measureSource,
+} from './fortressHeightFit'
 import { basicModelMaterial } from './materials'
 import { useTexturedModelMaterial } from './texturedModelMaterial'
 import { useDisposableGLTF } from './useDisposableGLTF'
@@ -54,10 +62,87 @@ export function useVsNodes(url: string) {
   return nodes as Record<string, VsNode>
 }
 
-/** The node's walkable top (converter extras), or `fallback`. */
-export function vsWalkableTop(node: VsNode | undefined, fallback: number) {
-  const top = node?.userData?.walkableTop
-  return typeof top === 'number' && top > 0 ? top : fallback
+const geometryPositions = (geometry: BufferGeometry) =>
+  geometry.getAttribute('position').array as ArrayLike<number>
+
+const asIndexedMesh = (geometry: BufferGeometry): IndexedMesh => {
+  const normal = geometry.getAttribute('normal')
+  return {
+    positions: geometryPositions(geometry),
+    normals: normal ? (normal.array as ArrayLike<number>) : null,
+    index: geometry.getIndex()?.array ?? null,
+  }
+}
+
+/** A model's true bottom and shoulder (see measureSource). */
+export function measureVsSource(
+  nodes: VsNode[],
+  shoulder: 'walkway' | 'top',
+): Pick<HeightFit, 'srcBottom' | 'srcShoulder'> {
+  const walkway = nodes[0]?.userData?.walkableTop
+  return measureSource(
+    nodes.map((node) => asIndexedMesh(node.geometry)),
+    shoulder === 'walkway' && typeof walkway === 'number' ? walkway : null,
+  )
+}
+
+// One fitted geometry per source geometry and target, so walls of the same
+// height share; dropped when the GLB's own geometry is disposed.
+const fittedGeometries = new WeakMap<
+  BufferGeometry,
+  Map<string, BufferGeometry>
+>()
+
+export function getFittedGeometry(
+  source: BufferGeometry,
+  fit: HeightFit,
+  keepReceiver: boolean,
+) {
+  let byKey = fittedGeometries.get(source)
+  if (!byKey) {
+    const cache = new Map<string, BufferGeometry>()
+    byKey = cache
+    fittedGeometries.set(source, cache)
+    source.addEventListener('dispose', () => {
+      for (const geometry of cache.values()) geometry.dispose()
+      cache.clear()
+    })
+  }
+  const key = [
+    fit.srcBottom,
+    fit.srcShoulder,
+    fit.dstBottom,
+    fit.dstTop,
+    keepReceiver,
+  ].join('|')
+  const cached = byKey.get(key)
+  if (cached) return cached
+  const fitted = fitMeshHeights(asIndexedMesh(source), fit, { keepReceiver })
+  const geometry = new BufferGeometry()
+  geometry.setAttribute('position', new BufferAttribute(fitted.positions, 3))
+  if (fitted.normals) {
+    geometry.setAttribute('normal', new BufferAttribute(fitted.normals, 3))
+  }
+  for (const [name, attribute] of Object.entries(source.attributes)) {
+    if (name !== 'position' && name !== 'normal') {
+      geometry.setAttribute(
+        name,
+        new BufferAttribute(
+          gather(
+            attribute.array as ArrayLike<number>,
+            fitted.keptVertices,
+            attribute.itemSize,
+          ),
+          attribute.itemSize,
+        ),
+      )
+    }
+  }
+  geometry.setIndex(new BufferAttribute(fitted.index, 1))
+  geometry.computeBoundingBox()
+  geometry.computeBoundingSphere()
+  byKey.set(key, geometry)
+  return geometry
 }
 
 /** Nodes named `name` or `name_<material>`, in file order. */
@@ -73,6 +158,8 @@ const OWN_COLOR_MATERIALS = ['_fer', '_boulon']
 
 type PartProps = {
   node: VsNode
+  /** The geometry to draw; the node's own when not given. */
+  geometry?: BufferGeometry
   partKey: string
   color: string
   isHighlighted: boolean
@@ -87,6 +174,7 @@ type PartProps = {
 
 function VsPart({
   node,
+  geometry,
   partKey,
   color,
   isHighlighted,
@@ -122,7 +210,7 @@ function VsPart({
     <mesh
       receiveShadow={isLightsAndShadowsRender}
       castShadow={isLightsAndShadowsRender}
-      geometry={node.geometry}
+      geometry={geometry ?? node.geometry}
       material={
         (sourceMaterials ? node.material : texturedMaterial) ??
         basicModelMaterial(
@@ -136,28 +224,59 @@ function VsPart({
   )
 }
 
-export type VsFit = (walkableTop: number) => {
-  scaleY: number
-  offsetY?: number
+/** Where a fitted model must land, in the classic model's frame. */
+export type VsTarget = {
+  dstBottom: number
+  dstTop: number
+  /** What the next piece rests on: the walkway below a receiver, or the top. */
+  shoulder: 'walkway' | 'top'
+  /** False drops the receiver (a covered top). Default true. */
+  keepReceiver?: boolean
+  /** Measure the source from these nodes instead (the door uses the arch). */
+  source?: Pick<HeightFit, 'srcBottom' | 'srcShoulder'>
 }
 
-type VsModelProps = Omit<PartProps, 'node' | 'partKey'> & {
+type VsModelProps = Omit<PartProps, 'node' | 'partKey' | 'geometry'> & {
   url: string
   name: string
-  /** Fits the model in Y from its walkable top; none leaves it as drawn. */
-  fitY?: VsFit
+  /** Fits the model's heights to the classic ones; none draws it as is. */
+  target?: VsTarget
 }
 
 /** Every part of one model node, with one colour and one set of handlers. */
-export function VsModel({ url, name, fitY, ...partProps }: VsModelProps) {
+export function VsModel({ url, name, target, ...partProps }: VsModelProps) {
   const nodes = useVsNodes(url)
   const parts = vsNodeParts(nodes, name)
-  const top = vsWalkableTop(parts[0]?.node, 1)
-  const { scaleY, offsetY = 0 } = fitY ? fitY(top) : { scaleY: 1 }
+  const source =
+    target?.source ??
+    (target
+      ? measureVsSource(
+          parts.map(({ node }) => node),
+          target.shoulder,
+        )
+      : null)
   return (
-    <group position={[0, offsetY, 0]} scale={[1, scaleY, 1]}>
+    <group>
       {parts.map(({ key, node }) => (
-        <VsPart key={key} partKey={key} node={node} {...partProps} />
+        <VsPart
+          key={key}
+          partKey={key}
+          node={node}
+          geometry={
+            target && source
+              ? getFittedGeometry(
+                  node.geometry,
+                  {
+                    ...source,
+                    dstBottom: target.dstBottom,
+                    dstTop: target.dstTop,
+                  },
+                  target.keepReceiver ?? true,
+                )
+              : undefined
+          }
+          {...partProps}
+        />
       ))}
     </group>
   )

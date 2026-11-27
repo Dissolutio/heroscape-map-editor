@@ -4,7 +4,7 @@ import useBoundStore from '../../store/store'
 import { HexTerrain } from '../../types'
 import { PIECE_PREVIEW_OPACITY } from '../../utils/constants'
 import { hexTerrainColor } from '../maphex/hexColors'
-import { getFortressModelUrl } from './fortressModels'
+import { getFortressModelUrl, vsFitTarget } from './fortressModels'
 import { basicModelMaterial } from './materials'
 import { useDisposableGLTF } from './useDisposableGLTF'
 import { useFortressModelSet } from './useFortressModelSet'
@@ -44,6 +44,7 @@ export function Battlement({ pid }: { pid: string }) {
       <VsModel
         url={getFortressModelUrl('fortressBattlement', 'vs')}
         name="VsFortressBattlement"
+        target={vsFitTarget('fortressBattlement')}
         color={hexTerrainColor[HexTerrain.battlement]}
         isHighlighted={isHighlighted}
         pid={pid}
@@ -79,6 +80,7 @@ export function BattlementPreview({ opacity }: { opacity?: number }) {
       <VsModel
         url={getFortressModelUrl('fortressBattlement', 'vs')}
         name="VsFortressBattlement"
+        target={vsFitTarget('fortressBattlement')}
         color={color}
         isHighlighted={false}
         opacity={opacityLevel}

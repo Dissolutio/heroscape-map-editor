@@ -160,6 +160,16 @@ export type E2ETestBridge = {
   listPieceHexes: (
     uid: string,
   ) => Array<{ q: number; r: number; altitude: number; terrain: string }>
+  /**
+   * World bounds of a fortress piece's visible 3D model (castle base, wall,
+   * arch, ladder or battlement; classic or Virtualscape), rounded to 4
+   * places, or null when none is mounted. Invisible click targets are left
+   * out.
+   */
+  fortressBounds: (uid: string) => {
+    min: [number, number, number]
+    max: [number, number, number]
+  } | null
   /** UIDs mounted in the 3D objective-marker layer. */
   listRenderedObjectiveMarkerUIDs: () => string[]
   /** UIDs whose 3D glyph models are mounted. */

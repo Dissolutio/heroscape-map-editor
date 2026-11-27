@@ -14,8 +14,9 @@ import {
   type CastleShape,
   getFortressModelUrl,
   vsCastleNodeName,
-  vsWallScaleY,
+  vsFitTarget,
 } from './fortressModels'
+import { isFortressTopCovered } from './fortressCover'
 import { basicModelMaterial } from './materials'
 import { useDisposableGLTF } from './useDisposableGLTF'
 import { useFortressModelSet } from './useFortressModelSet'
@@ -42,6 +43,16 @@ export function CastleWall({ boardHex, onPointerUp }: Props) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useDisposableGLTF('/adjustable-castle-walls.glb') as any
   const isVs = useFortressModelSet() === 'vs'
+  // VS only: a piece on top hides the receiver (one shared board lookup)
+  const isTopCovered = useBoundStore(
+    (s) =>
+      isVs &&
+      isFortressTopCovered(
+        s.boardHexes,
+        s.viewingLevel,
+        boardHex.boardPieceUID ?? '',
+      ),
+  )
   const capUserData = isVs
     ? fortressCapUserData(boardHex.boardPieceUID ?? '')
     : undefined
@@ -109,7 +120,7 @@ export function CastleWall({ boardHex, onPointerUp }: Props) {
         <VsModel
           url={getFortressModelUrl('castleWall', 'vs')}
           name={vsCastleNodeName('Wall', wallShape(pieceID))}
-          fitY={(top) => ({ scaleY: vsWallScaleY(scaleY, top) })}
+          target={vsFitTarget('castleWall', { scaleY, isTopCovered })}
           color={hexTerrainColor[HexTerrain.castleWall]}
           isHighlighted={isHighlighted}
           pid={boardHex.boardPieceUID ?? ''}
@@ -211,7 +222,7 @@ export function CastleWallPreview({
       <VsModel
         url={getFortressModelUrl('castleWall', 'vs')}
         name={vsCastleNodeName('Wall', shape)}
-        fitY={(top) => ({ scaleY: vsWallScaleY(scaleY, top) })}
+        target={vsFitTarget('castleWall', { scaleY })}
         color={color}
         isHighlighted={false}
         opacity={opacityLevel}

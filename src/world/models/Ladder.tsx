@@ -4,7 +4,7 @@ import useBoundStore from '../../store/store'
 import { type BoardHex, type BoardPiece, HexTerrain, Pieces } from '../../types'
 import { PIECE_PREVIEW_OPACITY } from '../../utils/constants'
 import { hexTerrainColor } from '../maphex/hexColors'
-import { getFortressModelUrl } from './fortressModels'
+import { getFortressModelUrl, vsFitTarget } from './fortressModels'
 import { basicModelMaterial } from './materials'
 import { useDisposableGLTF } from './useDisposableGLTF'
 import { useFortressModelSet } from './useFortressModelSet'
@@ -66,6 +66,7 @@ export function Ladder({
       <VsModel
         url={getFortressModelUrl('fortressLadder', 'vs')}
         name="VsFortressLadder"
+        target={vsFitTarget('fortressLadder')}
         color={hexTerrainColor[HexTerrain.ladder]}
         isHighlighted={isHighlighted}
         pid={bp.uid}
@@ -100,6 +101,7 @@ export function LadderPreview() {
       <VsModel
         url={getFortressModelUrl('fortressLadder', 'vs')}
         name="VsFortressLadder"
+        target={vsFitTarget('fortressLadder')}
         color={color}
         isHighlighted={false}
         opacity={PIECE_PREVIEW_OPACITY}

@@ -16,11 +16,7 @@ import {
 } from '../../utils/hex-utils'
 import { genBoardHexID } from '../../utils/map-utils'
 import { hexTerrainColor } from '../maphex/hexColors'
-import {
-  CLASSIC_ARCH_TOP,
-  getFortressModelUrl,
-  vsArchScaleY,
-} from './fortressModels'
+import { getFortressModelUrl, vsFitTarget } from './fortressModels'
 import { basicModelMaterial } from './materials'
 import { useDisposableGLTF } from './useDisposableGLTF'
 import { useFortressModelSet } from './useFortressModelSet'
@@ -28,10 +24,10 @@ import {
   deferToOwnCap,
   fortressCapUserData,
   invisibleHitMaterial,
+  measureVsSource,
   useVsNodes,
   VsModel,
   vsNodeParts,
-  vsWalkableTop,
 } from './VsFortressMeshes'
 
 type Props = {
@@ -59,15 +55,21 @@ function VsArch({
 }) {
   const archUrl = getFortressModelUrl('fortressArch', 'vs')
   const archNodes = useVsNodes(archUrl)
-  const top = vsWalkableTop(
-    vsNodeParts(archNodes, 'VsFortressArch')[0]?.node,
-    CLASSIC_ARCH_TOP,
-  )
+  // The door is fitted with the arch's own bottom and top, so it stays put
+  // inside the arch.
+  const target = {
+    ...vsFitTarget('fortressArch'),
+    source: measureVsSource(
+      vsNodeParts(archNodes, 'VsFortressArch').map(({ node }) => node),
+      'top',
+    ),
+  }
   return (
-    <group scale={[1, vsArchScaleY(top), 1]}>
+    <group>
       <VsModel
         url={archUrl}
         name="VsFortressArch"
+        target={target}
         color={hexTerrainColor[HexTerrain.castleWall]}
         isHighlighted={isHighlighted}
         pid={pid}
@@ -78,6 +80,7 @@ function VsArch({
         <VsModel
           url={getFortressModelUrl('fortressDoor', 'vs')}
           name="VsFortressDoor"
+          target={target}
           color={hexTerrainColor.castleDoor}
           isHighlighted={isHighlighted}
           pid={pid}

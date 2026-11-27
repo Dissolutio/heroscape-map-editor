@@ -11,11 +11,18 @@ import {
   getFortressModelUrlsForPiece,
   resolveFortressModelSet,
   VS_FORTRESS_BANNER_URL,
-  vsArchScaleY,
-  vsBaseTransformY,
+  CLASSIC_HEIGHTS,
+  classicWallTop,
   vsCastleNodeName,
-  vsWallScaleY,
+  vsFitTarget,
 } from '../world/models/fortressModels'
+import {
+  fitMeshHeights,
+  heightRange,
+  type IndexedMesh,
+  measureSource,
+  remapHeight,
+} from '../world/models/fortressHeightFit'
 
 type GlbJson = {
   nodes: Array<{
@@ -214,21 +221,206 @@ describe('the Virtualscape GLBs', () => {
     }
   })
 
-  it('carry walkable tops that fit the classic tops', () => {
-    const wallTop = nodeBounds(wall, 'VsCastleWallStraight').node.extras
-      ?.walkableTop
-    const baseTop = nodeBounds(base, 'VsCastleBaseStraight').node.extras
-      ?.walkableTop
-    const archTop = nodeBounds(arch, 'VsFortressArch_tile').node.extras
-      ?.walkableTop
-    expect(wallTop).toBeCloseTo(2.95, 2)
-    expect(baseTop).toBeCloseTo(0.32, 2)
-    expect(archTop).toBeCloseTo(3.5, 2)
-    if (!wallTop || !baseTop || !archTop) return
-    // A 9-level wall on land: the classic cap top is at 9.99 * 0.35 + 0.1.
-    expect(vsWallScaleY(9.99, wallTop) * wallTop).toBeCloseTo(3.5965, 4)
-    const { scale, offset } = vsBaseTransformY(baseTop)
-    expect(offset + scale * baseTop).toBeCloseTo(0.45, 4)
-    expect(vsArchScaleY(archTop) * archTop).toBeCloseTo(3.6, 4)
+  it('carry the walkway heights the fit starts from', () => {
+    const top = (glb: GlbJson, name: string) =>
+      nodeBounds(glb, name).node.extras?.walkableTop
+    expect(top(wall, 'VsCastleWallStraight')).toBeCloseTo(2.95, 2)
+    expect(top(base, 'VsCastleBaseStraight')).toBeCloseTo(0.32, 2)
+    expect(top(arch, 'VsFortressArch_tile')).toBeCloseTo(3.5, 2)
+  })
+})
+
+// The real GLBs, fitted exactly as the app fits them.
+type GlbMesh = { name: string; extras?: { walkableTop?: number } } & IndexedMesh
+
+function readGlbMeshes(url: string): GlbMesh[] {
+  const buffer = readFileSync(resolve(process.cwd(), 'public', url.slice(1)))
+  const jsonLength = buffer.readUInt32LE(12)
+  const json = JSON.parse(buffer.toString('utf8', 20, 20 + jsonLength))
+  const binStart = 20 + jsonLength + 8
+  const read = (accessorIndex: number) => {
+    const accessor = json.accessors[accessorIndex]
+    const view = json.bufferViews[accessor.bufferView]
+    const offset =
+      binStart + (view.byteOffset ?? 0) + (accessor.byteOffset ?? 0)
+    const size = { SCALAR: 1, VEC2: 2, VEC3: 3 }[accessor.type as string] ?? 1
+    const count = accessor.count * size
+    const bytes = buffer.buffer.slice(
+      buffer.byteOffset + offset,
+      buffer.byteOffset +
+        offset +
+        count * (accessor.componentType === 5123 ? 2 : 4),
+    )
+    if (accessor.componentType === 5126) return new Float32Array(bytes)
+    if (accessor.componentType === 5123) return new Uint16Array(bytes)
+    return new Uint32Array(bytes)
+  }
+  return json.nodes.map(
+    (node: {
+      name: string
+      mesh: number
+      extras?: { walkableTop?: number }
+    }) => {
+      const primitive = json.meshes[node.mesh].primitives[0]
+      return {
+        name: node.name,
+        extras: node.extras,
+        positions: read(primitive.attributes.POSITION),
+        normals: read(primitive.attributes.NORMAL),
+        index: read(primitive.indices),
+      }
+    },
+  )
+}
+
+const meshesNamed = (url: string, name: string) =>
+  readGlbMeshes(url).filter(
+    (mesh) => mesh.name === name || mesh.name.startsWith(`${name}_`),
+  )
+
+/** Fits like VsModel; returns the drawn height range and the walkway top. */
+function fitLikeTheApp(
+  meshes: GlbMesh[],
+  target: ReturnType<typeof vsFitTarget>,
+  source = measureSource(
+    meshes,
+    target.shoulder === 'walkway'
+      ? (meshes[0].extras?.walkableTop ?? null)
+      : null,
+  ),
+) {
+  const fit = { ...source, dstBottom: target.dstBottom, dstTop: target.dstTop }
+  const fitted = meshes.map((mesh) =>
+    fitMeshHeights(mesh, fit, { keepReceiver: target.keepReceiver }),
+  )
+  return { ...heightRange(fitted), source, fit }
+}
+
+describe('the fitted Virtualscape models land on the classic bottoms and tops', () => {
+  const shapes = ['Corner', 'Straight', 'End'] as const
+  for (const shape of shapes) {
+    for (const levels of [9, 10]) {
+      it(`${shape} wall, ${levels} levels: bottom, shoulder and receiver`, () => {
+        const meshes = meshesNamed(
+          '/vs-castle-wall.glb',
+          vsCastleNodeName('Wall', shape),
+        )
+        const scaleY = levels + 0.99
+        const bare = fitLikeTheApp(
+          meshes,
+          vsFitTarget('castleWall', { scaleY }),
+        )
+        const receiver = heightRange(meshes).max - bare.source.srcShoulder
+        expect(receiver).toBeGreaterThan(0.3) // about one level, the male part
+        expect(bare.min).toBeCloseTo(0, 5)
+        expect(remapHeight(bare.source.srcShoulder, bare.fit)).toBeCloseTo(
+          classicWallTop(scaleY),
+          5,
+        )
+        // the receiver keeps its real height above the classic top
+        expect(bare.max - classicWallTop(scaleY)).toBeCloseTo(receiver, 4)
+        // covered: nothing above the classic top
+        const covered = fitLikeTheApp(
+          meshes,
+          vsFitTarget('castleWall', { scaleY, isTopCovered: true }),
+        )
+        expect(covered.min).toBeCloseTo(0, 5)
+        expect(covered.max).toBeCloseTo(classicWallTop(scaleY), 2)
+      })
+    }
+
+    it(`${shape} base: nothing below the classic bottom, receiver kept or dropped`, () => {
+      const meshes = meshesNamed(
+        '/vs-castle-base.glb',
+        vsCastleNodeName('Base', shape),
+      )
+      const bare = fitLikeTheApp(meshes, vsFitTarget('castleBase'))
+      expect(bare.min).toBeCloseTo(CLASSIC_HEIGHTS.castleBase.bottom, 5)
+      expect(remapHeight(bare.source.srcShoulder, bare.fit)).toBeCloseTo(
+        CLASSIC_HEIGHTS.castleBase.top,
+        5,
+      )
+      const receiver = heightRange(meshes).max - bare.source.srcShoulder
+      expect(bare.max - CLASSIC_HEIGHTS.castleBase.top).toBeCloseTo(receiver, 4)
+      const covered = fitLikeTheApp(
+        meshes,
+        vsFitTarget('castleBase', { isTopCovered: true }),
+      )
+      expect(covered.min).toBeCloseTo(0, 5)
+      expect(covered.max).toBeCloseTo(CLASSIC_HEIGHTS.castleBase.top, 2)
+    })
+  }
+
+  it('arch and door: the arch spans the classic arch exactly, the door inside it', () => {
+    const archMeshes = meshesNamed('/vs-fortress-arch.glb', 'VsFortressArch')
+    const target = vsFitTarget('fortressArch')
+    const archFit = fitLikeTheApp(archMeshes, target)
+    expect(archFit.min).toBeCloseTo(CLASSIC_HEIGHTS.fortressArch.bottom, 5)
+    expect(archFit.max).toBeCloseTo(CLASSIC_HEIGHTS.fortressArch.top, 5)
+    const door = fitLikeTheApp(
+      meshesNamed('/vs-fortress-door.glb', 'VsFortressDoor'),
+      target,
+      archFit.source,
+    )
+    expect(door.min).toBeGreaterThanOrEqual(0)
+    expect(door.max).toBeLessThan(CLASSIC_HEIGHTS.fortressArch.top)
+  })
+
+  it('ladder: bottom and top rung on the classic ones, hooks above', () => {
+    const ladder = fitLikeTheApp(
+      meshesNamed('/vs-fortress-ladder.glb', 'VsFortressLadder'),
+      vsFitTarget('fortressLadder'),
+    )
+    expect(ladder.min).toBeCloseTo(CLASSIC_HEIGHTS.fortressLadder.bottom, 5)
+    expect(remapHeight(ladder.source.srcShoulder, ladder.fit)).toBeCloseTo(
+      CLASSIC_HEIGHTS.fortressLadder.top,
+      5,
+    )
+  })
+
+  it('battlement: spans the classic battlement exactly', () => {
+    const battlement = fitLikeTheApp(
+      meshesNamed('/vs-fortress-battlement.glb', 'VsFortressBattlement'),
+      vsFitTarget('fortressBattlement'),
+    )
+    expect(battlement.min).toBeCloseTo(
+      CLASSIC_HEIGHTS.fortressBattlement.bottom,
+      5,
+    )
+    expect(battlement.max).toBeCloseTo(
+      CLASSIC_HEIGHTS.fortressBattlement.top,
+      5,
+    )
+  })
+
+  it('agrees with the classic models themselves', () => {
+    const classic = (url: string, names: string[]) => {
+      const meshes = readGlbMeshes(url).filter((m) => names.includes(m.name))
+      return heightRange(meshes)
+    }
+    const base = classic('/adjustable-castle-walls.glb', [
+      'CastleWallStraightBody',
+      'WallCap',
+    ])
+    expect(base.min).toBeCloseTo(CLASSIC_HEIGHTS.castleBase.bottom, 3)
+    expect(base.max).toBeCloseTo(CLASSIC_HEIGHTS.castleBase.top, 3)
+    const arch = classic('/castle-arch-handmade.glb', [
+      'CastleArchBody',
+      'CastleArchCapNear',
+    ])
+    expect(arch.min).toBeCloseTo(CLASSIC_HEIGHTS.fortressArch.bottom, 3)
+    expect(arch.max).toBeCloseTo(CLASSIC_HEIGHTS.fortressArch.top, 3)
+    const ladder = classic('/handmade-ladder.glb', ['Ladder'])
+    expect(ladder.min).toBeCloseTo(CLASSIC_HEIGHTS.fortressLadder.bottom, 3)
+    expect(ladder.max).toBeCloseTo(CLASSIC_HEIGHTS.fortressLadder.top, 3)
+    const battlement = classic('/handmade-battlement.glb', ['Battlement'])
+    expect(battlement.min).toBeCloseTo(
+      CLASSIC_HEIGHTS.fortressBattlement.bottom,
+      3,
+    )
+    expect(battlement.max).toBeCloseTo(
+      CLASSIC_HEIGHTS.fortressBattlement.top,
+      3,
+    )
   })
 })

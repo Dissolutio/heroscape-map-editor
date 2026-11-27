@@ -412,6 +412,7 @@ const MapBoardPiece3DModel = ({
           z + getLadderBattlementOptions(rotation).zAdd,
         ]}
         rotation={[0, (rotation * -Math.PI) / 3, 0]}
+        userData={{ fortressUID: uid }}
       >
         <Suspense fallback={<ModelLoader />}>
           <Battlement pid={uid} />
@@ -918,6 +919,7 @@ const MapBoardPiece3DModel = ({
           z + getLadderBattlementOptions(rotation).zAdd,
         ]}
         rotation={[0, pieceRotation, 0]}
+        userData={{ fortressUID: uid }}
       >
         <Suspense fallback={<ModelLoader />}>
           <Ladder bp={bp} onPointerUp={onPointerUpPaintPiece} />

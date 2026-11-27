@@ -103,35 +103,60 @@ export function vsCastleNodeName(kind: 'Base' | 'Wall', shape: CastleShape) {
 }
 
 /**
- * The Virtualscape models are drawn at Hexoscape's hex size and level height,
- * but the classic models these sit in for are not: each is fitted, in Y only,
- * so its walkable top lands where the classic model's top is. Pieces the app
- * stacks on them then land where they always have. `walkableTop` comes from
- * the GLB node's extras (written by the converter).
+ * Where each Virtualscape model must land: the classic model's bottom and top
+ * in its own frame (the group the app positions it in). The model is fitted
+ * piecewise (fortressHeightFit.ts): its body is stretched from its true
+ * bottom to its shoulder onto these, and its receiver keeps its real height.
+ * Pieces the app stacks on them then land where they always have.
  */
 
 // The classic wall body is a one-level unit stretched to scaleY levels; its
 // cap is 0.1 thick on top of that.
 export const CLASSIC_CAP_THICKNESS = 0.1
 
-export function vsWallScaleY(scaleY: number, walkableTop: number) {
-  return (scaleY * HEXGRID_HEX_HEIGHT + CLASSIC_CAP_THICKNESS) / walkableTop
+export const classicWallTop = (scaleY: number) =>
+  scaleY * HEXGRID_HEX_HEIGHT + CLASSIC_CAP_THICKNESS
+
+/** Classic bottoms and tops of the fixed-height pieces (the wall stretches). */
+export const CLASSIC_HEIGHTS = {
+  // body 0..0.35 plus a 0.1 cap
+  castleBase: { bottom: 0, top: 0.45 },
+  // body 0..3.5 plus 0.1 caps; the door fits with the arch
+  fortressArch: { bottom: 0, top: 3.6 },
+  fortressLadder: { bottom: 0, top: 0.7 },
+  fortressBattlement: { bottom: 0.1, top: 1.75 },
+} as const
+
+export type VsFitTarget = {
+  dstBottom: number
+  dstTop: number
+  shoulder: 'walkway' | 'top'
+  keepReceiver: boolean
 }
 
-// The classic base reaches 0.45 (body plus cap) and stands in the middle of
-// the ObstacleBase plinth, whose top is at 0.0875 in the base's frame.
-export const CLASSIC_BASE_TOP = 0.45
-export const OBSTACLE_BASE_TOP_IN_BASE_FRAME = 0.0875
-
-export function vsBaseTransformY(walkableTop: number) {
-  const scale =
-    (CLASSIC_BASE_TOP - OBSTACLE_BASE_TOP_IN_BASE_FRAME) / walkableTop
-  return { offset: OBSTACLE_BASE_TOP_IN_BASE_FRAME, scale }
-}
-
-// The classic arch body is 3.5 tall with 0.1 caps on top.
-export const CLASSIC_ARCH_TOP = 3.6
-
-export function vsArchScaleY(walkableTop: number) {
-  return CLASSIC_ARCH_TOP / walkableTop
+/**
+ * The fit for one part. `scaleY` is the classic wall's stretch (walls only);
+ * `isTopCovered` drops the receiver of a wall or base with a piece on top.
+ */
+export function vsFitTarget(
+  part: Exclude<FortressModelPart, 'fortressDoor'>,
+  { scaleY = 9.99, isTopCovered = false } = {},
+): VsFitTarget {
+  if (part === 'castleWall') {
+    return {
+      dstBottom: 0,
+      dstTop: classicWallTop(scaleY),
+      shoulder: 'walkway',
+      keepReceiver: !isTopCovered,
+    }
+  }
+  const { bottom, top } = CLASSIC_HEIGHTS[part]
+  return {
+    dstBottom: bottom,
+    dstTop: top,
+    // Bases have a receiver; ladders keep their hooks above the top rung.
+    shoulder:
+      part === 'castleBase' || part === 'fortressLadder' ? 'walkway' : 'top',
+    keepReceiver: part === 'castleBase' ? !isTopCovered : true,
+  }
 }

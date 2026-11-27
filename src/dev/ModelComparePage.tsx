@@ -11,26 +11,26 @@ import { HEXGRID_HEX_HEIGHT } from '../utils/constants'
 import { hexTerrainColor } from '../world/maphex/hexColors'
 import {
   type CastleShape,
-  CLASSIC_ARCH_TOP,
   getFortressModelUrl,
   VS_FORTRESS_BANNER_URL,
-  vsArchScaleY,
-  vsBaseTransformY,
   vsCastleNodeName,
-  vsWallScaleY,
+  vsFitTarget,
 } from '../world/models/fortressModels'
 import { basicModelMaterial } from '../world/models/materials'
 import {
+  measureVsSource,
   useVsNodes,
   VsModel,
   vsNodeParts,
-  vsWalkableTop,
 } from '../world/models/VsFortressMeshes'
 
 // ?look=source draws the Virtualscape models in their own colours and
 // textures instead of the app's piece colours.
 const isSourceLook =
   new URLSearchParams(window.location.search).get('look') === 'source'
+// ?covered=1 draws walls and bases as if a piece sat on top (no receiver).
+const isTopCovered =
+  new URLSearchParams(window.location.search).get('covered') === '1'
 
 const PIECES = [
   'base-corner',
@@ -163,15 +163,19 @@ function ClassicModel({ piece }: { piece: Piece }) {
 function VsArchCompare({ withDoor }: { withDoor: boolean }) {
   const archUrl = getFortressModelUrl('fortressArch', 'vs')
   const nodes = useVsNodes(archUrl)
-  const top = vsWalkableTop(
-    vsNodeParts(nodes, 'VsFortressArch')[0]?.node,
-    CLASSIC_ARCH_TOP,
-  )
+  const target = {
+    ...vsFitTarget('fortressArch'),
+    source: measureVsSource(
+      vsNodeParts(nodes, 'VsFortressArch').map(({ node }) => node),
+      'top',
+    ),
+  }
   return (
-    <group scale={[1, vsArchScaleY(top), 1]}>
+    <group>
       <VsModel
         url={archUrl}
         name="VsFortressArch"
+        target={target}
         color={hexTerrainColor[HexTerrain.castleWall]}
         isHighlighted={false}
         pid="compare"
@@ -181,6 +185,7 @@ function VsArchCompare({ withDoor }: { withDoor: boolean }) {
         <VsModel
           url={getFortressModelUrl('fortressDoor', 'vs')}
           name="VsFortressDoor"
+          target={target}
           color={hexTerrainColor.castleDoor}
           isHighlighted={false}
           pid="compare"
@@ -197,10 +202,7 @@ function VirtualscapeModel({ piece }: { piece: Piece }) {
       <VsModel
         url={getFortressModelUrl('castleBase', 'vs')}
         name={vsCastleNodeName('Base', shapeOf(piece))}
-        fitY={(top) => {
-          const { scale, offset } = vsBaseTransformY(top)
-          return { scaleY: scale, offsetY: offset }
-        }}
+        target={vsFitTarget('castleBase', { isTopCovered })}
         color={hexTerrainColor[HexTerrain.castleBase]}
         isHighlighted={false}
         pid="compare"
@@ -213,7 +215,10 @@ function VirtualscapeModel({ piece }: { piece: Piece }) {
       <VsModel
         url={getFortressModelUrl('castleWall', 'vs')}
         name={vsCastleNodeName('Wall', shapeOf(piece))}
-        fitY={(top) => ({ scaleY: vsWallScaleY(WALL_SCALE_Y, top) })}
+        target={vsFitTarget('castleWall', {
+          scaleY: WALL_SCALE_Y,
+          isTopCovered,
+        })}
         color={hexTerrainColor[HexTerrain.castleWall]}
         isHighlighted={false}
         pid="compare"
@@ -234,6 +239,9 @@ function VirtualscapeModel({ piece }: { piece: Piece }) {
             'vs',
           )}
           name={isLadder ? 'VsFortressLadder' : 'VsFortressBattlement'}
+          target={vsFitTarget(
+            isLadder ? 'fortressLadder' : 'fortressBattlement',
+          )}
           color={
             hexTerrainColor[
               isLadder ? HexTerrain.ladder : HexTerrain.battlement

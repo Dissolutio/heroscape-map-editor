@@ -8,9 +8,10 @@ import { hexTerrainColor } from '../maphex/hexColors'
 import {
   type CastleShape,
   getFortressModelUrl,
-  vsBaseTransformY,
   vsCastleNodeName,
+  vsFitTarget,
 } from './fortressModels'
+import { isFortressTopCovered } from './fortressCover'
 import { basicModelMaterial } from './materials'
 import { useDisposableGLTF } from './useDisposableGLTF'
 import { useFortressModelSet } from './useFortressModelSet'
@@ -28,11 +29,6 @@ const baseShape = (pieceID: string): CastleShape =>
       ? 'Straight'
       : 'Corner'
 
-const vsBaseFit = (top: number) => {
-  const { scale, offset } = vsBaseTransformY(top)
-  return { scaleY: scale, offsetY: offset }
-}
-
 type Props = {
   boardHex: BoardHex
   onPointerUp: (e: ThreeEvent<PointerEvent>, hex: BoardHex) => void
@@ -43,6 +39,16 @@ export default function CastleBase({ boardHex, onPointerUp }: Props) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useDisposableGLTF('/adjustable-castle-walls.glb') as any
   const isVs = useFortressModelSet() === 'vs'
+  // VS only: a piece on top hides the receiver (one shared board lookup)
+  const isTopCovered = useBoundStore(
+    (s) =>
+      isVs &&
+      isFortressTopCovered(
+        s.boardHexes,
+        s.viewingLevel,
+        boardHex.boardPieceUID ?? '',
+      ),
+  )
   const capUserData = isVs
     ? fortressCapUserData(boardHex.boardPieceUID ?? '')
     : undefined
@@ -98,7 +104,7 @@ export default function CastleBase({ boardHex, onPointerUp }: Props) {
         <VsModel
           url={getFortressModelUrl('castleBase', 'vs')}
           name={vsCastleNodeName('Base', baseShape(pieceID))}
-          fitY={vsBaseFit}
+          target={vsFitTarget('castleBase', { isTopCovered })}
           color={hexTerrainColor[HexTerrain.castleBase]}
           isHighlighted={isHighlighted}
           pid={boardHex.boardPieceUID ?? ''}
@@ -190,7 +196,7 @@ export function CastleBasePreview({
           'Base',
           isCastleEnd ? 'End' : isCastleStraight ? 'Straight' : 'Corner',
         )}
-        fitY={vsBaseFit}
+        target={vsFitTarget('castleBase')}
         color={color}
         isHighlighted={false}
         opacity={opacityLevel}
