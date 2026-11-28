@@ -13,6 +13,7 @@ import { useSnackbar } from 'notistack'
 import { useId, useMemo } from 'react'
 import { piecesSoFar } from '../data/pieces'
 import useBoundStore from '../store/store'
+import { Pieces } from '../types'
 import { hexTerrainColor, svgColors } from '../world/maphex/hexColors'
 import {
   formatTerrainLabel,
@@ -37,6 +38,7 @@ export function useConvertTerrainAvailability(
     (s) => s.customConstraintInventoryFileName,
   )
   const userPieceInventory = useBoundStore((s) => s.userPieceInventory)
+  const includeVCContent = useBoundStore((s) => s.includeVCContent)
 
   return useMemo(
     () =>
@@ -49,12 +51,14 @@ export function useConvertTerrainAvailability(
         customConstraintInventoryFileName,
         userPieceInventory,
         compact,
+        includeVCContent,
       }),
     [
       boardPieces,
       compact,
       customConstraintInventory,
       customConstraintInventoryFileName,
+      includeVCContent,
       selectedPieceIDs,
       setsUsed,
       terrainConstraintSource,
@@ -95,8 +99,11 @@ export function ConvertTerrainQuickSelect({
     landPieceInventoryByTerrainAndSize,
     selectedLandPieces,
     selectedStartZonePieces,
+    selectedVoidMatPieces,
     showConstraintNotice,
     shouldRender,
+    canConvertVoidMatToMarkers,
+    canConvertVoidMarkersToMat,
   } = availability
   const useLegacyStartZones = useBoundStore((s) => s.useLegacyStartZones)
   const toggleIsEditMapDialogOpen = useBoundStore(
@@ -105,6 +112,12 @@ export function ConvertTerrainQuickSelect({
   const convertTerrainForPieces = useBoundStore(
     (s) => s.convertTerrainForPieces,
   )
+  const convertVoidMatToMarkers = useBoundStore(
+    (s) => s.convertVoidMatToMarkers,
+  )
+  const convertVoidMarkersToMat = useBoundStore(
+    (s) => s.convertVoidMarkersToMat,
+  )
   const { enqueueSnackbar } = useSnackbar()
   const id = useId()
 
@@ -112,6 +125,32 @@ export function ConvertTerrainQuickSelect({
     const targetInventoryID = event.target.value
     console.log('🚀 ~ handleChange ~ targetInventoryID:', targetInventoryID)
     if (!targetInventoryID) return
+
+    if (targetInventoryID === Pieces.voidMarker) {
+      const markerUIDs = convertVoidMatToMarkers(
+        selectedVoidMatPieces.map((piece) => piece.uid),
+      )
+      if (markerUIDs.length > 0) {
+        enqueueSnackbar({
+          message: `Converted ${selectedVoidMatPieces.length} Void Mat${selectedVoidMatPieces.length === 1 ? '' : 's'} to ${markerUIDs.length} Void Markers.`,
+          variant: 'success',
+        })
+      }
+      onConvert?.()
+      return
+    }
+
+    if (targetInventoryID === Pieces.voidMat) {
+      const matUID = convertVoidMarkersToMat(pieceUIDs)
+      if (matUID) {
+        enqueueSnackbar({
+          message: 'Converted 14 Void Markers to a Void Mat.',
+          variant: 'success',
+        })
+      }
+      onConvert?.()
+      return
+    }
 
     const isStartZoneTarget = startZoneInventoryIDSet.has(targetInventoryID)
     if (isStartZoneTarget && hasMixedStartZoneSelection) return
@@ -218,6 +257,22 @@ export function ConvertTerrainQuickSelect({
             {formatTerrainLabel(terrain)}
           </MenuItem>
         ))}
+        {(canConvertVoidMatToMarkers || canConvertVoidMarkersToMat) && (
+          <Divider />
+        )}
+        {canConvertVoidMatToMarkers && (
+          <MenuItem
+            value={Pieces.voidMarker}
+            sx={{ fontSize: menuItemFontSize }}
+          >
+            Convert to Void Markers
+          </MenuItem>
+        )}
+        {canConvertVoidMarkersToMat && (
+          <MenuItem value={Pieces.voidMat} sx={{ fontSize: menuItemFontSize }}>
+            Convert to Void Mat
+          </MenuItem>
+        )}
         {selectedStartZonePieces.length > 0 && availableTerrains.length > 0 && (
           <Divider />
         )}

@@ -4,8 +4,8 @@ import useBoundStore from '../../store/store'
 import { type BoardHex, type BoardPiece, HexTerrain, Pieces } from '../../types'
 import { PIECE_PREVIEW_OPACITY } from '../../utils/constants'
 import { hexTerrainColor } from '../maphex/hexColors'
-import { basicModelMaterial } from './materials'
-import { useDisposableGLTF } from './useDisposableGLTF'
+import { getFortressModelUrl, vsFitTarget } from './fortressModels'
+import { VsModel } from './VsFortressMeshes'
 
 export function Ladder({
   bp,
@@ -14,11 +14,6 @@ export function Ladder({
   bp: BoardPiece
   onPointerUp: (e: ThreeEvent<PointerEvent>, hex: BoardHex) => void
 }) {
-  // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
-  const { nodes } = useDisposableGLTF('/handmade-ladder.glb') as any
-  const isLightsAndShadowsRender = useBoundStore(
-    (s) => s.isLightsAndShadowsRender,
-  )
   const penMode = useBoundStore((s) => s.penMode)
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
   const { onPointerEnter, onPointerEnterPID, onPointerOut } =
@@ -49,45 +44,35 @@ export function Ladder({
     }
   }
   const selectedPieceIDs = useBoundStore((s) => s.selectedPieceIDs)
-  const yellowColor = 'yellow'
   const isSelected = selectedPieceIDs.includes(bp.uid)
   const isHighlighted = hoveredPieceID === bp.uid || isSelected
-  const color = isHighlighted ? yellowColor : hexTerrainColor[HexTerrain.ladder]
+  const onPointerEnterLadder = (e: ThreeEvent<PointerEvent>) =>
+    penMode === Pieces.ladder
+      ? onPointerEnter(e, partialHex)
+      : onPointerEnterPID(e, bp.uid)
   return (
-    <mesh
-      receiveShadow={isLightsAndShadowsRender}
-      castShadow={isLightsAndShadowsRender}
-      geometry={nodes.Ladder.geometry}
+    <VsModel
+      url={getFortressModelUrl('fortressLadder')}
+      name="VsFortressLadder"
+      target={vsFitTarget('fortressLadder')}
+      color={hexTerrainColor[HexTerrain.ladder]}
+      isHighlighted={isHighlighted}
+      pid={bp.uid}
       onPointerUp={handleOnPointerUp}
-      onPointerEnter={(e) =>
-        penMode === Pieces.ladder
-          ? onPointerEnter(e, partialHex)
-          : onPointerEnterPID(e, bp.uid)
-      }
+      onPointerEnter={onPointerEnterLadder}
       onPointerOut={(e) => onPointerOut(e)}
-      material={basicModelMaterial(color, isLightsAndShadowsRender)}
     />
   )
 }
 export function LadderPreview() {
-  // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
-  const { nodes } = useDisposableGLTF('/handmade-ladder.glb') as any
-  const isLightsAndShadowsRender = useBoundStore(
-    (s) => s.isLightsAndShadowsRender,
-  )
-  const color = hexTerrainColor[HexTerrain.ladder]
   return (
-    <mesh
-      receiveShadow={isLightsAndShadowsRender}
-      castShadow={isLightsAndShadowsRender}
-      geometry={nodes.Ladder.geometry}
-      material={basicModelMaterial(
-        color,
-        isLightsAndShadowsRender,
-        PIECE_PREVIEW_OPACITY,
-      )}
+    <VsModel
+      url={getFortressModelUrl('fortressLadder')}
+      name="VsFortressLadder"
+      target={vsFitTarget('fortressLadder')}
+      color={hexTerrainColor[HexTerrain.ladder]}
+      isHighlighted={false}
+      opacity={PIECE_PREVIEW_OPACITY}
     />
   )
 }
-
-// useGltf.preload('/handmade-ladder.glb')

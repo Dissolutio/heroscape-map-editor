@@ -704,7 +704,7 @@ describe('Virtualscape binary export', () => {
         mapNotes: firstMap.hexMap.mapNotes,
       })
     }
-  })
+  }, 20_000) // ~2.4 s alone; slower under the full parallel run
 
   it('round-trips the JSON map fixtures through Virtualscape', () => {
     for (const fixture of [

@@ -8,11 +8,13 @@ import {
   Menu,
   MenuItem,
 } from '@mui/material'
-import { Fragment, useLayoutEffect, useRef, useState } from 'react'
+import { Fragment, useLayoutEffect, useRef } from 'react'
 import {
   ConvertTerrainQuickSelect,
   useConvertTerrainAvailability,
 } from '../controls/ConvertTerrainQuickSelect'
+import { DIALOGS } from '../layout/dialogNames'
+import useBoundStore from '../store/store'
 import {
   getSelectionMenuItems,
   selectionMenuActions,
@@ -28,8 +30,11 @@ export default function SelectionContextMenu({
   context: SelectionMenuContext
   onClose: () => void
 }) {
-  const [isConvertTerrainPickerOpen, setConvertTerrainPickerOpen] =
-    useState(false)
+  const isConvertTerrainPickerOpen =
+    useBoundStore((state) => state.currentDialog) === DIALOGS.convertTerrain
+  const toggleCurrentDialog = useBoundStore(
+    (state) => state.toggleCurrentDialog,
+  )
   const terrainAvailability = useConvertTerrainAvailability(
     context.selectedPieceIDs,
   )
@@ -38,7 +43,7 @@ export default function SelectionContextMenu({
     convertTerrainDisabledReason: terrainAvailability.isDisabled
       ? terrainAvailability.disabledMessage
       : undefined,
-    openConvertTerrainPicker: () => setConvertTerrainPickerOpen(true),
+    openConvertTerrainPicker: () => toggleCurrentDialog(DIALOGS.convertTerrain),
   }
   const items = getSelectionMenuItems(selectionMenuActions, actionContext)
   const onCloseRef = useRef(onClose)
@@ -126,7 +131,7 @@ export default function SelectionContextMenu({
       </Menu>
       <Dialog
         open={isConvertTerrainPickerOpen}
-        onClose={() => setConvertTerrainPickerOpen(false)}
+        onClose={() => toggleCurrentDialog('')}
         maxWidth="xs"
         fullWidth
       >
@@ -135,13 +140,11 @@ export default function SelectionContextMenu({
           <ConvertTerrainQuickSelect
             pieceUIDs={[...context.selectedPieceIDs]}
             alwaysRender
-            onConvert={() => setConvertTerrainPickerOpen(false)}
+            onConvert={() => toggleCurrentDialog('')}
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setConvertTerrainPickerOpen(false)}>
-            Close
-          </Button>
+          <Button onClick={() => toggleCurrentDialog('')}>Close</Button>
         </DialogActions>
       </Dialog>
     </>

@@ -37,6 +37,7 @@ import {
   TbCircleNumber7Filled,
   TbCircleNumber8Filled,
   TbColorPicker,
+  TbHexagon,
   TbHexagonLetterC,
   TbHexagonLetterE,
   TbHexagonLetterPFilled,
@@ -596,6 +597,12 @@ export default function PenModeControls() {
 
           {/* VOID AND PYLONS (community custom, VC) */}
           {includeVCContent && [
+            <MenuItem key={Pieces.voidMarker} value={Pieces.voidMarker}>
+              <ListItemIcon>
+                <TbHexagon color={hexTerrainColor.voidMat} />
+              </ListItemIcon>
+              <span>{piecesSoFar[Pieces.voidMarker].title}</span>
+            </MenuItem>,
             <MenuItem key={Pieces.voidMat} value={Pieces.voidMat}>
               <ListItemIcon>
                 <TbHexagons color={hexTerrainColor.voidMat} />

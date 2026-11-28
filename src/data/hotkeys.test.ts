@@ -105,6 +105,8 @@ describe('hotkey overrides', () => {
       'shift+a',
       'shift+b',
       'shift+c',
+      'k',
+      'shift+k',
     ])
     const existing = Object.fromEntries(
       Object.entries(defaultHotkeyConfig).filter(
@@ -136,6 +138,12 @@ describe('hotkey overrides', () => {
     )
     const keys = Object.values(defaults).flat()
     expect(new Set(keys).size).toBe(keys.length)
+    const actionIds = HOTKEY_ACTIONS.map(({ id }) => id)
+    expect(new Set(actionIds).size).toBe(actionIds.length)
+    expect(actionIds).toContain('openMapInventory')
+    expect(actionIds).toContain('openConvertTerrainPicker')
+    expect(defaults.openMapInventory).toEqual(['k'])
+    expect(defaults.openConvertTerrainPicker).toEqual(['shift+k'])
   })
 
   it('counts overridden commands and only confirms when there are changes', () => {
@@ -219,8 +227,8 @@ describe('hotkey overrides', () => {
       'shift+c': 'togglePenModeCastleWall',
     })
     expect(defaultHotkeyConfig).toMatchObject({
-      k: undefined,
-      'shift+k': undefined,
+      k: 'openMapInventory',
+      'shift+k': 'openConvertTerrainPicker',
       'shift+u': undefined,
       'shift+e': undefined,
       'shift+q': undefined,
@@ -440,6 +448,8 @@ describe('hotkey overrides', () => {
       ['shift+a', 'togglePenModeLadder'],
       ['shift+b', 'togglePenModeBattlement'],
       ['shift+c', 'togglePenModeCastleWall'],
+      ['k', 'openMapInventory'],
+      ['shift+k', 'openConvertTerrainPicker'],
     ] as const
 
     for (const [key, defaultAction] of newBindings) {

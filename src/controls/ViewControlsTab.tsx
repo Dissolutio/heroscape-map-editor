@@ -808,7 +808,6 @@ const ViewPreferencesSwitchForm = () => {
             label="Hide TableTop"
           />
         )}
-
         <FormControlLabel
           control={
             <Switch

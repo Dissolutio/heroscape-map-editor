@@ -36,6 +36,7 @@ const darkTheme = createTheme({
     // },
   },
 })
+
 const RootPage = () => {
   return <Redirect to={ROUTES.heroscapeHome} />
 }

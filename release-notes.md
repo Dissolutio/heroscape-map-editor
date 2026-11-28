@@ -1,3 +1,14 @@
+Nov-27-2026
+TLDR: Virtualscape fortress models. Ships and Laur add-ons fix false conflicts. Turn a Void Mat into Void Markers. Two new hotkeys.
+
+- **Fortress models**: Castle walls, bases, arch, door, ladder and battlement now use the Virtualscape models. Some adjustment may still be needed.
+- **Void Marker**: Void Marker is in the pen selector, next to Void Mat.
+- **Void Mats**: Right-click: Convert to Void Markers (full hexes only), and back. Placement previews show over mats again. Mats show in the SVG view, and the PDF gets a level 0 page for them.
+- **Ship Wall/Bow**: Addressed some false conflicts
+- **Laur add-ons**: Fixed some false conflicts next to castle walls, fortified walls, ship bow/wall.
+- **Terrain sets**: "Use terrain sets" has a new Community group, home of Void & Pylons.
+- **Hotkeys**: K opens the map inventory, Shift+K opens Convert terrain.
+
 Nov-26-2026
 TLDR: Void & Pylons (VC) set. Export maps to Virtualscape. Import every Virtualscape tile. Outcrops, glaciers and the Marro Hive count their bases. Drag selected pieces in any pen mode.
 
