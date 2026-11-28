@@ -12,7 +12,6 @@ One bullet per item, 80 characters or less. Same text as the Project doc
 
 - 👤 Ask Caps if he wants a Virtualscape compatibility doc
 - Fortress Banner piece: 7 tall, on a battlement (GLB from Virtualscape ready)
-- ❓ Fortress models: keep the Classic option, or drop it later
 - ❓ Confirm cells for obstacles still marked "full hex" (list in #404)
 - 👤 Check Ruins 2/3 cells with `?cells=1` (some may be 1 level off)
 - ❓ Piece key font: Proxima Nova license, or free Sofia Sans Condensed
@@ -38,6 +37,7 @@ One bullet per item, 80 characters or less. Same text as the Project doc
 
 ## Later
 
+- Bring back Classic fortress models only if users ask
 - Arena of the Planeswalker sets (official; John's map coming)
 - Freeform mat (Virtualscape's custom hex grid mats)
 - 👤 UI layout rework: fewer clicks, no tabs on the left
