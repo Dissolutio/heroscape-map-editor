@@ -47,6 +47,7 @@ const version = JSON.parse(files['format/version.json']!) as {
   viewParam: { name: string; values: Record<string, string> }
   maxUrlLength: number
   fallbackDropOrder: string[]
+  docsUrl: string
 }
 
 type PieceFormatEntry = {
@@ -178,6 +179,11 @@ describe('generated share-link format files', () => {
       },
       maxUrlLength: MAX_SHARE_URL_LENGTH,
       fallbackDropOrder: [...SHARE_URL_FALLBACK_DROP_ORDER],
+      docsUrl:
+        'https://github.com/Dissolutio/heroscape-map-editor/blob/main/docs/share-links.md',
     })
+    for (const json of Object.values(files)) {
+      expect(json).not.toContain('\n  ')
+    }
   })
 })

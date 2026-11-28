@@ -155,6 +155,8 @@ Each hex on the board has a unique ID that is derived from its Q and R coordinat
 
 Feature flags, debug overlays and test switches you can add to the page
 address are listed in [docs/url-params.md](docs/url-params.md).
+Developers building links to open maps in Hexoscape can use the
+[public share-link format guide](docs/share-links.md).
 
 ### Adding New Terrain Pieces
 
