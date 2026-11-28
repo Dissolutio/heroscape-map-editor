@@ -25,7 +25,7 @@ function getGitCommit(root: string) {
   return result.stdout.trim() || undefined
 }
 
-function generateFiles(root: string): FormatFiles {
+function generateFiles(root: string, hexMapSchema: unknown): FormatFiles {
   const packageLock = JSON.parse(
     readFileSync(resolve(root, 'package-lock.json'), 'utf8'),
   ) as PackageLock
@@ -36,7 +36,7 @@ function generateFiles(root: string): FormatFiles {
   }
 
   return generateFormatFiles({
-    hexMapSchema: generateHexMapSchema(root),
+    hexMapSchema,
     jsoncrushVersion,
     generatedAt: new Date().toISOString(),
     gitCommit: getGitCommit(root),
@@ -46,6 +46,12 @@ function generateFiles(root: string): FormatFiles {
 export function shareLinkFormatPlugin(): Plugin {
   let root = process.cwd()
   let files: FormatFiles = {}
+  let hexMapSchema: unknown
+
+  const generate = () => {
+    hexMapSchema ??= generateHexMapSchema(root)
+    files = generateFiles(root, hexMapSchema)
+  }
 
   return {
     name: 'hexoscape-share-link-format-files',
@@ -53,7 +59,7 @@ export function shareLinkFormatPlugin(): Plugin {
       root = config.root
     },
     configureServer(server) {
-      files = generateFiles(root)
+      generate()
       server.middlewares.use((request, response, next) => {
         if (request.method !== 'GET' || !request.url) return next()
 
@@ -70,7 +76,7 @@ export function shareLinkFormatPlugin(): Plugin {
       })
     },
     buildStart() {
-      files = generateFiles(root)
+      generate()
     },
     generateBundle() {
       for (const [fileName, source] of Object.entries(files)) {

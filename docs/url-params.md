@@ -4,6 +4,9 @@ Add these to the page address, for example `/hs?perf=1&perfSeconds=5`. They
 last only for that page load and don't change saved settings. Keep this list
 up to date when you add one.
 
+For the share-link payload, view options, and a working encoder example, see
+[Building Hexoscape share links](./share-links.md).
+
 ## Everyone
 
 | Param          | Values           | What it does                                          | Code                                  |

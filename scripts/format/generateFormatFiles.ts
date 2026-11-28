@@ -130,7 +130,7 @@ function makePieceList() {
 }
 
 function jsonFile(value: unknown) {
-  return `${JSON.stringify(value, null, 2)}\n`
+  return `${JSON.stringify(value)}\n`
 }
 
 export function generateFormatFiles({
@@ -154,6 +154,8 @@ export function generateFormatFiles({
     },
     maxUrlLength: MAX_SHARE_URL_LENGTH,
     fallbackDropOrder: [...SHARE_URL_FALLBACK_DROP_ORDER],
+    docsUrl:
+      'https://github.com/Dissolutio/heroscape-map-editor/blob/main/docs/share-links.md',
     generatedAt,
     ...(gitCommit ? { gitCommit } : {}),
   }
