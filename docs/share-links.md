@@ -41,9 +41,9 @@ altitude~q~r~rotation~id
 [`/format/pieces.json`](https://hexoscape.com/format/pieces.json).
 The coordinate system is cube coordinates: `q + r + s = 0`, so `s` is
 calculated as `-q-r` and is not included in the string. Hexoscape uses pointy-top
-hexes. On screen, positive `q` points right and positive `r` points down and
-right. `(0,0,0)` is the coordinate origin, not necessarily the visual center
-of a particular map.
+hexes (cubeToPixel in src/utils/hex-utils.ts). On screen, positive `q` points
+right and positive `r` points down and right. `(0,0,0)` is the coordinate origin,
+not necessarily the visual center of a particular map.
 
 ```text
                    NW (0,-1,+1)   NE (+1,-1,0)
