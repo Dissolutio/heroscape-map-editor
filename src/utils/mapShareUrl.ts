@@ -3,6 +3,11 @@ export const MAP_SHARE_URL_PARAM_KEYS = {
   viewMode: 'v',
 } as const
 
+export const MAP_SHARE_VIEW_PARAM_VALUES = {
+  pdf: 'a',
+  twoD: 'b',
+} as const
+
 export type MapShareUrlParams = {
   m: string | null
   v: string | null
@@ -74,7 +79,7 @@ export type MapShareViewMode = 'pdf' | '2d' | 'default'
 
 // Mirrors the "v" query param handling used when auto-loading a map from the URL.
 export function getViewModeFromQueryParam(v: string | null): MapShareViewMode {
-  if (v === 'a') return 'pdf'
-  if (v === 'b') return '2d'
+  if (v === MAP_SHARE_VIEW_PARAM_VALUES.pdf) return 'pdf'
+  if (v === MAP_SHARE_VIEW_PARAM_VALUES.twoD) return '2d'
   return 'default'
 }

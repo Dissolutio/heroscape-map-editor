@@ -2,6 +2,7 @@ import { sentryVitePlugin } from '@sentry/vite-plugin'
 import react from '@vitejs/plugin-react-swc'
 import { defineConfig } from 'vite'
 import { getBuildReleaseVersion } from './scripts/release-version.mjs'
+import { shareLinkFormatPlugin } from './scripts/format/vitePlugin'
 
 const host = process.env.TAURI_DEV_HOST
 
@@ -16,6 +17,7 @@ export default defineConfig(({ mode }) => {
   return {
     plugins: [
       react(),
+      shareLinkFormatPlugin(),
       // Only include and activate Sentry if we are in production AND have a token/CI environment
       isProduction && isCI
         ? sentryVitePlugin({

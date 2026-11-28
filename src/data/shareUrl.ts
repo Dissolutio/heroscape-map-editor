@@ -1,8 +1,12 @@
 import { getUrlMapString, MAP_TOO_LARGE_ERROR } from './jsonCrush'
 import type { BoardPiece, HexMap } from '../types'
 import { PiecePrefixes } from '../types'
+import {
+  MAX_SHARE_URL_LENGTH,
+  SHARE_URL_FALLBACK_DROP_ORDER,
+} from './shareUrlConstants'
 
-export type ShareUrlRemoved = 'startZones' | 'objectiveMarkers' | 'glyphs'
+export type ShareUrlRemoved = (typeof SHARE_URL_FALLBACK_DROP_ORDER)[number]
 
 type ShareUrlCandidate = {
   hexMap: HexMap
@@ -13,8 +17,6 @@ type ShareUrlCandidate = {
 type ShareUrlResult =
   | { url: string; removed: ShareUrlRemoved[] }
   | { error: 'too-large' }
-
-const MAX_SHARE_URL_LENGTH = 2082
 
 export function buildShareUrlWithFallback({
   hexMap,
@@ -38,17 +40,17 @@ export function buildShareUrlWithFallback({
     {
       hexMap,
       boardPieces: withoutStartZones,
-      removed: ['startZones'],
+      removed: [SHARE_URL_FALLBACK_DROP_ORDER[0]],
     },
     {
       hexMap: { ...hexMap, objectiveMarkers: [] },
       boardPieces: withoutStartZones,
-      removed: ['startZones', 'objectiveMarkers'],
+      removed: SHARE_URL_FALLBACK_DROP_ORDER.slice(0, 2),
     },
     {
       hexMap: { ...hexMap, objectiveMarkers: [] },
       boardPieces: withoutGlyphs,
-      removed: ['startZones', 'objectiveMarkers', 'glyphs'],
+      removed: [...SHARE_URL_FALLBACK_DROP_ORDER],
     },
   ]
 
