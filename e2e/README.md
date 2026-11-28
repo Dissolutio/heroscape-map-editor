@@ -130,9 +130,8 @@ The canvas is invisible to accessibility snapshots, so read state in text:
   `zoom` (rounded), to check that something did not move the camera.
 - `window.__TEST__.stats()`: draw calls and triangles.
 - `window.__TEST__.fortressBounds(uid)`: world bounds (`min`, `max`) of a
-  castle base, wall, arch, ladder or battlement's drawn 3D model, classic or
-  Virtualscape (`?fortress=vs`), without the invisible click targets; `null`
-  when none is mounted. Use it to compare bottoms and tops between the two.
+  castle base, wall, arch, ladder or battlement's drawn 3D model, without the
+  invisible click targets; `null` when none is mounted.
 - `window.__TEST__.listRenderedObjectiveMarkerUIDs()` and
   `screenPosOfObjectiveMarker(uid)`: mounted marker UIDs and marker hit positions.
 - `window.__TEST__.getRenderedObjectiveMarkerTextQuaternion(uid)` and

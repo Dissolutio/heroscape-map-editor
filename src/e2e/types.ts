@@ -162,7 +162,7 @@ export type E2ETestBridge = {
   ) => Array<{ q: number; r: number; altitude: number; terrain: string }>
   /**
    * World bounds of a fortress piece's visible 3D model (castle base, wall,
-   * arch, ladder or battlement; classic or Virtualscape), rounded to 4
+   * arch, ladder or battlement), rounded to 4
    * places, or null when none is mounted. Invisible click targets are left
    * out.
    */

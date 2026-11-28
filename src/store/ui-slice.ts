@@ -51,7 +51,6 @@ import {
   type TerrainConstraintSource,
 } from '../types'
 import type { PictureCaptureOptions } from '../world/camera/pictureCaptureOptions'
-import type { FortressModelSet } from '../world/models/fortressModels'
 import {
   getLastPointerWorldPoint,
   shouldTrackHoveredWorldPoint,
@@ -189,8 +188,6 @@ export interface UISlice {
   toggleIsDisplayCapHeights: (b: boolean) => void
   isHideTableTop: boolean
   toggleIsHideTableTop: (b: boolean) => void
-  fortressModels: FortressModelSet
-  setFortressModels: (set: FortressModelSet) => void
   isTopOutlinedInterlockHexes: boolean
   toggleIsTopOutlinedInterlockHexes: (b: boolean) => void
   isFrameloopDemand: boolean
@@ -1193,12 +1190,6 @@ const createUISlice: StateCreator<
     set(
       produce((s) => {
         s.isHideTableTop = b
-      }),
-    ),
-  setFortressModels: (modelSet: FortressModelSet) =>
-    set(
-      produce((s) => {
-        s.fortressModels = modelSet
       }),
     ),
   toggleIsTopOutlinedInterlockHexes: (b: boolean) =>

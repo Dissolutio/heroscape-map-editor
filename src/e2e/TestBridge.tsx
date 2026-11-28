@@ -632,18 +632,14 @@ function TestBridgeInner() {
           altitude: bp.altitude + 1,
         })
         if (bp.inventoryID === Pieces.battlement) {
-          // The Virtualscape battlement sits just inside the edge, not across
-          // it, so aim at the middle of its rendered mesh.
+          // The battlement sits just inside the edge, not across it, so aim at
+          // the middle of its rendered mesh.
           const vsBounds = new Box3()
           get().scene.updateMatrixWorld(true)
           get().scene.traverse((object) => {
             if (object.userData.fortressUID !== uid) return
             object.traverse((child) => {
-              if (
-                child instanceof Mesh &&
-                child.visible &&
-                child.name.startsWith('VsFortress')
-              ) {
+              if (child instanceof Mesh && child.visible) {
                 vsBounds.expandByObject(child, true)
               }
             })
@@ -652,12 +648,7 @@ function TestBridgeInner() {
             const center = vsBounds.getCenter(new Vector3())
             return project(center.x, center.y, center.z)
           }
-          const offset = getLadderBattlementOptions(bp.rotation)
-          return project(
-            anchor.x + offset.xAdd,
-            anchor.y - HEXGRID_HEX_HEIGHT + HEXGRID_HEXCAP_HEIGHT / 2,
-            anchor.z + offset.zAdd,
-          )
+          return null
         }
         if (bp.inventoryID === Pieces.roadWall) {
           const bounds = new Box3()
