@@ -1,5 +1,5 @@
 import { Pieces } from '../types'
-import { OBJECTIVE_MARKER_PEN_MODE } from '../data/objectiveMarkers'
+import { OBJECTIVE_MARKER_PEN_MODE } from '../data/objectiveMarkerConstants'
 import { getPortPieceRotations } from '../data/portPieces'
 
 export function getPossibleRotationsForPenMode(penMode: string) {

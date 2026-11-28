@@ -3,7 +3,7 @@ import type { CubeCoordinate } from '../types'
 import { genBoardHexID } from '../utils/map-utils'
 import getPieceTemplateCoords from './rotationTransforms'
 
-export const OBJECTIVE_MARKER_PEN_MODE = 'objectiveMarker'
+export { OBJECTIVE_MARKER_PEN_MODE } from './objectiveMarkerConstants'
 
 export type ObjectiveMarkerHotkey = '1' | '2' | 'm' | 'shift+m'
 
