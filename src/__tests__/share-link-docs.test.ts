@@ -31,7 +31,7 @@ describe('public share-link docs', () => {
     const enqueueSnackbar = vi.fn()
     const consoleWarning = vi
       .spyOn(console, 'warn')
-      .mockImplementation(() => {})
+      .mockImplementation(() => undefined)
 
     warnAboutLoadedMap(enqueueSnackbar, loaded)
 
