@@ -103,7 +103,7 @@ describe('public share-link contract', () => {
     const enqueueSnackbar = vi.fn()
     const consoleWarning = vi
       .spyOn(console, 'warn')
-      .mockImplementation(() => {})
+      .mockImplementation(() => undefined)
 
     expect(() => warnAboutLoadedMap(enqueueSnackbar, loaded)).not.toThrow()
     expect(loaded.droppedPieces).toMatchObject([
